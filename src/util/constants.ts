@@ -15,6 +15,10 @@ export enum SessionStorageKeys {
   LinkedShortNamesFilter = 'Linked_Short_Names_Filter'
 }
 
+export enum LDFlags {
+  EnableEFTRefundByCheque = 'enable-eft-refund-by-cheque'
+}
+
 export enum DateFilterCodes {
   TODAY = 'TODAY',
   YESTERDAY = 'YESTERDAY',

@@ -7,6 +7,7 @@ import App from './App.vue'
 import CommonUtils from '@/util/common-util'
 import ConfigHelper from '@/util/config-helper'
 import KeyCloakService from 'sbc-common-components/src/services/keycloak.services'
+import LaunchDarklyService from 'sbc-common-components/src/services/launchdarkly.services'
 import Vue from 'vue'
 import VueCompositionAPI from '@vue/composition-api'
 import VueSanitize from 'vue-sanitize-directive'
@@ -27,6 +28,9 @@ Vue.use(VueSanitize)
  * The server side configs are necessary for app to work , since they are reference in templates and all
  */
 ConfigHelper.saveConfigToSessionStorage().then(async () => {
+  // Initializing Launch Darkly services
+  await LaunchDarklyService.init(ConfigHelper.getLdClientId());
+
   // addressCompleteKey is for canada post address lookup, which is to be used in sbc-common-components
   (<any>window).addressCompleteKey = ConfigHelper.getAddressCompleteKey()
   await syncSession()

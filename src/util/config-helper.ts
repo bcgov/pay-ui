@@ -25,6 +25,10 @@ export default class ConfigHelper {
     return `${window.location.origin}${import.meta.env.VUE_APP_PATH}`.replace(/\/$/, '') // remove the slash at the end
   }
 
+  static getLdClientId () {
+    return `${import.meta.env.VUE_APP_PAY_LD_CLIENT_ID}`
+  }
+
   static getPayAPIURL () {
     const payApiUrl = `${import.meta.env.VUE_APP_PAY_API_URL}` + `${import.meta.env.VUE_APP_PAY_API_VERSION}`
     return sessionStorage.getItem(SessionStorageKeys.PayApiUrl) || payApiUrl
