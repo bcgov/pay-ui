@@ -140,7 +140,7 @@
 </template>
 
 <script lang="ts">
-import { EFTRefundType } from '@/util/constants'
+import { EFTRefundType, LDFlags } from '@/util/constants'
 import { Ref, defineComponent, reactive, ref, toRefs, watch } from '@vue/composition-api'
 import { BaseVDataTable } from '@/components/datatable'
 import CommonUtils from '@/util/common-util'
@@ -148,6 +148,7 @@ import { DEFAULT_DATA_OPTIONS } from '@/components/datatable/resources'
 import ModalDialog from '@/components/common/ModalDialog.vue'
 import PaymentService from '@/services/payment.services'
 import _ from 'lodash'
+import LaunchDarklyService from 'sbc-common-components/src/services/launchdarkly.services'
 
 export default defineComponent({
   name: 'ShortNameRefund',
@@ -296,12 +297,12 @@ export default defineComponent({
     }
 
     function initiateRefund () {
-      root.$router?.push({
-        name: 'shortnamerefund',
-        params: {
-          shortNameId: props.shortNameDetails.id
-        }
-      })
+      const enableRefundByCheque: boolean = LaunchDarklyService.getFlag(LDFlags.EnableEFTRefundByCheque, false)
+      const routeName = enableRefundByCheque ? 'shortnamerefundselection' : 'shortnamerefund'
+      const params = {
+        shortNameId: props.shortNameDetails.id
+      }
+      root.$router?.push({ name: routeName, params: params })
     }
 
     function disableApproveRefund (item) {

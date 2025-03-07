@@ -8,6 +8,7 @@ import SignoutView from '@/views/auth/SignoutView.vue'
 import ShortNameMappingView from '@/views/eft/ShortNameMappingView.vue'
 import Unauthorized from '@/views/Unauthorized.vue'
 import ViewRoutingSlip from '../views/ViewRoutingSlip.vue'
+import ShortNameRefundSelection from '@/components/eft/ShortNameRefundSelection.vue'
 import ShortNameDetailsView from '@/components/eft/ShortNameDetailsView.vue'
 import ShortNameRefundView from '@/components/eft/ShortNameRefundView.vue'
 
@@ -110,6 +111,19 @@ const routes: Array<RouteConfig> = [
     props: route => ({
       shortNameId: Number(route.params.shortNameId),
       eftRefundId: route.params.eftRefundId ? Number(route.params.eftRefundId) : undefined
+    })
+  },
+  {
+    path: '/eft/shortname-details/:shortNameId/refund-selection',
+    name: 'shortnamerefundselection',
+    component: ShortNameRefundSelection,
+    meta: {
+      requiresAuth: true,
+      allowedRoles: [Role.EftRefund],
+      showNavBar: true
+    },
+    props: route => ({
+      shortNameId: Number(route.params.shortNameId)
     })
   }
 ]

@@ -213,6 +213,11 @@ export enum EFTRefundType {
   ERRORED = 'ERRORED'
 }
 
+export enum EFTRefundSelectionType {
+  DIRECT_DEPOSIT = 'directdeposit',
+  CHEQUE = 'cheque'
+}
+
 export enum ShortNameResponseStatus {
   EFT_SHORT_NAME_ALREADY_MAPPED = 'EFT_SHORT_NAME_ALREADY_MAPPED'
 }
