@@ -104,7 +104,7 @@ export interface EFTRefund {
   updatedOn?: Date;
   chequeStatus?: string;
   refundMethod?: string;
-  entityName?: string;
+  name?: string;
   street?: string;
   streetAdditional?: string;
   city?: string;

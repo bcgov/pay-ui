@@ -1,4 +1,5 @@
 import { LinkedShortNameState, ShortNameSummaryState } from '@/models/short-name'
+import EftService from '@/services/eft.service'
 import PaymentService from '@/services/payment.services'
 
 /* Not using a global state here, state can be passed as a reactive object through to the factory. */
@@ -83,11 +84,22 @@ export function useShortNameTable (tableState: LinkedShortNameState | ShortNameS
     return false
   }
 
+  const updateEftRefundStatus = async (eftRefundId: number, status: any) => {
+    try {
+      const responseData = await EftService.updateEftRefundStatus(eftRefundId, { refund_status: status })
+      return responseData
+    } catch (error) {
+      console.error('Error updating refund status:', error)
+      return error?.response
+    }
+  }
+
   return {
     infiniteScrollCallback,
     handleFilters,
     loadTableData,
     loadTableSummaryData,
-    updateFilter
+    updateFilter,
+    updateEftRefundStatus
   }
 }

@@ -210,7 +210,7 @@
             <v-col class="col-6 col-sm-3 font-weight-bold">
               Refund Status
             </v-col>
-            <v-col class="pl-0 d-flex align-items-start">
+            <v-col class="pl-0 d-flex">
               <span>{{ getEFTRefundTypeDescription(refundDetails.status) }}</span>
               <v-menu
                 close-on-content-click
@@ -222,7 +222,7 @@
                     text
                     v-bind="attrs"
                     v-on="on"
-                    x-large
+                    small
                     class="hover-btn ml-4"
                     color="primary"
                     @click="expendStatus"
@@ -238,6 +238,7 @@
                   <v-list-item
                       v-for="status in ChequeRefundStatus"
                       :key="status.code"
+                      @click="updateChequeRefundStatus(status.code)"
                     >
                     <v-list-item-title>{{ status.text }}</v-list-item-title>
                   </v-list-item>
@@ -292,6 +293,7 @@ import { EftRefundRequest } from '@/models/refund'
 import PaymentService from '@/services/payment.services'
 import ShortNameUtils from '@/util/short-name-util'
 import { useOrgStore } from '@/store/org'
+import { useShortNameTable } from '@/composables/eft/short-name-table-factory'
 
 export default defineComponent({
   name: 'ShortNameRefundView',
@@ -305,7 +307,7 @@ export default defineComponent({
       default: undefined
     }
   },
-  setup (props, { root }) {
+  setup (props, { emit, root }) {
     const dateDisplayFormat = 'MMM DD, YYYY h:mm A [Pacific Time]'
     const state = reactive({
       shortNameDetails: {} as ShortNameDetails,
@@ -344,7 +346,7 @@ export default defineComponent({
       isSubmitted: false
     })
     const orgStore = useOrgStore()
-
+    const { updateEftRefundStatus } = useShortNameTable(state, emit)
     function isApproved () {
       return state.refundDetails?.status === EFTRefundType.APPROVED
     }
@@ -458,6 +460,18 @@ export default defineComponent({
       }
     })
 
+    async function updateChequeRefundStatus (status: string) {
+      try {
+        const response = await updateEftRefundStatus(state.refundDetails.id, status)
+        if (response?.data) {
+          await loadShortnameRefund()
+        }
+      } catch (error) {
+        console.error('Patch EFT short name refund failed', error)
+        throw error
+      }
+    }
+
     return {
       ...toRefs(state),
       isApproved,
@@ -475,7 +489,8 @@ export default defineComponent({
       formatCurrency: CommonUtils.formatAmount,
       formatDate: CommonUtils.formatUtcToPacificDate,
       dateDisplayFormat,
-      ChequeRefundStatus
+      ChequeRefundStatus,
+      updateChequeRefundStatus
     }
   }
 })
@@ -494,5 +509,9 @@ export default defineComponent({
 }
 .account-alert__info {
   flex: 1 1 auto;
+}
+.hover-btn {
+  height: fit-content;
+  font-size: 16px;
 }
 </style>
