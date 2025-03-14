@@ -83,7 +83,7 @@ export interface ShortNameDetails {
   creditsRemaining?: number;
   linkedAccountsCount: number;
   lastPaymentReceivedDate: Date;
-  refundStatus: string
+  refundStatus: string;
 }
 
 export interface EFTRefund {
@@ -102,4 +102,14 @@ export interface EFTRefund {
   updatedBy?: string;
   updatedName?: string;
   updatedOn?: Date;
+  chequeStatus?: string;
+  refundMethod?: string;
+  entityName?: string;
+  street?: string;
+  streetAdditional?: string;
+  city?: string;
+  region?: string;
+  postalCode?: string;
+  country?: string;
+  deliveryInstructions?: string;
 }

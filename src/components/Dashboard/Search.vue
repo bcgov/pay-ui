@@ -463,7 +463,7 @@ import TableObserver from '@/components/common/TableObserver.vue'
 import commonUtil from '@/util/common-util'
 import { useDashboard } from '@/composables/Dashboard'
 import can from '@/directives/can'
-import { PaymentMethods, RoutingSlipRefundCodes, RoutingSlipRefundStatus } from '@/util/constants'
+import { PaymentMethods, RoutingSlipRefundCodes, ChequeRefundStatus } from '@/util/constants'
 
 export default defineComponent({
   props: {
@@ -548,7 +548,7 @@ export default defineComponent({
       appendCurrencySymbol,
       formatDisplayDate,
       PaymentMethods,
-      RoutingSlipRefundStatus,
+      ChequeRefundStatus,
       getRefundStatusText,
       RoutingSlipRefundCodes
     }

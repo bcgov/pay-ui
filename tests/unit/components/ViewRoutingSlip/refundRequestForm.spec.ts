@@ -6,7 +6,7 @@ import Vuetify from 'vuetify'
 import initialize from '@/plugins/i18n'
 
 import { refundRequestDetails } from '../../test-data/mock-routing-slip'
-import { RoutingSlipRefundCodes, RoutingSlipRefundStatus } from '@/util/constants'
+import { RoutingSlipRefundCodes, ChequeRefundStatus } from '@/util/constants'
 import CommonUtils from '@/util/common-util'
 
 describe('RefundRequestForm.vue', () => {
@@ -38,11 +38,11 @@ describe('RefundRequestForm.vue', () => {
       },
       mocks: {
         RoutingSlipRefundCodes,
-        RoutingSlipRefundStatus
+        ChequeRefundStatus
       },
       provide: {
         RoutingSlipRefundCodes,
-        RoutingSlipRefundStatus
+        ChequeRefundStatus
       }
     })
     await wrapper.vm.$nextTick()

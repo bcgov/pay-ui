@@ -125,7 +125,7 @@ import { computed, defineComponent, reactive, toRefs } from '@vue/composition-ap
 import { useRefundRequestForm, useRoutingSlipInfo } from '@/composables/ViewRoutingSlip'
 import AddressForm from '@/components/common/AddressForm.vue'
 import { GetRoutingSlipRequestPayload, RefundRequestDetails } from '@/models/RoutingSlip'
-import { RoutingSlipRefundCodes, RoutingSlipRefundStatus, SlipStatus } from '@/util/constants'
+import { RoutingSlipRefundCodes, ChequeRefundStatus, SlipStatus } from '@/util/constants'
 import { useRoutingSlip } from '@/composables/useRoutingSlip'
 import { useSearch } from '@/composables/Dashboard/useSearch'
 
@@ -176,7 +176,7 @@ export default defineComponent({
     }
 
     const filteredStatuses = computed(() =>
-      RoutingSlipRefundStatus.filter(s => s.code !== state.currentRefundStatus && s.display)
+      ChequeRefundStatus.filter(s => s.code !== state.currentRefundStatus && s.display)
     )
 
     async function updateRefundStatus (status: string) {
@@ -197,7 +197,7 @@ export default defineComponent({
       filteredStatuses,
       expendStatus,
       updateRefundStatus,
-      RoutingSlipRefundStatus,
+      ChequeRefundStatus,
       RoutingSlipRefundCodes
     }
   }

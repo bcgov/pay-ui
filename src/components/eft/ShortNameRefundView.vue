@@ -18,6 +18,15 @@
             <v-col class="col-12 col-sm-12 ">
               <v-row>
                 <v-col class="col-6 col-sm-3 font-weight-bold">
+                  Refund Method
+                </v-col>
+                <v-col class="pl-0">
+                  {{ refundDetails.refundMethod }}
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col class="col-6 col-sm-3 font-weight-bold">
                   Short Name
                 </v-col>
                 <v-col class="pl-0">
@@ -113,7 +122,7 @@
 
               <v-row>
                 <v-col class="col-6 col-sm-3 font-weight-bold">
-                  Email
+                  Entity Email
                 </v-col>
                 <v-col
                   v-if="readOnly"
@@ -201,8 +210,39 @@
             <v-col class="col-6 col-sm-3 font-weight-bold">
               Refund Status
             </v-col>
-            <v-col class="pl-0">
-              {{ getEFTRefundTypeDescription(refundDetails.status) }}
+            <v-col class="pl-0 d-flex align-items-start">
+              <span>{{ getEFTRefundTypeDescription(refundDetails.status) }}</span>
+              <v-menu
+                close-on-content-click
+                offset-y
+                v-model="statusIsExpanded"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    text
+                    v-bind="attrs"
+                    v-on="on"
+                    x-large
+                    class="hover-btn ml-4"
+                    color="primary"
+                    @click="expendStatus"
+                    style="align-items: flex-start;"
+                  >
+                    Update Status
+                    <v-icon dense>{{ statusIsExpanded ? 'mdi-menu-up' : 'mdi-menu-down' }}</v-icon>
+                  </v-btn>
+                </template>
+                <v-list
+                class="status-list m-0 p-0"
+                >
+                  <v-list-item
+                      v-for="status in ChequeRefundStatus"
+                      :key="status.code"
+                    >
+                    <v-list-item-title>{{ status.text }}</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
             </v-col>
           </v-row>
         </v-card-text>
@@ -247,7 +287,7 @@
 import { EFTRefund, ShortNameDetails } from '@/models/short-name'
 import { computed, defineComponent, onMounted, reactive, ref, toRefs, watch } from '@vue/composition-api'
 import CommonUtils from '@/util/common-util'
-import { EFTRefundType } from '@/util/constants'
+import { EFTRefundType, ChequeRefundStatus } from '@/util/constants'
 import { EftRefundRequest } from '@/models/refund'
 import PaymentService from '@/services/payment.services'
 import ShortNameUtils from '@/util/short-name-util'
@@ -277,6 +317,7 @@ export default defineComponent({
       staffComment: '',
       isLoading: false,
       readOnly: false,
+      statusIsExpanded: false,
       refundAmountRules: [
         v => !!v || 'Refund Amount is required',
         v => parseFloat(v) > 0 || 'Refund Amount must be greater than zero',
@@ -306,6 +347,10 @@ export default defineComponent({
 
     function isApproved () {
       return state.refundDetails?.status === EFTRefundType.APPROVED
+    }
+
+    const expendStatus = () => {
+      state.statusIsExpanded = !state.statusIsExpanded
     }
 
     function isDeclined () {
@@ -423,12 +468,14 @@ export default defineComponent({
       submitRefundRequest,
       buttonText,
       buttonColor,
+      expendStatus,
       handleCancelButton,
       getShortNameTypeDescription: ShortNameUtils.getShortNameTypeDescription,
       getEFTRefundTypeDescription: ShortNameUtils.getEFTRefundTypeDescription,
       formatCurrency: CommonUtils.formatAmount,
       formatDate: CommonUtils.formatUtcToPacificDate,
-      dateDisplayFormat
+      dateDisplayFormat,
+      ChequeRefundStatus
     }
   }
 })

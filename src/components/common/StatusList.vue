@@ -15,7 +15,7 @@
 <script lang="ts">
 import { defineComponent } from '@vue/composition-api'
 import { useStatusList } from '@/composables/common'
-import { RoutingSlipRefundStatus } from '@/util/constants'
+import { ChequeRefundStatus } from '@/util/constants'
 
 /** component for status list.
  * example
@@ -37,7 +37,7 @@ export default defineComponent({
   setup (props, context) {
     const { routingSlipStatusList, currentStatus } = useStatusList(props, context)
 
-    const statusList = props.column === 'status' ? routingSlipStatusList : RoutingSlipRefundStatus.map(({ code }) => code)
+    const statusList = props.column === 'status' ? routingSlipStatusList : ChequeRefundStatus.map(({ code }) => code)
 
     return {
       routingSlipStatusList,

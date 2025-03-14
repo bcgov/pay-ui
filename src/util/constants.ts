@@ -331,7 +331,7 @@ export const headerSearchTitle =
   }
 ]
 
-export const RoutingSlipRefundStatus = [
+export const ChequeRefundStatus = [
   {
     code: 'PROCESSING',
     text: 'Processing',
@@ -349,7 +349,7 @@ export const RoutingSlipRefundStatus = [
   }
 ]
 
-export const RoutingSlipRefundCodes = RoutingSlipRefundStatus.reduce((acc, status) => {
+export const RoutingSlipRefundCodes = ChequeRefundStatus.reduce((acc, status) => {
   acc[status.code] = status.code
   return acc
 }, {} as { [key: string]: string })
