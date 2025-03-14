@@ -140,7 +140,7 @@
 </template>
 
 <script lang="ts">
-import { EFTRefundType, LDFlags } from '@/util/constants'
+import { EFTRefundStatus, LDFlags } from '@/util/constants'
 import { Ref, defineComponent, reactive, ref, toRefs, watch } from '@vue/composition-api'
 import { BaseVDataTable } from '@/components/datatable'
 import CommonUtils from '@/util/common-util'
@@ -229,7 +229,7 @@ export default defineComponent({
 
     async function approveRefund (item) {
       const shortNameRefund = {
-        status: EFTRefundType.APPROVED
+        status: EFTRefundStatus.APPROVED
       }
       try {
         await PaymentService.patchEFTRefund(item.id, shortNameRefund)
@@ -248,7 +248,7 @@ export default defineComponent({
 
     async function dialogDecline () {
       const shortNameRefund = {
-        status: EFTRefundType.DECLINED,
+        status: EFTRefundStatus.DECLINED,
         declineReason: state.declineReason
       }
       try {
@@ -270,7 +270,7 @@ export default defineComponent({
     async function loadTransactions (shortnameId: string): Promise<void> {
       try {
         state.loading = true
-        state.filters.statuses = [EFTRefundType.PENDING_APPROVAL]
+        state.filters.statuses = [EFTRefundStatus.PENDING_APPROVAL]
         state.filters.shortNameId = shortnameId
         const eftRefunds = await PaymentService.getEFTRefunds(state.filters)
         state.results = eftRefunds.data

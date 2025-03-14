@@ -56,7 +56,7 @@
           small
           label
           class="item-chip"
-          :color="currentRefundStatus === RoutingSlipRefundCodes.CHEQUE_UNDELIVERABLE ? 'error' : 'default'"
+          :color="currentRefundStatus === chequeRefundCodes.CHEQUE_UNDELIVERABLE ? 'error' : 'default'"
         >
           {{ currentRefundStatusLabel }}
         </v-chip>
@@ -64,7 +64,7 @@
           close-on-content-click
           offset-y
           v-model="isExpanded"
-          v-if="!canEdit && currentRefundStatusLabel && currentRefundStatusLabel !== RoutingSlipRefundCodes.PROCESSING"
+          v-if="!canEdit && currentRefundStatusLabel && currentRefundStatusLabel !== chequeRefundCodes.PROCESSING"
         >
           <template v-slot:activator="{ on, attrs }">
             <v-btn
@@ -125,7 +125,7 @@ import { computed, defineComponent, reactive, toRefs } from '@vue/composition-ap
 import { useRefundRequestForm, useRoutingSlipInfo } from '@/composables/ViewRoutingSlip'
 import AddressForm from '@/components/common/AddressForm.vue'
 import { GetRoutingSlipRequestPayload, RefundRequestDetails } from '@/models/RoutingSlip'
-import { RoutingSlipRefundCodes, ChequeRefundStatus, SlipStatus } from '@/util/constants'
+import { chequeRefundCodes, ChequeRefundStatus, SlipStatus } from '@/util/constants'
 import { useRoutingSlip } from '@/composables/useRoutingSlip'
 import { useSearch } from '@/composables/Dashboard/useSearch'
 
@@ -163,9 +163,9 @@ export default defineComponent({
 
     const currentRefundStatusLabel = computed(() => {
       const statusMap = {
-        [SlipStatus.REFUNDAUTHORIZED]: RoutingSlipRefundCodes.PROCESSING,
-        [SlipStatus.REFUNDREQUEST]: RoutingSlipRefundCodes.PROCESSING,
-        [SlipStatus.REFUNDUPLOADED]: RoutingSlipRefundCodes.PROCESSING,
+        [SlipStatus.REFUNDAUTHORIZED]: chequeRefundCodes.PROCESSING,
+        [SlipStatus.REFUNDREQUEST]: chequeRefundCodes.PROCESSING,
+        [SlipStatus.REFUNDUPLOADED]: chequeRefundCodes.PROCESSING,
         [SlipStatus.REFUNDPROCESSED]: searchState.getRefundStatusText(state.currentRefundStatus)
       }
       return statusMap[state.currentStatus] || null
@@ -198,7 +198,7 @@ export default defineComponent({
       expendStatus,
       updateRefundStatus,
       ChequeRefundStatus,
-      RoutingSlipRefundCodes
+      chequeRefundCodes
     }
   }
 

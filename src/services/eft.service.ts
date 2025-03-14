@@ -14,15 +14,4 @@ export default class EftService {
     const response = await PaymentService.getStatementsList(organizationId, filterParams)
     return response?.data
   }
-
-  public static async updateEftRefundStatus (
-    eftRefundId: number,
-    shortNameRefund: any
-  ): Promise<AxiosResponse> {
-    const response = await axios.patch(
-      `${ConfigHelper.getPayAPIURL()}/eft-shortnames/shortname-refund/${eftRefundId}`,
-      shortNameRefund
-    )
-    return response
-  }
 }

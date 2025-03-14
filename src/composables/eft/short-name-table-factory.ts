@@ -1,6 +1,7 @@
 import { LinkedShortNameState, ShortNameSummaryState } from '@/models/short-name'
 import EftService from '@/services/eft.service'
 import PaymentService from '@/services/payment.services'
+import { chequeRefundCodes, ShortNameRefundStatus } from '@/util/constants'
 
 /* Not using a global state here, state can be passed as a reactive object through to the factory. */
 export function useShortNameTable (tableState: LinkedShortNameState | ShortNameSummaryState, emit) {
@@ -84,9 +85,15 @@ export function useShortNameTable (tableState: LinkedShortNameState | ShortNameS
     return false
   }
 
-  const updateEftRefundStatus = async (eftRefundId: number, status: any) => {
+  const patchEFTRefund = async (eftRefundId: number, chequeStatus: any) => {
     try {
-      const responseData = await EftService.updateEftRefundStatus(eftRefundId, { refund_status: status })
+      let refundStatus
+      if (chequeStatus in chequeRefundCodes) {
+        refundStatus = ShortNameRefundStatus.APPROVED
+      } else {
+        refundStatus = ShortNameRefundStatus.PENDING_APPROVAL
+      }
+      const responseData = await PaymentService.patchEFTRefund(eftRefundId, { cheque_status: chequeStatus, status: refundStatus })
       return responseData
     } catch (error) {
       console.error('Error updating refund status:', error)
@@ -100,6 +107,6 @@ export function useShortNameTable (tableState: LinkedShortNameState | ShortNameS
     loadTableData,
     loadTableSummaryData,
     updateFilter,
-    updateEftRefundStatus
+    patchEFTRefund
   }
 }

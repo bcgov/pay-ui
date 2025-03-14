@@ -141,7 +141,7 @@ export enum SuspensionReason {
   SUSPENDED = 'SUSPENDED'
 }
 
-export enum EFTRefundTypeDescription {
+export enum EFTRefundStatusDescription {
   APPROVED = 'Approved',
   PENDING_APPROVAL = 'Requested',
   DECLINED = 'Declined',
@@ -165,7 +165,11 @@ export enum ShortNameLinkStatus {
 }
 
 export enum ShortNameRefundStatus {
-  PENDING_APPROVAL = 'PENDING_APPROVAL'
+  APPROVED = 'APPROVED',
+  PENDING_APPROVAL = 'PENDING_APPROVAL',
+  DECLINED = 'DECLINED',
+  COMPLETED = 'COMPLETED',
+  ERRORED = 'ERRORED'
 }
 
 export enum ShortNameRefundLabel {
@@ -205,7 +209,7 @@ export enum ShortNameReversePaymentErrors {
   EXCEEDS_SIXTY_DAYS = 'EFT_PAYMENT_ACTION_REVERSAL_EXCEEDS_SIXTY_DAYS'
 }
 
-export enum EFTRefundType {
+export enum EFTRefundStatus {
   APPROVED = 'APPROVED',
   PENDING_APPROVAL = 'PENDING_APPROVAL',
   DECLINED = 'DECLINED',
@@ -339,7 +343,7 @@ export const ChequeRefundStatus = [
   },
   {
     code: 'PROCESSED',
-    text: 'Processed',
+    text: 'Cheque Issued',
     display: true
   },
   {
@@ -349,7 +353,7 @@ export const ChequeRefundStatus = [
   }
 ]
 
-export const RoutingSlipRefundCodes = ChequeRefundStatus.reduce((acc, status) => {
+export const chequeRefundCodes = ChequeRefundStatus.reduce((acc, status) => {
   acc[status.code] = status.code
   return acc
 }, {} as { [key: string]: string })

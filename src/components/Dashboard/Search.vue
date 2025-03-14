@@ -294,7 +294,7 @@
                         </td>
                         <td v-if="canShowColumn('refundStatus')">
                           <span
-                            v-if="item.refundStatus !== RoutingSlipRefundCodes.CHEQUE_UNDELIVERABLE"
+                            v-if="item.refundStatus !== chequeRefundCodes.CHEQUE_UNDELIVERABLE"
                             data-test="label-refund-status"
                           >
                             {{ item.refundStatus ? getRefundStatusText(item.refundStatus) : '-' }}
@@ -463,7 +463,7 @@ import TableObserver from '@/components/common/TableObserver.vue'
 import commonUtil from '@/util/common-util'
 import { useDashboard } from '@/composables/Dashboard'
 import can from '@/directives/can'
-import { PaymentMethods, RoutingSlipRefundCodes, ChequeRefundStatus } from '@/util/constants'
+import { PaymentMethods, chequeRefundCodes, ChequeRefundStatus } from '@/util/constants'
 
 export default defineComponent({
   props: {
@@ -550,7 +550,7 @@ export default defineComponent({
       PaymentMethods,
       ChequeRefundStatus,
       getRefundStatusText,
-      RoutingSlipRefundCodes
+      chequeRefundCodes
     }
   },
   components: {

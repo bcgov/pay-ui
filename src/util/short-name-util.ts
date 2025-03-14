@@ -1,4 +1,5 @@
-import { EFTRefundTypeDescription, ShortNameType, ShortNameTypeDescription } from '@/util/constants'
+import { EFTRefund } from '@/models/short-name'
+import { ChequeRefundStatus, EFTRefundStatus, EFTRefundStatusDescription, ShortNameType, ShortNameTypeDescription } from '@/util/constants'
 
 /**
  * A class to put all the common short name utility methods.
@@ -14,7 +15,17 @@ export default class ShortNameUtils {
     return type ? ShortNameTypeDescription[type] : type
   }
 
-  static getEFTRefundTypeDescription (type: string) {
-    return type ? EFTRefundTypeDescription[type] : type
+  static getEFTRefundStatusDescription (refundDetails: EFTRefund) {
+    const { chequeStatus, status: refundStatus } = refundDetails
+
+    // For approved/completed statuses, show cheque status if available
+    if ([EFTRefundStatus.APPROVED, EFTRefundStatus.COMPLETED].includes(refundStatus as EFTRefundStatus) && chequeStatus) {
+      const status = ChequeRefundStatus.find(status => status.code === chequeStatus)
+      if (status) {
+        return status.text
+      }
+    }
+    // Default to showing the refund status description
+    return refundStatus ? EFTRefundStatusDescription[refundStatus] : refundStatus
   }
 }

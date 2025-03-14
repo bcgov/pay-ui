@@ -211,7 +211,16 @@
               Refund Status
             </v-col>
             <v-col class="pl-0 d-flex">
-              <span>{{ getEFTRefundTypeDescription(refundDetails.status) }}</span>
+              <v-chip
+                small
+                label
+                class="item-chip"
+                v-if="refundDetails.chequeStatus === chequeRefundCodes.CHEQUE_UNDELIVERABLE"
+                color='error'
+              >
+                {{ getEFTRefundStatusDescription(refundDetails) }}
+              </v-chip>
+              <span v-else>{{ getEFTRefundStatusDescription(refundDetails) }}</span>
               <v-menu
                 close-on-content-click
                 offset-y
@@ -236,7 +245,7 @@
                 class="status-list m-0 p-0"
                 >
                   <v-list-item
-                      v-for="status in ChequeRefundStatus"
+                      v-for="status in chequeStatusList"
                       :key="status.code"
                       @click="updateChequeRefundStatus(status.code)"
                     >
@@ -288,7 +297,7 @@
 import { EFTRefund, ShortNameDetails } from '@/models/short-name'
 import { computed, defineComponent, onMounted, reactive, ref, toRefs, watch } from '@vue/composition-api'
 import CommonUtils from '@/util/common-util'
-import { EFTRefundType, ChequeRefundStatus } from '@/util/constants'
+import { EFTRefundStatus, ChequeRefundStatus, chequeRefundCodes } from '@/util/constants'
 import { EftRefundRequest } from '@/models/refund'
 import PaymentService from '@/services/payment.services'
 import ShortNameUtils from '@/util/short-name-util'
@@ -346,9 +355,9 @@ export default defineComponent({
       isSubmitted: false
     })
     const orgStore = useOrgStore()
-    const { updateEftRefundStatus } = useShortNameTable(state, emit)
+    const { patchEFTRefund } = useShortNameTable(state, emit)
     function isApproved () {
-      return state.refundDetails?.status === EFTRefundType.APPROVED
+      return state.refundDetails?.status === EFTRefundStatus.APPROVED
     }
 
     const expendStatus = () => {
@@ -356,7 +365,7 @@ export default defineComponent({
     }
 
     function isDeclined () {
-      return state.refundDetails?.status === EFTRefundType.DECLINED
+      return state.refundDetails?.status === EFTRefundStatus.DECLINED
     }
 
     onMounted(async () => {
@@ -450,6 +459,10 @@ export default defineComponent({
       return state.isSubmitted || state.isLoading
     })
 
+    const chequeStatusList = computed(() =>
+      ChequeRefundStatus.filter(s => s.code !== state.refundDetails.chequeStatus && s.display)
+    )
+
     watch(() => state.isSubmitted, (newVal) => {
       if (newVal) {
         buttonText.value = 'Approved'
@@ -462,7 +475,7 @@ export default defineComponent({
 
     async function updateChequeRefundStatus (status: string) {
       try {
-        const response = await updateEftRefundStatus(state.refundDetails.id, status)
+        const response = await patchEFTRefund(state.refundDetails.id, status)
         if (response?.data) {
           await loadShortnameRefund()
         }
@@ -485,11 +498,12 @@ export default defineComponent({
       expendStatus,
       handleCancelButton,
       getShortNameTypeDescription: ShortNameUtils.getShortNameTypeDescription,
-      getEFTRefundTypeDescription: ShortNameUtils.getEFTRefundTypeDescription,
+      getEFTRefundStatusDescription: ShortNameUtils.getEFTRefundStatusDescription,
       formatCurrency: CommonUtils.formatAmount,
       formatDate: CommonUtils.formatUtcToPacificDate,
       dateDisplayFormat,
-      ChequeRefundStatus,
+      chequeStatusList,
+      chequeRefundCodes,
       updateChequeRefundStatus
     }
   }
@@ -512,6 +526,9 @@ export default defineComponent({
 }
 .hover-btn {
   height: fit-content;
-  font-size: 16px;
+  font-size: 16px !important;
+}
+.item-chip {
+  font-size: 16px !important;
 }
 </style>

@@ -6,7 +6,7 @@ import Vuetify from 'vuetify'
 import initialize from '@/plugins/i18n'
 
 import { refundRequestDetails } from '../../test-data/mock-routing-slip'
-import { RoutingSlipRefundCodes, ChequeRefundStatus } from '@/util/constants'
+import { chequeRefundCodes, ChequeRefundStatus } from '@/util/constants'
 import CommonUtils from '@/util/common-util'
 
 describe('RefundRequestForm.vue', () => {
@@ -37,11 +37,11 @@ describe('RefundRequestForm.vue', () => {
         inputRefundRequestDetails: refundRequestDetails
       },
       mocks: {
-        RoutingSlipRefundCodes,
+        chequeRefundCodes,
         ChequeRefundStatus
       },
       provide: {
-        RoutingSlipRefundCodes,
+        chequeRefundCodes,
         ChequeRefundStatus
       }
     })

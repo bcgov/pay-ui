@@ -6,7 +6,7 @@ import debounce from '@/util/debounce'
 import { useLoader } from '@/composables/common/useLoader'
 import { useStatusList } from '@/composables/common/useStatusList'
 import { useRoutingSlip } from '../useRoutingSlip'
-import { RoutingSlipRefundCodes, ChequeRefundStatus, SlipStatus } from '@/util/constants'
+import { chequeRefundCodes, ChequeRefundStatus, SlipStatus } from '@/util/constants'
 
 export function useSearch (props, context) {
   const {
@@ -278,12 +278,12 @@ export function useSearch (props, context) {
   }, 100) // Adjust the wait time as needed
 
   function getRefundStatusText (statusCode: string | undefined): string {
-    const refundStatus = ChequeRefundStatus.find(item => item.code === statusCode)?.text || RoutingSlipRefundCodes.PROCESSING
+    const refundStatus = ChequeRefundStatus.find(item => item.code === statusCode)?.text || chequeRefundCodes.PROCESSING
     return refundStatus
   }
 
   function getStatusFromRefundStatus (statusCode: string): SlipStatus {
-    if (statusCode === RoutingSlipRefundCodes.PROCESSING) {
+    if (statusCode === chequeRefundCodes.PROCESSING) {
       return SlipStatus.REFUNDREQUEST
     } else {
       return SlipStatus.REFUNDPROCESSED
