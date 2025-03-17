@@ -88,11 +88,26 @@ describe('ShortNamePaymentHistory.vue', () => {
           statementNumber: 5374449,
           transactionDate: '2024-07-31T00:00:00',
           transactionType: 'STATEMENT_PAID'
+        },
+        {
+          accountBranch: 'Sushi Division',
+          accountId: '3202',
+          accountName: 'Jia Xu',
+          amount: 100,
+          historicalId: 6,
+          isProcessing: false,
+          isReversible: false,
+          shortNameBalance: 318.5,
+          shortNameId: 2,
+          statementNumber: 5374450,
+          transactionDate: '2025-03-17T10:00:00',
+          transactionType: 'SN_REFUND_APPROVED',
+          eftRefundChequeStatus: 'CHEQUE_UNDELIVERABLE'
         }
       ],
       limit: 5,
       page: 1,
-      total: 3
+      total: 5
     }
 
     sandbox = sinon.createSandbox()

@@ -104,7 +104,7 @@
       </template>
       <template #item-slot-transactionDescription="{ item }">
         <span>{{ formatDescription(item) }}</span>
-        <span class="transaction-details">
+        <span class="transaction-details" :class="{ 'error-text': item.eftRefundChequeStatus === chequeRefundCodes.CHEQUE_UNDELIVERABLE }">
           {{ formatAdditionalDescription(item) }}
         </span>
       </template>
@@ -154,7 +154,9 @@
 <script lang="ts">
 import { Ref, defineComponent, nextTick, reactive, ref, toRefs, watch } from '@vue/composition-api'
 import {
+  chequeRefundCodes,
   ConfirmationType,
+  EFTRefundSelectionType,
   ShortNameHistoryType,
   ShortNameHistoryTypeDescription,
   ShortNamePaymentActions,
@@ -312,11 +314,16 @@ export default defineComponent({
         case ShortNameHistoryType.INVOICE_REFUND:
           return item.invoiceId
         case ShortNameHistoryType.SN_REFUND_PENDING_APPROVAL:
-          return 'Pending Approval'
+          return 'Refund Requested'
         case ShortNameHistoryType.SN_REFUND_APPROVED:
-          return 'Approved'
+          if (item.eftRefundChequeStatus === chequeRefundCodes.CHEQUE_UNDELIVERABLE) {
+            return chequeRefundCodes.CHEQUE_UNDELIVERABLE
+          } else if (item.eftRefundMethod === EFTRefundSelectionType.CHEQUE) {
+            return chequeRefundCodes.PROCESSED
+          }
+          return 'Request Approved'
         case ShortNameHistoryType.SN_REFUND_DECLINED:
-          return 'Declined'
+          return 'Refund Declined'
         default:
           return CommonUtils.formatAccountDisplayName(item) ? item.accountId && item.accountName : ''
       }
@@ -345,6 +352,16 @@ export default defineComponent({
 
     function formatDescription (item: any) {
       if (item.isProcessing) return `${ShortNameHistoryTypeDescription[item.transactionType]} (Processing)`
+
+      // For Short Name Refund types, use the refund method description
+      if ([ShortNameHistoryType.SN_REFUND_PENDING_APPROVAL,
+        ShortNameHistoryType.SN_REFUND_APPROVED,
+        ShortNameHistoryType.SN_REFUND_DECLINED].includes(item.transactionType)) {
+        return item.eftRefundMethod === EFTRefundSelectionType.CHEQUE
+          ? 'Refund by Cheque'
+          : 'Refund by EFT'
+      }
+
       return ShortNameHistoryTypeDescription[item.transactionType]
     }
 
@@ -450,7 +467,8 @@ export default defineComponent({
       infiniteScrollCallback,
       calculateTableHeight,
       viewRefundDetails,
-      isEftRefundApprover
+      isEftRefundApprover,
+      chequeRefundCodes
     }
   }
 })
@@ -489,6 +507,10 @@ export default defineComponent({
   display: block;
   width: 100%;
   font-weight: normal;
+}
+
+.error-text {
+  color: red !important;
 }
 
 .dialog-button-container {
