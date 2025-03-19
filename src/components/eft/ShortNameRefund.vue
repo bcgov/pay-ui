@@ -298,7 +298,7 @@ export default defineComponent({
 
     function initiateRefund () {
       const enableRefundByCheque: boolean = LaunchDarklyService.getFlag(LDFlags.EnableEFTRefundByCheque, false)
-      const routeName = enableRefundByCheque ? 'shortnamerefundselection' : 'shortnamerefund'
+      const routeName = enableRefundByCheque ? 'shortnamerefundselection' : 'shortnamerefunddirectdeposit'
       const params = {
         shortNameId: props.shortNameDetails.id
       }

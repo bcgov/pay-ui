@@ -217,9 +217,9 @@ export enum EFTRefundStatus {
   ERRORED = 'ERRORED'
 }
 
-export enum EFTRefundSelectionType {
-  DIRECT_DEPOSIT = 'directdeposit',
-  CHEQUE = 'cheque'
+export enum EFTRefundMethod {
+  EFT = 'EFT',
+  CHEQUE = 'CHEQUE'
 }
 
 export enum ShortNameResponseStatus {

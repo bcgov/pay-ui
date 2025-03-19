@@ -31,6 +31,8 @@ export function useBreadCrumb (_, context) {
       case 'shortnamedetails':
         return generateBreadcrumbForShortNameDetails(route)
       case 'shortnamerefund':
+      case 'shortnamerefunddirectdeposit':
+      case 'shortnamerefundcheque':
         return generateBreadcrumbForShortNameRefund(route)
       // We can add breadcrumbs for future components here
     }
@@ -137,9 +139,9 @@ export function useBreadCrumb (_, context) {
     const shortNameId = route.params.shortNameId
     return [
       {
-        text: 'FAS Dashboard',
+        text: 'Staff Dashboard',
         disabled: false,
-        to: appendQueryParamsIfNeeded('/home', route)
+        href: authWebUrl
       } as BreadcrumbItem,
       {
         text: 'EFT Received Payments',

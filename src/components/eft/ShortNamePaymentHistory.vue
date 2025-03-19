@@ -156,7 +156,7 @@ import { Ref, defineComponent, nextTick, reactive, ref, toRefs, watch } from '@v
 import {
   chequeRefundCodes,
   ConfirmationType,
-  EFTRefundSelectionType,
+  EFTRefundMethod,
   ShortNameHistoryType,
   ShortNameHistoryTypeDescription,
   ShortNamePaymentActions,
@@ -318,7 +318,7 @@ export default defineComponent({
         case ShortNameHistoryType.SN_REFUND_APPROVED:
           if (item.eftRefundChequeStatus === chequeRefundCodes.CHEQUE_UNDELIVERABLE) {
             return chequeRefundCodes.CHEQUE_UNDELIVERABLE
-          } else if (item.eftRefundMethod === EFTRefundSelectionType.CHEQUE) {
+          } else if (item.eftRefundMethod === EFTRefundMethod.CHEQUE) {
             return chequeRefundCodes.PROCESSED
           }
           return 'Request Approved'
@@ -357,7 +357,7 @@ export default defineComponent({
       if ([ShortNameHistoryType.SN_REFUND_PENDING_APPROVAL,
         ShortNameHistoryType.SN_REFUND_APPROVED,
         ShortNameHistoryType.SN_REFUND_DECLINED].includes(item.transactionType)) {
-        return item.eftRefundMethod === EFTRefundSelectionType.CHEQUE
+        return item.eftRefundMethod === EFTRefundMethod.CHEQUE
           ? 'Refund by Cheque'
           : 'Refund by EFT'
       }

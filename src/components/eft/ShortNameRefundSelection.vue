@@ -31,12 +31,12 @@
                 <v-radio
                   class="mb-8"
                   label="Direct Deposit (using CAS information)"
-                  :value="EFTRefundSelectionType.DIRECT_DEPOSIT"
+                  :value="EFTRefundMethod.EFT"
                   data-test="radio-eft-refund-direct-deposit"
                 ></v-radio>
                 <v-radio
                   label="Issue a cheque"
-                  :value="EFTRefundSelectionType.CHEQUE"
+                  :value="EFTRefundMethod.CHEQUE"
                   data-test="radio-eft-refund-cheque"
                 ></v-radio>
               </v-radio-group>
@@ -77,7 +77,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs } from '@vue/composition-api'
-import { EFTRefundSelectionType } from '@/util/constants'
+import { EFTRefundMethod } from '@/util/constants'
 
 export default defineComponent({
   name: 'ShortNameRefundSelection',
@@ -106,11 +106,13 @@ export default defineComponent({
     function gotoRefundForm () {
       state.formSubmitted = true
       if (state.isFormValid) {
-        const routeName = state.refundType === EFTRefundSelectionType.CHEQUE ? 'shortnamerefundcheque' : 'shortnamerefund'
         root.$router?.push({
-          name: routeName,
+          name: 'shortnamerefund',
           params: {
             shortNameId: props.shortNameId
+          },
+          query: {
+            refundMethod: state.refundType
           }
         })
       }
@@ -118,7 +120,7 @@ export default defineComponent({
 
     return {
       ...toRefs(state),
-      EFTRefundSelectionType,
+      EFTRefundMethod,
       cancelRefundSelection,
       gotoRefundForm
     }
