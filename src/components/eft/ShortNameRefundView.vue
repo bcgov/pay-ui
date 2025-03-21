@@ -481,7 +481,7 @@ export default defineComponent({
       state.statusIsExpanded = !state.statusIsExpanded
     }
 
-    function getEmailHint() {
+    function getEmailHint () {
       if (state.refundMethod === EFTRefundMethod.EFT) {
         return "The email provided in the client's Direct Deposit Application form"
       }
