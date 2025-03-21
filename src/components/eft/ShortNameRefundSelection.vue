@@ -77,7 +77,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs } from '@vue/composition-api'
-import { EFTRefundMethod } from '@/util/constants'
+import { EFTRefundMethod, RouteNames } from '@/util/constants'
 
 export default defineComponent({
   name: 'ShortNameRefundSelection',
@@ -96,7 +96,7 @@ export default defineComponent({
 
     function cancelRefundSelection () {
       root.$router?.push({
-        name: 'shortnamedetails',
+        name: RouteNames.SHORTNAME_DETAILS,
         params: {
           shortNameId: props.shortNameId
         }
@@ -107,7 +107,7 @@ export default defineComponent({
       state.formSubmitted = true
       if (state.isFormValid) {
         root.$router?.push({
-          name: 'shortnamerefund',
+          name: RouteNames.SHORTNAME_REFUND,
           params: {
             shortNameId: props.shortNameId
           },

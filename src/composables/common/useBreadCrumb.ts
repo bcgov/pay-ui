@@ -2,6 +2,8 @@ import { BreadcrumbItem } from '@/models/BreadcrumbItem'
 import CommonUtils from '@/util/common-util'
 import ConfigHelper from '@/util/config-helper'
 import { computed } from '@vue/composition-api'
+import Routes from '@/router/routes'
+import { RouteNames } from '@/util/constants'
 
 /*
 Composable function for BreadCrumb component that is displayed at top of the screen.
@@ -20,19 +22,17 @@ export function useBreadCrumb (_, context) {
 
   function generateBreadcrumbItems (route: any): BreadcrumbItem[] {
     switch (route.name) {
-      case 'home':
+      case RouteNames.HOME:
         return generateBreadcrumbForHome(route)
-      case 'view-routing-slip':
+      case RouteNames.VIEW_ROUTING_SLIP:
         return generateBreadcrumbForViewRoutingSlip(route)
-      case 'view-routing-slip-child':
+      case RouteNames.VIEW_ROUTING_SLIP_CHILD:
         return generateBreadcrumbForViewChildRoutingSlip(route)
-      case 'manage-shortnames':
+      case RouteNames.MANAGE_SHORTNAMES:
         return generateBreadcrumbForManageShortNames(route)
-      case 'shortnamedetails':
+      case RouteNames.SHORTNAME_DETAILS:
         return generateBreadcrumbForShortNameDetails(route)
-      case 'shortnamerefund':
-      case 'shortnamerefunddirectdeposit':
-      case 'shortnamerefundcheque':
+      case RouteNames.SHORTNAME_REFUND:
         return generateBreadcrumbForShortNameRefund(route)
       // We can add breadcrumbs for future components here
     }

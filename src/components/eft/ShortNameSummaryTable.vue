@@ -163,6 +163,7 @@
 import { BaseVDataTable, DatePicker } from '@/components/datatable'
 import { Ref, defineComponent, onMounted, reactive, ref, toRefs, watch } from '@vue/composition-api'
 import {
+  RouteNames,
   SessionStorageKeys,
   ShortNameRefundLabel,
   ShortNameRefundStatus
@@ -349,7 +350,7 @@ export default defineComponent({
 
     function viewDetails (index) {
       root.$router?.push({
-        name: 'shortnamedetails',
+        name: RouteNames.SHORTNAME_DETAILS,
         params: {
           shortNameId: state.results[index].id.toString()
         }

@@ -19,6 +19,21 @@ export enum LDFlags {
   EnableEFTRefundByCheque = 'enable-eft-refund-by-cheque'
 }
 
+export enum RouteNames {
+  HOME = 'home',
+  CREATE_ROUTING_SLIP = 'create-routing-slip',
+  VIEW_ROUTING_SLIP = 'view-routing-slip',
+  VIEW_ROUTING_SLIP_CHILD = 'view-routing-slip-child',
+  SIGN_IN = 'signin',
+  SIGN_OUT = 'signout',
+  NOT_FOUND = 'notfound',
+  UNAUTHORIZED = 'unauthorized',
+  MANAGE_SHORTNAMES = 'manage-shortnames',
+  SHORTNAME_DETAILS = 'shortnamedetails',
+  SHORTNAME_REFUND = 'shortnamerefund',
+  SHORTNAME_REFUND_SELECTION= 'shortnamerefundselection'
+}
+
 export enum DateFilterCodes {
   TODAY = 'TODAY',
   YESTERDAY = 'YESTERDAY',

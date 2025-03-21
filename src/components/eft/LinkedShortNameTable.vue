@@ -82,7 +82,7 @@
 <script lang="ts">
 import {
   AccountStatus,
-  CfsAccountStatus,
+  CfsAccountStatus, RouteNames,
   SessionStorageKeys,
   ShortNameStatus,
   SuspensionReason
@@ -250,7 +250,7 @@ export default defineComponent({
 
     function viewDetails (index) {
       root.$router?.push({
-        name: 'shortnamedetails',
+        name: RouteNames.SHORTNAME_DETAILS,
         params: {
           shortNameId: state.results[index].id?.toString()
         }

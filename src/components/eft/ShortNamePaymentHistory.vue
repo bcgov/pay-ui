@@ -156,7 +156,7 @@ import { Ref, defineComponent, nextTick, reactive, ref, toRefs, watch } from '@v
 import {
   chequeRefundCodes, ChequeRefundStatus,
   ConfirmationType,
-  EFTRefundMethod,
+  EFTRefundMethod, RouteNames,
   ShortNameHistoryType,
   ShortNameHistoryTypeDescription,
   ShortNamePaymentActions,
@@ -366,7 +366,7 @@ export default defineComponent({
     function viewRefundDetails (id: string) {
       if (!id) return
       root.$router?.push({
-        name: 'shortnamerefund',
+        name: RouteNames.SHORTNAME_REFUND,
         params: {
           eftRefundId: id
         }

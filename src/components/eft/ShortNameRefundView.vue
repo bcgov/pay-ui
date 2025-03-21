@@ -375,7 +375,7 @@ import {
   EFTRefundStatus,
   ChequeRefundStatus,
   chequeRefundCodes,
-  EFTRefundMethodDescription
+  EFTRefundMethodDescription, RouteNames
 } from '@/util/constants'
 import CommonUtils from '@/util/common-util'
 import { EftRefundRequest } from '@/models/refund'
@@ -539,7 +539,7 @@ export default defineComponent({
 
     function handleCancelButton () {
       root.$router?.push({
-        name: 'shortnamedetails'
+        name: RouteNames.SHORTNAME_DETAILS
       })
     }
 

@@ -143,7 +143,7 @@
 </template>
 
 <script lang="ts">
-import { EFTRefundMethodDescription, EFTRefundStatus, LDFlags } from '@/util/constants'
+import { EFTRefundMethodDescription, EFTRefundStatus, LDFlags, RouteNames } from '@/util/constants'
 import { Ref, defineComponent, reactive, ref, toRefs, watch } from '@vue/composition-api'
 import { BaseVDataTable } from '@/components/datatable'
 import CommonUtils from '@/util/common-util'
@@ -286,7 +286,7 @@ export default defineComponent({
     function viewRefundDetails (id: string) {
       if (!id) return
       root.$router?.push({
-        name: 'shortnamerefund',
+        name: RouteNames.SHORTNAME_REFUND,
         params: {
           eftRefundId: id
         }
@@ -295,7 +295,7 @@ export default defineComponent({
 
     function initiateRefund () {
       const enableRefundByCheque: boolean = LaunchDarklyService.getFlag(LDFlags.EnableEFTRefundByCheque, false)
-      const routeName = enableRefundByCheque ? 'shortnamerefundselection' : 'shortnamerefunddirectdeposit'
+      const routeName = enableRefundByCheque ? RouteNames.SHORTNAME_REFUND_SELECTION : RouteNames.SHORTNAME_REFUND
       const params = {
         shortNameId: props.shortNameDetails.id
       }

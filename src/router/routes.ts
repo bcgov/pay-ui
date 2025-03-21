@@ -1,7 +1,7 @@
 import CreateRoutingSlipView from '../views/CreateRoutingSlipView.vue'
 import Dashboard from '../views/Dashboard.vue'
 import PageNotFound from '../views/PageNotFound.vue'
-import { EFTRefundMethod, Role } from '@/util/constants'
+import { EFTRefundMethod, Role, RouteNames } from '@/util/constants'
 import { RouteConfig } from 'vue-router'
 import SigninView from '@/views/auth/SigninView.vue'
 import SignoutView from '@/views/auth/SignoutView.vue'
@@ -16,7 +16,7 @@ const routes: Array<RouteConfig> = [
   { path: '/', name: 'root', redirect: 'home' },
   {
     path: '/home',
-    name: 'home',
+    name: RouteNames.HOME,
     component: Dashboard,
     meta: {
       requiresAuth: true,
@@ -25,7 +25,7 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: '/create-routing-slip',
-    name: 'create-routing-slip',
+    name: RouteNames.CREATE_ROUTING_SLIP,
     component: CreateRoutingSlipView,
     meta: {
       requiresAuth: true,
@@ -34,7 +34,7 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: '/view-routing-slip/:slipId?',
-    name: 'view-routing-slip',
+    name: RouteNames.VIEW_ROUTING_SLIP,
     component: ViewRoutingSlip,
     props: true,
     meta: {
@@ -44,7 +44,7 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: '/view-routing-slip/:parentSlipId/:slipId?',
-    name: 'view-routing-slip-child',
+    name: RouteNames.VIEW_ROUTING_SLIP_CHILD,
     component: ViewRoutingSlip,
     props: true,
     meta: {
@@ -55,7 +55,7 @@ const routes: Array<RouteConfig> = [
   {
     // router.beforeEach() routes here:
     path: '/signin/:idpHint',
-    name: 'signin',
+    name: RouteNames.SIGN_IN,
     component: SigninView,
     meta: {
       requiresAuth: false
@@ -64,22 +64,22 @@ const routes: Array<RouteConfig> = [
   {
     // SbcHeader.logout() redirects here:
     path: '/signout',
-    name: 'signout',
+    name: RouteNames.SIGN_OUT,
     component: SignoutView,
     meta: {
       requiresAuth: false
     }
   },
-  { path: '*', name: 'notfound', component: PageNotFound },
+  { path: '*', name: RouteNames.NOT_FOUND, component: PageNotFound },
   {
     path: '/unauthorized',
-    name: 'unauthorized',
+    name: RouteNames.UNAUTHORIZED,
     component: Unauthorized,
     meta: { requiresAuth: false }
   },
   {
     path: '/eft',
-    name: 'manage-shortnames',
+    name: RouteNames.MANAGE_SHORTNAMES,
     component: ShortNameMappingView,
     meta: {
       requiresAuth: true,
@@ -90,7 +90,7 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: '/eft/shortname-details/:shortNameId',
-    name: 'shortnamedetails',
+    name: RouteNames.SHORTNAME_DETAILS,
     component: ShortNameDetailsView,
     meta: {
       requiresAuth: true,
@@ -101,7 +101,7 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: '/eft/shortname-details/:shortNameId/refund/:eftRefundId?',
-    name: 'shortnamerefund',
+    name: RouteNames.SHORTNAME_REFUND,
     component: ShortNameRefundView,
     meta: {
       requiresAuth: true,
@@ -116,7 +116,7 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: '/eft/shortname-details/:shortNameId/refund-selection',
-    name: 'shortnamerefundselection',
+    name: RouteNames.SHORTNAME_REFUND_SELECTION,
     component: ShortNameRefundSelection,
     meta: {
       requiresAuth: true,

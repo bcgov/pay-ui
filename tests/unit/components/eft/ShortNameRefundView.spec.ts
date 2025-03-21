@@ -5,7 +5,7 @@ import VueRouter from 'vue-router'
 import Vuetify from 'vuetify'
 import { axios } from '@/util/http-util'
 import sinon from 'sinon'
-import { chequeRefundCodes, ChequeRefundStatus, EFTRefundMethod, EFTRefundStatus } from '@/util/constants'
+import { chequeRefundCodes, ChequeRefundStatus, EFTRefundMethod, EFTRefundStatus, RouteNames } from '@/util/constants'
 import { nextTick } from '@vue/composition-api'
 
 Vue.use(Vuetify)
@@ -183,7 +183,7 @@ describe('ShortNameRefundView.vue', () => {
 
     await wrapper.find('[data-test="btn-edit-cancel"]').trigger('click')
 
-    expect(push.calledWith({ name: 'shortnamedetails' })).toBe(true)
+    expect(push.calledWith({ name: RouteNames.SHORTNAME_DETAILS })).toBe(true)
     push.restore()
   })
 })
