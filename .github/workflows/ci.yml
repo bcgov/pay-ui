@@ -16,9 +16,10 @@ defaults:
 
 jobs:
   pay-ui-ci:
-    uses: bcgov/bcregistry-sre/.github/workflows/frontend-ci.yaml@main
+    uses: seeker25/bcregistry-sre/.github/workflows/frontend-ci.yaml@main
     with:
       node_version: "20.5.1"
       app_name: "pay-ui"
       working_directory: "."
       codecov_flag: "payweb"
+      skip_codecov: true
