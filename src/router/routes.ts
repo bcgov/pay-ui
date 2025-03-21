@@ -114,34 +114,6 @@ const routes: Array<RouteConfig> = [
       eftRefundId: route.params.eftRefundId ? Number(route.params.eftRefundId) : undefined
     })
   },
-  // {
-  //   path: '/eft/shortname-details/:shortNameId/supplier-refund/:eftRefundId?',
-  //   name: 'shortnamerefunddirectdeposit',
-  //   component: ShortNameRefundView,
-  //   meta: {
-  //     requiresAuth: true,
-  //     allowedRoles: [Role.EftRefund],
-  //     showNavBar: true
-  //   },
-  //   props: route => ({
-  //     refundType: EFTRefundSelectionType.DIRECT_DEPOSIT,
-  //     shortNameId: Number(route.params.shortNameId)
-  //   })
-  // },
-  // {
-  //   path: '/eft/shortname-details/:shortNameId/cheque-refund/:eftRefundId?',
-  //   name: 'shortnamerefundcheque',
-  //   component: ShortNameRefundView,
-  //   meta: {
-  //     requiresAuth: true,
-  //     allowedRoles: [Role.EftRefund],
-  //     showNavBar: true
-  //   },
-  //   props: route => ({
-  //     refundType: EFTRefundSelectionType.CHEQUE,
-  //     shortNameId: Number(route.params.shortNameId)
-  //   })
-  // },
   {
     path: '/eft/shortname-details/:shortNameId/refund-selection',
     name: 'shortnamerefundselection',
