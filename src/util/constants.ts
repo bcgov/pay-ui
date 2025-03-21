@@ -222,6 +222,11 @@ export enum EFTRefundMethod {
   CHEQUE = 'CHEQUE'
 }
 
+export enum EFTRefundMethodDescription {
+  EFT = 'Direct Deposit',
+  CHEQUE = 'Cheque'
+}
+
 export enum ShortNameResponseStatus {
   EFT_SHORT_NAME_ALREADY_MAPPED = 'EFT_SHORT_NAME_ALREADY_MAPPED'
 }

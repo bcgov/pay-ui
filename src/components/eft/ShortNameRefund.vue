@@ -43,6 +43,9 @@
         :pageHide="true"
         :hideFilters="true"
       >
+        <template #item-slot-refundMethod="{ item }">
+          <span>{{ EFTRefundMethodDescription[item.refundMethod] }}</span>
+        </template>
         <template #item-slot-refundAmount="{ item }">
           <span>{{ formatCurrency(Number(item.refundAmount)) }}</span>
           <span
@@ -140,7 +143,7 @@
 </template>
 
 <script lang="ts">
-import { EFTRefundStatus, LDFlags } from '@/util/constants'
+import { EFTRefundMethodDescription, EFTRefundStatus, LDFlags } from '@/util/constants'
 import { Ref, defineComponent, reactive, ref, toRefs, watch } from '@vue/composition-api'
 import { BaseVDataTable } from '@/components/datatable'
 import CommonUtils from '@/util/common-util'
@@ -192,38 +195,32 @@ export default defineComponent({
       {
         col: 'createdName',
         hasFilter: false,
-        width: '290px',
+        width: '260px',
         value: 'Initiated By'
       },
       {
         col: 'comment',
         hasFilter: false,
         width: '300px',
-        value: 'Comment'
+        value: 'Reason for Refund'
       },
       {
-        col: 'casSupplierNumber',
+        col: 'refundMethod',
         hasFilter: false,
-        width: '240px',
-        value: 'CAS Supplier Number'
-      },
-      {
-        col: 'casSupplierSite',
-        hasFilter: false,
-        width: '240px',
-        value: 'CAS Supplier Site'
+        width: '200px',
+        value: 'Refund Method'
       },
       {
         col: 'refundAmount',
         hasFilter: false,
-        width: '240px',
+        width: '220px',
         value: 'Refund Amount'
       },
       {
         col: 'actions',
         hasFilter: false,
         value: 'Actions',
-        width: '340px'
+        width: '300px'
       }
     ]
 
@@ -323,7 +320,8 @@ export default defineComponent({
       isEftRefundApprover,
       viewRefundDetails,
       formatCurrency: CommonUtils.formatAmount,
-      formatAccountDisplayName: CommonUtils.formatAccountDisplayName
+      formatAccountDisplayName: CommonUtils.formatAccountDisplayName,
+      EFTRefundMethodDescription
     }
   }
 })

@@ -22,7 +22,7 @@
                   Refund Method
                 </v-col>
                 <v-col class="pl-0">
-                  {{ refundDetails.refundMethod }}
+                  {{ EFTRefundMethodDescription[refundDetails.refundMethod || refundMethod]}}
                 </v-col>
               </v-row>
 
@@ -62,6 +62,7 @@
                 </v-col>
                 <v-col
                   v-if="readOnly"
+                  data-test="refundAmountReadOnly"
                   class="pl-0"
                 >
                   {{ formatCurrency(Number(refundDetails.refundAmount)) }}
@@ -78,20 +79,47 @@
                 />
               </v-row>
 
+              <!-- Supplier Number -->
+              <v-row
+                v-if="refundMethod == EFTRefundMethod.CHEQUE">
+                <v-col class="col-6 col-sm-3 font-weight-bold">
+                  Entity Name
+                </v-col>
+                <v-col
+                  v-if="readOnly"
+                  data-test="entityNameReadOnly"
+                  class="pl-0"
+                >
+                  {{ refundDetails.entityName }}
+                </v-col>
+                <v-text-field
+                  v-else
+                  v-model.trim="entityName"
+                  hint="Name of the individual or organization receiving the cheque"
+                  filled
+                  label="Entity Name"
+                  persistent-hint
+                  data-test="entityName"
+                  :rules="entityNameRules"
+                  :disabled="isFormDisabled"
+                />
+              </v-row>
+
               <!-- Address Form -->
               <v-row
               v-if="refundMethod == EFTRefundMethod.CHEQUE">
                 <v-col class="col-6 col-sm-3 font-weight-bold">
                   Entity Address
                 </v-col>
-                <v-col>
+                <v-col class="px-0 mx-0">
                   <AddressForm
                     ref="addressForm"
-                    :editing="true"
+                    :editing="!readOnly"
                     :schema="baseAddressSchema"
                     :address="address"
                     @update:address="updateAddress"
                     @valid="addressValidity"
+                    data-test="entityAddress"
                   >
                   </AddressForm>
                 </v-col>
@@ -105,13 +133,14 @@
                 </v-col>
                 <v-col
                   v-if="readOnly"
+                  data-test="casSupplierNumberReadOnly"
                   class="pl-0"
                 >
                   {{ refundDetails.casSupplierNumber }}
                 </v-col>
                 <v-text-field
                   v-else
-                  v-model.trim="casSupplierNum"
+                  v-model.trim="casSupplierNumber"
                   hint="This number should be created in CAS before issuing a refund"
                   filled
                   label="CAS Supplier Number"
@@ -130,6 +159,7 @@
                 </v-col>
                 <v-col
                   v-if="readOnly"
+                  data-test="casSupplierSiteReadOnly"
                   class="pl-0"
                 >
                   {{ refundDetails.casSupplierSite }}
@@ -154,6 +184,7 @@
                 </v-col>
                 <v-col
                   v-if="readOnly"
+                  data-test="emailReadOnly"
                   class="pl-0"
                 >
                   {{ refundDetails.refundEmail }}
@@ -172,12 +203,13 @@
               </v-row>
 
               <!-- Refund Reason -->
-              <v-row v-if="!readOnly">
+              <v-row>
                 <v-col class="col-6 col-sm-3 font-weight-bold">
                   Reason for Refund
                 </v-col>
                 <v-col
                   v-if="readOnly"
+                  data-test="staffCommentReadOnly"
                   class="pl-0"
                 >
                   {{ refundDetails.comment }}
@@ -198,7 +230,9 @@
 
           <!-- Qualified Receiver -->
           <v-row v-if="readOnly">
-            <v-col class="col-6 col-sm-3 font-weight-bold">
+            <v-col
+              data-test="qualifiedReceiverReadOnly"
+              class="col-6 col-sm-3 font-weight-bold">
               Requested By Qualified Receiver
             </v-col>
             <v-col class="pl-0">
@@ -206,19 +240,11 @@
             </v-col>
           </v-row>
 
-          <!-- Qualified Receiver Comment -->
-          <v-row v-if="readOnly">
-            <v-col class="col-6 col-sm-3 font-weight-bold">
-              Qualified Receiver Comment
-            </v-col>
-            <v-col class="pl-0">
-              {{ refundDetails.comment }}
-            </v-col>
-          </v-row>
-
           <!-- Approved By Expense Authority -->
           <v-row v-if="readOnly && isApproved()">
-            <v-col class="col-6 col-sm-3 font-weight-bold">
+            <v-col
+              data-test="expenseAuthorityApprovalReadOnly"
+              class="col-6 col-sm-3 font-weight-bold">
               Approved By Expense Authority
             </v-col>
             <v-col class="pl-0">
@@ -228,7 +254,9 @@
 
           <!-- Declined by Expense Authority -->
           <v-row v-if="readOnly && isDeclined()">
-            <v-col class="col-6 col-sm-3 font-weight-bold">
+            <v-col
+              data-test="expenseAuthorityDeclinedReadOnly"
+              class="col-6 col-sm-3 font-weight-bold">
               Declined By Expense Authority
             </v-col>
             <v-col class="pl-0">
@@ -241,7 +269,9 @@
             <v-col class="col-6 col-sm-3 font-weight-bold">
               Reason for Declining
             </v-col>
-            <v-col class="pl-0">
+            <v-col
+              data-test="expenseAuthorityDeclineReasonReadOnly"
+              class="pl-0">
               {{ refundDetails.declineReason }}
             </v-col>
           </v-row>
@@ -256,16 +286,19 @@
                 small
                 label
                 class="item-chip"
+                data-test="chequeStatusChipReadOnly"
                 v-if="refundDetails.chequeStatus === chequeRefundCodes.CHEQUE_UNDELIVERABLE"
                 color='error'
               >
-                {{ getEFTRefundStatusDescription(refundDetails) }}
+                {{ getEFTRefundStatusDescription(refundDetails)?.toUpperCase() }}
               </v-chip>
               <span v-else>{{ getEFTRefundStatusDescription(refundDetails) }}</span>
               <v-menu
+                data-test="updateChequeStatusMenu"
                 close-on-content-click
                 offset-y
                 v-model="statusIsExpanded"
+                v-if="canUpdateChequeStatus()"
               >
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
@@ -337,16 +370,21 @@
 <script lang="ts">
 import { EFTRefund, ShortNameDetails } from '@/models/short-name'
 import { computed, defineComponent, onMounted, reactive, ref, toRefs, watch } from '@vue/composition-api'
+import {
+  EFTRefundMethod,
+  EFTRefundStatus,
+  ChequeRefundStatus,
+  chequeRefundCodes,
+  EFTRefundMethodDescription
+} from '@/util/constants'
 import CommonUtils from '@/util/common-util'
-import { EFTRefundStatus, ChequeRefundStatus, chequeRefundCodes } from '@/util/constants'
-import { EFTRefundMethod } from '@/util/constants'
 import { EftRefundRequest } from '@/models/refund'
 import PaymentService from '@/services/payment.services'
 import ShortNameUtils from '@/util/short-name-util'
 import { useOrgStore } from '@/store/org'
 import { useShortNameTable } from '@/composables/eft/short-name-table-factory'
 import AddressForm from '@/components/common/AddressForm.vue'
-import { addressSchema } from '@/schema'
+import { useEFTRefundAddress } from '@/composables/eft/useEFTRefundAddress'
 import { Address } from '@/models/Address'
 
 export default defineComponent({
@@ -367,15 +405,17 @@ export default defineComponent({
     }
   },
   setup (props, { emit, root }) {
-    const baseAddressSchema = ref<any>(addressSchema)
-    const address = ref<Address>({})
     const dateDisplayFormat = 'MMM DD, YYYY h:mm A [Pacific Time]'
+    const eftRefundAddressState = useEFTRefundAddress()
     const state = reactive({
+      ...eftRefundAddressState,
+      entityName: undefined as string,
       shortNameDetails: {} as ShortNameDetails,
       refundDetails: {} as EFTRefund,
       refundAmount: undefined,
-      refundMethod: undefined,
-      casSupplierNum: '',
+      refundMethod: undefined as string,
+      refundAddress: {},
+      casSupplierNumber: '',
       casSupplierSite: '',
       email: '',
       staffComment: '',
@@ -401,6 +441,9 @@ export default defineComponent({
           return pattern.test(v) || 'Valid email is required'
         }
       ],
+      entityNameRules: [
+        v => !!v || 'A Name of an Individual or Organization is required'
+      ],
       staffCommentRules: [
         v => !!v || 'Reason for Refund is required',
         v => (v.length < 500) || 'Cannot exceed 500 characters'
@@ -408,7 +451,7 @@ export default defineComponent({
       isSubmitted: false
     })
     const orgStore = useOrgStore()
-    const { patchEFTRefund } = useShortNameTable(state, emit)
+    const { updateEFTRefundChequeStatus } = useShortNameTable(state, emit)
     function isApproved () {
       return state.refundDetails?.status === EFTRefundStatus.APPROVED
     }
@@ -419,6 +462,14 @@ export default defineComponent({
 
     function isDeclined () {
       return state.refundDetails?.status === EFTRefundStatus.DECLINED
+    }
+
+    function canUpdateChequeStatus () {
+      return state.refundDetails.refundMethod === EFTRefundMethod.CHEQUE && state.refundDetails.status === EFTRefundStatus.APPROVED
+    }
+
+    const updateAddress = (address: Address) => {
+      state.refundAddress = address
     }
 
     onMounted(async () => {
@@ -434,8 +485,10 @@ export default defineComponent({
 
     function prepopulateRefund () {
       state.email = state.shortNameDetails.email
-      state.casSupplierNum = state.shortNameDetails.casSupplierNumber
-      state.casSupplierSite = state.shortNameDetails.casSupplierSite
+      if (state.refundMethod === EFTRefundMethod.EFT) {
+        state.casSupplierNumber = state.shortNameDetails.casSupplierNumber
+        state.casSupplierSite = state.shortNameDetails.casSupplierSite
+      }
     }
 
     async function loadShortnameDetails (): Promise<void> {
@@ -456,8 +509,20 @@ export default defineComponent({
       try {
         const response = await PaymentService.getEFTRefund(props.eftRefundId)
         if (response?.data) {
-          state.refundDetails = response.data
+          const refundDetails = response.data
+          state.refundDetails = refundDetails
           state.refundMethod = state.refundDetails.refundMethod
+          if (state.refundMethod === EFTRefundMethod.CHEQUE) {
+            state.address = {
+              city: refundDetails.city,
+              country: refundDetails.country,
+              region: refundDetails.region,
+              deliveryInstructions: refundDetails.deliveryInstructions,
+              postalCode: refundDetails.postalCode,
+              street: refundDetails.street,
+              streetAdditional: refundDetails.streetAdditional
+            }
+          }
         } else {
           throw new Error('No response from getEFTRefund')
         }
@@ -465,10 +530,6 @@ export default defineComponent({
         // eslint-disable-next-line no-console
         console.error('Failed to getEFTRefund.', error)
       }
-    }
-
-    const updateAddress = (address: Address) => {
-      
     }
 
     const refundForm = ref(null)
@@ -482,17 +543,45 @@ export default defineComponent({
       })
     }
 
+    function getEFTRefundChequePayload () {
+      const refundPayload: EftRefundRequest = {
+        shortNameId: state.shortNameDetails.id,
+        refundMethod: EFTRefundMethod.CHEQUE,
+        refundAmount: state.refundAmount,
+        refundEmail: state.email,
+        comment: state.staffComment,
+        entityName: state.entityName,
+        ...state.refundAddress
+      }
+
+      return refundPayload
+    }
+
+    function getEFTRefundDirectDepositPayload () {
+      const refundPayload: EftRefundRequest = {
+        shortNameId: state.shortNameDetails.id,
+        refundAmount: state.refundAmount,
+        refundMethod: EFTRefundMethod.EFT,
+        casSupplierNumber: state.casSupplierNumber,
+        casSupplierSite: state.casSupplierSite,
+        refundEmail: state.email,
+        comment: state.staffComment
+      }
+      return refundPayload
+    }
+
+    function getEFTRefundPayload () {
+      if (state.refundMethod === EFTRefundMethod.CHEQUE) {
+        return getEFTRefundChequePayload()
+      } else if (state.refundMethod === EFTRefundMethod.EFT) {
+        return getEFTRefundDirectDepositPayload()
+      }
+    }
+
     async function submitRefundRequest () {
       state.isLoading = true
       if (refundForm.value.validate()) {
-        const refundPayload: EftRefundRequest = {
-          shortNameId: state.shortNameDetails.id,
-          refundAmount: state.refundAmount,
-          casSupplierNum: state.casSupplierNum,
-          casSupplierSite: state.casSupplierSite,
-          refundEmail: state.email,
-          comment: state.staffComment
-        }
+        const refundPayload = getEFTRefundPayload()
         try {
           await orgStore.refundEFT(refundPayload)
           state.isSubmitted = true
@@ -534,21 +623,18 @@ export default defineComponent({
 
     async function updateChequeRefundStatus (status: string) {
       try {
-        const response = await patchEFTRefund(state.refundDetails.id, status)
+        const response = await updateEFTRefundChequeStatus(state.refundDetails.id, status)
         if (response?.data) {
           await loadShortnameRefund()
         }
       } catch (error) {
-        console.error('Patch EFT short name refund failed', error)
+        console.error('Update EFT short name refund cheque status failed', error)
         throw error
       }
     }
 
     return {
       ...toRefs(state),
-      address,
-      baseAddressSchema,
-      updateAddress,
       isApproved,
       isDeclined,
       refundForm,
@@ -567,7 +653,10 @@ export default defineComponent({
       chequeStatusList,
       chequeRefundCodes,
       updateChequeRefundStatus,
-      EFTRefundMethod
+      EFTRefundMethod,
+      EFTRefundMethodDescription,
+      updateAddress,
+      canUpdateChequeStatus
     }
   }
 })

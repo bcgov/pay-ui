@@ -154,7 +154,7 @@
 <script lang="ts">
 import { Ref, defineComponent, nextTick, reactive, ref, toRefs, watch } from '@vue/composition-api'
 import {
-  chequeRefundCodes,
+  chequeRefundCodes, ChequeRefundStatus,
   ConfirmationType,
   EFTRefundMethod,
   ShortNameHistoryType,
@@ -316,10 +316,8 @@ export default defineComponent({
         case ShortNameHistoryType.SN_REFUND_PENDING_APPROVAL:
           return 'Refund Requested'
         case ShortNameHistoryType.SN_REFUND_APPROVED:
-          if (item.eftRefundChequeStatus === chequeRefundCodes.CHEQUE_UNDELIVERABLE) {
-            return chequeRefundCodes.CHEQUE_UNDELIVERABLE
-          } else if (item.eftRefundMethod === EFTRefundMethod.CHEQUE) {
-            return chequeRefundCodes.PROCESSED
+          if (item.eftRefundChequeStatus) {
+            return ChequeRefundStatus.find(status => status.code === item.eftRefundChequeStatus)?.text
           }
           return 'Request Approved'
         case ShortNameHistoryType.SN_REFUND_DECLINED:

@@ -9,12 +9,25 @@ export interface RefundRequest {
   refundRevenue?: RefundRevenueType[]
 }
 
-export interface EftRefundRequest {
+export interface EftRefundBaseRequest {
   shortNameId: number
   refundAmount: number
-  casSupplierNum: string
-  casSupplierSite: string
   refundEmail: string
   comment?: string
-  shortName?: string
+}
+
+export interface EftRefundRequest extends EftRefundBaseRequest{
+  casSupplierNum: string
+  casSupplierSite: string
+}
+
+export interface EftRefundChequeRequest extends EftRefundBaseRequest{
+  entityName: string
+  addressCity: string
+  addressCountry: string
+  addressRegion: string
+  deliveryInstructions?: string
+  postalCode: string
+  streetAddress: string
+  streetAddressAdditional?: string
 }

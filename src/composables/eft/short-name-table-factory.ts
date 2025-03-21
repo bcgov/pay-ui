@@ -85,20 +85,18 @@ export function useShortNameTable (tableState: LinkedShortNameState | ShortNameS
     return false
   }
 
-  const patchEFTRefund = async (eftRefundId: number, chequeStatus: any) => {
+  const patchEFTRefund = async (eftRefundId: number, payload: any) => {
     try {
-      let refundStatus
-      if (chequeStatus in chequeRefundCodes) {
-        refundStatus = ShortNameRefundStatus.APPROVED
-      } else {
-        refundStatus = ShortNameRefundStatus.PENDING_APPROVAL
-      }
-      const responseData = await PaymentService.patchEFTRefund(eftRefundId, { cheque_status: chequeStatus, status: refundStatus })
+      const responseData = await PaymentService.patchEFTRefund(eftRefundId, payload)
       return responseData
     } catch (error) {
       console.error('Error updating refund status:', error)
       return error?.response
     }
+  }
+
+  const updateEFTRefundChequeStatus = async (eftRefundId: number, chequeStatus: string) => {
+    return patchEFTRefund(eftRefundId, { chequeStatus: chequeStatus })
   }
 
   return {
@@ -107,6 +105,7 @@ export function useShortNameTable (tableState: LinkedShortNameState | ShortNameS
     loadTableData,
     loadTableSummaryData,
     updateFilter,
+    updateEFTRefundChequeStatus,
     patchEFTRefund
   }
 }

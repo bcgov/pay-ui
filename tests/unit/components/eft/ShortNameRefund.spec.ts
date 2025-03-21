@@ -1,6 +1,6 @@
 import { createLocalVue, mount } from '@vue/test-utils'
 import { BaseVDataTable } from '@/components/datatable'
-import { Role } from '@/util/constants'
+import { EFTRefundMethod, Role } from '@/util/constants'
 import ShortNameRefund from '@/components/eft/ShortNameRefund.vue'
 import Vue from 'vue'
 import VueRouter from 'vue-router'
@@ -14,7 +14,7 @@ Vue.use(Vuetify)
 Vue.use(VueRouter)
 // Selectors
 const { header, headerTitles, itemRow, itemCell } = baseVdataTable
-const headers = ['Initiated By', 'Comment', 'CAS Supplier Number', 'CAS Supplier Site', 'Refund Amount', 'Actions']
+const headers = ['Initiated By', 'Reason for Refund', 'Refund Method', 'Refund Amount', 'Actions']
 
 describe('ShortNameRefund.vue', () => {
   let wrapper
@@ -35,6 +35,7 @@ describe('ShortNameRefund.vue', () => {
         disbursementDate: '2024-10-17',
         id: '1',
         refundAmount: '10',
+        refundMethod: EFTRefundMethod.EFT,
         refundEmail: 'john.doe@gov.bc.ca',
         shortNameId: '243',
         status: 'PENDING_APPROVAL'
@@ -90,11 +91,10 @@ describe('ShortNameRefund.vue', () => {
     const titles = wrapper.findComponent(BaseVDataTable).findAll(headerTitles)
     expect(titles.length).toBe(headers.length)
     expect(titles.at(0).text()).toBe('Initiated By')
-    expect(titles.at(1).text()).toBe('Comment')
-    expect(titles.at(2).text()).toBe('CAS Supplier Number')
-    expect(titles.at(3).text()).toBe('CAS Supplier Site')
-    expect(titles.at(4).text()).toBe('Refund Amount')
-    expect(titles.at(5).text()).toBe('Actions')
+    expect(titles.at(1).text()).toBe('Reason for Refund')
+    expect(titles.at(2).text()).toBe('Refund Method')
+    expect(titles.at(3).text()).toBe('Refund Amount')
+    expect(titles.at(4).text()).toBe('Actions')
     // table items
     const itemRows = wrapper.findComponent(BaseVDataTable).findAll(itemRow)
     expect(itemRows.length).toBe(shortNameRefundResponse.length)
@@ -102,12 +102,12 @@ describe('ShortNameRefund.vue', () => {
     const row1Cells = itemRows.at(0).findAll(itemCell)
     expect(row1Cells.at(0).text()).toBe('John Doe')
     expect(row1Cells.at(1).text()).toBe('A test')
-    expect(row1Cells.at(2).text()).toBe('123456789')
-    expect(row1Cells.at(4).findAll('span').at(0).text()).toBe('$10.00')
-    expect(row1Cells.at(4).findAll('span').at(1).text()).toBe('View Refund Detail')
-    expect(row1Cells.at(5).findAll('button').exists()).toBe(true)
-    expect(row1Cells.at(5).findAll('button').at(0).text()).toBe('Decline')
-    expect(row1Cells.at(5).findAll('button').at(1).text()).toBe('Approve')
+    expect(row1Cells.at(2).text()).toBe('Direct Deposit')
+    expect(row1Cells.at(3).findAll('span').at(0).text()).toBe('$10.00')
+    expect(row1Cells.at(3).findAll('span').at(1).text()).toBe('View Refund Detail')
+    expect(row1Cells.at(4).findAll('button').exists()).toBe(true)
+    expect(row1Cells.at(4).findAll('button').at(0).text()).toBe('Decline')
+    expect(row1Cells.at(4).findAll('button').at(1).text()).toBe('Approve')
     // without roles
     wrapper.destroy()
     wrapper = mountComponent([])
