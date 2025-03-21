@@ -357,7 +357,7 @@ export default defineComponent({
         ShortNameHistoryType.SN_REFUND_DECLINED].includes(item.transactionType)) {
         return item.eftRefundMethod === EFTRefundMethod.CHEQUE
           ? 'Refund by Cheque'
-          : 'Refund by EFT'
+          : 'Refund by Direct Deposit'
       }
 
       return ShortNameHistoryTypeDescription[item.transactionType]
