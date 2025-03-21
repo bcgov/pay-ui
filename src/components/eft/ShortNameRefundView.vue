@@ -56,8 +56,11 @@
               </v-row>
 
               <!-- Refund amount -->
-              <v-row>
-                <v-col class="col-6 col-sm-3 font-weight-bold">
+              <v-row :class="!readOnly ? 'pt-4' : ''">
+                <v-col
+                  class="col-6 col-sm-3 font-weight-bold"
+                  :class="!readOnly ? 'pt-0' : ''"
+                >
                   Refund Amount
                 </v-col>
                 <v-col
@@ -82,7 +85,10 @@
               <!-- Supplier Number -->
               <v-row
                 v-if="refundMethod == EFTRefundMethod.CHEQUE">
-                <v-col class="col-6 col-sm-3 font-weight-bold">
+                <v-col
+                  class="col-6 col-sm-3 font-weight-bold"
+                  :class="!readOnly ? 'pt-0' : ''"
+                >
                   Entity Name
                 </v-col>
                 <v-col
@@ -108,7 +114,10 @@
               <!-- Address Form -->
               <v-row
               v-if="refundMethod == EFTRefundMethod.CHEQUE">
-                <v-col class="col-6 col-sm-3 font-weight-bold">
+                <v-col
+                  class="col-6 col-sm-3 font-weight-bold"
+                  :class="!readOnly ? 'pt-0' : ''"
+                >
                   Entity Address
                 </v-col>
                 <v-col class="px-0 mx-0">
@@ -128,7 +137,10 @@
               <!-- Supplier Number -->
               <v-row
                 v-if="refundMethod == EFTRefundMethod.EFT">
-                <v-col class="col-6 col-sm-3 font-weight-bold">
+                <v-col
+                  class="col-6 col-sm-3 font-weight-bold"
+                  :class="!readOnly ? 'pt-0' : ''"
+                >
                   CAS Supplier Number
                 </v-col>
                 <v-col
@@ -154,7 +166,10 @@
               <!-- Supplier Site -->
               <v-row
                 v-if="refundMethod == EFTRefundMethod.EFT">
-                <v-col class="col-6 col-sm-3 font-weight-bold">
+                <v-col
+                  class="col-6 col-sm-3 font-weight-bold"
+                  :class="!readOnly ? 'pt-0' : ''"
+                >
                   CAS Supplier Site
                 </v-col>
                 <v-col
@@ -179,7 +194,10 @@
 
               <!-- Email -->
               <v-row>
-                <v-col class="col-6 col-sm-3 font-weight-bold">
+                <v-col
+                  class="col-6 col-sm-3 font-weight-bold"
+                  :class="!readOnly ? 'pt-0' : ''"
+                >
                   Entity Email
                 </v-col>
                 <v-col
@@ -192,7 +210,7 @@
                 <v-text-field
                   v-else
                   v-model.trim="email"
-                  hint="The email provided in the client's Direct Deposit Application form"
+                  :hint="getEmailHint()"
                   filled
                   label="Email"
                   persistent-hint
@@ -204,7 +222,10 @@
 
               <!-- Refund Reason -->
               <v-row>
-                <v-col class="col-6 col-sm-3 font-weight-bold">
+                <v-col
+                  class="col-6 col-sm-3 font-weight-bold"
+                  :class="!readOnly ? 'pt-0' : ''"
+                >
                   Reason for Refund
                 </v-col>
                 <v-col
@@ -460,6 +481,13 @@ export default defineComponent({
       state.statusIsExpanded = !state.statusIsExpanded
     }
 
+    function getEmailHint() {
+      if (state.refundMethod === EFTRefundMethod.EFT) {
+        return "The email provided in the client's Direct Deposit Application form"
+      }
+      return ''
+    }
+
     function isDeclined () {
       return state.refundDetails?.status === EFTRefundStatus.DECLINED
     }
@@ -645,6 +673,7 @@ export default defineComponent({
       buttonColor,
       expendStatus,
       handleCancelButton,
+      getEmailHint,
       getShortNameTypeDescription: ShortNameUtils.getShortNameTypeDescription,
       getEFTRefundStatusDescription: ShortNameUtils.getEFTRefundStatusDescription,
       formatCurrency: CommonUtils.formatAmount,
