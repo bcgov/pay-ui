@@ -371,7 +371,7 @@
             :color="buttonColor"
             class="px-8 font-weight-bold"
             data-test="btn-edit-done"
-            :disabled="!isFormValid || isFormDisabled"
+            :disabled="!isFormValid || !isAddressValid || isFormDisabled"
             @click="submitRefundRequest"
           >
             <span v-if="!isLoading">{{ buttonText }}</span>
@@ -608,7 +608,7 @@ export default defineComponent({
 
     async function submitRefundRequest () {
       state.isLoading = true
-      if (refundForm.value.validate()) {
+      if (refundForm.value.validate() && state.isAddressValid) {
         const refundPayload = getEFTRefundPayload()
         try {
           await orgStore.refundEFT(refundPayload)
