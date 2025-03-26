@@ -371,7 +371,7 @@
             :color="buttonColor"
             class="px-8 font-weight-bold"
             data-test="btn-edit-done"
-            :disabled="!isFormValid || !isAddressValid || isFormDisabled"
+            :disabled="disableSubmission"
             @click="submitRefundRequest"
           >
             <span v-if="!isLoading">{{ buttonText }}</span>
@@ -608,7 +608,14 @@ export default defineComponent({
 
     async function submitRefundRequest () {
       state.isLoading = true
-      if (refundForm.value.validate() && state.isAddressValid) {
+      let validForm = false
+      if (state.refundMethod === EFTRefundMethod.CHEQUE) {
+        validForm = refundForm.value.validate() && state.isAddressValid
+      } else {
+        validForm = refundForm.value.validate()
+      }
+
+      if (validForm) {
         const refundPayload = getEFTRefundPayload()
         try {
           await orgStore.refundEFT(refundPayload)
@@ -630,6 +637,13 @@ export default defineComponent({
         state.isLoading = false
       }
     }
+
+    const disableSubmission = computed(() => {
+      if (state.refundMethod === EFTRefundMethod.CHEQUE) {
+        return !isFormValid.value || !state.isAddressValid || isFormDisabled.value
+      }
+      return !isFormValid.value || isFormDisabled.value
+    })
 
     const isFormDisabled = computed(() => {
       return state.isSubmitted || state.isLoading
@@ -685,7 +699,8 @@ export default defineComponent({
       EFTRefundMethod,
       EFTRefundMethodDescription,
       updateAddress,
-      canUpdateChequeStatus
+      canUpdateChequeStatus,
+      disableSubmission
     }
   }
 })
