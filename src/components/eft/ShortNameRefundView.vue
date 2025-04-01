@@ -56,7 +56,7 @@
                 <v-col class="col-6 col-sm-3 font-weight-bold">
                   Unsettled Amount on Short Name
                 </v-col>
-                <v-col class="pl-0">
+                <v-col class="pl-0" v-show="!isInitialLoading">
                   {{ formatCurrency(Number(shortNameDetails.creditsRemaining)) }}
                 </v-col>
               </v-row>
@@ -73,6 +73,7 @@
                   v-if="readOnly"
                   data-test="refundAmountReadOnly"
                   class="pl-0"
+                  v-show="!isInitialLoading"
                 >
                   {{ formatCurrency(Number(refundDetails.refundAmount)) }}
                 </v-col>
@@ -85,6 +86,7 @@
                   data-test="refundAmount"
                   :rules="refundAmountRules"
                   :disabled="isFormDisabled"
+                  v-show="!isInitialLoading"
                 />
               </v-row>
 
