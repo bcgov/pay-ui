@@ -737,6 +737,6 @@ export default defineComponent({
   font-size: 16px !important;
 }
 .v-overlay {
-  z-index: 9999;
+  z-index: 10;
 }
 </style>
