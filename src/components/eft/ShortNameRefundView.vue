@@ -3,6 +3,12 @@
     id="shortname-details"
     class="view-container"
   >
+    <v-overlay :value="isInitialLoading">
+      <v-progress-circular
+        indeterminate
+        size="64"
+      ></v-progress-circular>
+    </v-overlay>
     <div class="view-header flex-column">
       <h1 class="view-header__title">
         Refund Information
@@ -430,6 +436,7 @@ export default defineComponent({
     const eftRefundAddressState = useEFTRefundAddress()
     const state = reactive({
       ...eftRefundAddressState,
+      isInitialLoading: true,
       entityName: undefined as string,
       shortNameDetails: {} as ShortNameDetails,
       refundDetails: {} as EFTRefund,
@@ -501,6 +508,7 @@ export default defineComponent({
     }
 
     onMounted(async () => {
+      state.isInitialLoading = true
       await loadShortnameDetails()
       if (props.shortNameId && props.eftRefundId) {
         state.readOnly = true
@@ -509,6 +517,7 @@ export default defineComponent({
         state.refundMethod = props.paramRefundMethod
         prepopulateRefund()
       }
+      state.isInitialLoading = false
     })
 
     function prepopulateRefund () {
@@ -726,5 +735,8 @@ export default defineComponent({
 }
 .item-chip {
   font-size: 16px !important;
+}
+.v-overlay {
+  z-index: 9999;
 }
 </style>
