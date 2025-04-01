@@ -6,7 +6,7 @@
     <v-overlay :value="isInitialLoading">
       <v-progress-circular
         indeterminate
-        size="64"
+        size="24"
       ></v-progress-circular>
     </v-overlay>
     <div class="view-header flex-column">
