@@ -3,6 +3,12 @@
     id="shortname-details"
     class="view-container"
   >
+    <v-overlay :value="isInitialLoading">
+      <v-progress-circular
+        indeterminate
+        size="24"
+      ></v-progress-circular>
+    </v-overlay>
     <div class="view-header flex-column">
       <h1 class="view-header__title">
         Refund Information
@@ -50,7 +56,7 @@
                 <v-col class="col-6 col-sm-3 font-weight-bold">
                   Unsettled Amount on Short Name
                 </v-col>
-                <v-col class="pl-0">
+                <v-col class="pl-0" v-show="!isInitialLoading">
                   {{ formatCurrency(Number(shortNameDetails.creditsRemaining)) }}
                 </v-col>
               </v-row>
@@ -67,6 +73,7 @@
                   v-if="readOnly"
                   data-test="refundAmountReadOnly"
                   class="pl-0"
+                  v-show="!isInitialLoading"
                 >
                   {{ formatCurrency(Number(refundDetails.refundAmount)) }}
                 </v-col>
@@ -79,6 +86,7 @@
                   data-test="refundAmount"
                   :rules="refundAmountRules"
                   :disabled="isFormDisabled"
+                  v-show="!isInitialLoading"
                 />
               </v-row>
 
@@ -371,7 +379,7 @@
             :color="buttonColor"
             class="px-8 font-weight-bold"
             data-test="btn-edit-done"
-            :disabled="!isFormValid || isFormDisabled"
+            :disabled="disableSubmission"
             @click="submitRefundRequest"
           >
             <span v-if="!isLoading">{{ buttonText }}</span>
@@ -430,6 +438,7 @@ export default defineComponent({
     const eftRefundAddressState = useEFTRefundAddress()
     const state = reactive({
       ...eftRefundAddressState,
+      isInitialLoading: true,
       entityName: undefined as string,
       shortNameDetails: {} as ShortNameDetails,
       refundDetails: {} as EFTRefund,
@@ -501,6 +510,7 @@ export default defineComponent({
     }
 
     onMounted(async () => {
+      state.isInitialLoading = true
       await loadShortnameDetails()
       if (props.shortNameId && props.eftRefundId) {
         state.readOnly = true
@@ -509,6 +519,7 @@ export default defineComponent({
         state.refundMethod = props.paramRefundMethod
         prepopulateRefund()
       }
+      state.isInitialLoading = false
     })
 
     function prepopulateRefund () {
@@ -608,7 +619,14 @@ export default defineComponent({
 
     async function submitRefundRequest () {
       state.isLoading = true
-      if (refundForm.value.validate()) {
+      let validForm = false
+      if (state.refundMethod === EFTRefundMethod.CHEQUE) {
+        validForm = refundForm.value.validate() && state.isAddressValid
+      } else {
+        validForm = refundForm.value.validate()
+      }
+
+      if (validForm) {
         const refundPayload = getEFTRefundPayload()
         try {
           await orgStore.refundEFT(refundPayload)
@@ -630,6 +648,13 @@ export default defineComponent({
         state.isLoading = false
       }
     }
+
+    const disableSubmission = computed(() => {
+      if (state.refundMethod === EFTRefundMethod.CHEQUE) {
+        return !isFormValid.value || !state.isAddressValid || isFormDisabled.value
+      }
+      return !isFormValid.value || isFormDisabled.value
+    })
 
     const isFormDisabled = computed(() => {
       return state.isSubmitted || state.isLoading
@@ -685,7 +710,8 @@ export default defineComponent({
       EFTRefundMethod,
       EFTRefundMethodDescription,
       updateAddress,
-      canUpdateChequeStatus
+      canUpdateChequeStatus,
+      disableSubmission
     }
   }
 })
@@ -711,5 +737,8 @@ export default defineComponent({
 }
 .item-chip {
   font-size: 16px !important;
+}
+.v-overlay {
+  z-index: 10;
 }
 </style>
