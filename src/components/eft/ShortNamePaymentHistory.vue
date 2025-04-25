@@ -312,7 +312,8 @@ export default defineComponent({
     function formatAdditionalDescription (item: any) {
       switch (item.transactionType) {
         case ShortNameHistoryType.INVOICE_REFUND:
-          return item.invoiceId
+        case ShortNameHistoryType.INVOICE_PARTIAL_REFUND:
+          return `Invoice ID: ${item.invoiceId}`
         case ShortNameHistoryType.SN_REFUND_PENDING_APPROVAL:
           return 'Refund Requested'
         case ShortNameHistoryType.SN_REFUND_APPROVED:
