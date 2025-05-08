@@ -200,6 +200,7 @@ export enum ShortNamePaymentActions {
 export enum ShortNameHistoryType {
   FUNDS_RECEIVED = 'FUNDS_RECEIVED',
   INVOICE_REFUND = 'INVOICE_REFUND',
+  INVOICE_PARTIAL_REFUND = 'INVOICE_PARTIAL_REFUND',
   STATEMENT_PAID = 'STATEMENT_PAID',
   STATEMENT_REVERSE = 'STATEMENT_REVERSE',
   SN_REFUND_PENDING_APPROVAL = 'SN_REFUND_PENDING_APPROVAL',
@@ -209,7 +210,8 @@ export enum ShortNameHistoryType {
 
 export enum ShortNameHistoryTypeDescription {
   FUNDS_RECEIVED = 'Funds Received',
-  INVOICE_REFUND = 'Invoice Refund',
+  INVOICE_REFUND = 'Full Invoice Refund',
+  INVOICE_PARTIAL_REFUND = 'Partial Invoice Refund',
   STATEMENT_PAID = 'Statement Paid',
   STATEMENT_REVERSE = 'Payment Reversed',
   SN_REFUND_PENDING_APPROVAL = 'Short Name Refund Request',
