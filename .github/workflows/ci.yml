@@ -22,4 +22,3 @@ jobs:
       app_name: "pay-ui"
       working_directory: "."
       codecov_flag: "payweb"
-      skip_codecov: true
