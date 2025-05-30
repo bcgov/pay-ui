@@ -277,7 +277,7 @@
               Approved By Expense Authority
             </v-col>
             <v-col class="pl-0">
-              {{ refundDetails.updatedBy }} {{ formatDate(refundDetails.updatedOn, dateDisplayFormat) }}
+              {{ refundDetails.decisionBy }} {{ formatDate(refundDetails.updatedOn, dateDisplayFormat) }}
             </v-col>
           </v-row>
 
@@ -289,7 +289,7 @@
               Declined By Expense Authority
             </v-col>
             <v-col class="pl-0">
-              {{ refundDetails.updatedBy }} {{ formatDate(refundDetails.updatedOn, dateDisplayFormat) }}
+              {{ refundDetails.decisionBy }} {{ formatDate(refundDetails.updatedOn, dateDisplayFormat) }}
             </v-col>
           </v-row>
 
