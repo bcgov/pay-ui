@@ -548,8 +548,4 @@ export default defineComponent({
   transform: translateY(-1px);
 }
 
-.v-tooltip__content {
-  background-color: RGBA(73, 80, 87, .95);
-}
-
 </style>
