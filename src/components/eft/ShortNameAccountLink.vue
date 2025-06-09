@@ -616,6 +616,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+@import '$assets/scss/tooltips.scss';
 @import '$assets/scss/theme.scss';
 @import '$assets/scss/actions.scss';
 @import '$assets/scss/ShortnameTables.scss';
@@ -720,24 +721,5 @@ export default defineComponent({
   .disabled-action {
     pointer-events: none;
     opacity: 0.4;
-  }
-  .v-tooltip__content {
-    margin-top: -2px;
-    background-color: RGBA(73, 80, 87, .95);
-  }
-
-  .top-tooltip:after {
-    content: ' ';
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-top: -2px;
-    margin-left: -9px;
-    width: 20px;
-    height: 20px;
-    border-width: 10px 10px 10px 10px;
-    border-style: solid;
-    border-color: transparent transparent RGBA(73, 80, 87, .95) transparent;
-    transform: rotate(180deg);
   }
 </style>

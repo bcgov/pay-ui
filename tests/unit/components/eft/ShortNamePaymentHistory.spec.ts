@@ -1,7 +1,6 @@
 import { Wrapper, createLocalVue, mount } from '@vue/test-utils'
 import { BaseVDataTable } from '@/components/datatable'
 import CommonUtils from '@/util/common-util'
-import { Role } from '@/util/constants'
 import ShortNameTransactions from '@/components/eft/ShortNamePaymentHistory.vue'
 import { VueConstructor } from 'vue'
 import Vuetify from 'vuetify'
@@ -9,6 +8,7 @@ import { axios } from '@/util/http-util'
 import { baseVdataTable } from '../../test-data/baseVdata'
 import { setupIntersectionObserverMock } from '../../util/helper-functions'
 import sinon from 'sinon'
+import { ShortNameHistoryType } from '@/util/constants'
 
 sessionStorage.setItem('AUTH_API_CONFIG', JSON.stringify({
   AUTH_API_URL: 'https://localhost:8080/api/v1',
@@ -44,6 +44,7 @@ describe('ShortNamePaymentHistory.vue', () => {
           shortNameId: 2,
           statementNumber: 5374449,
           invoiceId: 12345,
+          createdOn: '2024-08-01T00:01:30.885474',
           transactionDate: '2024-08-01T00:01:30.885474',
           transactionType: 'INVOICE_REFUND'
         },
@@ -58,6 +59,7 @@ describe('ShortNamePaymentHistory.vue', () => {
           shortNameBalance: 368.5,
           shortNameId: 2,
           statementNumber: 5374449,
+          createdOn: '2024-08-01T00:01:30.885474',
           transactionDate: '2024-08-01T00:01:30.885474',
           transactionType: 'STATEMENT_REVERSE'
         },
@@ -72,21 +74,8 @@ describe('ShortNamePaymentHistory.vue', () => {
           shortNameBalance: 368.5,
           shortNameId: 2,
           statementNumber: 5455966,
+          createdOn: '2024-07-31T22:22:31.058547',
           transactionDate: '2024-07-31T22:22:31.058547',
-          transactionType: 'STATEMENT_PAID'
-        },
-        {
-          accountBranch: 'Sushi Division',
-          accountId: '3202',
-          accountName: 'Odysseus Chiu',
-          amount: 351.5,
-          historicalId: 4,
-          isProcessing: false,
-          isReversible: false,
-          shortNameBalance: 17.0,
-          shortNameId: 2,
-          statementNumber: 5374449,
-          transactionDate: '2024-07-31T00:00:00',
           transactionType: 'STATEMENT_PAID'
         },
         {
@@ -100,14 +89,27 @@ describe('ShortNamePaymentHistory.vue', () => {
           shortNameBalance: 318.5,
           shortNameId: 2,
           statementNumber: 5374450,
+          createdOn: '2025-03-17T10:00:00',
           transactionDate: '2025-03-17T10:00:00',
           transactionType: 'SN_REFUND_APPROVED',
           eftRefundChequeStatus: 'CHEQUE_UNDELIVERABLE'
+        },
+        {
+          accountBranch: 'Sushi Division',
+          accountId: '3202',
+          accountName: 'Jia Xu',
+          amount: 100,
+          historicalId: 7,
+          isProcessing: false,
+          isReversible: false,
+          shortNameBalance: 100,
+          shortNameId: 2,
+          statementNumber: 5374450,
+          createdOn: '2025-03-17T10:00:00',
+          transactionDate: '2025-03-15T10:00:00',
+          transactionType: 'FUNDS_RECEIVED'
         }
-      ],
-      limit: 5,
-      page: 1,
-      total: 5
+      ]
     }
 
     sandbox = sinon.createSandbox()
@@ -158,7 +160,7 @@ describe('ShortNamePaymentHistory.vue', () => {
     for (let i = 0; i < historyResponse.items.length; i++) {
       const columns = itemRows.at(i).findAll(itemCell)
       expect(columns.at(0).text()).toBe(
-        CommonUtils.formatUtcToPacificDate(historyResponse.items[i].transactionDate, wrapper.vm.dateDisplayFormat))
+        CommonUtils.formatUtcToPacificDate(historyResponse.items[i].createdOn, wrapper.vm.dateDisplayFormat))
       expect(columns.at(1).text()).toContain(wrapper.vm.formatDescription(historyResponse.items[i]))
       expect(columns.at(1).text()).toContain(wrapper.vm.formatAdditionalDescription(historyResponse.items[i]))
       expect(columns.at(2).text()).toBe(historyResponse.items[i].statementNumber
@@ -169,6 +171,10 @@ describe('ShortNamePaymentHistory.vue', () => {
         expect(columns.at(4).find("[data-test='reverse-payment-btn']").exists()).toBeTruthy()
       } else {
         expect(columns.at(4).find("[data-test='reverse-payment-btn']").exists()).toBeFalsy()
+      }
+
+      if (historyResponse.items[i].transactionType === ShortNameHistoryType.FUNDS_RECEIVED) {
+        expect(wrapper.find('[data-test="info-icon"]').exists()).toBeTruthy()
       }
     }
   })

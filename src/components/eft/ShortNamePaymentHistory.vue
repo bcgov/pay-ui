@@ -99,11 +99,23 @@
         </h2>
       </template>
       <template #header-filter-slot />
-      <template #item-slot-transactionDate="{ item }">
-        <span>{{ formatDate(item.transactionDate, dateDisplayFormat) }}</span>
+      <template #item-slot-createdOn="{ item }">
+        <span>{{ formatDate(item.createdOn, dateDisplayFormat) }}</span>
       </template>
       <template #item-slot-transactionDescription="{ item }">
         <span>{{ formatDescription(item) }}</span>
+        <v-tooltip
+          v-if="getDescriptionTooltip(item)"
+          top>
+          <template #activator="{ on }">
+             <span v-on="on">
+              <v-icon
+                data-test="info-icon"
+                class='info-icon ml-1'>mdi-information-outline</v-icon>
+            </span>
+          </template>
+          <span class="top-tooltip" v-sanitize="getDescriptionTooltip(item)"></span>
+        </v-tooltip>
         <span class="transaction-details" :class="{ 'error-text': item.eftRefundChequeStatus === chequeRefundCodes.CHEQUE_UNDELIVERABLE }">
           {{ formatAdditionalDescription(item) }}
         </span>
@@ -186,7 +198,7 @@ export default defineComponent({
   },
   setup (props, { emit, root }) {
     const dateDisplayFormat = 'MMMM D, YYYY'
-
+    const formatDate = CommonUtils.formatUtcToPacificDate
     const shortNameRefundTypes: string[] = [
       ShortNameHistoryType.SN_REFUND_PENDING_APPROVAL,
       ShortNameHistoryType.SN_REFUND_APPROVED,
@@ -196,7 +208,7 @@ export default defineComponent({
     const historyTable: Ref<InstanceType<typeof BaseVDataTable>> = ref(null)
     const headers = [
       {
-        col: 'transactionDate',
+        col: 'createdOn',
         hasFilter: false,
         width: '200px',
         value: 'Date'
@@ -309,6 +321,14 @@ export default defineComponent({
       return shortNameRefundTypes.includes(item.transactionType)
     }
 
+    function getDescriptionTooltip (item: any) {
+      if (item.transactionType === ShortNameHistoryType.FUNDS_RECEIVED) {
+        const systemCreateDate = formatDate(item.createdOn, dateDisplayFormat)
+        const depositDate = formatDate(item.transactionDate, dateDisplayFormat)
+        return `Funds transfer deposited on ${depositDate} <br/>and became available on ${systemCreateDate}`
+      }
+    }
+
     function formatAdditionalDescription (item: any) {
       switch (item.transactionType) {
         case ShortNameHistoryType.INVOICE_REFUND:
@@ -323,6 +343,8 @@ export default defineComponent({
           return 'Request Approved'
         case ShortNameHistoryType.SN_REFUND_DECLINED:
           return 'Refund Declined'
+        case ShortNameHistoryType.FUNDS_RECEIVED:
+          return `Deposit Date: ${formatDate(item.transactionDate, dateDisplayFormat)}`
         default:
           return CommonUtils.formatAccountDisplayName(item) ? item.accountId && item.accountName : ''
       }
@@ -452,7 +474,7 @@ export default defineComponent({
       historyTable,
       formatBalanceAmount,
       formatTransactionAmount,
-      formatDate: CommonUtils.formatUtcToPacificDate,
+      formatDate: formatDate,
       dateDisplayFormat,
       formatAdditionalDescription,
       formatDescription,
@@ -467,13 +489,15 @@ export default defineComponent({
       calculateTableHeight,
       viewRefundDetails,
       isEftRefundApprover,
-      chequeRefundCodes
+      chequeRefundCodes,
+      getDescriptionTooltip
     }
   }
 })
 </script>
 
 <style lang="scss" scoped>
+@import '$assets/scss/tooltips.scss';
 @import '$assets/scss/theme.scss';
 @import '$assets/scss/actions.scss';
 @import '$assets/scss/ShortnameTables.scss';
@@ -517,6 +541,15 @@ export default defineComponent({
   .v-btn {
     width: 106px
   }
+}
+
+.info-icon {
+  color: $app-blue !important;
+  transform: translateY(-1px);
+}
+
+.v-tooltip__content {
+  background-color: RGBA(73, 80, 87, .95);
 }
 
 </style>
