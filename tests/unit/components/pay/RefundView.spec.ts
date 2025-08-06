@@ -1,4 +1,5 @@
 import { Wrapper, createLocalVue, mount } from '@vue/test-utils'
+import { ref } from '@vue/composition-api'
 import RefundViewVue from '@/views/pay/RefundView.vue'
 import { VueConstructor } from 'vue'
 import Vuetify from 'vuetify'
@@ -35,6 +36,10 @@ const headers = [
   'Action'
 ]
 
+const mockPaymentMethods = ref([
+  { code: 'DIRECT_PAY', partialRefund: true }
+])
+
 describe('RefundView.vue', () => {
   setupIntersectionObserverMock()
   let wrapper: Wrapper<any>
@@ -44,6 +49,16 @@ describe('RefundView.vue', () => {
 
   beforeEach(async () => {
     localVue = createLocalVue()
+    vi.mock('@/composables/useCodes', () => {
+      return {
+        useCodes: () => ({
+          paymentMethods: mockPaymentMethods,
+          getPaymentMethods: vi.fn(async () => {}),
+          routingSlipStatusList: ref([]),
+          getRoutingSlipStatusList: vi.fn()
+        })
+      }
+    })
     invoiceResponse = {
       id: 3828,
       lineItems: [
