@@ -33,7 +33,7 @@
         />
       </v-radio-group>
       <v-alert
-        v-if="showRefundCreditCardError()"
+        v-if="showUnsupportedPartialRefundError()"
         id="partial-refund-cc-warning"
         class="mt-4"
         border="left"
@@ -44,7 +44,7 @@
         text
         :type="'error'"
       >
-        Partial Refunds can only be applied to credit card(DIRECT_PAY) invoices.
+        Partial Refunds not supported for payment method {{ invoicePaymentMethod }} invoices.
       </v-alert>
       <v-alert
         v-if="invoiceRefund > 0"
@@ -234,11 +234,12 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, nextTick, reactive, toRefs, watch } from '@vue/composition-api'
+import { computed, defineComponent, nextTick, onMounted, reactive, toRefs, watch } from '@vue/composition-api'
 import CommonUtils from '@/util/common-util'
 import { Invoice } from '@/models/Invoice'
 import { PaymentTypes } from '@/util/constants'
 import { useOrgStore } from '@/store/org'
+import { useCodes } from '@/composables/useCodes'
 
 /* eslint-disable no-unused-vars */
 enum RefundType {
@@ -257,6 +258,7 @@ enum RefundLineTypes {
 export default defineComponent({
   name: 'PaymentRefund',
   setup () {
+    const { paymentMethods, getPaymentMethods } = useCodes()
     const headers = [
       'Line Item #',
       'Description',
@@ -288,6 +290,10 @@ export default defineComponent({
       refundResponse: ''
     })
 
+    onMounted(async () => {
+      await getPaymentMethods()
+    })
+
     const validateRefundComment = (value: string) => {
       if (!state.shouldValidate) return true
       return !!value || 'Refund comment is required'
@@ -299,14 +305,20 @@ export default defineComponent({
       return (value >= 0) || 'Refund amount cannot be negative.'
     }
 
-    function showRefundCreditCardError () {
-      if (state.refundType !== RefundType.PARTIAL) return false
-      return state.invoicePaymentMethod && state.invoicePaymentMethod !== PaymentTypes.DIRECT_PAY
+    function canPartialRefund(paymentMethod: string) : boolean {
+      if (!paymentMethod) return false
+      const method = paymentMethods.value.find(pm => pm.code === paymentMethod)
+      return method ? method.partialRefund : false
+    }
+
+    function showUnsupportedPartialRefundError () {
+      if (state.refundType !== RefundType.PARTIAL || !state.invoicePaymentMethod) return false
+      return !canPartialRefund(state.invoicePaymentMethod)
     }
 
     function disableFeeInputs () {
       return state.refundType === RefundType.FULL ||
-          state.invoicePaymentMethod !== PaymentTypes.DIRECT_PAY ||
+          !canPartialRefund(state.invoicePaymentMethod) ||
           state.disableSubmit || state.invoiceRefund > 0
     }
 
@@ -388,7 +400,8 @@ export default defineComponent({
         state.isLoading = true
         const invoiceId = matchInvoiceId(state.invoiceId)
         const response = await state.orgStore.refundInvoice(invoiceId, getRefundPayload())
-        state.refundResponse = 'Refund successful.'
+        const formatAmount = CommonUtils.formatAmount(response.refundAmount)
+        state.refundResponse = `Refund successful for the amount of $${formatAmount}.`
         state.disableSubmit = true
         console.log('Refund successful:', response)
       } catch (error) {
@@ -465,7 +478,7 @@ export default defineComponent({
       disableFeeInputs,
       showPartialRefundAction,
       disablePartialRefundAction,
-      showRefundCreditCardError,
+      showUnsupportedPartialRefundError,
       headers,
       formatAmount: CommonUtils.formatAmount
     }
