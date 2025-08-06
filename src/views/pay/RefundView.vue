@@ -237,7 +237,6 @@
 import { computed, defineComponent, nextTick, onMounted, reactive, toRefs, watch } from '@vue/composition-api'
 import CommonUtils from '@/util/common-util'
 import { Invoice } from '@/models/Invoice'
-import { PaymentTypes } from '@/util/constants'
 import { useOrgStore } from '@/store/org'
 import { useCodes } from '@/composables/useCodes'
 
@@ -305,7 +304,7 @@ export default defineComponent({
       return (value >= 0) || 'Refund amount cannot be negative.'
     }
 
-    function canPartialRefund(paymentMethod: string) : boolean {
+    function canPartialRefund (paymentMethod: string) : boolean {
       if (!paymentMethod) return false
       const method = paymentMethods.value.find(pm => pm.code === paymentMethod)
       return method ? method.partialRefund : false
