@@ -158,7 +158,7 @@ describe('RefundView.vue', () => {
       expect(getTextFieldValue(columns.at(2))).toBe(lineItems[i].filingFees)
       expect(getTextFieldValue(columns.at(3))).toBe(lineItems[i].priorityFees)
       expect(getTextFieldValue(columns.at(4))).toBe(lineItems[i].futureEffectiveFees)
-      expect(getTextFieldValue(columns.at(5))).toBe(lineItems[i].serviceFees)
+      expect(getTextFieldValue(columns.at(5))).toBe(0) // Zeroed out by default for partial refunds
       const actionButton = columns.at(6).find(partialRefundBtnActionSelector)
       expect(actionButton.exists()).toBe(true)
 
@@ -224,7 +224,7 @@ describe('RefundView.vue', () => {
 
     let refundPayload = wrapper.vm.getRefundPayload()
     expect(refundPayload.reason === 'refund comment')
-    expect(refundPayload.refundRevenue.length).toBe(6)
+    expect(refundPayload.refundRevenue.length).toBe(4)
 
     // Test all line items without adjusting refund amounts
     const RefundLineTypes = wrapper.vm.RefundLineTypes
@@ -233,28 +233,22 @@ describe('RefundView.vue', () => {
       .filter(item => item.paymentLineItemId === paymentLineItems[0].id)
     let secondLineItemRefunds = refundPayload.refundRevenue
       .filter(item => item.paymentLineItemId === wrapper.vm.paymentLineItems[1].id)
-    expect(firstLineItemRefunds.length).toBe(3)
+    expect(firstLineItemRefunds.length).toBe(2)
     expect(firstLineItemRefunds[0].refundType === RefundLineTypes.BASE_FEES)
     expect(firstLineItemRefunds[0].refundAmount === paymentLineItems[0].filingFees)
     expect(firstLineItemRefunds[1].refundType === RefundLineTypes.PRIORITY_FEES)
     expect(firstLineItemRefunds[1].refundAmount === paymentLineItems[0].priorityFees)
-    expect(firstLineItemRefunds[2].refundType === RefundLineTypes.SERVICE_FEES)
-    expect(firstLineItemRefunds[2].refundAmount === paymentLineItems[0].serviceFees)
-    expect(secondLineItemRefunds.length).toBe(3)
+    expect(secondLineItemRefunds.length).toBe(2)
     expect(secondLineItemRefunds[0].refundType === RefundLineTypes.BASE_FEES)
     expect(secondLineItemRefunds[0].refundAmount === paymentLineItems[1].filingFees)
     expect(secondLineItemRefunds[1].refundType === RefundLineTypes.FUTURE_EFFECTIVE_FEES)
     expect(secondLineItemRefunds[1].refundAmount === paymentLineItems[1].futureEffectiveFees)
-    expect(secondLineItemRefunds[2].refundType === RefundLineTypes.SERVICE_FEES)
-    expect(secondLineItemRefunds[2].refundAmount === paymentLineItems[1].serviceFees)
 
     // Test partial refunds with adjustments
     paymentLineItems[0].filingFees = 15
     paymentLineItems[0].priorityFees = 0
-    paymentLineItems[0].serviceFees = 0
     paymentLineItems[1].filingFees = 0
     paymentLineItems[1].futureEffectiveFees = 2.5
-    paymentLineItems[1].serviceFees = 1.5
 
     refundPayload = wrapper.vm.getRefundPayload()
     firstLineItemRefunds = refundPayload.refundRevenue
@@ -264,10 +258,8 @@ describe('RefundView.vue', () => {
     expect(firstLineItemRefunds.length).toBe(1)
     expect(firstLineItemRefunds[0].refundType === RefundLineTypes.BASE_FEES)
     expect(firstLineItemRefunds[0].refundAmount === 15)
-    expect(secondLineItemRefunds.length).toBe(2)
+    expect(secondLineItemRefunds.length).toBe(1)
     expect(secondLineItemRefunds[0].refundType === RefundLineTypes.FUTURE_EFFECTIVE_FEES)
     expect(secondLineItemRefunds[0].refundAmount === 2.5)
-    expect(secondLineItemRefunds[1].refundType === RefundLineTypes.SERVICE_FEES)
-    expect(secondLineItemRefunds[1].refundAmount === 1.5)
   })
 })

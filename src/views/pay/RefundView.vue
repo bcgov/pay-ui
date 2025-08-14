@@ -19,6 +19,7 @@
       <v-radio-group
         id="refund-type-radio-group"
         v-model="refundType"
+        @change="updateLineItemDefaults"
         row
       >
         <v-radio
@@ -132,7 +133,7 @@
                   type="number"
                   prefix="$"
                   :suffix="`/ ${formatAmount(item.serviceFeesOriginal)}`"
-                  :disabled="disableFeeInputs() || isRefundItemAdded(index)"
+                  :disabled="true"
                   :rules="[validateRefundFeeAmount(item.serviceFeesOriginal)]"
                   dense
                   hide-details="auto"
@@ -341,11 +342,19 @@ export default defineComponent({
       return invoiceId.match(/\d+/)
     }
 
+    function updateLineItemDefaults () {
+      state.paymentLineItems = state.paymentLineItems.map(item => ({
+        ...item,
+        ...(state.refundType === RefundType.PARTIAL ? { serviceFees: 0 } : { serviceFees: item.serviceFeesOriginal })
+      }))
+    }
+
     function updateInvoiceState (invoice: any) {
       state.invoicePaid = invoice.paid
       state.invoiceRefund = invoice.refund
       state.invoicePaymentMethod = invoice.paymentMethod
       state.paymentLineItems = invoice.lineItems ? updateInvoiceLineItems(invoice.lineItems) : []
+      updateLineItemDefaults()
     }
 
     function updateInvoiceLineItems (lineItems: any) {
@@ -381,7 +390,7 @@ export default defineComponent({
           ]
 
           feeTypes.forEach(fee => {
-            if (item[fee.key] > 0) {
+            if (item[fee.key] > 0 && fee.key !== 'serviceFees') {
               refundPayload.refundRevenue.push({
                 paymentLineItemId: item.id,
                 refundAmount: parseFloat(item[fee.key]),
@@ -479,7 +488,8 @@ export default defineComponent({
       disablePartialRefundAction,
       showUnsupportedPartialRefundError,
       headers,
-      formatAmount: CommonUtils.formatAmount
+      formatAmount: CommonUtils.formatAmount,
+      updateLineItemDefaults
     }
   }
 })
