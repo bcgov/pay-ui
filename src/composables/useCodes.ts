@@ -13,9 +13,7 @@ export const useCodes = () => {
         'routing_slip_statuses'
       )
       if (response && response.data && response.status === 200) {
-        routingSlipStatusList.value = response.data?.codes.filter(
-          code => code.code !== SlipStatus.REFUNDREJECTED
-        )
+        routingSlipStatusList.value = response.data?.codes || []
         return
       }
       routingSlipStatusList.value = []
