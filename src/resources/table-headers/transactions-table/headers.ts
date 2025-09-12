@@ -247,9 +247,9 @@ export const TransactionTableHeaders: BaseTableHeaderI[] = [
   {
     col: 'actions',
     hasFilter: false,
-    minWidth: '164px',
+    minWidth: '200px',
     value: '',
-    width: '164px'
+    width: '200px'
   },
   {
     col: 'downloads',

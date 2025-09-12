@@ -210,6 +210,38 @@
           </span>
         </div>
       </template>
+      <!-- Item Actions -->
+      <template #item-slot-actions="{ item }">
+        <div class="actions">
+          <span class="open-action">
+            <v-btn
+              color="primary"
+              class="open-action-btn rounded-r-0"
+              @click="goToPage(item)"
+            >
+              {{ item.statusCode === InvoiceStatus.COMPLETED ? 'Initiate Refund' : 'View Detail' }}
+            </v-btn>
+          </span>
+          <!-- More Actions Menu -->
+          <span>
+            <v-menu
+              v-model="dropdown[item.id]"
+              offset-y
+              nudge-left="158"
+            >
+              <template #activator="{ on }">
+                <v-btn
+                  color="primary"
+                  class="more-actions-btn rounded-l-0"
+                  v-on="on"
+                >
+                  <v-icon>mdi-menu-down</v-icon>
+                </v-btn>
+              </template>
+            </v-menu>
+          </span>
+        </div>
+      </template>
       <!-- Expanded item template for dropdown rows -->
       <template #expanded-item="{ item }">
         <tr
@@ -346,10 +378,11 @@ export default defineComponent({
     headers: { default: [] as BaseTableHeaderI[] }
   },
   emits: ['isDownloadingReceipt'],
-  setup (props, { emit }) {
+  setup (props, { emit, root }) {
     // refs
     const state = reactive({
-      expandedRows: [] as number[]
+      expandedRows: [] as number[],
+      dropdown: [] as Array<boolean>
     })
     const datePicker = ref<any>(null)
     // composables
@@ -646,6 +679,10 @@ export default defineComponent({
       return ''
     })
 
+    const goToPage = (item: Transaction) => {
+      root.$router.push('/transaction-refund/' + item.id)
+    }
+
     return {
       ...toRefs(state),
       InvoiceStatus,
@@ -678,7 +715,8 @@ export default defineComponent({
       loadTransactionList,
       getInvoiceStatus,
       datePickerValue,
-      downloadReceipt
+      downloadReceipt,
+      goToPage
     }
   }
 })
@@ -785,5 +823,12 @@ export default defineComponent({
   &:hover {
     text-decoration: none;
   }
+}
+.open-action-btn {
+  margin-right: 2px;
+}
+.more-actions-btn {
+  width: 40px;
+  min-width: 40px !important;
 }
 </style>

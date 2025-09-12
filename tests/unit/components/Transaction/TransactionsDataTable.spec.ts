@@ -184,7 +184,7 @@ describe('TransactionsDataTable tests', () => {
     expect(row1Cells.at(7).text()).toBe('No Fee')
     expect(row1Cells.at(8).text()).toBe('CompletedJanuary 24, 2023')
     expect(row1Cells.at(9).text()).toBe('Receipt')
-    expect(row1Cells.at(10).text()).toBe('')
+    expect(row1Cells.at(10).text()).toBe('Initiate Refund')
 
     expect(wrapper.find('.clear-btn').exists()).toBe(false)
   })
@@ -232,7 +232,7 @@ describe('TransactionsDataTable tests', () => {
     expect(row1Cells.at(11).text()).toBe('No Fee')
     expect(row1Cells.at(12).text()).toBe('CompletedJanuary 24, 2023')
     expect(row1Cells.at(13).text()).toBe('Receipt')
-    expect(row1Cells.at(14).text()).toBe('')
+    expect(row1Cells.at(14).text()).toBe('Initiate Refund')
   })
 
   it('shows date picker when date filter clicked', async () => {
