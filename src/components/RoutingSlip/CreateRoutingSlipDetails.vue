@@ -33,6 +33,7 @@
               :rules="entityNumberRules"
               data-test="txtEntityNumber"
               v-model.trim="accountName"
+              hint="Example: BC1234567, CP1234567, FM1234567 or 123456"
             >
             </v-text-field>
           </v-col>
