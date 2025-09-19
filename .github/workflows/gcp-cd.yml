@@ -24,7 +24,7 @@ jobs:
     with:
       target: ${{ inputs.target }}
       app_name: "pay-ui"
-      working_directory: "."
+      working_directory: "./web/pay-ui"
     secrets:
       WORKLOAD_IDENTIFY_POOLS_PROVIDER: ${{ secrets.WORKLOAD_IDENTIFY_POOLS_PROVIDER }}
       GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}

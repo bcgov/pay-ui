@@ -1,5 +1,0 @@
-export { default as ReviewRoutingSlip } from './ReviewRoutingSlip.vue'
-export { default as ReviewRoutingSlipDetails } from './ReviewRoutingSlipDetails.vue'
-export { default as ReviewRoutingSlipPayment } from './ReviewRoutingSlipPayment.vue'
-export { default as ReviewRoutingSlipCashPayment } from './ReviewRoutingSlipCashPayment.vue'
-export { default as ReviewRoutingSlipChequePayment } from './ReviewRoutingSlipChequePayment.vue'
