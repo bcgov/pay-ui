@@ -44,8 +44,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       version: `Pay UI v${process.env.npm_package_version || ''}`,
-      playwright: process.env.playwright === 'true',
-      fasWebUrl: ''
+      playwright: process.env.playwright === 'true'
     }
   }
 })
