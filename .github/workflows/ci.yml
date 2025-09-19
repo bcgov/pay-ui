@@ -20,5 +20,5 @@ jobs:
     with:
       node_version: "20.5.1"
       app_name: "pay-ui"
-      working_directory: "."
+      working_directory: "./web/pay-ui"
       codecov_flag: "payweb"
