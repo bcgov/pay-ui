@@ -4,6 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "build-check": "nuxt build",
     "build": "nuxt generate",
     "dev": "nuxt dev",
