@@ -19,6 +19,9 @@ setBreadcrumbs([
 <template>
   <div class="py-10 space-y-10">
     <h1>{{ $t('page.home.h1') }}</h1>
+
+    <HelloWorld />
+
     <div class="flex gap-10">
       <UButton
         label="Go to Protected"
