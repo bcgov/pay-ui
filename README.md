@@ -9,12 +9,8 @@ TBD.
 
 ### Local Development
 
-1. make sure you have the `.env` file, required contents can be found in `.env.production`
+1. make sure you have the `.env` file, required contents can be found in `.env.example`
 2. run docker
-
-## Deployment (OpenShift)
-
-TBD
 
 ## Getting Help or Reporting an Issue
 
