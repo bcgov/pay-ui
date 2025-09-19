@@ -19,10 +19,6 @@ If you would like to contribute, please see our [CONTRIBUTING](CONTRIBUTING.md) 
 Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). 
 By participating in this project you agree to abide by its terms.
 
-## Issues/Suggestions
-Make Suggestions/Issues [here!](https://github.com/bcgov/pay-ui/issues/new)
-Issues are [markdown supported](https://guides.github.com/features/mastering-markdown/).
-
 ## License
 
     Copyright 2019 Province of British Columbia
