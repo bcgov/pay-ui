@@ -6,6 +6,8 @@ export default defineNuxtConfig({
 
   compatibilityDate: '2025-09-19',
 
+  modules: ['@nuxt/test-utils/module'],
+
   extends: [
     '@sbc-connect/nuxt-pay',
     '@sbc-connect/nuxt-forms'
@@ -13,6 +15,10 @@ export default defineNuxtConfig({
 
   imports: {
     dirs: ['interfaces', 'types', 'enums']
+  },
+
+  typescript: {
+    includeWorkspace: true // required for ts to recognize autoimports/relative paths in test files
   },
 
   i18n: {
@@ -37,6 +43,8 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
+      version: `Person Roles UI v${process.env.npm_package_version || ''}`,
+      playwright: process.env.playwright === 'true',
       fasWebUrl: ''
     }
   }

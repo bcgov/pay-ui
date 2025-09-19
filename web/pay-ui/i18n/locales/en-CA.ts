@@ -12,6 +12,10 @@ export default {
     home: {
       title: 'Index Page - Pay UI',
       h1: 'Index Page'
+    },
+    protected: {
+      title: 'Protected Page - Pay UI',
+      h1: 'Protected Page'
     }
   }
 }
