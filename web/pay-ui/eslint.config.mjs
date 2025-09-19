@@ -19,6 +19,7 @@ export default createConfigForNuxt({
     'allow-parens': 'off',
     'curly': 'error',
     'import/no-duplicates': 'error',
+    'no-undef': 'off', // some nuxt globals not being recognized, will look into this later
     'no-trailing-spaces': 'error',
     'no-multiple-empty-lines': 'error',
     'nuxt/nuxt-config-keys-order': 'off',
