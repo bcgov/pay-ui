@@ -3,7 +3,7 @@
 # PAY-UI 
 ## About
 
-This UI interfaces with PAY-API and provides SBC Staff functionality including: Fee Account System (FAS), EFT (Electronic Funds Transfer) and Refund UI.
+This UI interfaces with PAY-API and provides functionality including: Fee Account System (FAS), EFT (Electronic Funds Transfer) and Refund UI.
 
 ## Usage
 
