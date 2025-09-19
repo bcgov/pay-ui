@@ -12,10 +12,6 @@ This UI interfaces with PAY-API and provides SBC Staff functionality including: 
 1. make sure you have the `.env` file, required contents can be found in `.env.example`
 2. run docker
 
-## Getting Help or Reporting an Issue
-
-To report bugs/issues/feature requests, please file an [issue](https://github.com/bcgov/bcrs-entities-create-ui/issues/).
-
 ## How to Contribute
 
 If you would like to contribute, please see our [CONTRIBUTING](CONTRIBUTING.md) guidelines.
@@ -24,7 +20,7 @@ Please note that this project is released with a [Contributor Code of Conduct](C
 By participating in this project you agree to abide by its terms.
 
 ## Issues/Suggestions
-Make Suggestions/Issues [here!](https://github.com/bcgov/bcrs-entities-create-ui/issues/new)
+Make Suggestions/Issues [here!](https://github.com/bcgov/pay-ui/issues/new)
 Issues are [markdown supported](https://guides.github.com/features/mastering-markdown/).
 
 ## License
