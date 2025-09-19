@@ -18,7 +18,83 @@ jobs:
   pay-ui-ci:
     uses: bcgov/bcregistry-sre/.github/workflows/frontend-ci.yaml@main
     with:
-      node_version: "20.5.1"
+      node_version: 24
+      pnpm_version: 10.0.0
       app_name: "pay-ui"
       working_directory: "./web/pay-ui"
       codecov_flag: "payweb"
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ["pay-ui"]
+        shardIndex: [1, 2, 3, 4 ]
+        shardTotal: [4]
+    defaults:
+      run:
+        working-directory: ./web/${{ matrix.project }}
+    env:
+      CI: true
+    container:
+      image: mcr.microsoft.com/playwright:v1.54.0-noble
+    steps:
+    - uses: actions/checkout@v4
+    - uses: pnpm/action-setup@v4
+      with:
+        version: 10
+        run_install: false
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 24
+        cache: 'pnpm'
+    - name: Install dependencies
+      run: pnpm install
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps
+    - name: Set basic env
+      run: |
+        cp .env.example .env
+    - name: Run Playwright tests
+      run: HOME=/root pnpm test:e2e --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+    - name: Upload blob report to GitHub Actions Artifacts
+      if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: blob-report-${{ matrix.shardIndex }}
+        path: web/${{ matrix.project }}/blob-report
+        retention-days: 1
+  
+  merge-reports:
+    if: ${{ !cancelled() }}
+    needs: [e2e-tests]
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ["person-roles"]
+    defaults:
+      run:
+        working-directory: ./web/${{ matrix.project }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+    - name: Download blob reports from GitHub Actions Artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: web/${{ matrix.project }}/all-blob-reports
+        pattern: blob-report-*
+        merge-multiple: true
+
+    - name: Merge into HTML Report
+      run: npx playwright merge-reports --reporter html ./all-blob-reports
+
+    - name: Upload HTML report
+      uses: actions/upload-artifact@v4
+      with:
+        name: html-report--attempt-${{ github.run_attempt }}
+        path: web/${{ matrix.project }}/playwright-report
+        retention-days: 2    
