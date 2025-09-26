@@ -52,7 +52,7 @@ describe('DateRangeFilter', () => {
     await nextTick()
 
     const vm = wrapper.vm as any
-    expect(vm.localDisplayDate).toBe('2025-09-26 - 2025-09-26')
+    expect(vm.popoverRangeDisplay).toBe('2025-09-26 - 2025-09-26')
   })
 
   it('should set the correct ISO values when "Apply" is clicked', async () => {
@@ -63,7 +63,6 @@ describe('DateRangeFilter', () => {
       }
     })
 
-    // open popover
     await wrapper.find('button').trigger('click')
     await nextTick()
 
@@ -87,7 +86,7 @@ describe('DateRangeFilter', () => {
     expect(emitted![0]).toEqual([expectedPayload])
 
     const vm = wrapper.vm as any
-    expect(vm.modelDisplayDate).toBe('2025-09-15 - 2025-09-21')
+    expect(vm.triggerButtonLabel).toBe('2025-09-15 - 2025-09-21')
     expect(wrapper.props('modelValue')).toEqual(expectedPayload)
   })
 
@@ -98,13 +97,11 @@ describe('DateRangeFilter', () => {
       }
     })
 
-    // open popover
     await wrapper.find('button').trigger('click')
     await nextTick()
 
     const vm = wrapper.vm as any
 
-    // should be initial state
     expect(vm.localModel.value.start.toString()).toBe('2025-09-01')
 
     // need to query portal elements from the document
@@ -117,19 +114,15 @@ describe('DateRangeFilter', () => {
     todayButton!.click()
     await nextTick()
 
-    // should be today string
     expect(vm.localModel.value.start.toString()).toBe('2025-09-26')
 
-    // cancel setting date
     const cancelButton = popoverButtons.find(btn => btn.textContent?.includes('Cancel'))
     cancelButton!.click()
     await nextTick()
 
-    // re-open popover
     await wrapper.find('button').trigger('click')
     await nextTick()
 
-    // should be reset to initial state
     expect(vm.localModel.value.start.toString()).toBe('2025-09-01')
   })
 })

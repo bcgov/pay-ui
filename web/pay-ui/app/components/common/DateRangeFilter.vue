@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import type { ButtonProps } from '@nuxt/ui'
-import { CalendarDate } from '@internationalized/date'
+import type { CalendarDate } from '@internationalized/date'
 import { DateTime } from 'luxon'
 
 const { t } = useI18n()
 
-// v-model state
 const model = defineModel<{ start: string | null, end: string | null }>({
   default: {
     start: null,
@@ -14,35 +13,33 @@ const model = defineModel<{ start: string | null, end: string | null }>({
   required: true
 })
 
-// local state
 const localModel = shallowRef<{ start: CalendarDate | undefined, end: CalendarDate | undefined }>({
   start: undefined,
   end: undefined
 })
 
-// control open state - after clicking 'apply'
 const open = ref(false)
 
 const config = [
   {
     code: DATEFILTER_CODES.TODAY,
     label: t(`enum.DATEFILTER_CODES.${DATEFILTER_CODES.TODAY}`),
-    getRange: getToday
+    getRange: getTodayRange
   },
   {
     code: DATEFILTER_CODES.YESTERDAY,
     label: t(`enum.DATEFILTER_CODES.${DATEFILTER_CODES.YESTERDAY}`),
-    getRange: getYesterday
+    getRange: getYesterdayRange
   },
   {
     code: DATEFILTER_CODES.LASTWEEK,
     label: t(`enum.DATEFILTER_CODES.${DATEFILTER_CODES.LASTWEEK}`),
-    getRange: getLastWeek
+    getRange: getLastWeekRange
   },
   {
     code: DATEFILTER_CODES.LASTMONTH,
     label: t(`enum.DATEFILTER_CODES.${DATEFILTER_CODES.LASTMONTH}`),
-    getRange: getLastMonth
+    getRange: getLastMonthRange
   },
   {
     code: DATEFILTER_CODES.CUSTOMRANGE,
@@ -50,45 +47,6 @@ const config = [
     getRange: resetRange
   }
 ]
-
-function luxonToCalendarDate(date: DateTime): CalendarDate {
-  return new CalendarDate(date.year, date.month, date.day)
-}
-
-function getToday() {
-  const today = new Date()
-  const date = new CalendarDate(today.getFullYear(), today.getMonth() + 1, today.getDate())
-  return { start: date, end: date }
-}
-
-function getYesterday() {
-  const yesterday = new Date()
-  yesterday.setDate(yesterday.getDate() - 1)
-  const date = new CalendarDate(yesterday.getFullYear(), yesterday.getMonth() + 1, yesterday.getDate())
-  return { start: date, end: date }
-}
-
-function getLastWeek() {
-  const now = DateTime.now().setZone('America/Vancouver')
-  const weekStart = now.minus({ weeks: 1 }).startOf('week')
-  const weekEnd = now.minus({ weeks: 1 }).endOf('week')
-
-  return {
-    start: luxonToCalendarDate(weekStart),
-    end: luxonToCalendarDate(weekEnd)
-  }
-}
-
-function getLastMonth() {
-  const now = DateTime.now().setZone('America/Vancouver')
-  const monthStart = now.minus({ months: 1 }).startOf('month')
-  const monthEnd = now.minus({ months: 1 }).endOf('month')
-
-  return {
-    start: luxonToCalendarDate(monthStart),
-    end: luxonToCalendarDate(monthEnd)
-  }
-}
 
 function resetRange() {
   return { start: undefined, end: undefined }
@@ -110,7 +68,6 @@ function cancel() {
   open.value = false
 }
 
-// find the filter code in the config array or return custom range
 function getFilterCodeForRange(range?: { start?: CalendarDate, end?: CalendarDate }): string | undefined {
   if (!range?.start || !range?.end) {
     return DATEFILTER_CODES.CUSTOMRANGE
@@ -128,8 +85,7 @@ function getFilterCodeForRange(range?: { start?: CalendarDate, end?: CalendarDat
   return matchedRange?.code || DATEFILTER_CODES.CUSTOMRANGE
 }
 
-// sync v-model and localModel state
-function syncState() {
+function syncLocalStateToVModel() {
   if (model.value.start && model.value.end) {
     localModel.value = {
       start: luxonToCalendarDate(DateTime.fromISO(model.value.start, { zone: 'America/Vancouver' })),
@@ -143,7 +99,6 @@ function syncState() {
 // manages range option styling
 const activeFilterCode = computed(() => getFilterCodeForRange(localModel.value))
 
-// range filter options
 const ranges = computed<ButtonProps[]>(() =>
   config.map(c => ({
     label: c.label,
@@ -154,16 +109,14 @@ const ranges = computed<ButtonProps[]>(() =>
   }))
 )
 
-// trigger element/button date display
-const modelDisplayDate = computed(() => {
+const triggerButtonLabel = computed(() => {
   if (model.value.start && model.value.end) {
     return `${model.value.start} - ${model.value.end}`
   }
   return ''
 })
 
-// above calendar, inside popover date display
-const localDisplayDate = computed(() => {
+const popoverRangeDisplay = computed(() => {
   const { start, end } = localModel.value
   const s = start?.toString()
   const e = end?.toString()
@@ -179,14 +132,14 @@ const localDisplayDate = computed(() => {
 
 // sync localState to v-model when v-model changes - can set calendar date externally
 watch(model, () => {
-  syncState()
+  syncLocalStateToVModel()
 }, { immediate: true })
 </script>
 
 <template>
   <UPopover
     v-model:open="open"
-    @update:open="syncState"
+    @update:open="syncLocalStateToVModel"
   >
     <UButton
       color="neutral"
@@ -200,7 +153,7 @@ watch(model, () => {
       :ui="{ trailingIcon: open ? 'text-primary' : '' }"
     >
       <template #default>
-        <span v-if="modelDisplayDate">{{ modelDisplayDate }}</span>
+        <span v-if="triggerButtonLabel">{{ triggerButtonLabel }}</span>
         <span v-else>{{ $t('label.date') }}</span>
       </template>
     </UButton>
@@ -238,7 +191,7 @@ watch(model, () => {
             class="text-neutral-highlighted"
             translation-path="label.selectedDateRange"
             :name="$t(`enum.DATEFILTER_CODES.${activeFilterCode}`)"
-            :value="localDisplayDate"
+            :value="popoverRangeDisplay"
           />
           <div class="bg-line w-full h-[0.5px]" />
           <UCalendar
