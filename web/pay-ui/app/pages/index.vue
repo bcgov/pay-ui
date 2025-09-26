@@ -14,15 +14,27 @@ useHead({
 setBreadcrumbs([
   { label: 'Pay UI' }
 ])
+
+const dateRange = shallowRef({ start: null, end: null })
+
+function resetDateRange() {
+  dateRange.value = { start: null, end: null }
+}
 </script>
 
 <template>
   <div class="py-10 space-y-10">
     <h1>{{ $t('page.home.h1') }}</h1>
 
-    <HelloWorld />
+    {{ dateRange }}
+
+    <DateRangeFilter v-model="dateRange" />
 
     <div class="flex gap-10">
+      <UButton
+        label="reset"
+        @click="resetDateRange"
+      />
       <UButton
         label="Go to Protected"
         :to="localePath('/protected')"

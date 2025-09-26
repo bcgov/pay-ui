@@ -8,6 +8,21 @@ export default {
       title: 'BC Registries and Online Services' // header component title text
     }
   },
+  enum: {
+    DATEFILTER_CODES: {
+      TODAY: 'Today',
+      YESTERDAY: 'Yesterday',
+      LASTWEEK: 'Last Week',
+      LASTMONTH: 'Last Month',
+      CUSTOMRANGE: 'Custom Range'
+    }
+  },
+  label: {
+    apply: 'Apply',
+    cancel: 'Cancel',
+    date: 'Date',
+    selectedDateRange: '{boldStart}{name}:{boldEnd} {value}'
+  },
   page: {
     home: {
       title: 'Index Page - Pay UI',
