@@ -36,6 +36,9 @@ function resetDate() {
     <div class="flex gap-10">
       <DateRangeFilter v-model="dateRange" />
       <DatePicker v-model="date" />
+      <IconTooltip text="this is some text">
+        <div>some slot content</div>
+      </IconTooltip>
     </div>
     <div class="flex gap-10">
       <UButton
