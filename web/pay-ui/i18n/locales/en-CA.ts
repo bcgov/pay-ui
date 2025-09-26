@@ -21,6 +21,7 @@ export default {
     apply: 'Apply',
     cancel: 'Cancel',
     date: 'Date',
+    selectDate: 'Select Date',
     selectedDateRange: '{boldStart}{name}:{boldEnd} {value}'
   },
   page: {
