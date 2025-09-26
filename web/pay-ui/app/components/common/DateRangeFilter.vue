@@ -5,6 +5,9 @@ import { DateTime } from 'luxon'
 
 const { t } = useI18n()
 
+// defineModel replaces modelValue & update:modelValue
+// can use v-model in parent as normal
+// https://vuejs.org/api/sfc-script-setup.html#definemodel
 const model = defineModel<{ start: string | null, end: string | null }>({
   default: {
     start: null,
