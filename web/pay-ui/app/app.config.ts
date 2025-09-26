@@ -9,5 +9,12 @@ export default defineAppConfig({
     logout: {
       redirect: '/auth/login'
     }
+  },
+  ui: {
+    tooltip: {
+      slots: {
+        content: 'bg-neutral ring-neutral text-secondary p-4 text-sm'
+      }
+    }
   }
 })
