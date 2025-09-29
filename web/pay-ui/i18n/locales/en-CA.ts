@@ -15,14 +15,31 @@ export default {
       LASTWEEK: 'Last Week',
       LASTMONTH: 'Last Month',
       CUSTOMRANGE: 'Custom Range'
+    },
+    SlipStatus: {
+      ACTIVE: 'Place routing slip to active',
+      NSF: 'Place routing slip to NSF',
+      HOLD: 'Place routing slip on hold',
+      LINKED: 'LINKED',
+      REFUND_REQUESTED: 'Refund request',
+      WRITE_OFF_REQUESTED: 'Write off request',
+      CANCEL_REFUND_REQUEST: 'Cancel refund request',
+      REFUND_AUTHORIZED: 'Review refund request',
+      WRITE_OFF_AUTHORIZED: 'Authorize Write off request',
+      CANCEL_WRITE_OFF_REQUEST: 'Cancel Write off request',
+      VOID: 'Void Routing Slip'
+      // CORRECTION='Correct Routing Slip' - Future
     }
   },
   label: {
     apply: 'Apply',
     cancel: 'Cancel',
     date: 'Date',
+    editStatus: 'Edit Status',
+    refundStatus: 'Refund Status',
     selectDate: 'Select Date',
-    selectedDateRange: '{boldStart}{name}:{boldEnd} {value}'
+    selectedDateRange: '{boldStart}{name}:{boldEnd} {value}',
+    status: 'Status'
   },
   page: {
     home: {
