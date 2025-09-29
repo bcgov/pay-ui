@@ -11,6 +11,11 @@ export default defineAppConfig({
     }
   },
   ui: {
+    select: {
+      slots: {
+        placeholder: 'text-neutral'
+      }
+    },
     tooltip: {
       slots: {
         content: 'bg-neutral ring-neutral text-secondary p-4 text-sm'
