@@ -21,6 +21,13 @@ export default defineNuxtConfig({
     includeWorkspace: true // required for ts to recognize autoimports/relative paths in test files
   },
 
+  components: [
+    {
+      path: '~/components/common',
+      pathPrefix: false
+    }
+  ],
+
   i18n: {
     langDir: 'locales',
     locales: [
