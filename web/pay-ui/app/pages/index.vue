@@ -16,9 +16,13 @@ setBreadcrumbs([
 ])
 
 const dateRange = shallowRef({ start: null, end: null })
+const date = ref<string | null>('2025-09-23')
 
 function resetDateRange() {
   dateRange.value = { start: null, end: null }
+}
+function resetDate() {
+  date.value = null
 }
 </script>
 
@@ -26,14 +30,24 @@ function resetDateRange() {
   <div class="py-10 space-y-10">
     <h1>{{ $t('page.home.h1') }}</h1>
 
-    {{ dateRange }}
-
-    <DateRangeFilter v-model="dateRange" />
+    <div>range: {{ dateRange }}</div>
+    <div>date: {{ date }}</div>
 
     <div class="flex gap-10">
+      <DateRangeFilter v-model="dateRange" />
+      <DatePicker v-model="date" />
+      <IconTooltip text="this is some text">
+        <div>some slot content</div>
+      </IconTooltip>
+    </div>
+    <div class="flex gap-10">
       <UButton
-        label="reset"
+        label="reset range"
         @click="resetDateRange"
+      />
+      <UButton
+        label="reset date"
+        @click="resetDate"
       />
       <UButton
         label="Go to Protected"
