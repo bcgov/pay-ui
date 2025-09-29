@@ -1,3 +1,5 @@
+// TODO: maybe add translations?
+
 export const ChequeRefundStatus = [
   {
     code: 'PROCESSING',
