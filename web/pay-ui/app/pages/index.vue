@@ -54,6 +54,10 @@ function resetDate() {
         :to="localePath('/protected')"
       />
       <UButton
+        label="Go to create routing slip"
+        :to="localePath('/create-routing-slip')"
+      />
+      <UButton
         label="Open example modal"
         @click="modal.openExampleModal(
           'Title Here',

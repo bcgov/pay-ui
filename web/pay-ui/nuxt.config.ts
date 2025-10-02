@@ -6,7 +6,9 @@ export default defineNuxtConfig({
 
   compatibilityDate: '2025-09-19',
 
-  modules: ['@nuxt/test-utils/module'],
+  modules: [
+    '@nuxt/test-utils/module'
+  ],
 
   extends: [
     '@sbc-connect/nuxt-pay',
@@ -22,6 +24,7 @@ export default defineNuxtConfig({
   },
 
   components: [
+    '~/components',
     {
       path: '~/components/common',
       pathPrefix: false
@@ -46,6 +49,14 @@ export default defineNuxtConfig({
         file: 'fr-CA.ts'
       }
     ]
+  },
+
+  vite: {
+    server: {
+      watch: {
+        usePolling: true
+      }
+    }
   },
 
   runtimeConfig: {
