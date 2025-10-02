@@ -34,6 +34,7 @@ export default {
   label: {
     apply: 'Apply',
     cancel: 'Cancel',
+    columnsToShow: 'Columns to Show',
     date: 'Date',
     editStatus: 'Edit Status',
     refundStatus: 'Refund Status',
