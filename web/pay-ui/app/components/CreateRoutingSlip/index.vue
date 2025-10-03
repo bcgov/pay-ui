@@ -1,23 +1,35 @@
 <script setup lang="ts">
 import type { FormSubmitEvent, FormErrorEvent, Form } from '@nuxt/ui'
 
-const toast = useToast()
 const schema = getRoutingSlipSchema()
 const crsStore = useCreateRoutingSlipStore()
 const formRef = useTemplateRef<Form<RoutingSlipSchema>>('form-ref')
 
+function onPaymentTypeChange() {
+  crsStore.resetPaymentState()
+  formRef.value?.clear(/^payment.*/)
+}
+
+function onUSDChange() {
+  crsStore.resetUSDAmounts()
+  for (const uuid in crsStore.state.payment.paymentItems) {
+    formRef.value?.clear(new RegExp(`^${`payment.paymentItems.${uuid}.amountUSD`}$`))
+  }
+}
+
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */ // cant infer validation name/key
+function onValidateDate(name: any) {
+  formRef.value?.validate({ name, silent: true })
+}
+
 async function onSubmit(event: FormSubmitEvent<RoutingSlipSchema>) {
-  toast.add({ title: 'Success', description: 'The form has been submitted.', color: 'success' })
-  console.log(event.data)
+  // TODO: go to 'review' mode
+  console.info(event.data)
 }
 
 function onError(event: FormErrorEvent) {
-  let element: HTMLElement | null = null
-  const firstEl = event.errors[0]?.id
-
-  if (firstEl) {
-    element = document.getElementById(firstEl)
-  }
+  const id = event.errors[0]?.id
+  const element = id ? document.getElementById(id) : null
 
   if (element) {
     element.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -41,7 +53,13 @@ function onError(event: FormErrorEvent) {
     <CreateRoutingSlipPayment
       v-model="crsStore.state.payment"
       schema-prefix="payment"
-      :form-ref="formRef"
+      :is-cheque="crsStore.isCheque"
+      :total-cad="crsStore.totalCAD"
+      @add-cheque="crsStore.addCheque"
+      @remove-cheque="crsStore.removeCheque"
+      @change:payment-type="onPaymentTypeChange"
+      @change:usd="onUSDChange"
+      @validate-date="onValidateDate"
     />
     <CreateRoutingSlipAddress
       v-model="crsStore.state.address"
