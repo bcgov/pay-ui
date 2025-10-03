@@ -11,7 +11,7 @@ defineProps<{
   hasError?: boolean
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   blur: []
 }>()
 
@@ -37,17 +37,16 @@ const localModel = computed({
     }
   }
 })
+
+watch(open, (v) => {
+  if (!v) {
+    emit('blur')
+  }
+})
 </script>
 
 <template>
-  <UPopover
-    v-model:open="open"
-    @update:open="(e) => {
-      if (!e) {
-        $emit('blur')
-      }
-    }"
-  >
+  <UPopover v-model:open="open">
     <UButton
       v-bind="$attrs"
       color="neutral"
