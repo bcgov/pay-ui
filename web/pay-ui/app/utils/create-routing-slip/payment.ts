@@ -36,8 +36,11 @@ export function getRoutingSlipPaymentSchema() {
     paymentItems: z.record(z.string(), getRoutingSlipPaymentItemSchema())
   }).superRefine((data, ctx) => {
     for (const uuid in data.paymentItems) {
+      const amountSchema = getRoutingSlipAmountSchema()
+      const dateSchema = getRoutingSlipDateSchema()
+
       if (data.isUSD) {
-        const usdResult = getRoutingSlipAmountSchema().safeParse(data.paymentItems[uuid]?.amountUSD)
+        const usdResult = amountSchema.safeParse(data.paymentItems[uuid]?.amountUSD)
         if (!usdResult.success) {
           usdResult.error.issues.forEach((issue) => {
             ctx.addIssue({ ...issue, path: ['paymentItems', uuid, 'amountUSD'] })
@@ -46,7 +49,7 @@ export function getRoutingSlipPaymentSchema() {
       }
 
       if (data.paymentType === PaymentTypes.CHEQUE) {
-        const dateResult = getRoutingSlipDateSchema().safeParse(data.paymentItems[uuid]?.date)
+        const dateResult = dateSchema.safeParse(data.paymentItems[uuid]?.date)
         if (!dateResult.success) {
           dateResult.error.issues.forEach((issue) => {
             ctx.addIssue({ ...issue, path: ['paymentItems', uuid, 'date'] })
