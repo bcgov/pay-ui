@@ -5,20 +5,10 @@ definePageMeta({
   layout: 'connect-auth',
   hideBreadcrumbs: true,
   middleware: ['mock-connect-auth', 'connect-auth']
+  // allowedRoles: [Role.FAS_CREATE]
+  // name: RouteNames.CREATE_ROUTING_SLIP
 })
 
-// {
-//     path: '/create-routing-slip',
-//     name: RouteNames.CREATE_ROUTING_SLIP,
-//     component: CreateRoutingSlipView,
-//     meta: {
-//       requiresAuth: true,
-//       allowedRoles: [Role.FAS_CREATE]
-//     }
-//   },
-// import CreateRoutingSlipDetails from '@/components/RoutingSlip/CreateRoutingSlipDetails.vue'
-// import CreateRoutingSlipPayment from '@/components/RoutingSlip/CreateRoutingSlipPayment.vue'
-// import CreateRoutingSlipAddress from '@/components/RoutingSlip/CreateRoutingSlipAddress.vue'
 // import ModalDialog from '@/components/common/ModalDialog.vue'
 // import { useCreateRoutingSlip } from '@/composables/RoutingSlip'
 // import ReviewRoutingSlip from '@/components/ReviewRoutingSlip/ReviewRoutingSlip.vue'
@@ -49,26 +39,6 @@ definePageMeta({
 //       createandReviewButtonEventHandler,
 //       backToEdit
 //     } = useCreateRoutingSlip(_, context)
-//     return {
-//       createRoutingSlipForm,
-//       createRoutingSlipDetailsRef,
-//       createRoutingSlipPaymentRef,
-//       createRoutingSlipAddressRef,
-//       modalDialogRef,
-//       modalDialogDetails,
-//       isModalDialogInfo,
-//       createRoutingSlipLabel,
-//       isReviewMode,
-//       cancel,
-//       modalDialogCancel,
-//       modalDialogClose,
-//       isValid,
-//       createandReviewButtonEventHandler,
-//       backToEdit
-//     }
-//   }
-// })
-// export default class CreateRoutingSlip extends Vue {}
 </script>
 
 <template>
@@ -91,9 +61,6 @@ definePageMeta({
       }"
     >
       <CreateRoutingSlip />
-      <!-- <CreateRoutingSlipDetails />
-      <CreateRoutingSlipPayment />
-      <CreateRoutingSlipAddress /> -->
     </ConnectPageSection>
   </div>
   <!-- <v-container class="view-container">
