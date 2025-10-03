@@ -62,6 +62,7 @@ export default {
     nameOfPersonOrOrgAndAddress: 'Name of Person or Organization & Address',
     nameOfPersonOrOrgOpt: 'Name of Person or Organization (Optional)',
     paymentInformation: 'Payment Information',
+    receiptNumber: 'Receipt Number',
     refundStatus: 'Refund Status',
     reviewAndCreate: 'Review and Create',
     routingSlip: 'Routing Slip',
