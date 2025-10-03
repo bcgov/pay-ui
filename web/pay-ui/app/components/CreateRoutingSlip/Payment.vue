@@ -18,13 +18,16 @@ const model = defineModel<RoutingSlipPaymentSchema>({ required: true })
 
 <template>
   <ConnectFieldset
-    label="Payment Information"
+    :label="$t('label.paymentInformation')"
     orientation="horizontal"
   >
     <div class="space-y-6">
       <URadioGroup
         v-model="model.paymentType"
-        :items="[{ label: 'Cheque', value: PaymentTypes.CHEQUE }, { label: 'Cash', value: PaymentTypes.CASH }]"
+        :items="[
+          { label: $t(`enum.PaymentTypes.${PaymentTypes.CHEQUE}`), value: PaymentTypes.CHEQUE },
+          { label: $t(`enum.PaymentTypes.${PaymentTypes.CASH}`), value: PaymentTypes.CASH }
+        ]"
         orientation="horizontal"
         size="xl"
         :ui="{ fieldset: 'space-x-4' }"
@@ -37,7 +40,7 @@ const model = defineModel<RoutingSlipPaymentSchema>({ required: true })
       >
         <ConnectFormInput
           v-model="item.identifier"
-          label="Cheque Number"
+          :label="$t('label.chequeNumber')"
           :name="`${schemaPrefix}.paymentItems.${item.uuid}.identifier`"
           :input-id="`cheque-receipt-number-${item.uuid}`"
           class="flex-1"
@@ -58,7 +61,7 @@ const model = defineModel<RoutingSlipPaymentSchema>({ required: true })
         </UFormField>
         <ConnectFormInput
           v-model="item.amountCAD"
-          label="Amount (CAD$)"
+          :label="$t('label.amountCAD')"
           :name="`${schemaPrefix}.paymentItems.${item.uuid}.amountCAD`"
           :input-id="`amount-cad-${item.uuid}`"
           class="flex-1"
@@ -66,7 +69,7 @@ const model = defineModel<RoutingSlipPaymentSchema>({ required: true })
         <ConnectFormInput
           v-if="model.isUSD"
           v-model="item.amountUSD"
-          label="Amount (USD$)"
+          :label="$t('label.amountUSD')"
           :name="`${schemaPrefix}.paymentItems.${item.uuid}.amountUSD`"
           :input-id="`amount-usd-${item.uuid}`"
           class="flex-1"
@@ -87,14 +90,14 @@ const model = defineModel<RoutingSlipPaymentSchema>({ required: true })
       >
         <UButton
           v-if="isCheque"
-          label="Additional Cheque"
+          :label="$t('label.additionalCheque')"
           variant="ghost"
           icon="i-mdi-plus-box"
           @click="$emit('add-cheque')"
         />
         <UCheckbox
           v-model="model.isUSD"
-          label="Funds received in USD"
+          :label="$t('label.fundsReceivedInUSD')"
           :ui="{ label: 'text-base' }"
           @change="$emit('change:usd')"
         />
@@ -103,7 +106,7 @@ const model = defineModel<RoutingSlipPaymentSchema>({ required: true })
         v-if="isCheque"
         id="total-amount-received"
         :model-value="totalCad"
-        label="Total Amount Received ($)"
+        :label="$t('label.totalAmountReceived')"
         readonly
       />
     </div>
