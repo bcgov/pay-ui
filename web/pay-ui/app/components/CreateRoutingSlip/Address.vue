@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import type { Form } from '@nuxt/ui'
-
 defineProps<{
-  formRef: Form<RoutingSlipSchema> | null
   schemaPrefix: string
 }>()
 
@@ -25,9 +22,8 @@ const model = defineModel<RoutingSlipAddressSchema>({ required: true })
         id="person-or-org-address"
         v-model="model.address"
         :schema-prefix="`${schemaPrefix}.address`"
-        :form-ref="formRef"
       />
     </div>
   </ConnectFieldset>
-  <!-- sm:w-1/4 -->
+  <!-- sm:w-1/4 not being scanned by tailwind from dependency -->
 </template>

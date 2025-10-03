@@ -1,34 +1,47 @@
 export const useCreateRoutingSlipStore = defineStore('create-routing-slip-store', () => {
-  const initialPaymentItem = createEmptyPaymentItem()
+  const state = reactive<RoutingSlipSchema>(createEmptyCRSState())
 
-  const state = reactive<RoutingSlipSchema>({
-    details: {
-      id: '',
-      date: getToday().toISO() as string,
-      entity: ''
-    },
-    payment: {
-      paymentType: PaymentTypes.CHEQUE,
-      paymentItems: {
-        [initialPaymentItem.uuid]: initialPaymentItem
-      },
-      isUSD: false
-    },
-    address: {
-      name: '',
-      address: {
-        street: '',
-        streetAdditional: '',
-        city: '',
-        region: '',
-        postalCode: '',
-        country: '',
-        locationDescription: ''
+  const isCheque = computed<boolean>(() => state.payment.paymentType === PaymentTypes.CHEQUE)
+
+  const totalCAD = computed<string>(() => Object.values(state.payment.paymentItems)
+    .reduce((total, item) => {
+      const amount = Number(item?.amountCAD || 0)
+      return total + amount
+    }, 0).toFixed(2)
+  )
+
+  function addCheque() {
+    const newItem = createEmptyPaymentItem()
+    state.payment.paymentItems[newItem.uuid] = newItem
+  }
+
+  function removeCheque(uuid: string) {
+    /* eslint-disable-next-line @typescript-eslint/no-dynamic-delete */
+    delete state.payment.paymentItems[uuid]
+  }
+
+  function resetPaymentState() {
+    const newItem = createEmptyPaymentItem()
+    state.payment.isUSD = false
+    state.payment.paymentItems = { [newItem.uuid]: newItem }
+  }
+
+  function resetUSDAmounts() {
+    for (const uuid in state.payment.paymentItems) {
+      const item = state.payment.paymentItems[uuid]
+      if (item) {
+        item.amountUSD = ''
       }
     }
-  })
+  }
 
   return {
-    state
+    state,
+    isCheque,
+    totalCAD,
+    addCheque,
+    removeCheque,
+    resetPaymentState,
+    resetUSDAmounts
   }
 })
