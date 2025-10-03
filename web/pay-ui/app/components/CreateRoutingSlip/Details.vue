@@ -8,13 +8,13 @@ const model = defineModel<RoutingSlipDetailsSchema>({ required: true })
 
 <template>
   <ConnectFieldset
-    label="Routing Slip"
+    :label="$t('label.routingSlip')"
     orientation="horizontal"
   >
     <div class="space-y-2">
       <ConnectFormInput
         v-model="model.id"
-        label="Routing Slip - Unique ID"
+        :label="$t('label.routingSlipUniqueID')"
         :name="`${schemaPrefix}.id`"
         input-id="routing-slip-id"
       />
@@ -24,11 +24,11 @@ const model = defineModel<RoutingSlipDetailsSchema>({ required: true })
         </UFormField>
         <ConnectFormInput
           v-model="model.entity"
-          label="Entity Number"
+          :label="$t('label.entityNumber')"
           :name="`${schemaPrefix}.entity`"
           input-id="entity-number"
           class="flex-1"
-          help="Example: BC1234567, CP1234567, FM1234567 or 123456"
+          :help="$t('text.entityNumberHelp')"
         />
       </div>
     </div>

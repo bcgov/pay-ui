@@ -68,11 +68,11 @@ function onError(event: FormErrorEvent) {
     />
     <div class="flex gap-4 justify-end">
       <UButton
-        label="Review and Create"
+        :label="$t('label.reviewAndCreate')"
         type="submit"
       />
       <UButton
-        label="Cancel"
+        :label="$t('label.cancel')"
         variant="outline"
       />
     </div>

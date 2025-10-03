@@ -16,6 +16,20 @@ export default {
       LASTMONTH: 'Last Month',
       CUSTOMRANGE: 'Custom Range'
     },
+    PaymentTypes: {
+      BCOL: 'BC OnLine',
+      CASH: 'Cash',
+      CHEQUE: 'Cheque',
+      CREDIT_CARD: 'Credit Card',
+      DIRECT_PAY: 'Direct Pay',
+      EFT: 'Electronic Funds Transfer',
+      EJV: 'Electronic Journal Voucher',
+      INTERNAL: 'Routing Slip',
+      NO_FEE: 'No Fee',
+      ONLINE_BANKING: 'Online Banking',
+      PAD: 'Pre-Authorized Debit',
+      CREDIT: 'Account Credit'
+    },
     SlipStatus: {
       ACTIVE: 'Place routing slip to active',
       NSF: 'Place routing slip to NSF',
@@ -32,17 +46,36 @@ export default {
     }
   },
   label: {
+    additionalCheque: 'Additional Cheque',
+    addNewRoutingSlip: 'Add New Routing Slip',
+    amountCAD: 'Amount (CAD$)',
+    amountUSD: 'Amount (USD$)',
     apply: 'Apply',
+    backToDashboard: 'Back to Dashboard',
     cancel: 'Cancel',
+    chequeNumber: 'Cheque Number',
     columnsToShow: 'Columns to Show',
     date: 'Date',
     editStatus: 'Edit Status',
+    entityNumber: 'Entity Number',
+    fundsReceivedInUSD: 'Funds received in USD',
+    nameOfPersonOrOrgAndAddress: 'Name of Person or Organization & Address',
+    nameOfPersonOrOrgOpt: 'Name of Person or Organization (Optional)',
+    paymentInformation: 'Payment Information',
     refundStatus: 'Refund Status',
+    reviewAndCreate: 'Review and Create',
+    routingSlip: 'Routing Slip',
+    routingSlipUniqueID: 'Routing Slip - Unique ID',
     selectDate: 'Select Date',
     selectedDateRange: '{boldStart}{name}:{boldEnd} {value}',
-    status: 'Status'
+    status: 'Status',
+    totalAmountReceived: 'Total Amount Received ($)'
   },
   page: {
+    createRoutingSlip: {
+      title: 'Add Routing Slip - BC Business Registry FAS',
+      h1: 'Add Routing Slip'
+    },
     home: {
       title: 'Index Page - Pay UI',
       h1: 'Index Page'
@@ -50,6 +83,38 @@ export default {
     protected: {
       title: 'Protected Page - Pay UI',
       h1: 'Protected Page'
+    }
+  },
+  text: {
+    entityNumberHelp: 'Example: BC1234567, CP1234567, FM1234567 or 123456'
+  },
+  validation: {
+    payment: {
+      chequeDate: {
+        required: 'Cheque date is required'
+      },
+      paidAmount: {
+        required: 'Paid Amount is required',
+        decimal: 'Paid Amount can only be up to 2 decimal places'
+      },
+      receiptNumber: {
+        required: 'A Receipt number is required'
+      }
+    },
+    routingSlip: {
+      date: {
+        required: 'A Routing Slip Date is required'
+      },
+      entityNumber: {
+        required: 'An Entity Number is required'
+      },
+      number: {
+        exists: 'Routing Slip number already present. Enter a new number or edit details of this routing slip.',
+        invalidApi: 'Routing Slip number is invalid. Enter a new number or edit details of this routing slip.',
+        required: 'A Routing Slip Number is required',
+        length: 'A Routing Slip Number must be 9 characters long',
+        numeric: 'Routing Slip Number must only contain numbers (0-9).'
+      }
     }
   }
 }

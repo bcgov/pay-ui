@@ -8,13 +8,13 @@ const model = defineModel<RoutingSlipAddressSchema>({ required: true })
 
 <template>
   <ConnectFieldset
-    label="Name of Person or Organization & Address"
+    :label="$t('label.nameOfPersonOrOrgAndAddress')"
     orientation="horizontal"
   >
     <div class="space-y-2">
       <ConnectFormInput
         v-model="model.name"
-        label="Name of Person or Organization (Optional)"
+        :label="$t('label.nameOfPersonOrOrgOpt')"
         :name="`${schemaPrefix}.name`"
         input-id="person-or-org-address"
       />

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const localePath = useLocalePath()
+const { t } = useI18n()
 
 definePageMeta({
   layout: 'connect-auth',
@@ -7,6 +8,10 @@ definePageMeta({
   middleware: ['mock-connect-auth', 'connect-auth']
   // allowedRoles: [Role.FAS_CREATE]
   // name: RouteNames.CREATE_ROUTING_SLIP
+})
+
+useHead({
+  title: t('page.createRoutingSlip.title')
 })
 
 // import ModalDialog from '@/components/common/ModalDialog.vue'
@@ -44,19 +49,19 @@ definePageMeta({
 <template>
   <div class="py-10 flex flex-col gap-8">
     <UButton
-      label="Back to Dashboard"
+      :label="$t('label.backToDashboard')"
       leading-icon="i-mdi-arrow-left"
       variant="ghost"
       class="w-min pl-0"
       :to="localePath('/')"
     />
     <h1 class="-mt-3">
-      Add Routing Slip
+      {{ $t('page.createRoutingSlip.h1') }}
     </h1>
     <ConnectPageSection
       ui-body="p-4 space-y-6"
       :heading="{
-        label: 'Add New Routing Slip',
+        label: $t('label.addNewRoutingSlip'),
         icon: 'i-mdi-clipboard-text'
       }"
     >
