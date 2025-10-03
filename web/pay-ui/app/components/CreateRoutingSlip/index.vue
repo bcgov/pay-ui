@@ -1,65 +1,53 @@
 <script setup lang="ts">
-import { z } from 'zod'
-import type { FormSubmitEvent, FormErrorEvent } from '@nuxt/ui'
+import type { FormSubmitEvent, FormErrorEvent, Form } from '@nuxt/ui'
 
 const toast = useToast()
+const schema = getRoutingSlipSchema()
+const crsStore = useCreateRoutingSlipStore()
+const formRef = useTemplateRef<Form<RoutingSlipSchema>>('form-ref')
 
-const state = reactive({
-  routingSlip: {
-    id: '',
-    date: getToday().toISO() as string,
-    entity: ''
-  },
-  nameAddress: {
-    name: '',
-    address: {
-      street: '',
-      streetAdditional: '',
-      city: '',
-      region: '',
-      postalCode: '',
-      country: 'CA',
-      locationDescription: ''
-    }
-  }
-})
-
-// async function onSubmit(event: FormSubmitEvent<Schema>) {
-async function onSubmit(event: FormSubmitEvent<any>) {
+async function onSubmit(event: FormSubmitEvent<RoutingSlipSchema>) {
   toast.add({ title: 'Success', description: 'The form has been submitted.', color: 'success' })
   console.log(event.data)
 }
 
-async function onError(event: FormErrorEvent) {
-  console.log(event.errors)
-  if (event?.errors?.[0]?.id) {
-    const element = document.getElementById(event.errors[0].id)
-    element?.focus()
-    element?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+function onError(event: FormErrorEvent) {
+  let element: HTMLElement | null = null
+  const firstEl = event.errors[0]?.id
+
+  if (firstEl) {
+    element = document.getElementById(firstEl)
+  }
+
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    setTimeout(() => {
+      element.focus({ preventScroll: true })
+    }, 0)
   }
 }
-
-// const nonReqSchema = getNonRequiredAddressSchema()
-// const addressSchema = z.object({
-//   name: z.string().max(10),
-//   address: nonReqSchema
-// })
 </script>
 
 <template>
   <UForm
-    :state
+    ref="form-ref"
+    :state="crsStore.state"
+    :schema
+    class="space-y-16"
     @submit="onSubmit"
     @error="onError"
   >
-    <CreateRoutingSlipDetails
-      v-model="state.routingSlip"
+    <CreateRoutingSlipDetails v-model="crsStore.state.details" schema-prefix="details" />
+    <CreateRoutingSlipPayment
+      v-model="crsStore.state.payment"
+      schema-prefix="payment"
+      :form-ref="formRef"
     />
-    <CreateRoutingSlipPayment />
     <CreateRoutingSlipAddress
-      v-model="state.nameAddress"
+      v-model="crsStore.state.address"
+      schema-prefix="address"
+      :form-ref="formRef"
     />
-    <!-- :schema="addressSchema" -->
     <div class="flex gap-4 justify-end">
       <UButton
         label="Review and Create"
