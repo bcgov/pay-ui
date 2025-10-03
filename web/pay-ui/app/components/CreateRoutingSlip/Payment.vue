@@ -40,7 +40,7 @@ const model = defineModel<RoutingSlipPaymentSchema>({ required: true })
       >
         <ConnectFormInput
           v-model="item.identifier"
-          :label="$t('label.chequeNumber')"
+          :label="isCheque ? $t('label.chequeNumber') : $t('label.receiptNumber')"
           :name="`${schemaPrefix}.paymentItems.${item.uuid}.identifier`"
           :input-id="`cheque-receipt-number-${item.uuid}`"
           class="flex-1"

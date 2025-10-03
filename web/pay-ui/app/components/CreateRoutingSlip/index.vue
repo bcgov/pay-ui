@@ -64,7 +64,6 @@ function onError(event: FormErrorEvent) {
     <CreateRoutingSlipAddress
       v-model="crsStore.state.address"
       schema-prefix="address"
-      :form-ref="formRef"
     />
     <div class="flex gap-4 justify-end">
       <UButton
@@ -77,4 +76,5 @@ function onError(event: FormErrorEvent) {
       />
     </div>
   </UForm>
+  <!-- sm:w-1/4 not being scanned by tailwind from dependency -->
 </template>

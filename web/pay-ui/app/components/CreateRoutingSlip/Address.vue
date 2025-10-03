@@ -25,5 +25,4 @@ const model = defineModel<RoutingSlipAddressSchema>({ required: true })
       />
     </div>
   </ConnectFieldset>
-  <!-- sm:w-1/4 not being scanned by tailwind from dependency -->
 </template>

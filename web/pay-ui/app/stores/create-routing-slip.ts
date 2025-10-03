@@ -5,7 +5,7 @@ export const useCreateRoutingSlipStore = defineStore('create-routing-slip-store'
 
   const totalCAD = computed<string>(() => Object.values(state.payment.paymentItems)
     .reduce((total, item) => {
-      const amount = Number(item?.amountCAD || 0)
+      const amount = Number(item?.amountCAD) || 0
       return total + amount
     }, 0).toFixed(2)
   )
@@ -35,6 +35,13 @@ export const useCreateRoutingSlipStore = defineStore('create-routing-slip-store'
     }
   }
 
+  function $reset() {
+    const newState = createEmptyCRSState()
+    state.details = newState.details
+    state.payment = newState.payment
+    state.address = newState.address
+  }
+
   return {
     state,
     isCheque,
@@ -42,6 +49,7 @@ export const useCreateRoutingSlipStore = defineStore('create-routing-slip-store'
     addCheque,
     removeCheque,
     resetPaymentState,
-    resetUSDAmounts
+    resetUSDAmounts,
+    $reset
   }
 })
