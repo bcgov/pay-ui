@@ -34,6 +34,7 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
     "@nuxt/eslint-config": "1.5.2",
+    "@pinia/testing": "^1.0.2",
     "@playwright/test": "^1.55.0",
     "@types/luxon": "^3.7.1",
     "@types/node": "^24.5.2",

@@ -7,6 +7,14 @@ const model = defineModel<string | null>({
   required: true
 })
 
+defineProps<{
+  hasError?: boolean
+}>()
+
+const emit = defineEmits<{
+  blur: []
+}>()
+
 const open = ref(false)
 
 const localModel = computed({
@@ -29,26 +37,39 @@ const localModel = computed({
     }
   }
 })
+
+watch(open, (v) => {
+  if (!v) {
+    emit('blur')
+  }
+})
 </script>
 
 <template>
-  <UPopover
-    v-model:open="open"
-  >
+  <UPopover v-model:open="open">
     <UButton
+      v-bind="$attrs"
       color="neutral"
       variant="subtle"
       trailing-icon="i-mdi-calendar"
       :class="[
         'focus:outline-none focus-visible:outline-none ring-transparent focus-visible:ring-none',
         'focus-visible:shadow-input-focus ring-0 shadow-input rounded-b-none',
-        open ? 'shadow-input-focus' : ''
+        'w-full justify-between px-2.5 py-4.5 bg-shade',
+        open ? 'shadow-input-focus' : '',
+        hasError ? 'shadow-input-error' : ''
       ]"
-      :ui="{ trailingIcon: open ? 'text-primary' : '' }"
+      :ui="{
+        trailingIcon: hasError
+          ? 'text-error'
+          : open
+            ? 'text-primary'
+            : ''
+      }"
     >
       <template #default>
-        <span v-if="localModel">{{ localModel.toString() }}</span>
-        <span v-else>{{ $t('label.selectDate') }}</span>
+        <span v-if="localModel" class="text-neutral">{{ localModel.toString() }}</span>
+        <span v-else :class="hasError ? 'text-error' : 'text-neutral'">{{ $t('label.selectDate') }}</span>
       </template>
     </UButton>
 

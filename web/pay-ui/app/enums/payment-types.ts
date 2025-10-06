@@ -1,0 +1,15 @@
+export enum PaymentTypes {
+  CASH = 'CASH',
+  CHEQUE = 'CHEQUE',
+  CREDIT_CARD = 'CC',
+  BCOL = 'DRAWDOWN',
+  DIRECT_PAY = 'DIRECT_PAY',
+  EFT = 'EFT',
+  INTERNAL = 'INTERNAL',
+  NO_FEE = 'NO_FEE',
+  ONLINE_BANKING = 'ONLINE_BANKING',
+  PAD = 'PAD',
+  EJV = 'EJV',
+  WIRE = 'WIRE',
+  CREDIT = 'CREDIT'
+}

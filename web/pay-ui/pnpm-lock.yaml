@@ -42,6 +42,9 @@ importers:
       '@nuxt/eslint-config':
         specifier: 1.5.2
         version: 1.5.2(@vue/compiler-sfc@3.5.21)(eslint@9.36.0(jiti@2.6.0))(typescript@5.9.2)
+      '@pinia/testing':
+        specifier: ^1.0.2
+        version: 1.0.2(pinia@3.0.3(typescript@5.9.2)(vue@3.5.21(typescript@5.9.2)))
       '@playwright/test':
         specifier: ^1.55.0
         version: 1.55.0
@@ -1339,6 +1342,11 @@ packages:
     resolution: {integrity: sha512-CgvSWpbktxxWBV7ModhAcsExsQZqpPq6vMYEe9DexmmY6959ev8ukL4iFhr/qov2Nb9cQAWd7niFDnaWkN+FHg==}
     peerDependencies:
       pinia: ^3.0.3
+
+  '@pinia/testing@1.0.2':
+    resolution: {integrity: sha512-yZVXJTKh677J0AT8kOPxGk5s1v7hMQIDT3tmeriwtR5LDu41DvXTEBQf0ql9SsHW1mCSDG38QDFzSSl5ucJqnQ==}
+    peerDependencies:
+      pinia: '>=3.0.3'
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -6444,6 +6452,10 @@ snapshots:
       pinia: 3.0.3(typescript@5.9.2)(vue@3.5.21(typescript@5.9.2))
     transitivePeerDependencies:
       - magicast
+
+  '@pinia/testing@1.0.2(pinia@3.0.3(typescript@5.9.2)(vue@3.5.21(typescript@5.9.2)))':
+    dependencies:
+      pinia: 3.0.3(typescript@5.9.2)(vue@3.5.21(typescript@5.9.2))
 
   '@pkgjs/parseargs@0.11.0':
     optional: true

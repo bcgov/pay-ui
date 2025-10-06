@@ -1,5 +1,3 @@
-// TODO: move this into /services ???
-
 export const usePayApi = () => {
   const { $payApi } = useNuxtApp()
 
@@ -8,7 +6,12 @@ export const usePayApi = () => {
     return res.codes
   }
 
+  async function getRoutingSlip(routingNumber: string): Promise<RoutingSlip | undefined> {
+    return $payApi(`/fas/routing-slips/${routingNumber}`)
+  }
+
   return {
-    getCodes
+    getCodes,
+    getRoutingSlip
   }
 }
