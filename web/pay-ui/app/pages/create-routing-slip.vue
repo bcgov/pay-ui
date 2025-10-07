@@ -18,21 +18,20 @@ useHead({
   title: t('page.createRoutingSlip.title')
 })
 
-
-ADD LOADING AND ERROR HANDLING
+// ADD LOADING AND ERROR HANDLING
 </script>
 
 <template>
-  <div class="py-10 flex flex-col gap-8">
-    <!-- TODO: modal when clicking back -->
+  <UContainer>
     <UButton
       :label="$t('label.backToDashboard')"
       leading-icon="i-mdi-arrow-left"
       variant="ghost"
       class="w-min pl-0"
+      :disabled="crsStore.loading"
       @click="modal.openLeaveCreateRoutingSlipModal"
     />
-    <h1 class="-mt-3">
+    <h1>
       {{ $t('page.createRoutingSlip.h1') }}
     </h1>
     <ConnectPageSection
@@ -53,5 +52,5 @@ ADD LOADING AND ERROR HANDLING
         @create="crsStore.createRoutingSlip"
       />
     </ConnectPageSection>
-  </div>
+  </UContainer>
 </template>

@@ -1,6 +1,10 @@
+import { delay } from 'es-toolkit'
+
 export const useCreateRoutingSlipStore = defineStore('create-routing-slip-store', () => {
-  const localePath = useLocalePath()
   const payApi = usePayApi()
+  const localePath = useLocalePath()
+  const t = useNuxtApp().$i18n.t
+  const toast = useToast()
 
   const state = reactive<RoutingSlipSchema>(createEmptyCRSState())
   const loading = ref<boolean>(false)
@@ -43,12 +47,19 @@ export const useCreateRoutingSlipStore = defineStore('create-routing-slip-store'
   async function createRoutingSlip() {
     try {
       loading.value = true
-      const payload = createRoutingSlipPayload(state)
-      const res = await payApi.postRoutingSlip(payload)
-      await navigateTo(localePath(`/view-routing-slip/${res.number}`))
+      await delay(3000)
+      // const payload = createRoutingSlipPayload(state)
+      // const res = await payApi.postRoutingSlip(payload)
+      // await navigateTo(localePath(`/view-routing-slip/${res.number}`))
     } catch (e) {
-      // TODO: handle errors
-      console.error(e)
+      // TODO: maybe more descriptive error messages ?
+      const status = getErrorStatus(e)
+      toast.add({
+        description: t('error.createRoutingSlip.generic', { status: status ? `${status}: ` : '' }),
+        icon: 'i-mdi-alert',
+        color: 'error',
+        progress: false
+      })
     } finally {
       loading.value = false
       $reset()
@@ -68,6 +79,7 @@ export const useCreateRoutingSlipStore = defineStore('create-routing-slip-store'
     isCheque,
     totalCAD,
     reviewMode,
+    loading,
     addCheque,
     removeCheque,
     resetPaymentState,
