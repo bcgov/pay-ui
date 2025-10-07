@@ -1,5 +1,10 @@
 export const useCreateRoutingSlipStore = defineStore('create-routing-slip-store', () => {
+  const localePath = useLocalePath()
+  const payApi = usePayApi()
+
   const state = reactive<RoutingSlipSchema>(createEmptyCRSState())
+  const loading = ref<boolean>(false)
+  const reviewMode = ref<boolean>(false)
 
   const isCheque = computed<boolean>(() => state.payment.paymentType === PaymentTypes.CHEQUE)
 
@@ -35,21 +40,39 @@ export const useCreateRoutingSlipStore = defineStore('create-routing-slip-store'
     }
   }
 
+  async function createRoutingSlip() {
+    try {
+      loading.value = true
+      const payload = createRoutingSlipPayload(state)
+      const res = await payApi.postRoutingSlip(payload)
+      await navigateTo(localePath(`/view-routing-slip/${res.number}`))
+    } catch (e) {
+      // TODO: handle errors
+      console.error(e)
+    } finally {
+      loading.value = false
+      $reset()
+    }
+  }
+
   function $reset() {
     const newState = createEmptyCRSState()
     state.details = newState.details
     state.payment = newState.payment
     state.address = newState.address
+    loading.value = false
   }
 
   return {
     state,
     isCheque,
     totalCAD,
+    reviewMode,
     addCheque,
     removeCheque,
     resetPaymentState,
     resetUSDAmounts,
+    createRoutingSlip,
     $reset
   }
 })
