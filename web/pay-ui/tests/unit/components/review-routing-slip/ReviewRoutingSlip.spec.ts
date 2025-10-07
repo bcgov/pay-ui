@@ -10,7 +10,7 @@ const baseChequeState = {
     paymentType: PaymentTypes.CHEQUE,
     isUSD: false,
     paymentItems: {
-      1: { uuid: '1', date: '2025-10-05T00:00:00.000Z', amountCAD: '150.75', amountUSD: '110.25', identifier: '1234' }
+      1: { uuid: '1', date: '2025-10-05T10:00:00.000Z', amountCAD: '150.75', amountUSD: '110.25', identifier: '1234' }
     }
   },
   address: { name: 'Test Org', address: { street: '123 Main St' } }
@@ -22,7 +22,7 @@ const baseCashState = {
     paymentType: PaymentTypes.CASH,
     isUSD: false,
     paymentItems: {
-      1: { uuid: '1', date: '2025-10-05T00:00:00.000Z', amountCAD: '150.75', amountUSD: '110.25', identifier: '1234' }
+      1: { uuid: '1', date: '2025-10-05T10:00:00.000Z', amountCAD: '150.75', amountUSD: '110.25', identifier: '1234' }
     }
   },
   address: { name: 'Test Org', address: { street: '123 Main St' } }
@@ -64,7 +64,7 @@ describe('ReviewRoutingSlip', () => {
     const table = wrapper.findComponent({ name: 'UTable' })
     expect(table.exists()).toBe(true)
     const tableData = table.props('data')
-    expect(tableData[0].date).toBe('October 4, 2025')
+    expect(tableData[0].date).toBe('October 5, 2025')
     expect(tableData[0].amountCAD).toBe('150.75')
 
     const address = wrapper.findComponent({ name: 'ConnectAddressDisplay' })
