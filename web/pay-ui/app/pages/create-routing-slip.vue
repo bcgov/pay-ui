@@ -1,7 +1,4 @@
 <script setup lang="ts">
-// TODO: review mode
-// TODO: routing slip submission
-// TODO: error handling
 const { t } = useI18n()
 const crsStore = useCreateRoutingSlipStore()
 const modal = usePayModals()
@@ -17,8 +14,6 @@ definePageMeta({
 useHead({
   title: t('page.createRoutingSlip.title')
 })
-
-// ADD LOADING AND ERROR HANDLING
 </script>
 
 <template>
