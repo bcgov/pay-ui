@@ -65,7 +65,10 @@ export function createRoutingSlipPayload(data: RoutingSlipSchema): CreateRouting
 
   return {
     contactName: data.address.name,
-    mailingAddress: data.address.address,
+    mailingAddress: {
+      ...data.address.address,
+      deliveryInstructions: data.address.address.locationDescription // discrepancy between connect/pay attribute name
+    },
     number: data.details.id,
     paymentAccount: {
       accountName: data.details.entity
