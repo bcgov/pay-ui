@@ -58,7 +58,7 @@ export function createRoutingSlipPayload(data: RoutingSlipSchema): CreateRouting
       chequeReceiptNumber: item.identifier,
       paidAmount: parseFloat(item.amountCAD) || 0,
       paidUsdAmount: parseFloat(item.amountUSD) || 0,
-      paymentDate: DateTime.fromISO(item.date).toFormat('yyyy-MM-dd'),
+      paymentDate: DateTime.fromISO(item.date).setZone('UTC').toFormat('yyyy-MM-dd'),
       paymentMethod: data.payment.paymentType
     })
   }
@@ -73,7 +73,7 @@ export function createRoutingSlipPayload(data: RoutingSlipSchema): CreateRouting
     paymentAccount: {
       accountName: data.details.entity
     },
-    routingSlipDate: DateTime.fromISO(data.details.date).toFormat('yyyy-MM-dd'),
+    routingSlipDate: DateTime.fromISO(data.details.date).setZone('UTC').toFormat('yyyy-MM-dd'),
     payments
   }
 }
