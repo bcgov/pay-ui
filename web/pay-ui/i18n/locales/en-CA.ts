@@ -45,6 +45,11 @@ export default {
       // CORRECTION='Correct Routing Slip' - Future
     }
   },
+  error: {
+    createRoutingSlip: {
+      generic: '{status}Error creating routing slip, please try again later.'
+    }
+  },
   label: {
     additionalCheque: 'Additional Cheque',
     addNewRoutingSlip: 'Add New Routing Slip',

@@ -29,28 +29,39 @@ const payData = computed<RoutingSlipPaymentItem[]>(() => {
 })
 
 const payColumns = computed<TableColumn<RoutingSlipPaymentItem>[]>(() => {
+  const meta = {
+    class: {
+      th: 'text-center',
+      td: 'text-center text-neutral'
+    }
+  }
+
   const cols = [
     {
       accessorKey: 'identifier',
-      header: crsStore.isCheque ? t('label.chequeNumber') : t('label.receiptNumber')
+      header: crsStore.isCheque ? t('label.chequeNumber') : t('label.receiptNumber'),
+      meta
     },
     {
       accessorKey: 'amountCAD',
-      header: t('label.amountCAD')
+      header: t('label.amountCAD'),
+      meta
     }
   ]
 
   if (crsStore.isCheque) {
     cols.splice(1, 0, {
       accessorKey: 'date',
-      header: t('label.chequeDate')
+      header: t('label.chequeDate'),
+      meta
     })
   }
 
   if (crsStore.state.payment.isUSD) {
     cols.push({
       accessorKey: 'amountUSD',
-      header: t('label.amountUSD')
+      header: t('label.amountUSD'),
+      meta
     })
   }
   return cols
@@ -79,14 +90,13 @@ const payColumns = computed<TableColumn<RoutingSlipPaymentItem>[]>(() => {
         :value="crsStore.isCheque ? $t('enum.PaymentTypes.CHEQUE') : $t('enum.PaymentTypes.CASH')"
       />
       <UTable
-        class="max-h-48"
+        class="max-h-48 mx-0 sm:mx-10"
         :data="payData"
         :columns="payColumns"
         sticky
         :ui="{
           separator: 'bg-line-muted',
-          tbody: 'divide-line-muted',
-          td: 'text-neutral'
+          tbody: 'divide-line-muted'
         }"
       />
       <ReviewRoutingSlipRow
@@ -112,18 +122,21 @@ const payColumns = computed<TableColumn<RoutingSlipPaymentItem>[]>(() => {
         variant="outline"
         leading-icon="i-mdi-chevron-left"
         size="xl"
+        :disabled="crsStore.loading"
         @click="crsStore.reviewMode = false"
       />
       <div class="flex gap-4">
         <UButton
           :label="$t('label.create')"
           size="xl"
+          :loading="crsStore.loading"
           @click="$emit('create')"
         />
         <UButton
           :label="$t('label.cancel')"
           variant="outline"
           size="xl"
+          :disabled="crsStore.loading"
           @click="$emit('cancel')"
         />
       </div>
