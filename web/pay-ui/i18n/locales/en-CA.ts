@@ -52,25 +52,37 @@ export default {
     amountUSD: 'Amount (USD$)',
     apply: 'Apply',
     backToDashboard: 'Back to Dashboard',
+    backToEdit: 'Back to Edit',
     cancel: 'Cancel',
+    chequeDate: 'Cheque Date',
     chequeNumber: 'Cheque Number',
     columnsToShow: 'Columns to Show',
+    create: 'Create',
     date: 'Date',
     editStatus: 'Edit Status',
     entityNumber: 'Entity Number',
     fundsReceivedInUSD: 'Funds received in USD',
+    leave: 'Leave',
     nameOfPersonOrOrgAndAddress: 'Name of Person or Organization & Address',
     nameOfPersonOrOrgOpt: 'Name of Person or Organization (Optional)',
     paymentInformation: 'Payment Information',
     receiptNumber: 'Receipt Number',
     refundStatus: 'Refund Status',
     reviewAndCreate: 'Review and Create',
+    reviewNewRoutingSlip: 'Review New Routing Slip',
     routingSlip: 'Routing Slip',
     routingSlipUniqueID: 'Routing Slip - Unique ID',
     selectDate: 'Select Date',
     selectedDateRange: '{boldStart}{name}:{boldEnd} {value}',
     status: 'Status',
+    totalAmount: 'Total Amount',
     totalAmountReceived: 'Total Amount Received ($)'
+  },
+  modal: {
+    leaveCreateRoutingSlip: {
+      title: 'Leave Add Routing Slip?',
+      description: 'If you leave this page, your routing slip information will not be created or saved.'
+    }
   },
   page: {
     createRoutingSlip: {
