@@ -1,3 +1,20 @@
+export interface CreateRoutingSlipPayload {
+  contactName: string
+  mailingAddress: Partial<Address>
+  number: string
+  paymentAccount: {
+    accountName: string
+  }
+  routingSlipDate: string
+  payments: Array<{
+    chequeReceiptNumber: string
+    paidAmount: number
+    paidUsdAmount: number
+    paymentDate: string
+    paymentMethod: PaymentTypes.CASH | PaymentTypes.CHEQUE
+  }>
+}
+
 export interface Payment {
   id?: number
   chequeReceiptNumber?: string

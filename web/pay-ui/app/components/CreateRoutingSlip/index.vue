@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import type { FormSubmitEvent, FormErrorEvent, Form } from '@nuxt/ui'
+import type { FormErrorEvent, Form } from '@nuxt/ui'
 
 const schema = getRoutingSlipSchema()
 const crsStore = useCreateRoutingSlipStore()
 const formRef = useTemplateRef<Form<RoutingSlipSchema>>('form-ref')
+
+defineEmits<{
+  cancel: []
+}>()
 
 function onPaymentTypeChange() {
   crsStore.resetPaymentState()
@@ -20,11 +24,6 @@ function onUSDChange() {
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */ // cant infer validation name/key
 function onValidateDate(name: any) {
   formRef.value?.validate({ name, silent: true })
-}
-
-async function onSubmit(event: FormSubmitEvent<RoutingSlipSchema>) {
-  // TODO: go to 'review' mode
-  console.info(event.data)
 }
 
 function onError(event: FormErrorEvent) {
@@ -46,7 +45,6 @@ function onError(event: FormErrorEvent) {
     :state="crsStore.state"
     :schema
     class="space-y-16"
-    @submit="onSubmit"
     @error="onError"
   >
     <CreateRoutingSlipDetails v-model="crsStore.state.details" schema-prefix="details" />
@@ -65,14 +63,17 @@ function onError(event: FormErrorEvent) {
       v-model="crsStore.state.address"
       schema-prefix="address"
     />
-    <div class="flex gap-4 justify-end">
+    <div class="flex gap-4 justify-end border-t border-line-muted sm:pt-10 pt-6">
       <UButton
         :label="$t('label.reviewAndCreate')"
         type="submit"
+        size="xl"
       />
       <UButton
         :label="$t('label.cancel')"
         variant="outline"
+        size="xl"
+        @click="$emit('cancel')"
       />
     </div>
   </UForm>

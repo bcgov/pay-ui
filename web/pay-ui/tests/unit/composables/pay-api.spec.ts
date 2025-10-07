@@ -61,4 +61,55 @@ describe('usePayApi', () => {
       expect(result).toEqual(mockRoutingSlip)
     })
   })
+
+  describe('postRoutingSlip', () => {
+    const baseRoutingSlipData: RoutingSlipSchema = {
+      details: {
+        id: '123456789',
+        date: '2025-10-07T10:00:00.000Z',
+        entity: 'BC1234567'
+      },
+      payment: {
+        paymentType: PaymentTypes.CHEQUE,
+        paymentItems: {
+          1: {
+            uuid: '1',
+            identifier: 'CHK-001',
+            date: '2025-10-05T00:00:00.000Z',
+            amountCAD: '150.75',
+            amountUSD: '110.25'
+          }
+        },
+        isUSD: true
+      },
+      address: {
+        name: 'Test Org',
+        address: {
+          street: '123 Main St',
+          streetAdditional: 'Suite 200',
+          city: 'Victoria',
+          region: 'BC',
+          postalCode: 'V1X 1X1',
+          country: 'CA',
+          locationDescription: 'Front desk'
+        }
+      }
+    }
+
+    it('should call the $payApi with the correct url, method, and payload', async () => {
+      const payload = createRoutingSlipPayload(baseRoutingSlipData)
+      const mockApiResponse = { id: 987, status: 'ACTIVE' }
+      mockPayApi.mockResolvedValue(mockApiResponse)
+
+      const result = await payApi.postRoutingSlip(payload)
+
+      expect(mockPayApi).toHaveBeenCalledOnce()
+      expect(mockPayApi).toHaveBeenCalledWith('/fas/routing-slips', {
+        method: 'POST',
+        body: payload
+      })
+
+      expect(result).toEqual(mockApiResponse)
+    })
+  })
 })

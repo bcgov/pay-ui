@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { DateTime } from 'luxon'
 
 export * from './address'
 export * from './details'
@@ -44,5 +45,35 @@ export function createEmptyCRSState(): RoutingSlipSchema {
         locationDescription: ''
       }
     }
+  }
+}
+
+export function createRoutingSlipPayload(data: RoutingSlipSchema): CreateRoutingSlipPayload {
+  const payments = []
+
+  for (const uuid in data.payment.paymentItems) {
+    const item = data.payment.paymentItems[uuid]!
+
+    payments.push({
+      chequeReceiptNumber: item.identifier,
+      paidAmount: parseFloat(item.amountCAD) || 0,
+      paidUsdAmount: parseFloat(item.amountUSD) || 0,
+      paymentDate: DateTime.fromISO(item.date).setZone('UTC').toFormat('yyyy-MM-dd'),
+      paymentMethod: data.payment.paymentType
+    })
+  }
+
+  return {
+    contactName: data.address.name,
+    mailingAddress: {
+      ...data.address.address,
+      deliveryInstructions: data.address.address.locationDescription // discrepancy between connect/pay attribute name
+    },
+    number: data.details.id,
+    paymentAccount: {
+      accountName: data.details.entity
+    },
+    routingSlipDate: DateTime.fromISO(data.details.date).setZone('UTC').toFormat('yyyy-MM-dd'),
+    payments
   }
 }

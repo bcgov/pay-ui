@@ -1,5 +1,12 @@
 export const useCreateRoutingSlipStore = defineStore('create-routing-slip-store', () => {
+  const payApi = usePayApi()
+  const localePath = useLocalePath()
+  const t = useNuxtApp().$i18n.t
+  const toast = useToast()
+
   const state = reactive<RoutingSlipSchema>(createEmptyCRSState())
+  const loading = ref<boolean>(false)
+  const reviewMode = ref<boolean>(false)
 
   const isCheque = computed<boolean>(() => state.payment.paymentType === PaymentTypes.CHEQUE)
 
@@ -35,21 +42,48 @@ export const useCreateRoutingSlipStore = defineStore('create-routing-slip-store'
     }
   }
 
+  // TODO: maybe move to composable once 'view routing slip' is complete
+  async function createRoutingSlip() {
+    try {
+      loading.value = true
+      const payload = createRoutingSlipPayload(state)
+      const res = await payApi.postRoutingSlip(payload)
+      await navigateTo(localePath(`/view-routing-slip/${res.number}`))
+      $reset()
+    } catch (e) {
+      // TODO: maybe more descriptive error messages ?
+      const status = getErrorStatus(e)
+      toast.add({
+        description: t('error.createRoutingSlip.generic', { status: status ? `${status}: ` : '' }),
+        icon: 'i-mdi-alert',
+        color: 'error',
+        progress: false
+      })
+    } finally {
+      loading.value = false
+    }
+  }
+
   function $reset() {
     const newState = createEmptyCRSState()
     state.details = newState.details
     state.payment = newState.payment
     state.address = newState.address
+    loading.value = false
+    reviewMode.value = false
   }
 
   return {
     state,
     isCheque,
     totalCAD,
+    reviewMode,
+    loading,
     addCheque,
     removeCheque,
     resetPaymentState,
     resetUSDAmounts,
+    createRoutingSlip,
     $reset
   }
 })
