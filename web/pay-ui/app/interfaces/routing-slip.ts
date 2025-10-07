@@ -1,6 +1,6 @@
 export interface CreateRoutingSlipPayload {
   contactName: string // address.name
-  mailingAddress: Partial<ConnectAddress>
+  mailingAddress: Partial<Address>
   number: string // routing slip id
   paymentAccount: {
     accountName: string // entity number

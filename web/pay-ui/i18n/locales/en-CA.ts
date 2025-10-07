@@ -94,6 +94,10 @@ export default {
       title: 'Add Routing Slip - BC Business Registry FAS',
       h1: 'Add Routing Slip'
     },
+    viewRoutingSlip: {
+      title: 'View Routing Slip - BC Business Registry FAS',
+      h1: 'View Routing Slip: {id}'
+    },
     home: {
       title: 'Index Page - Pay UI',
       h1: 'Index Page'

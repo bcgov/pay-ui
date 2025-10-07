@@ -1,5 +1,3 @@
-import { delay } from 'es-toolkit'
-
 export const useCreateRoutingSlipStore = defineStore('create-routing-slip-store', () => {
   const payApi = usePayApi()
   const localePath = useLocalePath()
@@ -44,13 +42,13 @@ export const useCreateRoutingSlipStore = defineStore('create-routing-slip-store'
     }
   }
 
+  // TODO: maybe move to composable once 'view routing slip' is complete
   async function createRoutingSlip() {
     try {
       loading.value = true
-      await delay(3000)
-      // const payload = createRoutingSlipPayload(state)
-      // const res = await payApi.postRoutingSlip(payload)
-      // await navigateTo(localePath(`/view-routing-slip/${res.number}`))
+      const payload = createRoutingSlipPayload(state)
+      const res = await payApi.postRoutingSlip(payload)
+      await navigateTo(localePath(`/view-routing-slip/${res.number}`))
     } catch (e) {
       // TODO: maybe more descriptive error messages ?
       const status = getErrorStatus(e)
@@ -72,6 +70,7 @@ export const useCreateRoutingSlipStore = defineStore('create-routing-slip-store'
     state.payment = newState.payment
     state.address = newState.address
     loading.value = false
+    reviewMode.value = false
   }
 
   return {
