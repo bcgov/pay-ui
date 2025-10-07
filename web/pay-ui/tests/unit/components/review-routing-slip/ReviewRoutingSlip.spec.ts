@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { ReviewRoutingSlip } from '#components'
 import { createTestingPinia } from '@pinia/testing'
@@ -31,6 +31,12 @@ const baseCashState = {
 describe('ReviewRoutingSlip', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2025-09-26T10:00:00.000Z'))
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it('renders all sections', async () => {
