@@ -49,14 +49,16 @@ describe('createDedupedRequest', () => {
       (value: string) => new Promise(resolve => setTimeout(() => resolve(value), 100))
     )
 
-    const result1 = await dedupeRequest.run('key1', () => mockApiCall('first'))
+    const result1Promise = dedupeRequest.run('key1', () => mockApiCall('first'))
     await vi.advanceTimersByTimeAsync(100)
+    const result1 = await result1Promise
 
-    const result2 = await dedupeRequest.run('key1', () => mockApiCall('second'))
+    const result2Promise = dedupeRequest.run('key1', () => mockApiCall('second'))
     await vi.advanceTimersByTimeAsync(100)
+    const result2 = await result2Promise
 
     expect(mockApiCall).toHaveBeenCalledTimes(2)
-    expect(result1).toBe('firstl')
-    expect(result2).toBe('Second Call')
+    expect(result1).toBe('first')
+    expect(result2).toBe('second')
   })
 })

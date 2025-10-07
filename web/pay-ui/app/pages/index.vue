@@ -1,7 +1,6 @@
 <script setup lang="ts">
 const { t } = useI18n()
 const localePath = useLocalePath()
-const modal = usePayModals()
 
 definePageMeta({
   layout: 'connect-auth'
@@ -52,22 +51,6 @@ function resetDate() {
       <UButton
         label="Go to Protected"
         :to="localePath('/protected')"
-      />
-      <UButton
-        label="Open example modal"
-        @click="modal.openExampleModal(
-          'Title Here',
-          'Description Text',
-          false,
-          [
-            { label: 'Close', shouldClose: true },
-            { label: 'Alert',
-              onClick: () => {
-                useToast().add({ title: 'Toast Title' })
-              }
-            }
-          ]
-        )"
       />
     </div>
   </div>

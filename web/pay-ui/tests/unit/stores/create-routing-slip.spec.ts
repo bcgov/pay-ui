@@ -1,6 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+
+const { mockNavigateTo } = vi.hoisted(() => ({ mockNavigateTo: vi.fn() }))
+mockNuxtImport('navigateTo', () => mockNavigateTo)
+
+const mockPayApi = { postRoutingSlip: vi.fn() }
+mockNuxtImport('usePayApi', () => () => mockPayApi)
+
+const mockToast = { add: vi.fn() }
+mockNuxtImport('useToast', () => () => mockToast)
+
+mockNuxtImport('useLocalePath', () => () => vi.fn((path: string) => `/en-CA${path}`))
 
 const mockUUIDs = ['1', '2', '3']
 let uuidIndex = 0
@@ -12,10 +24,25 @@ vi.stubGlobal('crypto', {
   }
 })
 
+vi.mock('~/utils/create-routing-slip', async (importOriginal) => {
+  const original = await importOriginal<any>()
+  return {
+    ...original,
+    createRoutingSlipPayload: vi.fn((data: any) => ({ payload: data }))
+  }
+})
+
 describe('useCreateRoutingSlipStore', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     uuidIndex = 0
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2025-09-26T10:00:00.000Z'))
+    vi.resetAllMocks()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it('should have the correct default state', () => {
@@ -25,6 +52,8 @@ describe('useCreateRoutingSlipStore', () => {
     expect(store.state.payment.isUSD).toBe(false)
     expect(Object.keys(store.state.payment.paymentItems)).toHaveLength(1)
     expect(store.state.payment.paymentItems['1']).toBeDefined()
+    expect(store.loading).toBe(false)
+    expect(store.reviewMode).toBe(false)
   })
 
   describe('Computed', () => {
@@ -122,6 +151,8 @@ describe('useCreateRoutingSlipStore', () => {
       store.state.details.id = '123456789'
       store.state.payment.isUSD = true
       store.state.address.name = 'Test Name'
+      store.loading = true
+      store.reviewMode = true
 
       store.$reset()
 
@@ -130,6 +161,8 @@ describe('useCreateRoutingSlipStore', () => {
       expect(store.state.details).toEqual(expected.details)
       expect(store.state.address).toEqual(expected.address)
       expect(store.state.payment.isUSD).toBe(false)
+      expect(store.loading).toBe(false)
+      expect(store.reviewMode).toBe(false)
 
       const paymentItems = Object.values(store.state.payment.paymentItems)
       expect(paymentItems).toHaveLength(1)
@@ -141,6 +174,50 @@ describe('useCreateRoutingSlipStore', () => {
           identifier: ''
         })
       )
+    })
+
+    describe('createRoutingSlip', () => {
+      it('should set loading, post request, redirect on success, and reset', async () => {
+        const store = useCreateRoutingSlipStore()
+        store.reviewMode = true
+        store.loading = true
+
+        const mockApiResponse = { number: 'ROUTING123' }
+        mockPayApi.postRoutingSlip.mockResolvedValue(mockApiResponse)
+
+        await store.createRoutingSlip()
+
+        expect(vi.mocked(createRoutingSlipPayload)).toHaveBeenCalledWith(store.state)
+        expect(mockPayApi.postRoutingSlip).toHaveBeenCalledWith({ payload: store.state })
+        expect(mockNavigateTo).toHaveBeenCalledOnce()
+        expect(mockNavigateTo).toHaveBeenCalledWith('/en-CA/view-routing-slip/ROUTING123')
+        expect(store.reviewMode).toBe(false)
+        expect(store.loading).toBe(false)
+      })
+
+      it('should open toast and not reset if request fails', async () => {
+        const store = useCreateRoutingSlipStore()
+        store.loading = true
+        store.reviewMode = true
+
+        const mockError = new Error('some error')
+        mockPayApi.postRoutingSlip.mockRejectedValue(mockError)
+
+        await store.createRoutingSlip()
+
+        expect(store.loading).toBe(false)
+        expect(store.reviewMode).toBe(true)
+        expect(mockToast.add).toHaveBeenCalledOnce()
+        expect(mockToast.add).toHaveBeenCalledWith(expect.objectContaining({
+          description: 'Error creating routing slip, please try again later.',
+          color: 'error',
+          progress: false,
+          icon: 'i-mdi-alert'
+        }))
+
+        expect(mockNavigateTo).not.toHaveBeenCalled()
+        expect(store.reviewMode).toBe(true)
+      })
     })
   })
 })

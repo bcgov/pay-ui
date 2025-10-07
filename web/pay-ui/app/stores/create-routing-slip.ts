@@ -49,6 +49,7 @@ export const useCreateRoutingSlipStore = defineStore('create-routing-slip-store'
       const payload = createRoutingSlipPayload(state)
       const res = await payApi.postRoutingSlip(payload)
       await navigateTo(localePath(`/view-routing-slip/${res.number}`))
+      $reset()
     } catch (e) {
       // TODO: maybe more descriptive error messages ?
       const status = getErrorStatus(e)
@@ -60,7 +61,6 @@ export const useCreateRoutingSlipStore = defineStore('create-routing-slip-store'
       })
     } finally {
       loading.value = false
-      $reset()
     }
   }
 
