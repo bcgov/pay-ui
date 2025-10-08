@@ -6,9 +6,8 @@ const modal = usePayModals()
 definePageMeta({
   layout: 'connect-auth',
   hideBreadcrumbs: true,
-  middleware: ['mock-connect-auth', 'connect-auth']
-  // allowedRoles: [Role.FAS_CREATE] // TODO: role check
-  // name: RouteNames.CREATE_ROUTING_SLIP // TODO: name? maybe not needed
+  middleware: ['mock-connect-auth', 'pay-auth'],
+  allowedRoles: [Role.FAS_CREATE]
 })
 
 useHead({
