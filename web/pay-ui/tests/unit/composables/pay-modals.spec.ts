@@ -49,6 +49,7 @@ describe('usePayModals', () => {
       const leaveButton = props.buttons[0]
       expect(leaveButton.label).toBe('Leave')
       expect(leaveButton.to).toBe('/en-CA/home')
+      expect(leaveButton.shouldClose).toBe(true)
 
       const cancelButton = props.buttons[1]
       expect(cancelButton.label).toBe('Cancel')

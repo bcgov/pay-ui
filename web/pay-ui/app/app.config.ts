@@ -4,7 +4,7 @@ export default defineAppConfig({
       localeSelect: false
     },
     login: {
-      redirect: '/protected'
+      redirect: '/home'
     },
     logout: {
       redirect: '/auth/login'

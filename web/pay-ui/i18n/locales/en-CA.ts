@@ -62,6 +62,7 @@ export default {
     chequeDate: 'Cheque Date',
     chequeNumber: 'Cheque Number',
     columnsToShow: 'Columns to Show',
+    contactSupport: 'Contact Support',
     create: 'Create',
     date: 'Date',
     editStatus: 'Edit Status',
@@ -93,6 +94,20 @@ export default {
     createRoutingSlip: {
       title: 'Add Routing Slip - BC Business Registry FAS',
       h1: 'Add Routing Slip'
+    },
+    error: {
+      403: {
+        h1: 'Not Authorized',
+        text: 'You are not authorized to access this page.'
+      },
+      404: {
+        h1: '404 Page Not Found',
+        text: 'This page could not be found or does not exist.'
+      },
+      undefined: {
+        h1: 'Unknown Error',
+        text: 'An unknown error occured, please refresh the page or try again later.'
+      }
     },
     viewRoutingSlip: {
       title: 'View Routing Slip - BC Business Registry FAS',
