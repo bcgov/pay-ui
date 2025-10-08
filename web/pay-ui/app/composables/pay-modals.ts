@@ -9,7 +9,7 @@ export const usePayModals = () => {
       description: t('modal.leaveCreateRoutingSlip.description'),
       dismissible: true,
       buttons: [
-        { label: t('label.leave'), to: localePath('/home') },
+        { label: t('label.leave'), to: localePath('/home'), shouldClose: true },
         { label: t('label.cancel'), shouldClose: true, variant: 'outline' }
       ]
     })
