@@ -97,19 +97,80 @@ describe('usePayApi', () => {
     }
 
     it('should call the $payApi with the correct url, method, and payload', async () => {
-      const payload = createRoutingSlipPayload(baseRoutingSlipData)
+      const body = createRoutingSlipPayload(baseRoutingSlipData)
       const mockApiResponse = { id: 987, status: 'ACTIVE' }
       mockPayApi.mockResolvedValue(mockApiResponse)
 
-      const result = await payApi.postRoutingSlip(payload)
+      const result = await payApi.postRoutingSlip(body)
 
       expect(mockPayApi).toHaveBeenCalledOnce()
       expect(mockPayApi).toHaveBeenCalledWith('/fas/routing-slips', {
         method: 'POST',
-        body: payload
+        body
       })
 
       expect(result).toEqual(mockApiResponse)
+    })
+  })
+
+  describe('postSearchRoutingSlip', () => {
+    it('should call $payApi with correct url, method and payload', async () => {
+      const body: RoutingSlipSearchParams = { routingSlipNumber: '123456789' }
+      const mockResponse: { items: RoutingSlip[] } = { items: [{ number: '123456789', status: 'ACTIVE' }] }
+      mockPayApi.mockResolvedValue(mockResponse)
+
+      const result = await payApi.postSearchRoutingSlip(body)
+
+      expect(mockPayApi).toHaveBeenCalledTimes(1)
+      expect(mockPayApi).toHaveBeenCalledWith('/fas/routing-slips/queries', {
+        method: 'POST',
+        body
+      })
+      expect(result).toEqual(mockResponse)
+    })
+
+    it('should throw an error if $payApi fails', async () => {
+      const body: RoutingSlipSearchParams = { routingSlipNumber: '123456789' }
+      const mockError = new Error('API Error 404')
+
+      mockPayApi.mockRejectedValue(mockError)
+
+      await expect(payApi.postSearchRoutingSlip(body)).rejects.toThrow(mockError)
+      expect(mockPayApi).toHaveBeenCalledTimes(1)
+      expect(mockPayApi).toHaveBeenCalledWith('/fas/routing-slips/queries', {
+        method: 'POST',
+        body
+      })
+    })
+  })
+
+  describe('postLinkRoutingSlip', () => {
+    it('should call $payApi with correct url, method and payload', async () => {
+      const body: LinkRoutingSlipParams = { childRoutingSlipNumber: 'child123', parentRoutingSlipNumber: 'parent456' }
+
+      mockPayApi.mockResolvedValue(undefined)
+
+      await payApi.postLinkRoutingSlip(body)
+
+      expect(mockPayApi).toHaveBeenCalledTimes(1)
+      expect(mockPayApi).toHaveBeenCalledWith('/fas/routing-slips/links', {
+        method: 'POST',
+        body
+      })
+    })
+
+    it('should throw an error if $payApi fails', async () => {
+      const body: LinkRoutingSlipParams = { childRoutingSlipNumber: 'child123', parentRoutingSlipNumber: 'parent456' }
+      const mockError = new Error('API Error 500')
+
+      mockPayApi.mockRejectedValue(mockError)
+
+      await expect(payApi.postLinkRoutingSlip(body)).rejects.toThrow(mockError)
+      expect(mockPayApi).toHaveBeenCalledTimes(1)
+      expect(mockPayApi).toHaveBeenCalledWith('/fas/routing-slips/links', {
+        method: 'POST',
+        body
+      })
     })
   })
 })

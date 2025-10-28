@@ -1,6 +1,5 @@
 <script setup lang="ts">
 const { t } = useI18n()
-const localePath = useLocalePath()
 
 definePageMeta({
   layout: 'connect-auth'
@@ -48,9 +47,14 @@ function resetDate() {
         label="reset date"
         @click="resetDate"
       />
-      <UButton
-        label="Go to Protected"
-        :to="localePath('/protected')"
+    </div>
+
+    <div class="p-10 bg-white">
+      <!-- useRoute().params.parentId -->
+      <RoutingSlipAutoComplete
+        parent-routing-slip-number="123456789"
+        @cancel="() => console.info('do something on cancel')"
+        @success="(childRSNumber) => console.info('do something on success: ', childRSNumber)"
       />
     </div>
   </div>
