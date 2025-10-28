@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 export default defineAppConfig({
   connect: {
     header: {
@@ -15,6 +16,10 @@ export default defineAppConfig({
       base: 'max-w-(--container-bcGovLg) px-0 sm:px-0 lg:px-0 py-6 sm:py-10 flex flex-col gap-6 sm:gap-8'
     },
     inputMenu: {
+      slots: {
+        group: 'p-0',
+        item: 'py-3 px-4 data-highlighted:not-data-disabled:text-primary data-highlighted:not-data-disabled:before:bg-shade my-0.75 before:rounded-none'
+      },
       variants: {
         size: {
           bcGovLg: {

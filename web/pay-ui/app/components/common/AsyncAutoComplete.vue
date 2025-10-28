@@ -53,7 +53,7 @@ const { data: items, status } = await useAsyncData<T[]>(
       v-model:search-term="searchTerm"
       v-model="selected"
       v-bind="$attrs"
-      :items="items || []"
+      :items="items"
       :aria-labelledby="`${id}-label`"
       ignore-filter
       class="w-full"
