@@ -71,3 +71,8 @@ export interface RoutingSlip {
   allowedStatuses?: SlipStatus[]
   refundStatus?: string
 }
+
+// update as needed
+export interface RoutingSlipSearchParams {
+  routingSlipNumber: string
+}

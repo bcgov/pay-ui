@@ -17,9 +17,25 @@ export const usePayApi = () => {
     })
   }
 
+  async function postLinkRoutingSlip(body: LinkRoutingSlipParams): Promise<void> {
+    return $payApi('/fas/routing-slips/links', {
+      method: 'POST',
+      body
+    })
+  }
+
+  async function postSearchRoutingSlip(body: RoutingSlipSearchParams): Promise<{ items: RoutingSlip[] }> {
+    return $payApi<{ items: RoutingSlip[] }>('/fas/routing-slips/queries', {
+      method: 'POST',
+      body
+    })
+  }
+
   return {
     getCodes,
     getRoutingSlip,
-    postRoutingSlip
+    postRoutingSlip,
+    postLinkRoutingSlip,
+    postSearchRoutingSlip
   }
 }

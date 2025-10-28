@@ -69,6 +69,7 @@ export default {
     entityNumber: 'Entity Number',
     fundsReceivedInUSD: 'Funds received in USD',
     leave: 'Leave',
+    link: 'Link',
     nameOfPersonOrOrgAndAddress: 'Name of Person or Organization & Address',
     nameOfPersonOrOrgOpt: 'Name of Person or Organization (Optional)',
     paymentInformation: 'Payment Information',
@@ -78,6 +79,7 @@ export default {
     reviewNewRoutingSlip: 'Review New Routing Slip',
     routingSlip: 'Routing Slip',
     routingSlipUniqueID: 'Routing Slip - Unique ID',
+    searchRoutingSlipUniqueID: 'Search by routing slip - Unique ID',
     selectDate: 'Select Date',
     selectedDateRange: '{boldStart}{name}:{boldEnd} {value}',
     status: 'Status',
@@ -123,7 +125,9 @@ export default {
     }
   },
   text: {
-    entityNumberHelp: 'Example: BC1234567, CP1234567, FM1234567 or 123456'
+    entityNumberHelp: 'Example: BC1234567, CP1234567, FM1234567 or 123456',
+    pleaseSearchForRoutingSlip: 'Please search for and select a Routing Slip ID',
+    routingSlipSearchDisplay: '{boldStart}{number}{boldEnd} - {date} - Current Balance: ${amount}'
   },
   validation: {
     payment: {
@@ -152,6 +156,7 @@ export default {
         length: 'A Routing Slip Number must be 9 characters long',
         numeric: 'Routing Slip Number must only contain numbers (0-9).'
       }
-    }
+    },
+    unknownError: 'Unknown error'
   }
 }
