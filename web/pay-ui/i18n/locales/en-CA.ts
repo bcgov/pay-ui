@@ -93,6 +93,11 @@ export default {
     }
   },
   page: {
+    dashboard: {
+      title: 'Staff Dashboard - BC Business Registry FAS',
+      h1: 'FAS Staff Dashboard',
+      h1Info: 'Search, add and manage routing slips'
+    },
     createRoutingSlip: {
       title: 'Add Routing Slip - BC Business Registry FAS',
       h1: 'Add Routing Slip'
@@ -127,7 +132,9 @@ export default {
   text: {
     entityNumberHelp: 'Example: BC1234567, CP1234567, FM1234567 or 123456',
     pleaseSearchForRoutingSlip: 'Please search for and select a Routing Slip ID',
-    routingSlipSearchDisplay: '{boldStart}{number}{boldEnd} - {date} - Current Balance: ${amount}'
+    routingSlipSearchDisplay: '{boldStart}{number}{boldEnd} - {date} - Current Balance: ${amount}',
+    searchStartMessage: "Search routing slips by entering one of the value above. Click on \"columns to show\" to add or get rid of additional values.",
+    searchNoResult: '{h4Start}No Results{h4End}{pStart}None of the routing slips matched this search. Try another search.{pEnd}'
   },
   validation: {
     payment: {

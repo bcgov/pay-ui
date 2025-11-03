@@ -1,4 +1,5 @@
 <script setup lang="ts">
+
 const { t } = useI18n()
 
 definePageMeta({
@@ -28,10 +29,13 @@ function resetDate() {
   <div class="py-10 space-y-10">
     <h1>{{ $t('page.home.h1') }}</h1>
 
+    
+
     <div>range: {{ dateRange }}</div>
     <div>date: {{ date }}</div>
 
     <div class="flex gap-10">
+      <Dashboard />
       <DateRangeFilter v-model="dateRange" />
       <DatePicker v-model="date" />
       <IconTooltip text="this is some text">

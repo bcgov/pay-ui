@@ -5,7 +5,7 @@ export default defineAppConfig({
       localeSelect: false
     },
     login: {
-      redirect: '/home'
+      redirect: '/dashboard'
     },
     logout: {
       redirect: '/auth/login'
