@@ -187,6 +187,12 @@ export interface AdjustRoutingSlipAmountPrams {
   isRoutingSlipPaidInUsd: boolean
 }
 
+export interface SearchRoutingSlipParams {
+  page: number
+  limit: number
+  total: number
+}
+
 export interface Comment {
   comment: string
   submitterDisplayName: string
@@ -202,4 +208,33 @@ export interface UpdateCommentsParams {
     businessId: string | undefined
     comment: string
   }
+}
+
+export interface RoutingSlipCommentResponse {
+  comment: string
+  id: number
+  routingSlipNumber: string
+  submitterDisplayName: string
+  timestamp: string
+}
+
+export interface CancelRoutingSlipInvoiceResponse {
+  message: string
+  refundId: number
+  refundAmount: number
+  isPartialRefund: boolean
+}
+
+export interface UpdateRoutingSlipRefundResponse {
+  message: string
+}
+
+export interface SearchRoutingSlipResponse {
+  items: RoutingSlip[]
+  total: number
+}
+
+export interface FeeResponse {
+  total: number
+  [key: string]: unknown
 }

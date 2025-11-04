@@ -294,6 +294,7 @@ useInfiniteScroll(
         </template>
         <template #empty>
           <!-- TODO sanitize html -->
+          <!-- eslint-disable vue/no-v-html -->
           <div
             class="text-center py-8 text-gray-600"
             v-html="
@@ -310,6 +311,7 @@ useInfiniteScroll(
               )
             "
           />
+          <!-- eslint-enable vue/no-v-html -->
         </template>
 
         <template #status-cell="{ row }">
