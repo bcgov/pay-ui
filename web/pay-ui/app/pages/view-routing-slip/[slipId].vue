@@ -28,8 +28,7 @@ const slipId = route.params.slipId as string
       </p>
       <div class="inline-block">
         <StaffComments
-          :business-id="slipId"
-          :url="`/businesses/${slipId}/comments`"
+          :identifier="slipId"
           :nudge-top="33"
           :nudge-left="20"
           :max-length="4096"

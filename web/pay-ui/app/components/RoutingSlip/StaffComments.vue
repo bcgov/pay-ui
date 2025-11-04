@@ -8,7 +8,7 @@ interface CommentIF {
 }
 
 interface Props {
-  businessId: string
+  identifier: string
   url?: string | null
   nudgeTop?: number
   nudgeLeft?: number
@@ -57,9 +57,7 @@ function apiToPacificDateTime(timestamp: string): string {
       .setZone('America/Vancouver')
 
     if (!dateTime.isValid)
-    {
-      return timestamp
-    }
+    { return timestamp }
 
     return dateTime.toFormat('MMM dd, yyyy h:mm a')
   } catch (error) {
@@ -84,8 +82,7 @@ function validateComment(): void {
 
 async function fetchStaffComments(): Promise<void> {
   try {
-    // TODO wtf is going on with this
-    const response = await $fetch<any>(getUrl.value)
+    const response = await usePayApi().getRoutingSlipComments(props.identifier)
     const fetchedComments = (response?.comments) || []
 
     if (Array.isArray(fetchedComments) && fetchedComments[0] && typeof fetchedComments[0].comment === 'string') {
@@ -101,14 +98,12 @@ async function fetchStaffComments(): Promise<void> {
 
 async function save(): Promise<void> {
   validateComment()
-  if (errorMessage.value) {
+  if (errorMessage.value)
     return
-  }
 
   if (isSaving.value)
-  {
     return
-  }
+
   isSaving.value = true
 
   const data = {
@@ -119,11 +114,7 @@ async function save(): Promise<void> {
   }
 
   try {
-    await $fetch(getUrl.value, {
-      method: 'POST',
-      body: data
-    })
-
+    await usePayApi().updateRoutingSlipComments(data, props.identifier)
     comment.value = ''
     errorMessage.value = ''
     await fetchStaffComments()
@@ -142,11 +133,6 @@ function close(): void {
   showComments.value = false
 }
 
-/**
- * Flattens and sorts an array of comments.
- * @param comments - the array of comments to sort and deconstruct
- * @returns the sorted and flattened array of comments
- */
 function flattenAndSortComments(commentsArray: Array<{ comment: CommentIF }>): Array<CommentIF> {
   if (commentsArray && commentsArray.length > 0) {
     // first use map to change comment.comment to comment
