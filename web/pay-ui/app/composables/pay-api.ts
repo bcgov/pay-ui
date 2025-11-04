@@ -1,3 +1,5 @@
+import type { Comment, RoutingSlipComments, UpdateCommentsParams } from '~/interfaces/routing-slip'
+
 export const usePayApi = () => {
   const { $payApi } = useNuxtApp()
 
@@ -29,13 +31,6 @@ export const usePayApi = () => {
       method: 'POST',
       body
     })
-  }
-
-  interface UpdateCommentsParams {
-    comment: {
-      businessId: string | undefined
-      comment: string
-    }
   }
 
   async function createRoutingSlip(
@@ -87,15 +82,14 @@ export const usePayApi = () => {
     }
   }
 
-    // TODO: fix type
-    async function getRoutingSlipComments(
-      slipNumber: string
-    ): Promise<any> {
-      const response = await $payApi<RoutingSlip>(
-        `/fas/routing-slips/${slipNumber}/comments`
-      )
-      return response
-    }
+  async function getRoutingSlipComments(
+    slipNumber: string
+  ): Promise<RoutingSlipComments> {
+    const response = await $payApi<RoutingSlipComments>(
+      `/fas/routing-slips/${slipNumber}/comments`
+    )
+    return response
+  }
 
   // TODO: fix type
   async function updateRoutingSlipComments(
