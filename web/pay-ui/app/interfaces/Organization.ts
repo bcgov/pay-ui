@@ -1,4 +1,4 @@
-import type { Contact } from './contact'
+import type { User } from './user'
 
 export interface Organization {
   id?: number
@@ -99,25 +99,6 @@ export enum MembershipType {
   User = 'USER',
   Staff = 'STAFF',
   ExternalStaff = 'EXTERNAL_STAFF'
-}
-
-export interface UserTerms {
-  isTermsOfUseAccepted: boolean
-  termsOfUseAcceptedVersion: string
-}
-
-export interface User {
-  firstname: string
-  lastname: string
-  username?: string
-  modified?: Date
-  userTerms?: UserTerms
-  contacts?: Contact[]
-  email?: string
-  loginSource?: string
-  id?: number
-  keycloakGuid?: string
-  verified?: boolean
 }
 
 export interface Member {

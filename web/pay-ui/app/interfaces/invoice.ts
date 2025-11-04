@@ -1,19 +1,5 @@
 // Model for storing invoice of a routing slip
-export interface LineItem {
-  description?: string
-  filingFees?: number
-  futureEffectiveFees?: number
-  gst?: number
-  id?: number
-  priorityFees?: number
-  pst?: number
-  quantity?: number
-  serviceFees?: number
-  statusCode?: string
-  total?: number
-  waivedBy?: string
-  waivedFees?: number
-}
+import type { LineItem } from './line-item'
 
 export interface Reference {
   id?: number

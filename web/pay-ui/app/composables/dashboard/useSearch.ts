@@ -1,15 +1,11 @@
-import type { Invoice } from '@/models/Invoice'
-import CommonUtils from '@/utils/common-util'
-import ConfigHelper from '@/utils/config-helper'
-import debounce from '@/utils/debounce'
+import type { Invoice } from '~/interfaces/invoice'
+import { debounce } from 'es-toolkit'
 import { useLoader } from '@/composables/common/useLoader'
 import { useStatusList } from '@/composables/common/useStatusList'
 import { useRoutingSlip } from '@/composables/useRoutingSlip'
 import { chequeRefundCodes, ChequeRefundStatus } from '@/utils/constants'
 
-export function useSearch(isLibraryMode = false) {
-  const router = useRouter()
-
+export async function useSearch() {
   const {
     searchRoutingSlipTableHeaders,
     resetSearchParams,
@@ -25,7 +21,7 @@ export function useSearch(isLibraryMode = false) {
   // Eg of a typical breadcrumb flow =
   // Staff Dashboard -> FAS Dashboard -> View Routing Slip: test -> View Routing Slip: testchild
 
-  const { statusLabel } = useStatusList(reactive({ value: '' }), { emit: () => {} })
+  const { statusLabel } = await useStatusList(reactive({ value: '' }), { emit: () => {} })
   const { isLoading, toggleLoading } = useLoader()
 
   const showExpandedFolio = ref<string[]>([])
@@ -60,9 +56,7 @@ export function useSearch(isLibraryMode = false) {
 
   const debouncedSearch = debounce(() => {
     searchNow()
-  })
-
-  const appendQueryParamsIfNeeded = CommonUtils.appendQueryParamsIfNeeded
+  }, 500)
 
   // get label of status
   function getStatusLabel(code: string) {
@@ -118,21 +112,6 @@ export function useSearch(isLibraryMode = false) {
     return folios.length ? folios : ['-']
   }
 
-  function navigateTo(routingSlipNumber: string): void {
-    if (isLibraryMode) {
-      // This scenario would hit when the FAS Search is displayed as a plugin in Staff dashboard
-      // we append queryparams so that we can persist breadcrumbs across different components and refresh issue
-      // Adding viewFromAuth=true queryparams so that we can build breadcrumbs
-      // Eg of a typical breadcrumb flow = Staff Dashboard -> View Routing Slip: test -> View Routing Slip: testchild
-      window.location.href = `${ConfigHelper.getFasWebUrl()}view-routing-slip/${routingSlipNumber}?viewFromAuth=true`
-    } else {
-      // temp
-      // context.root.$router.push(
-      // appendQueryParamsIfNeeded(`/view-routing-slip/${routingSlipNumber}`, context.root.$route))
-      router.push(appendQueryParamsIfNeeded(`/view-routing-slip/${routingSlipNumber}`, router.currentRoute.value))
-    }
-  }
-
   const getNext = async () => {
     if (isLoading.value) {
       return
@@ -167,7 +146,6 @@ export function useSearch(isLibraryMode = false) {
     toggleFolio,
     toggleCheque,
     isLoading,
-    navigateTo,
     getNext,
     getRefundStatusText,
     getStatusFromRefundStatus,

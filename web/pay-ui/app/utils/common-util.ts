@@ -1,4 +1,4 @@
-import type { Address, BaseAddressModel } from '@/models/Address'
+import type { Address, BaseAddressModel } from '~/interfaces/Address'
 import { DateTime } from 'luxon'
 
 function formatDisplayDate(

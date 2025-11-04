@@ -1,4 +1,4 @@
-import type { Address } from '@/models/Address'
+import type { Address } from '~/interfaces/Address'
 
 export interface NotaryInformation {
   notaryName?: string
