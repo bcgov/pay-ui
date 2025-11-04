@@ -1,5 +1,4 @@
 import type { Address, BaseAddressModel } from '@/models/Address'
-import { Role, SlipStatus } from '@/utils/constants'
 import { DateTime } from 'luxon'
 
 function formatDisplayDate(

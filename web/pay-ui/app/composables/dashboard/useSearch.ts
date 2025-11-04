@@ -5,7 +5,7 @@ import debounce from '@/utils/debounce'
 import { useLoader } from '@/composables/common/useLoader'
 import { useStatusList } from '@/composables/common/useStatusList'
 import { useRoutingSlip } from '@/composables/useRoutingSlip'
-import { chequeRefundCodes, ChequeRefundStatus, SlipStatus } from '@/utils/constants'
+import { chequeRefundCodes, ChequeRefundStatus } from '@/utils/constants'
 
 export function useSearch(isLibraryMode = false) {
   const router = useRouter()

@@ -409,7 +409,7 @@ useInfiniteScroll(
 </template>
 
 <style lang="scss">
-@import '~/assets/scss/search.scss';
+@use '~/assets/scss/search.scss' as *;
 </style>
 
 <style scoped>
