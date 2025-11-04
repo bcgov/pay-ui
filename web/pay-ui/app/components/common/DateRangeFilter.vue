@@ -5,6 +5,8 @@ import { DateTime } from 'luxon'
 
 const { t } = useI18n()
 
+const emit = defineEmits<{ (e: 'change', value: { start: string | null, end: string | null }): void }>()
+
 // defineModel replaces modelValue & update:modelValue
 // can use v-model in parent as normal
 // https://vuejs.org/api/sfc-script-setup.html#definemodel
@@ -63,6 +65,7 @@ function applyDateRange() {
   const start = localModel.value.start.toString()
   const end = localModel.value.end.toString()
   model.value = { start, end }
+  emit('change', model.value)
   open.value = false
 }
 

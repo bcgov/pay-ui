@@ -9,7 +9,7 @@ const props = defineProps<{
   column: 'status' | 'refundStatus'
 }>()
 
-const model = defineModel<string>({ required: true })
+const model = defineModel<string | null>({ required: true })
 
 const isStatusColumn = props.column === 'status'
 const routingSlipStatusList = shallowRef<Code[]>([])
@@ -45,5 +45,11 @@ onMounted(async () => {
     v-model="model"
     :items="items"
     :placeholder
+    size="md"
+    class="input-text w-full"
+    :ui="{
+      placeholder: 'placeholder',
+      content: 'wide-dropdown'
+    }"
   />
 </template>

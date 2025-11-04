@@ -32,6 +32,7 @@ function resetDate() {
     <div>date: {{ date }}</div>
 
     <div class="flex gap-10">
+      <Dashboard />
       <DateRangeFilter v-model="dateRange" />
       <DatePicker v-model="date" />
       <IconTooltip text="this is some text">
