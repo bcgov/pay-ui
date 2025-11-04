@@ -1,5 +1,4 @@
 import type { Directive, DirectiveBinding } from 'vue'
-import type { Role } from '@/utils/constants'
 
 interface CustomHTMLElement extends HTMLElement {
   disabled: boolean
