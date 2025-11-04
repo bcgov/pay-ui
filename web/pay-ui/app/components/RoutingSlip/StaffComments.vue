@@ -8,26 +8,33 @@ interface CommentIF {
 }
 
 interface Props {
-  identifier: string
-  url?: string | null
+  identifier?: string
   nudgeTop?: number
   nudgeLeft?: number
   maxLength?: number
 }
 
+const payApi = usePayApi()
+
 const props = withDefaults(defineProps<Props>(), {
-  url: null,
+  identifier: '',
   nudgeTop: 33,
   nudgeLeft: 20,
-  maxLength: 4096
+  maxLength: 2000
 })
 
 const textareaRef = useTemplateRef<HTMLTextAreaElement>('textareaRef')
-const showComments = ref(false)
-const comments = ref<CommentIF[]>([])
-const comment = ref<string>('')
-const isSaving = ref(false)
-const errorMessage = ref<string>('')
+
+const state = reactive({
+  showComments: false,
+  comments: [] as CommentIF[],
+  comment: '',
+  isSaving: false,
+  errorMessage: '',
+  isIntentionalClose: false
+})
+
+const { showComments, comments, comment, isSaving, errorMessage } = toRefs(state)
 
 const charsRemaining = computed(() => {
   const length = comment.value ? comment.value.length : 0
@@ -39,31 +46,17 @@ const numComments = computed(() => {
   return num === 1 ? '1 Comment' : `${num} Comments`
 })
 
-const getUrl = computed(() => {
-  return props.url || `businesses/${props.businessId}/comments`
+const headerColor = computed(() => {
+  return 'text-blue-600'
 })
 
-/**
- * Formats API timestamp to Pacific timezone date/time string
- * @param timestamp - ISO timestamp string from API
- * @returns formatted date/time string in Pacific timezone
- */
-function apiToPacificDateTime(timestamp: string): string {
-  if (!timestamp)
-  { return '' }
-
-  try {
-    const dateTime = DateTime.fromISO(timestamp, { zone: 'UTC' })
-      .setZone('America/Vancouver')
-
-    if (!dateTime.isValid)
-    { return timestamp }
-
-    return dateTime.toFormat('MMM dd, yyyy h:mm a')
-  } catch (error) {
-    console.error('Error formatting date:', error)
-    return timestamp
+function formatTimestamp(timestamp: string): string {
+  if (!timestamp) {
+    return ''
   }
+
+  const dt = DateTime.fromISO(timestamp, { zone: 'UTC' }).setZone('America/Vancouver')
+  return dt.isValid ? `${dt.toFormat('MMM dd, yyyy h:mm a')} Pacific time` : timestamp
 }
 
 function validateComment(): void {
@@ -82,7 +75,7 @@ function validateComment(): void {
 
 async function fetchStaffComments(): Promise<void> {
   try {
-    const response = await usePayApi().getRoutingSlipComments(props.identifier)
+    const response = await payApi.getRoutingSlipComments(props.identifier)
     const fetchedComments = (response?.comments) || []
 
     if (Array.isArray(fetchedComments) && fetchedComments[0] && typeof fetchedComments[0].comment === 'string') {
@@ -98,23 +91,25 @@ async function fetchStaffComments(): Promise<void> {
 
 async function save(): Promise<void> {
   validateComment()
-  if (errorMessage.value)
+  if (errorMessage.value) {
     return
+  }
 
-  if (isSaving.value)
+  if (isSaving.value) {
     return
+  }
 
   isSaving.value = true
 
   const data = {
     comment: {
-      businessId: props.businessId,
+      businessId: props.identifier,
       comment: comment.value
     }
   }
 
   try {
-    await usePayApi().updateRoutingSlipComments(data, props.identifier)
+    await payApi.updateRoutingSlipComments(data, props.identifier)
     comment.value = ''
     errorMessage.value = ''
     await fetchStaffComments()
@@ -129,8 +124,18 @@ async function save(): Promise<void> {
 }
 
 function close(): void {
+  state.isIntentionalClose = true
   errorMessage.value = ''
   showComments.value = false
+  nextTick(() => {
+    state.isIntentionalClose = false
+  })
+}
+
+function handleOpenUpdate(newValue: boolean): void {
+  if (!newValue && !state.isIntentionalClose) {
+    showComments.value = true
+  }
 }
 
 function flattenAndSortComments(commentsArray: Array<{ comment: CommentIF }>): Array<CommentIF> {
@@ -156,7 +161,12 @@ onMounted(async () => {
   >
     <UPopover
       v-model:open="showComments"
-      :popper="{ placement: 'bottom-start', offset: [nudgeLeft, nudgeTop] }"
+      :popper="{
+        placement: 'bottom-start',
+        offset: [nudgeLeft, nudgeTop],
+        strategy: 'fixed'
+      }"
+      @update:open="handleOpenUpdate"
     >
       <UButton
         id="comments-button"
@@ -177,49 +187,66 @@ onMounted(async () => {
             <div class="flex items-center gap-2">
               <UIcon
                 name="i-mdi-comment-text-outline"
-                class="w-5 h-5 text-primary-600"
+                :class="['w-5 h-5', headerColor]"
               />
-              <span class="text-sm font-medium text-primary-600">{{ numComments }}</span>
+              <span :class="['text-sm font-medium', headerColor]">{{ numComments }}</span>
             </div>
-            <UButton
+            <button
               id="close-button"
-              color="primary"
-              variant="ghost"
-              icon="i-mdi-close"
-              size="sm"
+              class="text-blue-600 hover:text-blue-700 transition-colors"
               @click="close()"
-            />
+            >
+              <UIcon
+                name="i-mdi-close"
+                class="w-5 h-5"
+              />
+            </button>
           </div>
 
           <div class="mb-4">
-            <UTextarea
-              ref="textareaRef"
-              v-model="comment"
-              autofocus
-              :rows="5"
-              placeholder="Enter Comments"
-              :error="errorMessage"
-              @blur="validateComment"
-            />
+            <div class="relative">
+              <textarea
+                ref="textareaRef"
+                v-model="comment"
+                autofocus
+                rows="5"
+                placeholder="Enter Comments"
+                :class="[
+                  'w-full px-3 py-2 bg-gray-100 border-0 border-b-2 rounded-t resize-none',
+                  'placeholder:text-gray-400 focus:outline-none focus:ring-0',
+                  errorMessage
+                    ? 'border-red-500'
+                    : 'border-blue-500'
+                ]"
+                @blur="validateComment"
+              />
+              <div
+                v-if="errorMessage"
+                class="mt-1 text-sm text-red-600"
+              >
+                {{ errorMessage }}
+              </div>
+            </div>
           </div>
 
           <div class="flex items-center justify-between mb-6">
-            <div class="text-sm text-gray-600">
+            <div class="text-sm text-gray-400">
               {{ charsRemaining }} characters remaining
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-2 items-center">
               <UButton
                 id="save-button"
                 color="primary"
-                variant="solid"
+                variant="ghost"
                 :loading="isSaving"
+                class="font-bold"
                 @click="save()"
               >
                 Save
               </UButton>
               <UButton
                 id="cancel-button"
-                color="neutral"
+                color="primary"
                 variant="ghost"
                 @click="close()"
               >
@@ -243,10 +270,10 @@ onMounted(async () => {
                 class="whitespace-pre-line text-gray-700"
                 v-html="commentItem.comment"
               />
-              <p class="italic text-gray-600 mt-1">
+              <p class="text-gray-500 text-xs mt-1">
                 {{ commentItem.submitterDisplayName }}
                 &hyphen;
-                {{ apiToPacificDateTime(commentItem.timestamp) }}
+                {{ formatTimestamp(commentItem.timestamp) }}
               </p>
             </div>
           </div>

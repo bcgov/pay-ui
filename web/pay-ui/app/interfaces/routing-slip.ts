@@ -186,3 +186,20 @@ export interface AdjustRoutingSlipAmountPrams {
   paymentIndex: number
   isRoutingSlipPaidInUsd: boolean
 }
+
+export interface Comment {
+  comment: string
+  submitterDisplayName: string
+  timestamp: string
+}
+
+export interface RoutingSlipComments {
+  comments: Comment[] | Array<{ comment: Comment }>
+}
+
+export interface UpdateCommentsParams {
+  comment: {
+    businessId: string | undefined
+    comment: string
+  }
+}
