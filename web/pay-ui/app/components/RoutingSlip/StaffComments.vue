@@ -15,6 +15,7 @@ interface Props {
 }
 
 const payApi = usePayApi()
+const { $sanitize } = useNuxtApp()
 
 const props = withDefaults(defineProps<Props>(), {
   identifier: '',
@@ -259,16 +260,16 @@ onMounted(async () => {
             id="existing-comments"
             class="flex-1 overflow-y-auto pr-2"
           >
+            <!-- eslint-disable vue/no-v-html -->
             <div
               v-for="(commentItem, i) in comments"
               :key="i"
               class="text-sm mb-4"
               :class="{ 'pt-4 border-t border-gray-300': i > 0 }"
             >
-              <!-- TODO sanitize html -->
               <p
                 class="whitespace-pre-line text-gray-700"
-                v-html="commentItem.comment"
+                v-html="$sanitize(commentItem.comment)"
               />
               <p class="text-gray-500 text-xs mt-1">
                 {{ commentItem.submitterDisplayName }}
@@ -276,6 +277,7 @@ onMounted(async () => {
                 {{ formatTimestamp(commentItem.timestamp) }}
               </p>
             </div>
+            <!-- eslint-enable vue/no-v-html -->
           </div>
         </div>
       </template>

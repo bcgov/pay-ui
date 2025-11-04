@@ -1,4 +1,7 @@
-import type { Comment, RoutingSlipComments, UpdateCommentsParams } from '~/interfaces/routing-slip'
+import type { RoutingSlipComments, UpdateCommentsParams,
+  RoutingSlipCommentResponse, CancelRoutingSlipInvoiceResponse,
+  UpdateRoutingSlipRefundResponse, SearchRoutingSlipResponse, LinkedRoutingSlips,
+  FilingType, GetFeeRequestParams } from '~/interfaces/routing-slip'
 
 export const usePayApi = () => {
   const { $payApi } = useNuxtApp()
@@ -62,11 +65,10 @@ export const usePayApi = () => {
     )
   }
 
-  // TODO: fix type
   async function updateRoutingSlipRefundStatus(
     code: string,
     routingSlipNumber: string
-  ): Promise<any> {
+  ): Promise<RoutingSlip | null> {
     try {
       const response = await $payApi(
         `/fas/routing-slips/${routingSlipNumber}?action=updateRefundStatus`,
@@ -91,13 +93,12 @@ export const usePayApi = () => {
     return response
   }
 
-  // TODO: fix type
   async function updateRoutingSlipComments(
     data: UpdateCommentsParams,
     slipNumber: string
-  ): Promise<any> {
+  ): Promise<RoutingSlipCommentResponse | null> {
     try {
-      const response = await $payApi<RoutingSlip>(
+      const response = await $payApi<RoutingSlipCommentResponse>(
         `/fas/routing-slips/${slipNumber}/comments`,
         { method: 'POST', body: data }
       )
@@ -111,52 +112,47 @@ export const usePayApi = () => {
     }
   }
 
-  // TODO: fix type
   async function updateRoutingSlipRefund(
     details: string,
     routingSlipNumber: string
-  ): Promise<any> {
-    return $payApi(
+  ): Promise<UpdateRoutingSlipRefundResponse> {
+    return $payApi<UpdateRoutingSlipRefundResponse>(
       `/fas/routing-slips/${routingSlipNumber}/refunds`,
       { method: 'POST', body: details }
     )
   }
 
-  // TODO: fix type
   async function getSearchRoutingSlip(
     searchParams: RoutingSlip
-  ): Promise<any> {
-    return $payApi(
+  ): Promise<SearchRoutingSlipResponse> {
+    return $payApi<SearchRoutingSlipResponse>(
       '/fas/routing-slips/queries',
       { method: 'POST', body: searchParams }
     )
   }
 
-  // TODO: fix type
   async function saveLinkRoutingSlip(
     linkRoutingSlip: LinkRoutingSlipPrams
-  ): Promise<any> {
+  ): Promise<void> {
     return $payApi(
       '/fas/routing-slips/links',
       { method: 'POST', body: linkRoutingSlip }
     )
   }
 
-  // TODO: fix type
   async function getLinkedRoutingSlips(
     routingSlipNumber: string
-  ): Promise<any> {
-    return $payApi(
+  ): Promise<LinkedRoutingSlips | undefined> {
+    return $payApi<LinkedRoutingSlips>(
       `/fas/routing-slips/${routingSlipNumber}/links`,
       { method: 'GET' }
     )
   }
 
-  // TODO: fix type
   async function getDailyReport(
     selectedDate: string,
     type: string = 'application/pdf'
-  ): Promise<any> {
+  ): Promise<Blob> {
     const headers = {
       Accept: type
     }
@@ -166,11 +162,10 @@ export const usePayApi = () => {
     )
   }
 
-  // TODO: fix type
   async function getSearchFilingType(
     searchParams: string
-  ): Promise<any> {
-    return $payApi(
+  ): Promise<FilingType[]> {
+    return $payApi<FilingType[]>(
       `/fees/schedules?description=${searchParams}`,
       { method: 'GET' }
     )
@@ -179,29 +174,27 @@ export const usePayApi = () => {
   // TODO: fix type
   async function getFeeByCorpTypeAndFilingType(
     getFeeRequestParams: GetFeeRequestParams
-  ): Promise<any> {
-    const requestParams = CommonUtils.createQueryParams(getFeeRequestParams.requestParams)
+  ): Promise<FeeResponse> {
+    const requestParams = commonUtil.createQueryParams(getFeeRequestParams.requestParams)
     return $payApi(
       `/fees/${getFeeRequestParams.corpTypeCode}/${getFeeRequestParams.filingTypeCode}?${requestParams}`,
       { method: 'GET' }
     )
   }
 
-  // TODO: fix type
   async function saveManualTransactions(
     transactions: TransactionParams
-  ): Promise<any> {
+  ): Promise<Invoice> {
     return $payApi(
       '/payment-requests',
       { method: 'POST', body: transactions }
     )
   }
 
-  // TODO: fix type
   async function cancelRoutingSlipInvoice(
     invoiceId: number
-  ): Promise<any> {
-    return $payApi(
+  ): Promise<CancelRoutingSlipInvoiceResponse> {
+    return $payApi<CancelRoutingSlipInvoiceResponse>(
       `/payment-requests/${invoiceId}/refunds`,
       { method: 'POST' }
     )

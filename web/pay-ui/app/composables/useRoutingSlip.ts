@@ -1,7 +1,7 @@
 import type {
   AccountInfo, AdjustRoutingSlipAmountPrams, AdjustRoutingSlipChequePrams, GetRoutingSlipRequestPayload,
   LinkedRoutingSlips, RoutingSlip, RoutingSlipDetails, RoutingSlipAddress, ManualTransactionDetails,
-  BusinessInfo, GetFeeRequestParams, Payment, TransactionParams
+  BusinessInfo, GetFeeRequestParams, Payment, TransactionParams, SearchRoutingSlipParams
 } from '~/interfaces/routing-slip'
 import { reactive, toRefs } from 'vue'
 import {
@@ -15,7 +15,7 @@ interface StatusDetails {
   status: string
 }
 
-const defaultParams = {
+const defaultParams: SearchRoutingSlipParams = {
   page: 1,
   limit: 50,
   total: Infinity
@@ -33,7 +33,7 @@ const state = reactive({
   isPaymentMethodCheque: true as boolean | undefined,
   isAmountPaidInUsd: false,
   searchRoutingSlipResult: [] as RoutingSlip[],
-  searchRoutingSlipParams: defaultParams
+  searchRoutingSlipParams: defaultParams as SearchRoutingSlipParams
 })
 
 export const useRoutingSlip = () => {
@@ -362,7 +362,7 @@ export const useRoutingSlip = () => {
     return null
   }
 
-  const saveManualTransactions = async (transation: ManualTransactionDetails): Promise<any> => {
+  const saveManualTransactions = async (transation: ManualTransactionDetails): Promise<Invoice> => {
     // prepare format from here
     const routingSlipNumber: string | undefined = state.routingSlip.number
 
