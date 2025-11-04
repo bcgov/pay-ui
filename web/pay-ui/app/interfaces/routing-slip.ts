@@ -1,3 +1,8 @@
+import type { Address } from './address'
+import type { Invoice } from './invoice'
+import type { PaymentTypes } from '~/enums/payment-types'
+import type { SlipStatus } from '~/enums/slip-status'
+
 export interface CreateRoutingSlipPayload {
   contactName: string
   mailingAddress: Partial<Address>
@@ -75,4 +80,109 @@ export interface RoutingSlip {
 // update as needed
 export interface RoutingSlipSearchParams {
   routingSlipNumber: string
+}
+
+// From Payment.ts
+export interface CorpTypeCode {
+  code?: string
+  description?: string
+  isOnlineBankingAllowed?: boolean
+  product: string
+}
+
+export interface FilingTypeCode {
+  code?: string
+  description?: string
+}
+
+export interface FilingType {
+  corpTypeCode?: CorpTypeCode
+  fee?: string
+  feeScheduleId?: number
+  feeStartDate?: Date
+  filingTypeCode?: FilingTypeCode
+  futureEffectiveFee?: string
+  priorityFee?: number
+  serviceFee?: number
+}
+
+export interface GetFeeRequestParams {
+  corpTypeCode: string
+  filingTypeCode: string
+  requestParams: {
+    quantity?: number
+    priority?: boolean
+    futureEffective?: boolean
+  }
+}
+
+export interface BusinessInfo {
+  corpType?: string
+  businessIdentifier?: string
+}
+
+export interface FilingTypes {
+  filingTypeCode?: string
+  futureEffective?: string
+  priority?: string
+  quantity?: number
+}
+
+export interface TransactionParams {
+  businessInfo: BusinessInfo
+  filingInfo: {
+    filingTypes: FilingTypes[]
+  }
+  accountInfo: {
+    routingSlip: string | undefined
+  }
+}
+
+// From RoutingSlip.ts
+export interface RoutingSlipDetails {
+  number?: string
+  routingSlipDate?: string
+}
+
+export interface RoutingSlipAddress {
+  contactName?: string
+  mailingAddress?: Address
+}
+
+export interface LinkRoutingSlipPrams {
+  childRoutingSlipNumber: string
+  parentRoutingSlipNumber: string
+}
+
+export interface LinkedRoutingSlips {
+  children?: RoutingSlip[]
+  parent?: RoutingSlip
+}
+
+export interface ManualTransactionDetails {
+  // we would need the key that we can use during iterator (v-for)
+  key?: number
+  quantity?: number
+  referenceNumber?: string
+  total?: number
+  futureEffective?: boolean
+  priority?: boolean
+  filingType?: FilingType
+  availableAmountForManualTransaction?: number
+}
+
+export interface GetRoutingSlipRequestPayload {
+  routingSlipNumber: string | undefined
+  showGlobalLoader?: boolean
+}
+
+export interface AdjustRoutingSlipChequePrams {
+  chequeNum: string
+  paymentIndex: number
+}
+
+export interface AdjustRoutingSlipAmountPrams {
+  amount: number
+  paymentIndex: number
+  isRoutingSlipPaidInUsd: boolean
 }

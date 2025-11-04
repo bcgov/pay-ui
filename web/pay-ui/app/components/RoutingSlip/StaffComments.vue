@@ -22,7 +22,7 @@ const props = withDefaults(defineProps<Props>(), {
   maxLength: 4096
 })
 
-const textareaRef = ref<HTMLTextAreaElement | null>(null)
+const textareaRef = useTemplateRef<HTMLTextAreaElement>('textareaRef')
 const showComments = ref(false)
 const comments = ref<CommentIF[]>([])
 const comment = ref<string>('')
@@ -49,14 +49,18 @@ const getUrl = computed(() => {
  * @returns formatted date/time string in Pacific timezone
  */
 function apiToPacificDateTime(timestamp: string): string {
-  if (!timestamp) return ''
-  
+  if (!timestamp)
+  { return '' }
+
   try {
     const dateTime = DateTime.fromISO(timestamp, { zone: 'UTC' })
       .setZone('America/Vancouver')
-    
-    if (!dateTime.isValid) return timestamp
-    
+
+    if (!dateTime.isValid)
+    {
+      return timestamp
+    }
+
     return dateTime.toFormat('MMM dd, yyyy h:mm a')
   } catch (error) {
     console.error('Error formatting date:', error)
@@ -66,12 +70,12 @@ function apiToPacificDateTime(timestamp: string): string {
 
 function validateComment(): void {
   errorMessage.value = ''
-  
+
   if (!comment.value || comment.value.trim().length === 0) {
     errorMessage.value = 'Enter a comment.'
     return
   }
-  
+
   if (comment.value.length > props.maxLength) {
     errorMessage.value = 'Maximum characters reached.'
     return
@@ -80,9 +84,10 @@ function validateComment(): void {
 
 async function fetchStaffComments(): Promise<void> {
   try {
+    // TODO wtf is going on with this
     const response = await $fetch<any>(getUrl.value)
     const fetchedComments = (response?.comments) || []
-    
+
     if (Array.isArray(fetchedComments) && fetchedComments[0] && typeof fetchedComments[0].comment === 'string') {
       comments.value = fetchedComments
     } else {
@@ -96,9 +101,14 @@ async function fetchStaffComments(): Promise<void> {
 
 async function save(): Promise<void> {
   validateComment()
-  if (errorMessage.value) return
+  if (errorMessage.value) {
+    return
+  }
 
-  if (isSaving.value) return
+  if (isSaving.value)
+  {
+    return
+  }
   isSaving.value = true
 
   const data = {
@@ -113,7 +123,7 @@ async function save(): Promise<void> {
       method: 'POST',
       body: data
     })
-    
+
     comment.value = ''
     errorMessage.value = ''
     await fetchStaffComments()
@@ -137,10 +147,10 @@ function close(): void {
  * @param comments - the array of comments to sort and deconstruct
  * @returns the sorted and flattened array of comments
  */
-function flattenAndSortComments(commentsArray: Array<any>): Array<CommentIF> {
+function flattenAndSortComments(commentsArray: Array<{ comment: CommentIF }>): Array<CommentIF> {
   if (commentsArray && commentsArray.length > 0) {
     // first use map to change comment.comment to comment
-    const temp: Array<any> = commentsArray.map(c => c.comment)
+    const temp: Array<CommentIF> = commentsArray.map(c => c.comment)
     // then sort newest to oldest
     temp.sort((a, b) => new Date(a.timestamp) < new Date(b.timestamp) ? 1 : -1)
     return temp
@@ -172,7 +182,7 @@ onMounted(async () => {
         {{ numComments }}
       </UButton>
 
-      <template #panel>
+      <template #content>
         <div
           id="staff-comment-container"
           class="bg-white rounded-lg shadow-lg p-6 w-[33rem] max-h-[36rem] flex flex-col"
@@ -242,6 +252,7 @@ onMounted(async () => {
               class="text-sm mb-4"
               :class="{ 'pt-4 border-t border-gray-300': i > 0 }"
             >
+              <!-- TODO sanitize html -->
               <p
                 class="whitespace-pre-line text-gray-700"
                 v-html="commentItem.comment"
@@ -272,21 +283,21 @@ onMounted(async () => {
   max-height: 16rem;
   overflow-y: auto;
   text-align: left;
-  
+
   /* Custom scrollbar styling */
   &::-webkit-scrollbar {
     width: 6px;
   }
-  
+
   &::-webkit-scrollbar-track {
     background: #f1f1f1;
   }
-  
+
   &::-webkit-scrollbar-thumb {
     background: #888;
     border-radius: 3px;
   }
-  
+
   &::-webkit-scrollbar-thumb:hover {
     background: #555;
   }

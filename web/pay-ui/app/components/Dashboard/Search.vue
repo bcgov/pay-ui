@@ -3,9 +3,7 @@ import { useSearch } from '~/composables/dashboard/useSearch'
 import { SearchRoutingSlipTableHeaders } from '@/utils/constants'
 import { useInfiniteScroll } from '@vueuse/core'
 
-interface Props {
-  isLibraryMode?: boolean
-}
+const localePath = useLocalePath()
 
 interface SearchFilterState {
   routingSlipNumber: string | null
@@ -21,7 +19,6 @@ interface SearchFilterState {
 }
 
 const { t } = useI18n()
-const { isLibraryMode = false } = defineProps<Props>()
 const searchRoutingSlipTableHeaders = ref(SearchRoutingSlipTableHeaders)
 
 const {
@@ -36,11 +33,10 @@ const {
   toggleFolio,
   toggleCheque,
   isLoading,
-  navigateTo,
   getNext,
   getRefundStatusText,
   updateSearchFilter
-} = useSearch(isLibraryMode)
+} = await useSearch()
 
 const table = useTemplateRef<HTMLElement>('table')
 const appendCurrencySymbol = commonUtil.appendCurrencySymbol
@@ -297,6 +293,7 @@ useInfiniteScroll(
           Loading...
         </template>
         <template #empty>
+          <!-- TODO sanitize html -->
           <div
             class="text-center py-8 text-gray-600"
             v-html="
@@ -399,7 +396,7 @@ useInfiniteScroll(
           <div class="text-right">
             <UButton
               label="Open"
-              @click="navigateTo(row.original.routingSlipNumber)"
+              @click="navigateTo(localePath(`/view-routing-slip/${row.original.routingSlipNumber}`))"
             />
           </div>
         </template>

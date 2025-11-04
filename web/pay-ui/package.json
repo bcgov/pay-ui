@@ -1,6 +1,6 @@
 {
   "name": "pay-ui",
-  "version": "2.0.0-beta.0",
+  "version": "2.0.0-beta.1",
   "type": "module",
   "private": true,
   "scripts": {
@@ -25,7 +25,6 @@
     "@nuxt/test-utils": "^3.19.2",
     "@sbc-connect/nuxt-forms": "^0.1.23",
     "@sbc-connect/nuxt-pay": "^0.1.23",
-    "axios": "^1.13.1",
     "es-toolkit": "^1.39.10",
     "luxon": "^3.7.2",
     "nuxt": "4.0.3",

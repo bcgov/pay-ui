@@ -1,4 +1,4 @@
-import type { Contact } from '@/models/contact'
+import type { Contact } from '~/interfaces/contact'
 
 export interface UserTerms {
   isTermsOfUseAccepted: boolean
