@@ -87,6 +87,16 @@ export const usePayApi = () => {
     }
   }
 
+    // TODO: fix type
+    async function getRoutingSlipComments(
+      slipNumber: string
+    ): Promise<any> {
+      const response = await $payApi<RoutingSlip>(
+        `/fas/routing-slips/${slipNumber}/comments`
+      )
+      return response
+    }
+
   // TODO: fix type
   async function updateRoutingSlipComments(
     data: UpdateCommentsParams,
@@ -213,6 +223,7 @@ export const usePayApi = () => {
     adjustRoutingSlip,
     updateRoutingSlipStatus,
     updateRoutingSlipRefundStatus,
+    getRoutingSlipComments,
     updateRoutingSlipComments,
     updateRoutingSlipRefund,
     getSearchRoutingSlip,
