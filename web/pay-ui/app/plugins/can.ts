@@ -1,4 +1,5 @@
 import type { Directive, DirectiveBinding } from 'vue'
+import type { Role } from '@/utils/constants'
 
 interface CustomHTMLElement extends HTMLElement {
   disabled: boolean
@@ -14,11 +15,11 @@ const can: Directive = {
   }
 }
 
-function canAccess (binding: DirectiveBinding, el: HTMLElement) {
+function canAccess(binding: DirectiveBinding, el: HTMLElement) {
   const behaviour = binding.modifiers.disable ? 'disable' : 'hide'
   // to handle special elements like v-card etc
   const isCard = !!binding.modifiers.card
-  const requestedAction:any = [binding.arg]
+  const requestedAction: Role[] = [binding.arg as Role]
   const customeEl = el as CustomHTMLElement
   const okayToAccess = commonUtil.verifyRoles(requestedAction)
   // if not okay , hide or disable
@@ -35,7 +36,7 @@ function canAccess (binding: DirectiveBinding, el: HTMLElement) {
   }
 }
 
-function commentNode (el: HTMLElement) {
+function commentNode(el: HTMLElement) {
   const comment = document.createComment(' ')
 
   Object.defineProperty(comment, 'setAttribute', {
@@ -47,6 +48,6 @@ function commentNode (el: HTMLElement) {
   }
 }
 
- export default defineNuxtPlugin((nuxtApp) => {
-   nuxtApp.vueApp.directive('can', can)
+export default defineNuxtPlugin((nuxtApp) => {
+  nuxtApp.vueApp.directive('can', can)
 })

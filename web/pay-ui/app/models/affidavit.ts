@@ -1,4 +1,4 @@
-import { Contact } from '@/models/contact'
+import type { Contact } from '@/models/contact'
 
 export interface AffidavitInformation {
   contacts: Contact[]

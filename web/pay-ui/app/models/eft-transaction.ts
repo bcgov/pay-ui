@@ -1,4 +1,4 @@
-import { DataOptions } from 'vuetify'
+import type { DataOptions } from 'vuetify'
 
 export interface EFTTransaction {
   id: number
@@ -24,15 +24,15 @@ export interface EFTTransactionListResponse {
 }
 
 export interface EFTTransactionState {
-  errorDialogTitle?: string,
-  errorDialogText?: string,
+  errorDialogTitle?: string
+  errorDialogText?: string
   confirmDialogTitle?: string
   confirmDialogText?: string
   confirmObject?: object
   filters: EFTTransactionFilterParams
   loading: boolean
   results: EFTTransaction[]
-  totalResults: number,
+  totalResults: number
   options: DataOptions
 }
 

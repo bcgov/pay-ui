@@ -33,7 +33,7 @@ export enum RouteNames {
   MANAGE_SHORTNAMES = 'manage-shortnames',
   SHORTNAME_DETAILS = 'shortnamedetails',
   SHORTNAME_REFUND = 'shortnamerefund',
-  SHORTNAME_REFUND_SELECTION= 'shortnamerefundselection'
+  SHORTNAME_REFUND_SELECTION = 'shortnamerefundselection'
 }
 
 export enum DateFilterCodes {
@@ -41,12 +41,12 @@ export enum DateFilterCodes {
   YESTERDAY = 'YESTERDAY',
   LASTWEEK = 'LASTWEEK',
   LASTMONTH = 'LASTMONTH',
-  CUSTOMRANGE = 'CUSTOMRANGE',
+  CUSTOMRANGE = 'CUSTOMRANGE'
 }
 
 export enum PaymentMethods {
   CASH = 'CASH',
-  CHEQUE = 'CHEQUE',
+  CHEQUE = 'CHEQUE'
 }
 
 export enum SlipStatus {
@@ -64,12 +64,12 @@ export enum SlipStatus {
   REFUNDUPLOADED = 'REFUND_UPLOADED',
   REFUNDREJECTED = 'REFUND_REJECTED',
   CANCEL_REFUND_REQUEST = 'CANCEL_REFUND_REQUEST',
-  CANCELWRITEOFFREQUEST='CANCEL_WRITE_OFF_REQUEST',
-  WRITEOFFAUTHORIZED='WRITE_OFF_AUTHORIZED',
-  WRITEOFFREQUESTED='WRITE_OFF_REQUESTED',
-  WRITEOFFCOMPLETED='WRITE_OFF_COMPLETED',
-  VOID='VOID',
-  CORRECTION='CORRECTION'
+  CANCELWRITEOFFREQUEST = 'CANCEL_WRITE_OFF_REQUEST',
+  WRITEOFFAUTHORIZED = 'WRITE_OFF_AUTHORIZED',
+  WRITEOFFREQUESTED = 'WRITE_OFF_REQUESTED',
+  WRITEOFFCOMPLETED = 'WRITE_OFF_COMPLETED',
+  VOID = 'VOID',
+  CORRECTION = 'CORRECTION'
 }
 
 export enum SlipStatusLabel {
@@ -80,10 +80,10 @@ export enum SlipStatusLabel {
   REFUND_REQUESTED = 'Refund request',
   WRITE_OFF_REQUESTED = 'Write off request',
   CANCEL_REFUND_REQUEST = 'Cancel refund request',
-  REFUND_AUTHORIZED='Review refund request',
-  WRITE_OFF_AUTHORIZED='Authorize Write off request',
-  CANCEL_WRITE_OFF_REQUEST='Cancel Write off request',
-  VOID='Void Routing Slip',
+  REFUND_AUTHORIZED = 'Review refund request',
+  WRITE_OFF_AUTHORIZED = 'Authorize Write off request',
+  CANCEL_WRITE_OFF_REQUEST = 'Cancel Write off request',
+  VOID = 'Void Routing Slip'
   // CORRECTION='Correct Routing Slip' - Future
 }
 
@@ -104,6 +104,7 @@ export enum Role {
   EftRefund = 'eft_refund',
   EftRefundApprover = 'eft_refund_approver',
   CreateCredits = 'create_credits',
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   FasRefund = 'fas_refund',
   ViewAllTransactions = 'view_all_transactions'
 }
@@ -137,7 +138,7 @@ export enum ApiErrors {
 export enum CreateRoutingSlipStatus {
   VALID = 'VALID',
   EXISTS = 'EXISTS',
-  INVALID_DIGITS = 'INVALID_DIGITS',
+  INVALID_DIGITS = 'INVALID_DIGITS'
 }
 
 export enum PatchActions {
@@ -145,12 +146,12 @@ export enum PatchActions {
 }
 
 export enum Account {
-    PREMIUM = 'PREMIUM',
-    BASIC = 'BASIC',
-    STAFF = 'STAFF',
-    SBC_STAFF = 'SBC_STAFF',
-    MAXIMUS_STAFF = 'MAXIMUS_STAFF',
-    CONTACT_CENTRE_STAFF = 'CC_STAFF'
+  PREMIUM = 'PREMIUM',
+  BASIC = 'BASIC',
+  STAFF = 'STAFF',
+  SBC_STAFF = 'SBC_STAFF',
+  MAXIMUS_STAFF = 'MAXIMUS_STAFF',
+  CONTACT_CENTRE_STAFF = 'CC_STAFF'
 }
 
 export enum AccountStatus {
@@ -189,7 +190,7 @@ export enum EFTRefundStatusDescription {
   APPROVED = 'Approved',
   PENDING_APPROVAL = 'Requested',
   DECLINED = 'Declined',
-  PENDING_REFUND = 'Pending Refund',
+  PENDING_REFUND = 'Pending Refund'
 }
 
 export enum ShortNameType {
@@ -244,7 +245,9 @@ export enum ShortNameHistoryTypeDescription {
   STATEMENT_PAID = 'Statement Paid',
   STATEMENT_REVERSE = 'Payment Reversed',
   SN_REFUND_PENDING_APPROVAL = 'Short Name Refund Request',
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   SN_REFUND_APPROVED = 'Short Name Refund Request',
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   SN_REFUND_DECLINED = 'Short Name Refund Request'
 }
 
@@ -293,159 +296,159 @@ export enum LookupStates {
 }
 
 export enum PaymentTypes {
-    CASH = 'CASH',
-    CHEQUE = 'CHEQUE',
-    CREDIT_CARD = 'CC',
-    BCOL = 'DRAWDOWN',
-    DIRECT_PAY = 'DIRECT_PAY',
-    EFT = 'EFT',
-    INTERNAL = 'INTERNAL',
-    NO_FEE = 'NO_FEE',
-    ONLINE_BANKING = 'ONLINE_BANKING',
-    PAD = 'PAD',
-    EJV = 'EJV',
-    WIRE = 'WIRE',
-    CREDIT = 'CREDIT'
+  CASH = 'CASH',
+  CHEQUE = 'CHEQUE',
+  CREDIT_CARD = 'CC',
+  BCOL = 'DRAWDOWN',
+  DIRECT_PAY = 'DIRECT_PAY',
+  EFT = 'EFT',
+  INTERNAL = 'INTERNAL',
+  NO_FEE = 'NO_FEE',
+  ONLINE_BANKING = 'ONLINE_BANKING',
+  PAD = 'PAD',
+  EJV = 'EJV',
+  WIRE = 'WIRE',
+  CREDIT = 'CREDIT'
 }
 
 export const AXIOS_ERROR_ALERT_TIME_OUT = 5000
 
-export const SearchRoutingSlipTableHeaders =
-[
-  {
-    header: 'Routing Slip Number',
-    align: 'start',
-    accessorKey: 'routingSlipNumber',
-    display: true,
-    meta: {
-      class: {
-        th: 'header-routing-slip'
+export const SearchRoutingSlipTableHeaders
+  = [
+    {
+      header: 'Routing Slip Number',
+      align: 'start',
+      accessorKey: 'routingSlipNumber',
+      display: true,
+      meta: {
+        class: {
+          th: 'header-routing-slip'
+        }
+      }
+    },
+    {
+      header: 'Receipt Number',
+      align: 'start',
+      sortable: false,
+      accessorKey: 'receiptNumber',
+      display: true,
+      meta: {
+        class: {
+          th: 'header-receipt-number'
+        }
+      }
+    },
+    {
+      header: 'Entity Number',
+      align: 'start',
+      accessorKey: 'accountName',
+      sortable: false,
+      display: false,
+      meta: {
+        class: {
+          th: 'header-account-name'
+        }
+      }
+    },
+    {
+      header: 'Created By',
+      align: 'start',
+      accessorKey: 'createdName',
+      sortable: false,
+      display: false,
+      meta: {
+        class: {
+          th: 'header-created-name'
+        }
+      }
+    },
+    {
+      header: 'Date',
+      align: 'start',
+      sortable: false,
+      accessorKey: 'date',
+      display: true,
+      meta: {
+        class: {
+          th: 'header-date'
+        }
+      }
+    },
+    {
+      header: 'Status',
+      align: 'start',
+      sortable: false,
+      accessorKey: 'status',
+      display: true,
+      meta: {
+        class: {
+          th: 'header-status'
+        }
+      }
+    },
+    {
+      header: 'Refund Status',
+      align: 'start',
+      sortable: false,
+      accessorKey: 'refundStatus',
+      display: true,
+      meta: {
+        class: {
+          th: 'header-refund-status'
+        }
+      }
+    },
+    {
+      header: 'Reference Number',
+      align: 'start',
+      accessorKey: 'businessIdentifier',
+      sortable: false,
+      display: true,
+      meta: {
+        class: {
+          th: 'header-business-identifier'
+        }
+      }
+    },
+    {
+      header: 'Cheque Number',
+      align: 'start',
+      accessorKey: 'chequeReceiptNumber',
+      sortable: false,
+      display: false,
+      meta: {
+        class: {
+          th: 'header-cheque-receipt-number'
+        }
+      }
+    },
+    {
+      header: 'Balance',
+      align: 'right',
+      accessorKey: 'remainingAmount',
+      sortable: false,
+      display: true,
+      meta: {
+        class: {
+          th: 'header-remaining-amount',
+          td: 'text-right font-bold'
+        }
+      }
+    },
+    {
+      header: 'Actions',
+      align: 'start',
+      accessorKey: 'actions',
+      sortable: false,
+      display: true,
+      hideInSearchColumnFilter: true,
+      meta: {
+        class: {
+          th: 'header-action'
+        }
       }
     }
-  },
-  {
-    header: 'Receipt Number',
-    align: 'start',
-    sortable: false,
-    accessorKey: 'receiptNumber',
-    display: true,
-    meta: {
-      class: {
-        th: 'header-receipt-number'
-      }
-    }
-  },
-  {
-    header: 'Entity Number',
-    align: 'start',
-    accessorKey: 'accountName',
-    sortable: false,
-    display: false,
-    meta: {
-      class: {
-        th: 'header-account-name'
-      }
-    }
-  },
-  {
-    header: 'Created By',
-    align: 'start',
-    accessorKey: 'createdName',
-    sortable: false,
-    display: false,
-    meta: {
-      class: {
-        th: 'header-created-name'
-      }
-    }
-  },
-  {
-    header: 'Date',
-    align: 'start',
-    sortable: false,
-    accessorKey: 'date',
-    display: true,
-    meta: {
-      class: {
-        th: 'header-date'
-      }
-    }
-  },
-  {
-    header: 'Status',
-    align: 'start',
-    sortable: false,
-    accessorKey: 'status',
-    display: true,
-    meta: {
-      class: {
-        th: 'header-status'
-      }
-    }
-  },
-  {
-    header: 'Refund Status',
-    align: 'start',
-    sortable: false,
-    accessorKey: 'refundStatus',
-    display: true,
-    meta: {
-      class: {
-        th: 'header-refund-status'
-      }
-    }
-  },
-  {
-    header: 'Reference Number',
-    align: 'start',
-    accessorKey: 'businessIdentifier',
-    sortable: false,
-    display: true,
-    meta: {
-      class: {
-        th: 'header-business-identifier'
-      }
-    }
-  },
-  {
-    header: 'Cheque Number',
-    align: 'start',
-    accessorKey: 'chequeReceiptNumber',
-    sortable: false,
-    display: false,
-    meta: {
-      class: {
-        th: 'header-cheque-receipt-number'
-      }
-    }
-  },
-  {
-    header: 'Balance',
-    align: 'right',
-    accessorKey: 'remainingAmount',
-    sortable: false,
-    display: true,
-    meta: {
-      class: {
-        th: 'header-remaining-amount',
-        td: 'text-right font-bold'
-      }
-    }
-  },
-  {
-    header: 'Actions',
-    align: 'start',
-    accessorKey: 'actions',
-    sortable: false,
-    display: true,
-    hideInSearchColumnFilter: true,
-    meta: {
-      class: {
-        th: 'header-action'
-      }
-    }
-  }
-]
+  ]
 
 export const ChequeRefundStatus = [
   {
@@ -466,18 +469,18 @@ export const ChequeRefundStatus = [
 ]
 
 export enum Product {
-    BCA = 'BCA',
-    BUSINESS = 'BUSINESS',
-    BUSINESS_SEARCH = 'BUSINESS_SEARCH',
-    CSO = 'CSO',
-    ESRA = 'ESRA',
-    MHR = 'MHR',
-    PPR = 'PPR',
-    RPPR = 'RPPR',
-    RPT = 'RPT',
-    STRR = 'STRR',
-    VS = 'VS',
-    NRO = 'NRO'
+  BCA = 'BCA',
+  BUSINESS = 'BUSINESS',
+  BUSINESS_SEARCH = 'BUSINESS_SEARCH',
+  CSO = 'CSO',
+  ESRA = 'ESRA',
+  MHR = 'MHR',
+  PPR = 'PPR',
+  RPPR = 'RPPR',
+  RPT = 'RPT',
+  STRR = 'STRR',
+  VS = 'VS',
+  NRO = 'NRO'
 }
 
 export const chequeRefundCodes = ChequeRefundStatus.reduce((acc, status) => {

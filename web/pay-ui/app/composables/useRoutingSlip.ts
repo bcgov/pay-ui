@@ -1,14 +1,18 @@
-
 import type {
   AccountInfo, AdjustRoutingSlipAmountPrams, AdjustRoutingSlipChequePrams, GetRoutingSlipRequestPayload,
-  LinkedRoutingSlips, RoutingSlip, RoutingSlipDetails, RoutingSlipAddress
+  LinkedRoutingSlips, RoutingSlip, RoutingSlipDetails, RoutingSlipAddress, ManualTransactionDetails
 } from '@/models/RoutingSlip'
 import type { BusinessInfo, GetFeeRequestParams, Payment, TransactionParams } from '@/models/Payment'
+import type { AxiosError, AxiosResponse } from 'axios'
 import {
   ApiErrors, CreateRoutingSlipStatus, SearchRoutingSlipTableHeaders, SlipStatus
 } from '@/utils/constants'
 import CommonUtils from '@/utils/common-util'
 import RoutingSlipService from '@/services/routingSlip.services'
+
+interface StatusDetails {
+  status: string
+}
 
 const defaultParams = {
   page: 1,
@@ -17,7 +21,7 @@ const defaultParams = {
 }
 const searchRoutingSlipTableHeaders = ref(SearchRoutingSlipTableHeaders)
 const searchRoutingSlipResult = ref<RoutingSlip[]>([])
-const searchRoutingSlipParams = ref<any>(defaultParams)
+const searchRoutingSlipParams = ref(defaultParams)
 
 const routingSlip = ref<RoutingSlip>({})
 const linkedRoutingSlips = ref<LinkedRoutingSlips | undefined>(undefined)
@@ -51,7 +55,9 @@ export const useRoutingSlip = () => {
     return !!routingSlip.value?.parentNumber
   })
 
-  // if routingslip has parentNumber then it is a child Else, check if there are any children in linkedroutingslips for it.(in this case, it is a parent)
+  // if routingslip has parentNumber then it is a child Else,
+  // check if there are any children in linkedroutingslips for
+  // it.(in this case, it is a parent)
   const isRoutingSlipLinked = computed<boolean>(() => {
     return (
       isRoutingSlipAChild.value || !!linkedRoutingSlips.value?.children?.length
@@ -118,13 +124,15 @@ export const useRoutingSlip = () => {
       }
       // all other case routing is existing so can't use this number
       return CreateRoutingSlipStatus.EXISTS
-    } catch (error: any) {
-      if (error.response?.status === 400 && error.response?.data?.type === ApiErrors.FAS_INVALID_ROUTING_SLIP_DIGITS) {
+    } catch (error) {
+      const axiosError = error as { response?: { status?: number, data?: { type?: string } } }
+      if (axiosError.response?.status === 400
+        && axiosError.response?.data?.type === ApiErrors.FAS_INVALID_ROUTING_SLIP_DIGITS
+      ) {
         return CreateRoutingSlipStatus.INVALID_DIGITS
       }
 
-      // eslint-disable-next-line no-console
-      console.error('error ', error.response?.data)
+      console.error('error ', axiosError.response?.data)
       // on error we allow the routing number which should break on create and show error message
       return CreateRoutingSlipStatus.VALID
     }
@@ -142,32 +150,32 @@ export const useRoutingSlip = () => {
         routingSlip.value = response.data
       }
       // TODO : need to handle if slip not existing
-    } catch (error: any) {
-      // eslint-disable-next-line no-console
-      console.error('error ', error.response?.data) // 500 errors may not return data
+    } catch (error) {
+      const axiosError = error as { response?: { data?: unknown } }
+      console.error('error ', axiosError.response?.data) // 500 errors may not return data
     }
   }
 
   const updateRoutingSlipStatus = async (
-    statusDetails: any
+    statusDetails: string | StatusDetails
   ) => {
     const slipNumber = routingSlip.value.number
     // update status
     try {
       let response
-      if (CommonUtils.isRefundProcessStatus(statusDetails?.status)) {
+      if (CommonUtils.isRefundProcessStatus((statusDetails as StatusDetails)?.status as SlipStatus)) {
         response = await RoutingSlipService.updateRoutingSlipRefund(
-          statusDetails,
+          statusDetails as string,
           slipNumber ?? ''
         )
       } else {
         response = await RoutingSlipService.updateRoutingSlipStatus(
-          statusDetails.status,
+          (statusDetails as StatusDetails)?.status,
           slipNumber ?? ''
         )
       }
       if (response?.data && (response.status === 200 || response.status === 202)) {
-        if (!CommonUtils.isRefundProcessStatus(statusDetails?.status)) {
+        if (!CommonUtils.isRefundProcessStatus((statusDetails as StatusDetails)?.status as SlipStatus)) {
           routingSlip.value = response.data
         } else {
           const getRoutingSlipRequestPayload: GetRoutingSlipRequestPayload = { routingSlipNumber: slipNumber }
@@ -175,25 +183,26 @@ export const useRoutingSlip = () => {
         }
         return response
       }
-    } catch (error: any) {
-      // eslint-disable-next-line no-console
-      console.error('error ', error.response)
-      return error?.response
+    } catch (error) {
+      const axiosError = error as AxiosError
+      console.error('error ', axiosError?.response)
+      return axiosError?.response
     }
   }
 
-  const updateRoutingSlipRefundStatus = async (status: any) => {
+  const updateRoutingSlipRefundStatus = async (status: string) => {
     const slipNumber = routingSlip.value.number
     try {
       const responseData = await RoutingSlipService.updateRoutingSlipRefundStatus(status, slipNumber ?? '')
       return responseData
-    } catch (error: any) {
-      console.error('Error updating refund status:', error)
-      return error?.response
+    } catch (error) {
+      const axiosError = error as AxiosError
+      console.error('Error updating refund status:', axiosError)
+      return axiosError?.response
     }
   }
 
-  const updateRoutingSlipComments = async (text: any) => {
+  const updateRoutingSlipComments = async (text: string) => {
     const slipNumber = routingSlip.value.number
     const data = {
       comment: {
@@ -204,9 +213,10 @@ export const useRoutingSlip = () => {
     try {
       const responseData = await RoutingSlipService.updateRoutingSlipComments(data, slipNumber ?? '')
       return responseData
-    } catch (error: any) {
-      console.error('Error updating routing slip comments:', error)
-      return error?.response
+    } catch (error) {
+      const axiosError = error as AxiosError
+      console.error('Error updating routing slip comments:', axiosError)
+      return axiosError?.response
     }
   }
 
@@ -222,10 +232,9 @@ export const useRoutingSlip = () => {
         return response.data
       }
       return null
-    } catch (error: any) {
-      // eslint-disable-next-line no-console
-      console.error('error ', error.response)
-      return error?.response
+    } catch (error) {
+      console.error('error adjust routing slip:', error)
+      return null
     }
   }
 
@@ -272,10 +281,10 @@ export const useRoutingSlip = () => {
         if (appendToResults) {
           searchRoutingSlipResult.value = [
             ...searchRoutingSlipResult.value,
-            ...response.data?.items
+            ...(response.data?.items || [])
           ]
         } else {
-          searchRoutingSlipResult.value = response.data?.items
+          searchRoutingSlipResult.value = response.data?.items || []
         }
 
         return
@@ -286,7 +295,7 @@ export const useRoutingSlip = () => {
 
   const saveLinkRoutingSlip = async (
     parentRoutingSlipNumber: string
-  ): Promise<any> => {
+  ): Promise<{ error: boolean, details?: unknown } | undefined> => {
     const childRoutingSlipNumber: string = routingSlip.value.number ?? ''
 
     const LinkPrams = { childRoutingSlipNumber, parentRoutingSlipNumber }
@@ -299,17 +308,17 @@ export const useRoutingSlip = () => {
           error: false
         }
       }
-    } catch (error: any) {
-      if (error.response.status === 400) {
-        return { error: true, details: error.response?.data }
+    } catch (error) {
+      const axiosError = error as AxiosError
+      if (axiosError.response?.status === 400) {
+        return { error: true, details: axiosError.response?.data }
       }
 
-      // eslint-disable-next-line no-console
-      console.error('error ', error.response?.data)
+      console.error('error ', axiosError.response?.data)
     }
   }
 
-  const getLinkedRoutingSlips = async (routingSlipNumber: any) => {
+  const getLinkedRoutingSlips = async (routingSlipNumber: string) => {
     try {
       const response = await RoutingSlipService.getLinkedRoutingSlips(
         routingSlipNumber,
@@ -321,10 +330,10 @@ export const useRoutingSlip = () => {
       }
       // 204 non content response
       linkedRoutingSlips.value = result
-    } catch (error: any) {
+    } catch (error) {
+      const axiosError = error as AxiosError
       linkedRoutingSlips.value = undefined
-      // eslint-disable-next-line no-console
-      console.error('error ', error.response?.data) // 500 errors may not return data
+      console.error('error ', axiosError?.response?.data) // 500 errors may not return data
     }
   }
 
@@ -335,19 +344,19 @@ export const useRoutingSlip = () => {
     )
     try {
       return await RoutingSlipService.getDailyReport(formatedDate, type, false)
-    } catch (error: any) {
-      // eslint-disable-next-line no-console
-      console.error('error ', error.response?.data) // 500 errors may not return data
-      return error.response
+    } catch (error) {
+      const axiosError = error as AxiosError
+      console.error('error ', axiosError?.response?.data) // 500 errors may not return data
+      return axiosError?.response
     }
   }
 
   const getAutoCompleteRoutingSlips = async (
-    routingSlipNumber: any
+    routingSlipNumber: string
   ): Promise<RoutingSlipDetails[]> => {
     const response = await RoutingSlipService.getSearchRoutingSlip({
-      routingSlipNumber
-    })
+      number: routingSlipNumber
+    } as RoutingSlip)
     if (response && response.data && response.status === 200) {
       return response.data?.items
     }
@@ -369,7 +378,7 @@ export const useRoutingSlip = () => {
     return null
   }
 
-  const saveManualTransactions = async (transation: any): Promise<any> => {
+  const saveManualTransactions = async (transation: ManualTransactionDetails): Promise<AxiosResponse> => {
     // prepare format from here
     const routingSlipNumber: string | undefined = routingSlip.value.number
 
@@ -381,7 +390,7 @@ export const useRoutingSlip = () => {
       quantity
     } = transation
     const businessInfo: BusinessInfo = {
-      corpType: filingType.corpTypeCode.code
+      corpType: filingType?.corpTypeCode?.code || ''
     }
 
     // no need to pass if empty
@@ -394,10 +403,10 @@ export const useRoutingSlip = () => {
       filingInfo: {
         filingTypes: [
           {
-            filingTypeCode: filingType.filingTypeCode.code,
-            futureEffective: futureEffective,
-            priority: priority,
-            quantity: parseInt(quantity)
+            filingTypeCode: filingType?.filingTypeCode?.code,
+            futureEffective: futureEffective?.toString(),
+            priority: priority?.toString(),
+            quantity: quantity ? parseInt(quantity.toString()) : undefined
           }
         ]
       },
@@ -416,9 +425,11 @@ export const useRoutingSlip = () => {
     return await RoutingSlipService.cancelRoutingSlipInvoice(invoiceId)
   }
 
-  async function infiniteScrollCallback () {
+  async function infiniteScrollCallback() {
     const params = { ...searchRoutingSlipParams.value }
-    if (params.total !== Infinity && params.total < params.limit) return true
+    if (params.total !== Infinity && params.total < params.limit) {
+      return true
+    }
     searchRoutingSlipParams.value = {
       ...searchRoutingSlipParams.value,
       page: searchRoutingSlipParams.value.page ? searchRoutingSlipParams.value.page + 1 : 1

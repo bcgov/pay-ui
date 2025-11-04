@@ -1,6 +1,3 @@
-import { DataOptions } from 'vuetify'
-import { ShortNameStatus } from '@/util/constants'
-
 export interface LinkedShortNameFilterParams {
   isActive: boolean
   pageNumber: number
@@ -21,16 +18,6 @@ export interface LinkedShortNameResults {
   accountBranch?: string
   accountId?: string
   id: number
-}
-
-export interface LinkedShortNameState {
-  results: LinkedShortNameResults[]
-  totalResults: number
-  loading: boolean
-  filters: LinkedShortNameFilterParams
-  actionDropdown: any[]
-  options: DataOptions
-  clearFiltersTrigger: number
 }
 
 export interface ShortNameSummaryFilterParams {
@@ -54,62 +41,38 @@ export interface ShortNameSummaryResults {
   id: number
 }
 
-export interface ShortNameSummaryState {
-  results: ShortNameSummaryResults[]
-  totalResults: number
-  loading: boolean
-  filters: ShortNameSummaryFilterParams
-  actionDropdown: any[]
-  options: DataOptions
-  shortNameLookupKey: number
-  dateRangeReset: number
-  clearFiltersTrigger: number
-  selectedShortName: object
-  showDatePicker: boolean
-  dateRangeSelected: boolean
-  dateRangeText: string
-  accountLinkingErrorDialogTitle: string
-  accountLinkingErrorDialogText: string
-  isShortNameLinkingDialogOpen: boolean
-  startDate: string
-  endDate: string
-  snackbarText: string
-  snackbar: boolean
-  highlightIndex: number
-}
-
 export interface ShortNameDetails {
-  shortName: string;
-  creditsRemaining?: number;
-  linkedAccountsCount: number;
-  lastPaymentReceivedDate: Date;
-  refundStatus: string;
+  shortName: string
+  creditsRemaining?: number
+  linkedAccountsCount: number
+  lastPaymentReceivedDate: Date
+  refundStatus: string
 }
 
 export interface EFTRefund {
-  id: number;
-  casSupplierNumber?: string;
-  casSupplierSite?: string;
-  comment?: string;
-  createdBy?: string;
-  createdName?: string;
-  createdOn?: Date;
-  declineReason?: string;
-  refundAmount?: number;
-  refundEmail?: string;
-  shortnameId?: number;
-  status?: string;
-  updatedBy?: string;
-  updatedName?: string;
-  updatedOn?: Date;
-  chequeStatus?: string;
-  refundMethod?: string;
-  entityName?: string;
-  street?: string;
-  streetAdditional?: string;
-  city?: string;
-  region?: string;
-  postalCode?: string;
-  country?: string;
-  deliveryInstructions?: string;
+  id: number
+  casSupplierNumber?: string
+  casSupplierSite?: string
+  comment?: string
+  createdBy?: string
+  createdName?: string
+  createdOn?: Date
+  declineReason?: string
+  refundAmount?: number
+  refundEmail?: string
+  shortnameId?: number
+  status?: string
+  updatedBy?: string
+  updatedName?: string
+  updatedOn?: Date
+  chequeStatus?: string
+  refundMethod?: string
+  entityName?: string
+  street?: string
+  streetAdditional?: string
+  city?: string
+  region?: string
+  postalCode?: string
+  country?: string
+  deliveryInstructions?: string
 }

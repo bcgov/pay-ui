@@ -1,7 +1,15 @@
 import type { Code } from '@/models/Code'
 import { useCodes } from '@/composables/useCodes'
 
-export function useStatusList (props : any, { emit } : any) {
+interface StatusListProps {
+  value?: string
+}
+
+interface StatusListEmit {
+  emit: (event: 'update:modelValue', value: string | undefined) => void
+}
+
+export function useStatusList(props: StatusListProps, { emit }: StatusListEmit) {
   const { getRoutingSlipStatusList, routingSlipStatusList } = useCodes()
   // default value set blank incase if we didnt pass props
   const { value = ref('') } = toRefs(props)
@@ -25,7 +33,7 @@ export function useStatusList (props : any, { emit } : any) {
    * @param {string} code
    * @returns {string} description - label
    */
-  function statusLabel (code: string) {
+  function statusLabel(code: string) {
     const codeArray = selectedStatusObject(code)
     return codeArray[0]?.description || ''
   }
@@ -37,9 +45,9 @@ export function useStatusList (props : any, { emit } : any) {
    * @returns [{code, description}]
    */
 
-  function selectedStatusObject (code: string) {
+  function selectedStatusObject(code: string) {
     return routingSlipStatusList.value?.filter(
-      (statusList: any) => statusList.code === code
+      (statusList: Code) => statusList.code === code
     )
   }
 

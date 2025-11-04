@@ -1,11 +1,11 @@
-import { Contact } from './contact'
+import type { Contact } from './contact'
 
 export interface Organization {
   id?: number
 }
 
-export interface Organizations{
-  orgs : Organization[]
+export interface Organizations {
+  orgs: Organization[]
 }
 
 export interface PADInfo {
@@ -44,8 +44,8 @@ export interface OrgPaymentDetails {
   padCredit: string
   paymentMethod: string
   statementNotificationEnabled: true
-  padTosAcceptedBy:string
-  padTosAcceptedDate:string
+  padTosAcceptedBy: string
+  padTosAcceptedDate: string
   futurePaymentMethod: string
   revenueAccount?: GLInfo
   eftEnable?: boolean
@@ -68,8 +68,8 @@ export interface AddUserBody {
 }
 
 export interface AddUsersToOrgBody {
-    users: AddUserBody[]
-    orgId: string
+  users: AddUserBody[]
+  orgId: string
 }
 
 export interface BulkUserResponse {
@@ -86,44 +86,44 @@ export interface BulkUserResponseBody {
 }
 
 export enum MembershipStatus {
-  'Active' = 'ACTIVE',
-  'Inactive' = 'INACTIVE',
-  'Rejected' = 'REJECTED',
-  'Pending' = 'PENDING_APPROVAL',
-  'PendingStaffReview'='PENDING_STAFF_REVIEW'
+  Active = 'ACTIVE',
+  Inactive = 'INACTIVE',
+  Rejected = 'REJECTED',
+  Pending = 'PENDING_APPROVAL',
+  PendingStaffReview = 'PENDING_STAFF_REVIEW'
 }
 
 export enum MembershipType {
-  'Admin' = 'ADMIN',
-  'Coordinator' = 'COORDINATOR',
-  'User' = 'USER',
-  'Staff' = 'STAFF',
-  'ExternalStaff' = 'EXTERNAL_STAFF'
+  Admin = 'ADMIN',
+  Coordinator = 'COORDINATOR',
+  User = 'USER',
+  Staff = 'STAFF',
+  ExternalStaff = 'EXTERNAL_STAFF'
 }
 
 export interface UserTerms {
-    isTermsOfUseAccepted: boolean
-    termsOfUseAcceptedVersion: string
+  isTermsOfUseAccepted: boolean
+  termsOfUseAcceptedVersion: string
 }
 
 export interface User {
-    firstname: string;
-    lastname: string;
-    username?: string;
-    modified?: Date
-    userTerms?: UserTerms
-    contacts?: Contact[]
-    email?: string,
-    loginSource?: string
-    id?: number
-    keycloakGuid?: string
-    verified?:boolean
+  firstname: string
+  lastname: string
+  username?: string
+  modified?: Date
+  userTerms?: UserTerms
+  contacts?: Contact[]
+  email?: string
+  loginSource?: string
+  id?: number
+  keycloakGuid?: string
+  verified?: boolean
 }
 
 export interface Member {
   id: number
   membershipTypeCode: MembershipType
   membershipStatus: MembershipStatus
-  roleDisplayName?:string
+  roleDisplayName?: string
   user: User
 }

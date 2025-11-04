@@ -1,5 +1,5 @@
-import { InvoiceStatus, PaymentTypes, Product } from '@/util/constants'
-import { LineItem } from './line-item'
+import type { InvoiceStatus, PaymentTypes, Product } from '@/util/constants'
+import type { LineItem } from './line-item'
 
 export interface AppliedCredit {
   id: number
@@ -49,23 +49,23 @@ export interface Transaction {
 }
 
 export interface TransactionFilter {
-  accountName?: string,
-  businessIdentifier?: string,
-  createdBy?: string,
-  createdName?: string,
+  accountName?: string
+  businessIdentifier?: string
+  createdBy?: string
+  createdName?: string
   dateFilter?: {
     startDate: string
     endDate: string
     isDefault: boolean
-  },
-  details?: string,
-  folioNumber?: string,
-  id?: string,
-  invoiceNumber?: string,
-  lineItems?: string,
-  lineItemsAndDetails?: string,
-  paymentMethod?: PaymentTypes,
-  product?: string,
+  }
+  details?: string
+  folioNumber?: string
+  id?: string
+  invoiceNumber?: string
+  lineItems?: string
+  lineItemsAndDetails?: string
+  paymentMethod?: PaymentTypes
+  product?: string
   statusCode?: InvoiceStatus
   excludeCount?: boolean
 }

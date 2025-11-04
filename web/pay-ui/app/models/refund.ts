@@ -16,12 +16,12 @@ export interface EftRefundBaseRequest {
   comment?: string
 }
 
-export interface EftRefundRequest extends EftRefundBaseRequest{
+export interface EftRefundRequest extends EftRefundBaseRequest {
   casSupplierNum: string
   casSupplierSite: string
 }
 
-export interface EftRefundChequeRequest extends EftRefundBaseRequest{
+export interface EftRefundChequeRequest extends EftRefundBaseRequest {
   entityName: string
   addressCity: string
   addressCountry: string

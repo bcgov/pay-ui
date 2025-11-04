@@ -47,7 +47,7 @@ onMounted(async () => {
     :placeholder
     size="md"
     class="input-text w-full"
-    :ui="{ 
+    :ui="{
       placeholder: 'placeholder',
       content: 'wide-dropdown'
     }"

@@ -1,5 +1,5 @@
 import type { FilingType, Payment } from './Payment'
-import type{ Address } from './Address'
+import type { Address } from './Address'
 import type { Invoice } from './Invoice'
 
 // Each Routing Slip is tied to an account - PayBC
@@ -11,7 +11,7 @@ export interface AccountInfo {
 }
 
 export interface RefundRequestDetails {
-  name?: string,
+  name?: string
   mailingAddress?: Address
   chequeAdvice?: string
 }
@@ -37,11 +37,11 @@ export interface RoutingSlip {
   refundAmount?: number
   invoices?: Invoice[]
   status?: string
-  createdName?:string,
-  parentNumber?:string,
-  refunds?:Refund[],
+  createdName?: string
+  parentNumber?: string
+  refunds?: Refund[]
   totalUsd?: number
-  allowedStatuses?: string[],
+  allowedStatuses?: string[]
   refundStatus?: string
 }
 
@@ -55,40 +55,40 @@ export interface RoutingSlipAddress {
   mailingAddress?: Address
 }
 
-export interface LinkRoutingSlipPrams{
-  childRoutingSlipNumber:string,
-  parentRoutingSlipNumber:string,
+export interface LinkRoutingSlipPrams {
+  childRoutingSlipNumber: string
+  parentRoutingSlipNumber: string
 }
 
-export interface LinkedRoutingSlips{
-  children?: RoutingSlip[],
-  parent?: RoutingSlip,
+export interface LinkedRoutingSlips {
+  children?: RoutingSlip[]
+  parent?: RoutingSlip
 }
 
-export interface ManualTransactionDetails{
+export interface ManualTransactionDetails {
   // we would need the key that we can use during iterator (v-for)
   key?: number
-  quantity?: number,
-  referenceNumber?: string,
-  total?: number,
-  futureEffective?: boolean,
-  priority?: boolean,
+  quantity?: number
+  referenceNumber?: string
+  total?: number
+  futureEffective?: boolean
+  priority?: boolean
   filingType?: FilingType
   availableAmountForManualTransaction?: number
 }
 
 export interface GetRoutingSlipRequestPayload {
-  routingSlipNumber: string | undefined,
+  routingSlipNumber: string | undefined
   showGlobalLoader?: boolean
 }
 
 export interface AdjustRoutingSlipChequePrams {
-  chequeNum: string,
+  chequeNum: string
   paymentIndex: number
 }
 
 export interface AdjustRoutingSlipAmountPrams {
-  amount: number,
-  paymentIndex: number,
+  amount: number
+  paymentIndex: number
   isRoutingSlipPaidInUsd: boolean
 }

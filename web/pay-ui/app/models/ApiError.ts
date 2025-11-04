@@ -1,5 +1,5 @@
 export interface ApiError {
-    title?: string
-    type?: string
-    detail?: string
+  title?: string
+  type?: string
+  detail?: string
 }

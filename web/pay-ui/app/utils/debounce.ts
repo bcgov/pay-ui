@@ -3,19 +3,19 @@
 // N milliseconds. If `immediate` is passed, trigger the function on the
 // leading edge, instead of the trailing.
 
-function debounce (
-  func: (...args: any[]) => any,
+function debounce<T extends (...args: Parameters<T>) => ReturnType<T>>(
+  func: T,
   wait = 300,
   immediate = false
 ) {
   let timeout: ReturnType<typeof setTimeout> | null = null
 
-  return function (this: any, ...args: any[]) {
-    const context = this
-
-    const later = function () {
+  return function (this: ThisParameterType<T>, ...args: Parameters<T>) {
+    const later = () => {
       timeout = null
-      if (!immediate) func.apply(context, args)
+      if (!immediate) {
+        func.apply(this, args)
+      }
     }
     const callNow = immediate && !timeout
 
@@ -23,7 +23,9 @@ function debounce (
       clearTimeout(timeout)
     }
     timeout = setTimeout(later, wait)
-    if (callNow) func.apply(context, args)
+    if (callNow) {
+      func.apply(this, args)
+    }
   }
 }
 

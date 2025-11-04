@@ -35,7 +35,7 @@ export interface Invoice {
   id?: number
   lineItems?: LineItem[]
   detail?: Detail[]
-  paid?: number,
+  paid?: number
   paymentAccount?: {
     accountId?: string
     accountName?: string
@@ -48,14 +48,14 @@ export interface Invoice {
   routingSlip?: string
   serviceFees?: string
   statusCode?: string
-  total?: number,
+  total?: number
   details?: Detail[]
 }
 
 export interface InvoiceList {
   consInvNumber?: string
   invoiceNumber: string
-  invoices: Invoice[],
+  invoices: Invoice[]
   paymentMethod: string
   paymentSystem: string
   statusCode: string

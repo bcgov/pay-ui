@@ -1,5 +1,5 @@
 export interface TermsOfUseDocument {
-    versionId: string;
-    content?: string;
-    type?: string;
+  versionId: string
+  content?: string
+  type?: string
 }

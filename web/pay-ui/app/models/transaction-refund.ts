@@ -1,4 +1,4 @@
-import { Detail } from './Invoice'
+import type { Detail } from './Invoice'
 
 export interface PaymentData {
   accountName: string | null
