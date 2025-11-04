@@ -25,6 +25,7 @@
     "@nuxt/test-utils": "^3.19.2",
     "@sbc-connect/nuxt-forms": "^0.1.23",
     "@sbc-connect/nuxt-pay": "^0.1.23",
+    "axios": "^1.13.1",
     "es-toolkit": "^1.39.10",
     "luxon": "^3.7.2",
     "nuxt": "4.0.3",
@@ -43,6 +44,8 @@
     "dotenv": "^17.2.2",
     "eslint": "9.36.0",
     "happy-dom": "^17.6.3",
+    "sass": "^1.93.2",
+    "sass-embedded": "^1.93.2",
     "typescript": "^5.8.3",
     "vitest": "^3.2.3",
     "vue-tsc": "^3.0.4"
