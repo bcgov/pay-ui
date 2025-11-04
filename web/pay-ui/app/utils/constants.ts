@@ -49,29 +49,6 @@ export enum PaymentMethods {
   CHEQUE = 'CHEQUE'
 }
 
-export enum SlipStatus {
-  ACTIVE = 'ACTIVE',
-  COMPLETE = 'COMPLETE',
-  BOUNCED = 'BOUNCED',
-  NSF = 'NSF',
-  REFUND = 'REFUND',
-  LAST = 'LAST',
-  HOLD = 'HOLD',
-  LINKED = 'LINKED',
-  REFUNDREQUEST = 'REFUND_REQUESTED',
-  REFUNDAUTHORIZED = 'REFUND_AUTHORIZED',
-  REFUNDPROCESSED = 'REFUND_PROCESSED',
-  REFUNDUPLOADED = 'REFUND_UPLOADED',
-  REFUNDREJECTED = 'REFUND_REJECTED',
-  CANCEL_REFUND_REQUEST = 'CANCEL_REFUND_REQUEST',
-  CANCELWRITEOFFREQUEST = 'CANCEL_WRITE_OFF_REQUEST',
-  WRITEOFFAUTHORIZED = 'WRITE_OFF_AUTHORIZED',
-  WRITEOFFREQUESTED = 'WRITE_OFF_REQUESTED',
-  WRITEOFFCOMPLETED = 'WRITE_OFF_COMPLETED',
-  VOID = 'VOID',
-  CORRECTION = 'CORRECTION'
-}
-
 export enum SlipStatusLabel {
   ACTIVE = 'Place routing slip to active',
   NSF = 'Place routing slip to NSF',
@@ -85,28 +62,6 @@ export enum SlipStatusLabel {
   CANCEL_WRITE_OFF_REQUEST = 'Cancel Write off request',
   VOID = 'Void Routing Slip'
   // CORRECTION='Correct Routing Slip' - Future
-}
-
-export enum Role {
-  FAS_USER = 'fas_user',
-  FAS_EDIT = 'fas_edit',
-  FAS_REPORTS = 'fas_reports',
-  FAS_SEARCH = 'fas_search',
-  FAS_VIEW = 'fas_view',
-  FAS_CREATE = 'fas_create',
-  FAS_LNK = 'fas_link',
-  FAS_TRANSACTION = 'fas_transaction',
-  FAS_REFUND_APPROVER = 'fas_refund_approver',
-  FAS_REFUND = 'fas_refund',
-  FAS_VOID = 'fas_void',
-  FAS_CORRECTION = 'fas_correction',
-  ManageEft = 'manage_eft',
-  EftRefund = 'eft_refund',
-  EftRefundApprover = 'eft_refund_approver',
-  CreateCredits = 'create_credits',
-  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
-  FasRefund = 'fas_refund',
-  ViewAllTransactions = 'view_all_transactions'
 }
 
 export enum InvoiceStatus {
@@ -129,10 +84,6 @@ export enum InvoiceStatus {
   // Not in pay-api, but shown in transaction table
   PARTIALLY_REFUNDED = 'PARTIALLY_REFUNDED',
   PARTIALLY_CREDITED = 'PARTIALLY_CREDITED'
-}
-
-export enum ApiErrors {
-  FAS_INVALID_ROUTING_SLIP_DIGITS = 'FAS_INVALID_ROUTING_SLIP_DIGITS'
 }
 
 export enum CreateRoutingSlipStatus {
@@ -293,22 +244,6 @@ export enum LookupStates {
   SHOW_RESULTS = 'show results',
   NO_RESULTS = 'no results',
   SUMMARY = 'summary'
-}
-
-export enum PaymentTypes {
-  CASH = 'CASH',
-  CHEQUE = 'CHEQUE',
-  CREDIT_CARD = 'CC',
-  BCOL = 'DRAWDOWN',
-  DIRECT_PAY = 'DIRECT_PAY',
-  EFT = 'EFT',
-  INTERNAL = 'INTERNAL',
-  NO_FEE = 'NO_FEE',
-  ONLINE_BANKING = 'ONLINE_BANKING',
-  PAD = 'PAD',
-  EJV = 'EJV',
-  WIRE = 'WIRE',
-  CREDIT = 'CREDIT'
 }
 
 export const AXIOS_ERROR_ALERT_TIME_OUT = 5000

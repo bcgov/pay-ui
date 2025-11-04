@@ -5,7 +5,7 @@ import type {
 import type { BusinessInfo, GetFeeRequestParams, Payment, TransactionParams } from '@/models/Payment'
 import type { AxiosError, AxiosResponse } from 'axios'
 import {
-  ApiErrors, CreateRoutingSlipStatus, SearchRoutingSlipTableHeaders, SlipStatus
+  CreateRoutingSlipStatus, SearchRoutingSlipTableHeaders
 } from '@/utils/constants'
 import CommonUtils from '@/utils/common-util'
 import RoutingSlipService from '@/services/routingSlip.services'

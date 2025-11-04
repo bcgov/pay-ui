@@ -4,7 +4,6 @@ import type { AxiosResponse } from 'axios'
 import CommonUtils from '@/utils/common-util'
 import ConfigHelper from '@/utils/config-helper'
 import axios from '@/utils/http-util'
-import { PatchActions, SlipStatus } from '@/utils/constants'
 
 interface UpdateCommentsParams {
   comment: {

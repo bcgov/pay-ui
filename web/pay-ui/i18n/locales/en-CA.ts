@@ -118,7 +118,24 @@ export default {
     },
     viewRoutingSlip: {
       title: 'View Routing Slip - BC Business Registry FAS',
-      h1: 'View Routing Slip: {id}'
+      h1: 'View Routing Slip: {id}',
+      subtitle: 'Manage, and review details for this routing slip',
+      routingSlipInformation: {
+        title: 'Routing Slip Information',
+        description: 'View and manage the core details of this routing slip.'
+      },
+      paymentInformation: {
+        title: 'Payment Information',
+        description: 'View balances, and detail information of the payment method.'
+      },
+      linkingRoutingSlip: {
+        title: 'Linking Routing Slip',
+        description: 'Link this routing slip to another routing slip to transfer funds, and merge payment informations.'
+      },
+      routingSlipTransaction: {
+        title: 'Routing Slip Transaction',
+        description: 'Manage, track and view the routing slip\'s transactions'
+      }
     },
     home: {
       title: 'Index Page - Pay UI',
