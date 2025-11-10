@@ -123,7 +123,7 @@ export const usePayApi = () => {
   }
 
   async function getSearchRoutingSlip(
-    searchParams: RoutingSlip
+    searchParams: SearchRoutingSlipParams
   ): Promise<SearchRoutingSlipResponse> {
     return $payApi<SearchRoutingSlipResponse>(
       '/fas/routing-slips/queries',

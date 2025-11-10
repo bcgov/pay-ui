@@ -83,10 +83,11 @@ function appendCurrencySymbol(currency: number | string) {
   return '$' + currency
 }
 
-function cleanObject(obj: Record<string, string>) {
-  if (obj.remainingAmount) {
+function cleanObject(obj: Record<string, unknown>): Record<string, unknown> {
+  if (typeof obj.remainingAmount === 'string') {
     obj.remainingAmount = obj.remainingAmount.replace(/[^0-9.]/g, '')
   }
+
   return Object.keys(obj)
     .filter(k => obj[k] !== '' && obj[k] !== null)
     .reduce((a, k) => ({ ...a, [k]: obj[k] }), {})
