@@ -6,6 +6,12 @@ import { debounce } from 'es-toolkit'
 const { t } = useI18n()
 const payApi = usePayApi()
 
+const {
+  getLinkedRoutingSlips,
+  getRoutingSlip,
+  routingSlip
+} = useRoutingSlip()
+
 const props = defineProps<{
   parentRoutingSlipNumber: string
 }>()
@@ -54,6 +60,10 @@ async function linkRoutingSlip(): Promise<void> {
       parentRoutingSlipNumber: props.parentRoutingSlipNumber
     })
     emit('success', selected.value)
+    const currentRoutingSlipId = routingSlip.value?.number || ''
+    const getRoutingSlipRequestPayload: GetRoutingSlipRequestPayload = { routingSlipNumber: currentRoutingSlipId }
+    await getRoutingSlip(getRoutingSlipRequestPayload)
+    await getLinkedRoutingSlips(currentRoutingSlipId)
   } catch (e) {
     const fallbackMsg = t('validation.unknownError')
     if (e instanceof FetchError) {
@@ -75,10 +85,11 @@ async function linkRoutingSlip(): Promise<void> {
         <AsyncAutoComplete
           id="routing-slip-autocomplete"
           v-model="selected"
-          :label="$t('label.searchRoutingSlipUniqueID')"
+          :placeholder="$t('label.searchRoutingSlipUniqueID')"
           :query-fn="searchRoutingSlip"
           value-key="number"
           label-key="number"
+          size="lg"
           :disabled="loading"
           @blur="debounceValidate"
           @update:model-value="debounceValidate"
@@ -100,7 +111,7 @@ async function linkRoutingSlip(): Promise<void> {
         />
       </template>
     </UFormField>
-    <div class="flex flex-col sm:flex-row gap-4 items-start sm:pt-2.5 w-full">
+    <div class="flex flex-col sm:flex-row gap-4 items-start w-full">
       <UButton
         :label="$t('label.link')"
         class="h-min"

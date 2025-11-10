@@ -5,15 +5,15 @@ import { DateTime } from 'luxon'
 
 const { t } = useI18n()
 
-const emit = defineEmits<{ (e: 'change', value: { start: string | null, end: string | null }): void }>()
+const emit = defineEmits<{ (e: 'change', value: { startDate: string | null, endDate: string | null }): void }>()
 
 // defineModel replaces modelValue & update:modelValue
 // can use v-model in parent as normal
 // https://vuejs.org/api/sfc-script-setup.html#definemodel
-const model = defineModel<{ start: string | null, end: string | null }>({
+const model = defineModel<{ startDate: string | null, endDate: string | null }>({
   default: {
-    start: null,
-    end: null
+    startDate: null,
+    endDate: null
   },
   required: true
 })
@@ -62,9 +62,9 @@ function applyDateRange() {
   if (!localModel.value.start || !localModel.value.end) {
     return
   }
-  const start = localModel.value.start.toString()
-  const end = localModel.value.end.toString()
-  model.value = { start, end }
+  const startDate = localModel.value.start.toString()
+  const endDate = localModel.value.end.toString()
+  model.value = { startDate, endDate }
   emit('change', model.value)
   open.value = false
 }
@@ -92,10 +92,10 @@ function getFilterCodeForRange(range?: { start?: CalendarDate, end?: CalendarDat
 }
 
 function syncLocalStateToVModel() {
-  if (model.value.start && model.value.end) {
+  if (model.value.startDate && model.value.endDate) {
     localModel.value = {
-      start: luxonToCalendarDate(DateTime.fromISO(model.value.start, { zone: 'America/Vancouver' })),
-      end: luxonToCalendarDate(DateTime.fromISO(model.value.end, { zone: 'America/Vancouver' }))
+      start: luxonToCalendarDate(DateTime.fromISO(model.value.startDate, { zone: 'America/Vancouver' })),
+      end: luxonToCalendarDate(DateTime.fromISO(model.value.endDate, { zone: 'America/Vancouver' }))
     }
   } else {
     localModel.value = resetRange()
@@ -116,8 +116,8 @@ const ranges = computed<ButtonProps[]>(() =>
 )
 
 const triggerButtonLabel = computed(() => {
-  if (model.value.start && model.value.end) {
-    return `${model.value.start} - ${model.value.end}`
+  if (model.value.startDate && model.value.endDate) {
+    return `${model.value.startDate} - ${model.value.endDate}`
   }
   return ''
 })
