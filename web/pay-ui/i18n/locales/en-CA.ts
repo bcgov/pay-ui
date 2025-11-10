@@ -160,7 +160,8 @@ export default {
       + 'has been transfered to the linked routing slip above.',
     linkedRSChildInfoP2: 'Click on the routing slip number above to access to the linked routing slip.',
     linkRSSearchInfo: 'When you link to another routing slip, this routing slip’s total balance will '
-      + 'transfer to the linked routing slip. After linking to another routing slip this routing slip will be inactive.',
+      + 'transfer to the linked routing slip. After linking to another routing slip this routing slip '
+      + 'will be inactive.',
     cantLinkBecauseVoided: 'This routing slip cannot link to another routing slip since it is voided.',
     routingSlipNoLinkedRoutingSlips: 'This routing slip has no linked routing slips.',
     cantLinkSinceInvoicesExistP1: 'This routing slip cannot link to another routing slip since transactions were made.',

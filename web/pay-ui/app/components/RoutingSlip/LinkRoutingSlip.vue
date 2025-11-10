@@ -60,12 +60,12 @@ const {
             <UIcon name="mdi-information-outline" class="size-6 mt-1" />
             <p class="ml-3">
               <span v-if="isRoutingSlipVoid">
-                {{$t('text.cantLinkBecauseVoided')}}
+                {{ $t('text.cantLinkBecauseVoided') }}
               </span>
               <span v-else>
-                {{$t('text.cantLinkSinceInvoicesExistP1')}}
-                <br/>
-                {{$t('text.cantLinkSinceInvoicesExistP2')}}
+                {{ $t('text.cantLinkSinceInvoicesExistP1') }}
+                <br>
+                {{ $t('text.cantLinkSinceInvoicesExistP2') }}
               </span>
             </p>
           </div>
@@ -73,10 +73,10 @@ const {
         <div v-else class="flex justify-between flex-wrap mb-4 gap-4">
           <p class="font-bold">
             <span v-if="isRoutingSlipVoid">
-              {{$t('text.cantLinkBecauseVoided')}}
+              {{ $t('text.cantLinkBecauseVoided') }}
             </span>
             <span v-else>
-              {{$t('text.routingSlipNoLinkedRoutingSlips')}}
+              {{ $t('text.routingSlipNoLinkedRoutingSlips') }}
             </span>
           </p>
           <UButton
