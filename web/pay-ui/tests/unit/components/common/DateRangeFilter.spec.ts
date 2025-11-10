@@ -18,7 +18,7 @@ describe('DateRangeFilter', () => {
 
   it('should display "Date" when v-model is null', async () => {
     const wrapper = await mountSuspended(DateRangeFilter, {
-      props: { modelValue: { start: null, end: null } }
+      props: { modelValue: { startDate: null, endDate: null } }
     })
     expect(wrapper.text()).toContain('Date')
   })
@@ -27,8 +27,8 @@ describe('DateRangeFilter', () => {
     const wrapper = await mountSuspended(DateRangeFilter, {
       props: {
         modelValue: {
-          start: '2025-09-01',
-          end: '2025-09-05'
+          startDate: '2025-09-01',
+          endDate: '2025-09-05'
         }
       }
     })
@@ -37,7 +37,7 @@ describe('DateRangeFilter', () => {
 
   it('should display the local state when a range option is clicked', async () => {
     const wrapper = await mountSuspended(DateRangeFilter, {
-      props: { modelValue: { start: null, end: null } }
+      props: { modelValue: { startDate: null, endDate: null } }
     })
 
     await wrapper.find('button').trigger('click')
@@ -58,7 +58,7 @@ describe('DateRangeFilter', () => {
   it('should set the correct ISO values when "Apply" is clicked', async () => {
     const wrapper = await mountSuspended(DateRangeFilter, {
       props: {
-        'modelValue': { start: null, end: null },
+        'modelValue': { startDate: null, endDate: null },
         'onUpdate:modelValue': async (e: any) => await wrapper.setProps({ modelValue: e })
       }
     })
@@ -82,7 +82,7 @@ describe('DateRangeFilter', () => {
 
     const emitted = wrapper.emitted('update:modelValue')
     expect(emitted).toHaveLength(1)
-    const expectedPayload = { start: '2025-09-15', end: '2025-09-21' }
+    const expectedPayload = { startDate: '2025-09-15', endDate: '2025-09-21' }
     expect(emitted![0]).toEqual([expectedPayload])
 
     const vm = wrapper.vm as any
@@ -93,7 +93,7 @@ describe('DateRangeFilter', () => {
   it('should reset local state when "Cancel" is clicked', async () => {
     const wrapper = await mountSuspended(DateRangeFilter, {
       props: {
-        modelValue: { start: '2025-09-01', end: '2025-09-05' }
+        modelValue: { startDate: '2025-09-01', endDate: '2025-09-05' }
       }
     })
 

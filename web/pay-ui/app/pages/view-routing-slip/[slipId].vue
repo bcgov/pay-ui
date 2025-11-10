@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import StaffComments from '~/components/RoutingSlip/StaffComments.vue'
+import LinkRoutingSlip from '~/components/RoutingSlip/LinkRoutingSlip.vue'
+import useViewRoutingSlip from '~/composables/viewRoutingSlip/useViewRoutingSlip'
 // TODO: all view components
 // TODO: breadcrumbs
 const route = useRoute()
@@ -15,6 +17,7 @@ useHead({
 })
 
 const slipId = route.params.slipId as string
+useViewRoutingSlip({ slipId })
 </script>
 
 <template>
@@ -63,7 +66,7 @@ const slipId = route.params.slipId as string
       <p class="description-text mb-4">
         {{ $t('page.viewRoutingSlip.linkingRoutingSlip.description') }}
       </p>
-      <!-- TODO: Add linking routing slip functionality here -->
+      <link-routing-slip :slip-id="slipId" />
     </div>
 
     <div class="mt-8">
