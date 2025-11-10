@@ -153,7 +153,20 @@ export default {
     searchStartMessage: 'Search routing slips by entering one of the value above. '
       + 'Click on "columns to show" to add or get rid of additional values.',
     searchNoResult: '{h4Start}No Results{h4End}{pStart}None of the routing slips matched this search. '
-      + 'Try another search.{pEnd}'
+      + 'Try another search.{pEnd}',
+    linkRoutingSlipSearchTitleParent: 'This routing slip is linked with:',
+    linkRoutingSlipSearchTitleChild: 'This routing slip has been linked to:',
+    linkedRSChildInfoP1: 'This routing slip\'s total balance and payment information '
+      + 'has been transfered to the linked routing slip above.',
+    linkedRSChildInfoP2: 'Click on the routing slip number above to access to the linked routing slip.',
+    linkRSSearchInfo: 'When you link to another routing slip, this routing slip’s total balance will '
+      + 'transfer to the linked routing slip. After linking to another routing slip this routing slip '
+      + 'will be inactive.',
+    cantLinkBecauseVoided: 'This routing slip cannot link to another routing slip since it is voided.',
+    routingSlipNoLinkedRoutingSlips: 'This routing slip has no linked routing slips.',
+    cantLinkSinceInvoicesExistP1: 'This routing slip cannot link to another routing slip since transactions were made.',
+    cantLinkSinceInvoicesExistP2: 'Other routing slips can link to this routing slip.',
+    linkedRoutingSlip: 'Linked routing slip'
   },
   validation: {
     payment: {

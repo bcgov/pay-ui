@@ -10,7 +10,7 @@ interface SearchFilterState {
   receiptNumber: string | null
   accountName: string | null
   createdName: string | null
-  dateFilter: { start: string | null, end: string | null }
+  dateFilter: { startDate: string | null, endDate: string | null }
   status: string | null
   refundStatus: string | null
   businessIdentifier: string | null
@@ -67,12 +67,14 @@ const columnPinning = ref({
   right: ['actions']
 })
 
+const isInitialLoad = ref(true)
+
 const filterInitialState: SearchFilterState = {
   routingSlipNumber: null,
   receiptNumber: null,
   accountName: null,
   createdName: null,
-  dateFilter: { start: null, end: null },
+  dateFilter: { startDate: null, endDate: null },
   status: null,
   refundStatus: null,
   businessIdentifier: null,
@@ -85,7 +87,7 @@ const filters = reactive<SearchFilterState>({
   receiptNumber: null,
   accountName: null,
   createdName: null,
-  dateFilter: { start: null, end: null },
+  dateFilter: { startDate: null, endDate: null },
   status: null,
   refundStatus: null,
   businessIdentifier: null,
@@ -131,7 +133,8 @@ const resetSearchFilters = async () => {
 useInfiniteScroll(
   table,
   async () => {
-    await getNext()
+    await getNext(isInitialLoad.value)
+    isInitialLoad.value = false
   },
   {
     distance: 200

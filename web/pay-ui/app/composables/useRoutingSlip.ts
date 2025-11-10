@@ -43,7 +43,7 @@ export const useRoutingSlip = () => {
   })
 
   const searchParamsExist = computed<boolean>(() => {
-    const params = state.searchRoutingSlipParams as Record<string, any>
+    const params = state.searchRoutingSlipParams as Record<string, unknown>
     for (const key in params) {
       if (params[key] && params[key] !== '') {
         return false
@@ -176,7 +176,7 @@ export const useRoutingSlip = () => {
       }
       if (response) {
         if (!CommonUtils.isRefundProcessStatus((statusDetails as StatusDetails)?.status as SlipStatus)) {
-          state.routingSlip = response
+          state.routingSlip = response as RoutingSlip
         } else {
           const getRoutingSlipRequestPayload: GetRoutingSlipRequestPayload = { routingSlipNumber: slipNumber }
           getRoutingSlip(getRoutingSlipRequestPayload)
@@ -247,44 +247,34 @@ export const useRoutingSlip = () => {
   }
 
   const searchRoutingSlip = async (appendToResults = false) => {
-    // // build the RoutingSlip Request JSON object that needs to be sent.
+    // build the RoutingSlip Request JSON object that needs to be sent.
+    const params: SearchRoutingSlipParams = { ...state.searchRoutingSlipParams }
 
-    let params: Record<string, any> = { ...state.searchRoutingSlipParams }
     // filtering and removing all non set values
-    params = CommonUtils.cleanObject(params) as Record<string, any>
-
-    if (params.dateFilter?.start && params.dateFilter?.end) {
-      params.dateFilter = {
-        startDate: params.dateFilter.start,
-        endDate: params.dateFilter.end
-      }
-    } else {
+    if (!params.dateFilter?.startDate || !params.dateFilter?.endDate) {
       delete params.dateFilter
     }
+    const cleanedParams = CommonUtils.cleanObject(
+      params as Record<string, unknown>
+    ) as SearchRoutingSlipParams
 
-    if (Object.keys(params).length > 0) {
-      // need to reset result of there is no search params
-      const response = await usePayApi().getSearchRoutingSlip(
-        params as RoutingSlip
-      )
-      if (response && response.items) {
-        state.searchRoutingSlipParams = {
-          ...state.searchRoutingSlipParams,
-          total: response.total || 0
-        }
-        if (appendToResults) {
-          state.searchRoutingSlipResult = [
-            ...state.searchRoutingSlipResult,
-            ...(response.items || [])
-          ]
-        } else {
-          state.searchRoutingSlipResult = response.items || []
-        }
-
-        return
+    const response = await usePayApi().getSearchRoutingSlip(cleanedParams)
+    if (response && response.items) {
+      state.searchRoutingSlipParams = {
+        ...state.searchRoutingSlipParams,
+        total: response.total || 0
       }
+      if (appendToResults) {
+        state.searchRoutingSlipResult = [
+          ...state.searchRoutingSlipResult,
+          ...(response.items || [])
+        ]
+      } else {
+        state.searchRoutingSlipResult = response.items || []
+      }
+
+      return
     }
-    state.searchRoutingSlipResult = []
   }
 
   const saveLinkRoutingSlip = async (
@@ -339,8 +329,8 @@ export const useRoutingSlip = () => {
     routingSlipNumber: string
   ): Promise<RoutingSlipDetails[]> => {
     const response = await usePayApi().getSearchRoutingSlip({
-      number: routingSlipNumber
-    } as RoutingSlip)
+      routingSlipNumber
+    })
     if (response && response.items) {
       return response.items
     }
@@ -409,14 +399,16 @@ export const useRoutingSlip = () => {
     return await usePayApi().cancelRoutingSlipInvoice(invoiceId)
   }
 
-  async function infiniteScrollCallback() {
+  async function infiniteScrollCallback(isInitialLoad: boolean): Promise<boolean> {
     const params = { ...state.searchRoutingSlipParams }
-    if (params.total !== Infinity && params.total < params.limit) {
+    if (params.total !== Infinity && params?.total && params?.limit && params?.total < params?.limit) {
       return true
     }
     state.searchRoutingSlipParams = {
       ...state.searchRoutingSlipParams,
-      page: state.searchRoutingSlipParams.page ? state.searchRoutingSlipParams.page + 1 : 1
+      page: state.searchRoutingSlipParams.page && !isInitialLoad
+        ? state.searchRoutingSlipParams.page + 1
+        : 1
     }
     await searchRoutingSlip(true)
     return false

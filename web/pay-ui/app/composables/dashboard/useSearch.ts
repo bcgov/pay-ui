@@ -112,11 +112,11 @@ export async function useSearch() {
     return folios.length ? folios : ['-']
   }
 
-  const getNext = async () => {
+  const getNext = async (isInitialLoad = false) => {
     if (isLoading.value) {
       return
     }
-    reachedEnd.value = await infiniteScrollCallback()
+    reachedEnd.value = await infiniteScrollCallback(isInitialLoad)
   }
 
   function getRefundStatusText(statusCode: string | null): string | null {
