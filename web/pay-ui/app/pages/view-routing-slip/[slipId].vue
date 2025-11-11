@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import StaffComments from '~/components/RoutingSlip/StaffComments.vue'
+import PaymentInformation from '~/components/RoutingSlip/PaymentInformation.vue'
+import { onMounted } from 'vue'
+import { useRoutingSlip, definePageMeta, useI18n } from '#imports'
+import { useHead } from '#app'
+import { useRoute } from 'vue-router'
 import LinkRoutingSlip from '~/components/RoutingSlip/LinkRoutingSlip.vue'
 import useViewRoutingSlip from '~/composables/viewRoutingSlip/useViewRoutingSlip'
 import PaymentInformation from '~/components/RoutingSlip/PaymentInformation.vue'
@@ -23,6 +28,13 @@ useHead({
 })
 
 const slipId = route.params.slipId as string
+
+const { getRoutingSlip, getLinkedRoutingSlips } = useRoutingSlip()
+
+onMounted(async () => {
+  await getRoutingSlip({ routingSlipNumber: slipId })
+  await getLinkedRoutingSlips(slipId)
+})
 useViewRoutingSlip({ slipId })
 
 const { getRoutingSlip, getLinkedRoutingSlips } = useRoutingSlip()
