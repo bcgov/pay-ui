@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import StaffComments from '~/components/RoutingSlip/StaffComments.vue'
+import PaymentInformation from '~/components/RoutingSlip/PaymentInformation.vue'
+import { onMounted } from 'vue'
+import { useRoutingSlip, definePageMeta, useI18n } from '#imports'
+import { useHead } from '#app'
+import { useRoute } from 'vue-router'
 // TODO: all view components
 // TODO: breadcrumbs
+
 const route = useRoute()
 const { t } = useI18n()
 
@@ -15,6 +21,13 @@ useHead({
 })
 
 const slipId = route.params.slipId as string
+
+const { getRoutingSlip, getLinkedRoutingSlips } = useRoutingSlip()
+
+onMounted(async () => {
+  await getRoutingSlip({ routingSlipNumber: slipId })
+  await getLinkedRoutingSlips(slipId)
+})
 </script>
 
 <template>
@@ -53,7 +66,7 @@ const slipId = route.params.slipId as string
       <p class="description-text mb-4">
         {{ $t('page.viewRoutingSlip.paymentInformation.description') }}
       </p>
-      <!-- TODO: Add payment information details here -->
+      <PaymentInformation />
     </div>
 
     <div class="mt-8">
