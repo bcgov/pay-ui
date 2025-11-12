@@ -3,10 +3,7 @@ import StaffComments from '~/components/RoutingSlip/StaffComments.vue'
 import LinkRoutingSlip from '~/components/RoutingSlip/LinkRoutingSlip.vue'
 import useViewRoutingSlip from '~/composables/viewRoutingSlip/useViewRoutingSlip'
 import PaymentInformation from '~/components/RoutingSlip/PaymentInformation.vue'
-import { onMounted } from 'vue'
-import { useRoutingSlip, definePageMeta, useI18n } from '~/composables/useRoutingSlip'
-import { useHead } from '#app'
-import { useRoute } from 'vue-router'
+import { useRoutingSlip } from '~/composables/useRoutingSlip'
 // TODO: all view components
 // TODO: breadcrumbs
 
@@ -31,7 +28,6 @@ onMounted(async () => {
   await getRoutingSlip({ routingSlipNumber: slipId })
   await getLinkedRoutingSlips(slipId)
 })
-useViewRoutingSlip({ slipId })
 </script>
 
 <template>
