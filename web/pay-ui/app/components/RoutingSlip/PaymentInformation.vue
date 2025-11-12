@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { usePaymentInformation } from '~/composables/usePaymentInformation';
+import { usePaymentInformation } from '~/composables/usePaymentInformation'
 import { PaymentTypes } from '~/enums/payment-types'
 
 const {

@@ -82,7 +82,10 @@ export const usePaymentInformation = () => {
   })
 
   const remainingAmount = computed(() => {
-    return routingSlip.value.remainingAmount ? CommonUtils.appendCurrencySymbol(routingSlip.value.remainingAmount.toFixed(2)) : '$0.00'
+    const amount = routingSlip.value.remainingAmount
+    return amount
+      ? CommonUtils.appendCurrencySymbol(amount.toFixed(2))
+      : '$0.00'
   })
 
   const isRoutingSlipPaidInUsd = computed(() => {

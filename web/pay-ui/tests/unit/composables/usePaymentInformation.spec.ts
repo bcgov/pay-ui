@@ -104,7 +104,7 @@ describe('usePaymentInformation', () => {
   })
 
   it('computes displayEditRoutingSlip correctly', () => {
-    const { displayEditRoutingSlip, isExpanded, viewPaymentInformation } = usePaymentInformation()
+    const { displayEditRoutingSlip, viewPaymentInformation } = usePaymentInformation()
 
     // Initially false because not expanded
     expect(displayEditRoutingSlip.value).toBe(false)
