@@ -1,13 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import ReviewRoutingSlipChequePayment from '~/components/ReviewRoutingSlip/ReviewRoutingSlipChequePayment.vue'
 import { chequePaymentMock } from '../../test-data/mock-routing-slip'
 
+const mockAdjustRoutingSlipChequeNumber = vi.fn()
+const mockAdjustRoutingSlipAmount = vi.fn()
+
 vi.mock('~/composables/usePaymentInformation', () => ({
   usePaymentInformation: () => ({
-    adjustRoutingSlipChequeNumber: vi.fn(),
-    adjustRoutingSlipAmount: vi.fn()
+    adjustRoutingSlipChequeNumber: mockAdjustRoutingSlipChequeNumber,
+    adjustRoutingSlipAmount: mockAdjustRoutingSlipAmount
   })
 }))
 
@@ -93,13 +95,7 @@ describe('ReviewRoutingSlipChequePayment', () => {
     expect(amountInput.attributes('disabled')).toBeUndefined()
   })
 
-  it('calls adjustRoutingSlipChequeNumber when cheque number is updated', async () => {
-    const adjustRoutingSlipChequeNumber = vi.fn()
-    vi.mocked(usePaymentInformation).mockReturnValue({
-      adjustRoutingSlipChequeNumber,
-      adjustRoutingSlipAmount: vi.fn()
-    } as any)
-
+  it('renders cheque number input when editable', async () => {
     const wrapper = await mountSuspended(ReviewRoutingSlipChequePayment, {
       props: {
         chequePayment: chequePaymentMock,
@@ -109,18 +105,11 @@ describe('ReviewRoutingSlipChequePayment', () => {
     })
 
     const chequeNumberInput = wrapper.find('[data-test="txt-cheque-receipt-number-0"]')
-    await chequeNumberInput.trigger('update:modelValue', '999')
-
-    expect(adjustRoutingSlipChequeNumber).toHaveBeenCalledWith('999', 0)
+    expect(chequeNumberInput.exists()).toBe(true)
+    expect(chequeNumberInput.attributes('disabled')).toBeUndefined()
   })
 
-  it('calls adjustRoutingSlipAmount when amount is updated', async () => {
-    const adjustRoutingSlipAmount = vi.fn()
-    vi.mocked(usePaymentInformation).mockReturnValue({
-      adjustRoutingSlipChequeNumber: vi.fn(),
-      adjustRoutingSlipAmount
-    } as any)
-
+  it('renders amount input when editable', async () => {
     const wrapper = await mountSuspended(ReviewRoutingSlipChequePayment, {
       props: {
         chequePayment: chequePaymentMock,
@@ -130,9 +119,8 @@ describe('ReviewRoutingSlipChequePayment', () => {
     })
 
     const amountInput = wrapper.find('[data-test="txt-paid-amount-0"]')
-    await amountInput.trigger('update:modelValue', '500')
-
-    expect(adjustRoutingSlipAmount).toHaveBeenCalledWith(500, false, 0)
+    expect(amountInput.exists()).toBe(true)
+    expect(amountInput.attributes('disabled')).toBeUndefined()
   })
 
   it('formats date correctly', async () => {
@@ -147,5 +135,39 @@ describe('ReviewRoutingSlipChequePayment', () => {
     const chequeDateInput = wrapper.find('[data-test="txt-cheque-date-0"]')
     expect(chequeDateInput.exists()).toBe(true)
     // Date should be formatted (not raw ISO string)
+  })
+
+  it('calls adjustRoutingSlipChequeNumber when cheque number is updated', async () => {
+    const wrapper = await mountSuspended(ReviewRoutingSlipChequePayment, {
+      props: {
+        chequePayment: chequePaymentMock,
+        isAmountPaidInUsd: false,
+        isEditable: true
+      }
+    })
+
+    const inputs = wrapper.findAllComponents({ name: 'ConnectInput' })
+    const chequeNumberInput = inputs[0]
+
+    await chequeNumberInput.vm.$emit('update:modelValue', '12345')
+
+    expect(mockAdjustRoutingSlipChequeNumber).toHaveBeenCalledWith('12345', 0)
+  })
+
+  it('calls adjustRoutingSlipAmount when amount is updated', async () => {
+    const wrapper = await mountSuspended(ReviewRoutingSlipChequePayment, {
+      props: {
+        chequePayment: chequePaymentMock,
+        isAmountPaidInUsd: false,
+        isEditable: true
+      }
+    })
+
+    const inputs = wrapper.findAllComponents({ name: 'ConnectInput' })
+    const amountInput = inputs[2]
+
+    await amountInput.vm.$emit('update:modelValue', '1000')
+
+    expect(mockAdjustRoutingSlipAmount).toHaveBeenCalledWith(1000, false, 0)
   })
 })

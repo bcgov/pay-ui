@@ -101,6 +101,10 @@ export const usePaymentInformation = () => {
   })
 
   const hasPaymentChanges = computed(() => {
+    // If routingSlipBeforeEdit is empty, no changes have been made yet
+    if (!routingSlipBeforeEdit.value || Object.keys(routingSlipBeforeEdit.value).length === 0) {
+      return false
+    }
     const current = routingSlip.value as Record<string, unknown>
     const before = routingSlipBeforeEdit.value as Record<string, unknown>
     return !CommonUtils.isDeepEqual(current, before)

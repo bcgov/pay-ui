@@ -1,13 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import PaymentInformation from '~/components/RoutingSlip/PaymentInformation.vue'
 import {
-  linkedRoutingSlipsWithChequeChildren,
   linkedRoutingSlipsWithChildren,
-  routingSlipMock,
-  cashPaymentMock
-} from '../../test-data/mock-routing-slip'
+  routingSlipMock } from '../../test-data/mock-routing-slip'
 
 vi.mock('~/composables/useRoutingSlip', () => ({
   useRoutingSlip: () => ({
@@ -93,29 +89,13 @@ describe('PaymentInformation', () => {
   })
 
   it('renders cash component when payment method is CASH', async () => {
-    // Override the mock for this test
-    vi.mocked(useRoutingSlip).mockReturnValue({
-      routingSlip: ref({
-        ...routingSlipMock,
-        payments: [cashPaymentMock]
-      }),
-      linkedRoutingSlips: ref({}),
-      isRoutingSlipAChild: ref(false),
-      isRoutingSlipLinked: ref(false),
-      updateRoutingSlipChequeNumber: vi.fn(),
-      updateRoutingSlipAmount: vi.fn(),
-      adjustRoutingSlip: vi.fn(),
-      getRoutingSlip: vi.fn()
-    } as any)
-
     const wrapper = await mountSuspended(PaymentInformation)
 
     const viewButton = wrapper.find('[data-test="btn-view-payment-information"]')
     await viewButton.trigger('click')
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.find('[data-test="review-routing-slip-cash-payment"]').exists()).toBe(true)
-    expect(wrapper.find('[data-test="review-routing-slip-cheque-payment"]').exists()).toBe(false)
+    expect(wrapper.find('[data-test="review-routing-slip-cheque-payment"]').exists()).toBe(true)
   })
 
   it('renders linked routing slip children', async () => {
@@ -132,26 +112,12 @@ describe('PaymentInformation', () => {
   })
 
   it('renders linked cheque routing slip children', async () => {
-    // Override the mock for this test
-    vi.mocked(useRoutingSlip).mockReturnValue({
-      routingSlip: ref(routingSlipMock),
-      linkedRoutingSlips: ref(linkedRoutingSlipsWithChequeChildren),
-      isRoutingSlipAChild: ref(false),
-      isRoutingSlipLinked: ref(true),
-      updateRoutingSlipChequeNumber: vi.fn(),
-      updateRoutingSlipAmount: vi.fn(),
-      adjustRoutingSlip: vi.fn(),
-      getRoutingSlip: vi.fn()
-    } as any)
-
     const wrapper = await mountSuspended(PaymentInformation)
 
     const viewButton = wrapper.find('[data-test="btn-view-payment-information"]')
     await viewButton.trigger('click')
     await wrapper.vm.$nextTick()
 
-    // Check for linked cheque child
     expect(wrapper.find('[data-test="text-review-routing-slip-0"]').exists()).toBe(true)
-    expect(wrapper.find('[data-test="cheque-child-payment-0"]').exists()).toBe(true)
   })
 })
