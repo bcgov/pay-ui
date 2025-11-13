@@ -2,8 +2,11 @@
 import StaffComments from '~/components/RoutingSlip/StaffComments.vue'
 import LinkRoutingSlip from '~/components/RoutingSlip/LinkRoutingSlip.vue'
 import useViewRoutingSlip from '~/composables/viewRoutingSlip/useViewRoutingSlip'
+import PaymentInformation from '~/components/RoutingSlip/PaymentInformation.vue'
+import { useRoutingSlip } from '~/composables/useRoutingSlip'
 // TODO: all view components
 // TODO: breadcrumbs
+
 const route = useRoute()
 const { t } = useI18n()
 
@@ -18,6 +21,13 @@ useHead({
 
 const slipId = route.params.slipId as string
 useViewRoutingSlip({ slipId })
+
+const { getRoutingSlip, getLinkedRoutingSlips } = useRoutingSlip()
+
+onMounted(async () => {
+  await getRoutingSlip({ routingSlipNumber: slipId })
+  await getLinkedRoutingSlips(slipId)
+})
 </script>
 
 <template>
@@ -56,7 +66,7 @@ useViewRoutingSlip({ slipId })
       <p class="description-text mb-4">
         {{ $t('page.viewRoutingSlip.paymentInformation.description') }}
       </p>
-      <!-- TODO: Add payment information details here -->
+      <PaymentInformation />
     </div>
 
     <div class="mt-8">

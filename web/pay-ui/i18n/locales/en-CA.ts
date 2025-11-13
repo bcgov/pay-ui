@@ -126,7 +126,17 @@ export default {
       },
       paymentInformation: {
         title: 'Payment Information',
-        description: 'View balances, and detail information of the payment method.'
+        description: 'View balances, and detail information of the payment method.',
+        totalAmountReceived: 'Total Amount Received',
+        currentBalance: 'Current Balance',
+        viewPaymentInformation: 'View payment information',
+        editRoutingSlip: 'Edit Routing Slip',
+        fundsConvertedUsdToCad: '(Funds converted USD to CAD)',
+        receiptNumber: 'Receipt Number',
+        amountCad: 'Amount(CAD$)',
+        linkedWith: 'Linked with:',
+        save: 'Save',
+        cancel: 'Cancel'
       },
       linkingRoutingSlip: {
         title: 'Linking Routing Slip',
