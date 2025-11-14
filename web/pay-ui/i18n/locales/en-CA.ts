@@ -176,7 +176,9 @@ export default {
     routingSlipNoLinkedRoutingSlips: 'This routing slip has no linked routing slips.',
     cantLinkSinceInvoicesExistP1: 'This routing slip cannot link to another routing slip since transactions were made.',
     cantLinkSinceInvoicesExistP2: 'Other routing slips can link to this routing slip.',
-    linkedRoutingSlip: 'Linked routing slip'
+    linkedRoutingSlip: 'Linked routing slip',
+    addManualTransactionQuantityInfoText: 'The priority or future effective fee will only be applied once. '
+      + 'Input transactions separately to add additional fee'
   },
   validation: {
     payment: {

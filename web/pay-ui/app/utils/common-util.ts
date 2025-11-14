@@ -244,6 +244,10 @@ function formatToTwoDecimals(amount: number | string): string {
   return formatter.format(number)
 }
 
+function requiredFieldRule(errorMessage: string = 'This field is required') {
+  return [(v: string | number | null | undefined) => !!v || errorMessage]
+}
+
 function emailRules(isOptional: boolean = false) {
   const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   if (isOptional) {
@@ -295,5 +299,6 @@ export default {
   getRefundMethodText,
   extractAndConvertStringToNumber,
   isDeepEqual,
-  isEditEnabledBystatus
+  isEditEnabledBystatus,
+  requiredFieldRule
 }

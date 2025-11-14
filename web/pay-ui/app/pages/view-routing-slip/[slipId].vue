@@ -85,6 +85,7 @@ onMounted(async () => {
       </h2>
       <p class="description-text mb-4">
         {{ $t('page.viewRoutingSlip.routingSlipTransaction.description') }}
+        <RoutingSlipTransaction />
       </p>
       <!-- TODO: Add routing slip transactions table/list here -->
     </div>
