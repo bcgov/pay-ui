@@ -3,6 +3,7 @@
 import { config } from '@vue/test-utils'
 import { createI18n } from 'vue-i18n'
 import { merge } from 'es-toolkit'
+import type { Directive } from 'vue'
 
 // english
 import baseEn from '#base/i18n/locales/en-CA'
@@ -34,3 +35,13 @@ const i18n = createI18n({
 })
 
 config.global.plugins.push(i18n)
+
+const canDirective: Directive = {
+  mounted: () => {},
+  updated: () => {}
+}
+
+config.global.directives = {
+  ...config.global.directives,
+  can: canDirective
+}

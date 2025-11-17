@@ -3,6 +3,7 @@ import StaffComments from '~/components/RoutingSlip/StaffComments.vue'
 import LinkRoutingSlip from '~/components/RoutingSlip/LinkRoutingSlip.vue'
 import useViewRoutingSlip from '~/composables/viewRoutingSlip/useViewRoutingSlip'
 import PaymentInformation from '~/components/RoutingSlip/PaymentInformation.vue'
+import TransactionDataTable from '~/components/RoutingSlip/TransactionDataTable.vue'
 import { useRoutingSlip } from '~/composables/useRoutingSlip'
 // TODO: all view components
 // TODO: breadcrumbs
@@ -22,7 +23,7 @@ useHead({
 const slipId = route.params.slipId as string
 useViewRoutingSlip({ slipId })
 
-const { getRoutingSlip, getLinkedRoutingSlips } = useRoutingSlip()
+const { getRoutingSlip, getLinkedRoutingSlips, routingSlip } = useRoutingSlip()
 
 onMounted(async () => {
   await getRoutingSlip({ routingSlipNumber: slipId })
@@ -85,9 +86,9 @@ onMounted(async () => {
       </h2>
       <p class="description-text mb-4">
         {{ $t('page.viewRoutingSlip.routingSlipTransaction.description') }}
-        <RoutingSlipTransaction />
       </p>
-      <!-- TODO: Add routing slip transactions table/list here -->
+      <RoutingSlipTransaction />
+      <TransactionDataTable :invoices="routingSlip?.invoices" />
     </div>
   </UContainer>
 </template>
