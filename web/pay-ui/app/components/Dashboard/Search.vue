@@ -143,39 +143,60 @@ useInfiniteScroll(
 </script>
 
 <template>
-  <div class="bg-white fas-search">
-    <div class="flex flex-wrap justify-between px-4 py-3.5 border-b border-accented">
-      <div class="flex">
-        <UIcon
-          name="i-mdi-view-list"
-          class="mr-2 size-6"
-          style="margin-top: 5px;"
-        />
-        <h2>
-          Search Routing Slip
-        </h2>
-      </div>
-      <div>
-        <UPopover>
-          <UButton
-            label="Columns to show"
-            color="neutral"
-            variant="subtle"
-            :dismissible="false"
+  <div>
+    <div class="mb-4">
+      <UButton
+        color="primary"
+        size="lg"
+        leading-icon="i-mdi-plus"
+        class="rounded-lg shadow-md font-semibold text-white"
+        @click="navigateTo(localePath('/create-routing-slip'))"
+      >
+        Add New Routing Slip
+      </UButton>
+    </div>
+    <div class="bg-white fas-search">
+      <div class="relative rounded-t-lg px-4 py-3.5" style="background-color: #e0e7ed;">
+      <div class="flex flex-wrap justify-between">
+        <div class="flex">
+          <UIcon
+            name="i-mdi-view-list"
+            class="mr-2 size-6 text-primary"
+            style="margin-top: 5px;"
           />
-          <template #content>
-            <div class="py-2">
-              <UCheckbox
-                v-for="(col, index) in searchRoutingSlipTableHeaders.filter(f => !f.hideInSearchColumnFilter)"
-                :key="index"
-                v-model="col.display"
-                :value="col.accessorKey"
-                :label="col.header"
-                class="px-4 py-2"
-              />
-            </div>
-          </template>
-        </UPopover>
+          <h2 class="text-gray-700 font-bold">
+            Search Routing Slip
+          </h2>
+        </div>
+        <div>
+          <UPopover>
+            <UButton
+              label="Columns to show"
+              color="neutral"
+              variant="subtle"
+              trailing-icon="i-mdi-menu-down"
+              :dismissible="false"
+            />
+            <template #content>
+              <div class="py-2">
+                <UCheckbox
+                  v-for="(col, index) in searchRoutingSlipTableHeaders.filter(f => !f.hideInSearchColumnFilter)"
+                  :key="index"
+                  v-model="col.display"
+                  :value="col.accessorKey"
+                  :label="col.header"
+                  class="px-4 py-2"
+                />
+              </div>
+            </template>
+          </UPopover>
+        </div>
+      </div>
+      <div class="absolute bottom-0 right-0 p-2">
+        <UIcon
+          name="i-mdi-menu-up"
+          class="text-gray-600 size-4"
+        />
       </div>
     </div>
 
@@ -406,6 +427,7 @@ useInfiniteScroll(
           </div>
         </template>
       </UTable>
+    </div>
     </div>
   </div>
 </template>
