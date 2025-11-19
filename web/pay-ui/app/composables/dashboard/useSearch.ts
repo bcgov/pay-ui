@@ -41,10 +41,10 @@ export async function useSearch() {
   }
 
   async function searchNow() {
-    toggleLoading()
+    toggleLoading(true)
     await searchRoutingSlip()
     searchParamsChanged.value = false
-    toggleLoading()
+    toggleLoading(false)
   }
 
   onMounted(() => {
@@ -64,11 +64,11 @@ export async function useSearch() {
   }
 
   async function clearFilter() {
-    toggleLoading()
+    toggleLoading(true)
     resetSearchParams()
     await searchRoutingSlip()
     searchParamsChanged.value = false
-    toggleLoading()
+    toggleLoading(false)
   }
 
   function toggleFolio(id: string) {

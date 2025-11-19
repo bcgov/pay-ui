@@ -17,8 +17,8 @@ export function useLoader() {
     isLoading.value = isLoadingStatus
   }
 
-  function toggleLoading(): void {
-    changeLoadingStatus(!isLoading.value)
+  function toggleLoading(isLoading: boolean): void {
+    changeLoadingStatus(isLoading)
   }
 
   return {

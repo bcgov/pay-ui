@@ -12,7 +12,6 @@ interface UseAddManualTransactionDetailsEmit {
   (event: 'updateManualTransaction', payload: { transaction: ManualTransactionDetails, index: number }): void
 }
 
-// Composable function to inject Props, options and values to AddManualTransactionDetails component
 export default function useAddManualTransactionDetails(
   props: UseAddManualTransactionDetailsProps,
   emit?: UseAddManualTransactionDetailsEmit
@@ -20,18 +19,11 @@ export default function useAddManualTransactionDetails(
   const { getFeeByCorpTypeAndFilingType } = useRoutingSlip()
   const { manualTransaction, index } = toRefs(props)
 
-  // Object that holds the input fields - seed it using property
   const manualTransactionDetails = ref<ManualTransactionDetails | undefined>(undefined)
 
-  // Input field rules
   const requiredFieldRule = CommonUtils.requiredFieldRule()
 
   const errorMessage = computed(() => {
-    /*
-      We need to check if total exceeds remaining amount and
-      if the availableAmountForManualTransaction is greater than 0 as any change
-      in prior transaction records affect the remaining amount of this record
-    */
     const msg = manualTransactionDetails.value.quantity && (
       manualTransactionDetails.value.availableAmountForManualTransaction < manualTransactionDetails.value.total
       || manualTransactionDetails.value.availableAmountForManualTransaction < 0)
@@ -44,7 +36,6 @@ export default function useAddManualTransactionDetails(
     return manualTransaction.value?.total?.toFixed(2)
   })
 
-  // Calculate total fee from pay-api service, triggered if its dependent values are changed
   async function calculateTotal() {
     try {
       if (manualTransactionDetails
@@ -81,7 +72,6 @@ export default function useAddManualTransactionDetails(
     }
   }
 
-  // Emits the updated manual transaction detail event to the parent
   function emitManualTransactionDetails() {
     if (emit && manualTransactionDetails.value && index?.value !== undefined) {
       emit('updateManualTransaction', { transaction: manualTransactionDetails.value, index: index.value })
@@ -92,7 +82,6 @@ export default function useAddManualTransactionDetails(
     return `${tag}-${idx}`
   }
 
-  // Input field rules
   const referenceNumberRules = [
     (v: string) => ((v || '').length <= 20) || 'Incorporation/Reference Number should not be more than 20 characters'
   ]
@@ -102,7 +91,6 @@ export default function useAddManualTransactionDetails(
     (v: number) => (v > 0) || 'Quantity should be greater than 0'
   ]
 
-  // watch manualTransaction object, assign availableAmountForManualTransaction property.
   if (manualTransaction) {
     watch(manualTransaction, () => {
       if (manualTransactionDetails.value && manualTransaction.value) {

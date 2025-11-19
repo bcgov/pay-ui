@@ -1,7 +1,6 @@
 import { useLoader } from '@/composables/common/useLoader'
 import { useRoutingSlip } from '@/composables/useRoutingSlip'
 
-// Composable function to inject Props, options and values to RoutingSlipTransaction component
 export default function useRoutingSlipTransaction() {
   const {
     getRoutingSlip,
@@ -10,7 +9,7 @@ export default function useRoutingSlipTransaction() {
     routingSlip,
     saveManualTransactions
   } = useRoutingSlip()
-  // UI control variables
+
   const showAddManualTransaction = ref<boolean>(false)
   const formRoutingSlipManualTransactions = ref<HTMLFormElement>()
   const manualTransactionsList = ref<ManualTransactionDetails[]>([])
@@ -23,7 +22,6 @@ export default function useRoutingSlipTransaction() {
     // Show manual transaction component through toggling showAddManualTransaction
     // only show the component and not toggle it back to hide the component
     toggleShowAddManualTransaction(true)
-    // And add a default row to the manual transaction list, if list is empty
     if (manualTransactionsList.value.length === 0) {
       addManualTransactionRow()
     }
@@ -38,8 +36,7 @@ export default function useRoutingSlipTransaction() {
       return
     }
     if (isValid()) {
-      // show loader
-      toggleLoading()
+      toggleLoading(true)
       for (const transactions of manualTransactionsList.value) {
         try {
           await saveManualTransactions(transactions)
@@ -59,10 +56,8 @@ export default function useRoutingSlipTransaction() {
           = { routingSlipNumber: routingSlip.value?.number }
         await getRoutingSlip(getRoutingSlipRequestPayload)
       }
-      // toggle loader to hide it back
-      toggleLoading()
+      toggleLoading(false)
 
-      // not reseting if any error
       if (!error) {
         resetManualTransaction()
       }
@@ -70,9 +65,6 @@ export default function useRoutingSlipTransaction() {
     error = false
   }
 
-  /*
-  return the avaialble amount
- */
   function availableAmountForManualTransaction() {
     // iterate all manualTransactionsList and find sum
     // reduce it from the remainingAmount amount and return
@@ -81,7 +73,6 @@ export default function useRoutingSlipTransaction() {
   }
 
   function resetManualTransaction() {
-    // change to function if needed
     status.value = ''
     toggleShowAddManualTransaction(false)
     manualTransactionsList.value = []
@@ -114,7 +105,6 @@ export default function useRoutingSlipTransaction() {
     showAddManualTransaction.value = value
   }
 
-  // Add one row to the list
   function addManualTransactionRow() {
     status.value = ''
     manualTransactionsList.value.push(getDefaultRow())
@@ -124,7 +114,6 @@ export default function useRoutingSlipTransaction() {
     return formRoutingSlipManualTransactions.value.validate()
   }
 
-  // Remove one row to the list
   function removeManualTransactionRow(index: number) {
     status.value = ''
     manualTransactionsList.value.splice(index, 1)
@@ -146,7 +135,6 @@ export default function useRoutingSlipTransaction() {
     status.value = ''
   }
 
-  // Update the availableAmountForManualTransaction property in each item of the manual transaction list
   function updateAvailableAmountForManualTransaction(): void {
     // We dont need the first item as it would have the entire remainingAmount of the routingslip
     for (let i = 1; i <= manualTransactionsList.value.length - 1; i++) {
@@ -162,7 +150,7 @@ export default function useRoutingSlipTransaction() {
   }
 
   function hideManualTransaction(): void {
-    manualTransactionsList.value = [] // reset the list
+    manualTransactionsList.value = []
     toggleShowAddManualTransaction(false)
   }
 
