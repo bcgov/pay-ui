@@ -5,7 +5,7 @@ import { usePayApi } from '@/composables/pay-api'
 import { useLoader } from '@/composables/common/useLoader'
 import { InvoiceStatus } from '@/utils/constants'
 import type { TableColumn } from '@nuxt/ui'
-import { reactive, toRefs } from 'vue'
+import { reactive, toRefs, toRef } from 'vue'
 
 interface UseTransactionDataTableProps {
   invoices?: Invoice[]
@@ -16,6 +16,8 @@ export default function useTransactionDataTable(props: UseTransactionDataTablePr
   const { cancelRoutingSlipInvoice } = usePayApi()
   const { isLoading } = useLoader()
   const { baseModal } = useConnectModal()
+
+  const invoicesRef = toRef(props, 'invoices')
 
   const transformInvoices = (invoices: Invoice[]): InvoiceDisplay[] => {
     return invoices.map((invoice) => {
@@ -53,10 +55,10 @@ export default function useTransactionDataTable(props: UseTransactionDataTablePr
     selectedInvoiceId: null as number | null,
     disableCancelButton: false,
     invoiceCount: computed<number>(() => {
-      return props.invoices?.length ?? 0
+      return invoicesRef.value?.length ?? 0
     }),
     invoiceDisplay: computed<InvoiceDisplay[]>(() => {
-      const invoicesValue = props.invoices
+      const invoicesValue = invoicesRef.value
       if (!invoicesValue || !Array.isArray(invoicesValue)) {
         return []
       }
