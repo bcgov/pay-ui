@@ -5,6 +5,7 @@ import { usePayApi } from '@/composables/pay-api'
 import { useLoader } from '@/composables/common/useLoader'
 import { InvoiceStatus } from '@/utils/constants'
 import type { TableColumn } from '@nuxt/ui'
+import { reactive, toRefs } from 'vue'
 
 interface UseTransactionDataTableProps {
   invoices?: Invoice[]
@@ -15,13 +16,6 @@ export default function useTransactionDataTable(props: UseTransactionDataTablePr
   const { cancelRoutingSlipInvoice } = usePayApi()
   const { isLoading } = useLoader()
   const { baseModal } = useConnectModal()
-
-  const selectedInvoiceId = ref<number | null>(null)
-  const disableCancelButton = ref(false)
-
-  const invoiceCount = computed<number>(() => {
-    return props.invoices?.length || 0
-  })
 
   const transformInvoices = (invoices: Invoice[]): InvoiceDisplay[] => {
     return invoices.map((invoice) => {
@@ -55,11 +49,19 @@ export default function useTransactionDataTable(props: UseTransactionDataTablePr
     })
   }
 
-  const invoiceDisplay = computed<InvoiceDisplay[]>(() => {
-    if (!props.invoices) {
-      return []
-    }
-    return transformInvoices(props.invoices)
+  const state = reactive({
+    selectedInvoiceId: null as number | null,
+    disableCancelButton: false,
+    invoiceCount: computed<number>(() => {
+      return props.invoices?.length ?? 0
+    }),
+    invoiceDisplay: computed<InvoiceDisplay[]>(() => {
+      const invoicesValue = props.invoices
+      if (!invoicesValue || !Array.isArray(invoicesValue)) {
+        return []
+      }
+      return transformInvoices(invoicesValue)
+    })
   })
 
   const headerTransactions = computed<TableColumn<InvoiceDisplay>[]>(() => [
@@ -127,7 +129,7 @@ export default function useTransactionDataTable(props: UseTransactionDataTablePr
   }
 
   const cancel = async (invoiceId: number) => {
-    selectedInvoiceId.value = invoiceId
+    state.selectedInvoiceId = invoiceId
     await baseModal.open({
       title: 'Cancel Transaction?',
       description: 'Canceling a transaction will place the transaction amount back to the routing slip.',
@@ -150,15 +152,15 @@ export default function useTransactionDataTable(props: UseTransactionDataTablePr
   }
 
   const modalDialogConfirm = async () => {
-    if (!selectedInvoiceId.value) {
+    if (!state.selectedInvoiceId) {
       return
     }
 
-    disableCancelButton.value = true
+    state.disableCancelButton = true
     isLoading.value = true
 
     try {
-      await cancelRoutingSlipInvoice(selectedInvoiceId.value)
+      await cancelRoutingSlipInvoice(state.selectedInvoiceId)
 
       const routingSlipNumber = routingSlip.value?.number
       if (routingSlipNumber) {
@@ -166,12 +168,12 @@ export default function useTransactionDataTable(props: UseTransactionDataTablePr
         await getRoutingSlip(payload)
       }
 
-      selectedInvoiceId.value = null
+      state.selectedInvoiceId = null
     } catch (error) {
       console.error('Error cancelling invoice:', error)
     } finally {
       isLoading.value = false
-      disableCancelButton.value = false
+      state.disableCancelButton = false
     }
   }
 
@@ -180,13 +182,11 @@ export default function useTransactionDataTable(props: UseTransactionDataTablePr
   }
 
   return {
-    invoiceDisplay,
+    ...toRefs(state),
     headerTransactions,
-    invoiceCount,
     transformInvoices,
     cancel,
     getIndexedTag,
-    disableCancelButton,
     isAlreadyCancelled
   }
 }
