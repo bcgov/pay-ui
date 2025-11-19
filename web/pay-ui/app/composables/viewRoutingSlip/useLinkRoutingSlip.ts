@@ -10,31 +10,29 @@ export default function useLinkRoutingSlip() {
     linkedRoutingSlips,
     routingSlip
   } = useRoutingSlip()
-  const showSearch = ref<boolean>(false)
-  const isLoading = ref<boolean>(false)
 
-  const childRoutingSlipDetails: ComputedRef<RoutingSlip[]> = computed(() => {
-    return linkedRoutingSlips.value?.children || []
-  })
-
-  const parentRoutingSlipDetails: ComputedRef<RoutingSlip> = computed(() => {
-    return linkedRoutingSlips.value?.parent || {}
+  const state = reactive({
+    showSearch: false,
+    isLoading: false,
+    childRoutingSlipDetails: computed<RoutingSlip[]>(() => {
+      return linkedRoutingSlips.value?.children || []
+    }),
+    parentRoutingSlipDetails: computed<RoutingSlip>(() => {
+      return linkedRoutingSlips.value?.parent || {}
+    })
   })
 
   function toggleSearch() {
-    showSearch.value = !showSearch.value
+    state.showSearch = !state.showSearch
   }
 
   return {
-    showSearch,
+    ...toRefs(state),
     toggleSearch,
     isRoutingSlipLinked,
     isRoutingSlipAChild,
     isRoutingSlipVoid,
     invoiceCount,
-    routingSlip,
-    isLoading,
-    childRoutingSlipDetails,
-    parentRoutingSlipDetails
+    routingSlip
   }
 }

@@ -1,6 +1,6 @@
 import type {
-  AdjustRoutingSlipAmountPrams,
-  AdjustRoutingSlipChequePrams,
+  AdjustRoutingSlipAmountParams,
+  AdjustRoutingSlipChequeParams,
   GetRoutingSlipRequestPayload,
   RoutingSlip,
   Payment
@@ -52,7 +52,7 @@ export const usePaymentInformation = () => {
   })
 
   function adjustRoutingSlipChequeNumber(num: string, paymentIndex = 0) {
-    const chequeNumToChange: AdjustRoutingSlipChequePrams = {
+    const chequeNumToChange: AdjustRoutingSlipChequeParams = {
       chequeNum: num,
       paymentIndex
     }
@@ -60,7 +60,7 @@ export const usePaymentInformation = () => {
   }
 
   function adjustRoutingSlipAmount(num: number, isUsdChange: boolean, paymentIndex = 0) {
-    const amountToChange: AdjustRoutingSlipAmountPrams = {
+    const amountToChange: AdjustRoutingSlipAmountParams = {
       amount: Number(num),
       paymentIndex,
       isRoutingSlipPaidInUsd: isUsdChange

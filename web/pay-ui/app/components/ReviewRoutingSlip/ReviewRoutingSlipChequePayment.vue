@@ -23,7 +23,7 @@ const formatDate = (dateString?: string): string => {
     return 'N/A'
   }
   const datePart = dateString.split('T')[0]
-  return CommonUtils.formatDisplayDate(datePart, 'DDD')
+  return CommonUtils.formatDisplayDate(datePart as string, 'DDD')
 }
 
 function getIndexedTag(tag: string, index: number) {

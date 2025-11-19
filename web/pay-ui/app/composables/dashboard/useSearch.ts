@@ -58,7 +58,6 @@ export async function useSearch() {
     searchNow()
   }, 500)
 
-  // get label of status
   function getStatusLabel(code: string) {
     return statusLabel(code)
   }
@@ -72,7 +71,7 @@ export async function useSearch() {
   }
 
   function toggleFolio(id: string) {
-    //  to show and hide multiple folio on click
+    // to show and hide multiple folio on click
     // remove from array if already existing else add to array
     if (showExpandedFolio.value.includes(id)) {
       showExpandedFolio.value = showExpandedFolio.value.filter(function (item) {
@@ -84,7 +83,7 @@ export async function useSearch() {
   }
 
   function toggleCheque(id: string) {
-    //  to show and hide multiple folio on click
+    // to show and hide multiple folio on click
     // remove from array if already existing else add to array
     if (showExpandedCheque.value.includes(id)) {
       showExpandedCheque.value = showExpandedCheque.value.filter(function (item) {

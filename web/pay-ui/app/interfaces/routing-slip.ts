@@ -149,7 +149,7 @@ export interface RoutingSlipAddress {
   mailingAddress?: Address
 }
 
-export interface LinkRoutingSlipPrams {
+export interface LinkRoutingSlipParams {
   childRoutingSlipNumber: string
   parentRoutingSlipNumber: string
 }
@@ -176,12 +176,12 @@ export interface GetRoutingSlipRequestPayload {
   showGlobalLoader?: boolean
 }
 
-export interface AdjustRoutingSlipChequePrams {
+export interface AdjustRoutingSlipChequeParams {
   chequeNum: string
   paymentIndex: number
 }
 
-export interface AdjustRoutingSlipAmountPrams {
+export interface AdjustRoutingSlipAmountParams {
   amount: number
   paymentIndex: number
   isRoutingSlipPaidInUsd: boolean

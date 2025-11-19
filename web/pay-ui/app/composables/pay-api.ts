@@ -132,7 +132,7 @@ export const usePayApi = () => {
   }
 
   async function saveLinkRoutingSlip(
-    linkRoutingSlip: LinkRoutingSlipPrams
+    linkRoutingSlip: LinkRoutingSlipParams
   ): Promise<void> {
     return $payApi(
       '/fas/routing-slips/links',

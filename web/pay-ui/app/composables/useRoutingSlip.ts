@@ -1,5 +1,5 @@
 import type {
-  AccountInfo, AdjustRoutingSlipAmountPrams, AdjustRoutingSlipChequePrams, GetRoutingSlipRequestPayload,
+  AccountInfo, AdjustRoutingSlipAmountParams, AdjustRoutingSlipChequeParams, GetRoutingSlipRequestPayload,
   LinkedRoutingSlips, RoutingSlip, RoutingSlipDetails, RoutingSlipAddress, ManualTransactionDetails,
   BusinessInfo, GetFeeRequestParams, Payment, TransactionParams, SearchRoutingSlipParams
 } from '~/interfaces/routing-slip'
@@ -70,7 +70,7 @@ export const useRoutingSlip = () => {
     return state.routingSlip?.status === SlipStatus.VOID
   })
 
-  const updateRoutingSlipChequeNumber = (chequeNumToChange: AdjustRoutingSlipChequePrams) => {
+  const updateRoutingSlipChequeNumber = (chequeNumToChange: AdjustRoutingSlipChequeParams) => {
     const payments = state.routingSlip.payments?.map((payment: Payment, i: number) => {
       if (chequeNumToChange.paymentIndex === i) {
         payment.chequeReceiptNumber = chequeNumToChange.chequeNum
@@ -80,7 +80,7 @@ export const useRoutingSlip = () => {
     state.routingSlip.payments = payments
   }
 
-  const updateRoutingSlipAmount = (amountToChange: AdjustRoutingSlipAmountPrams) => {
+  const updateRoutingSlipAmount = (amountToChange: AdjustRoutingSlipAmountParams) => {
     const payments = state.routingSlip.payments?.map((payment: Payment, i: number) => {
       if (amountToChange.paymentIndex === i) {
         if (amountToChange.isRoutingSlipPaidInUsd) {
@@ -284,11 +284,11 @@ export const useRoutingSlip = () => {
   ): Promise<{ error: boolean, details?: unknown } | undefined> => {
     const childRoutingSlipNumber: string = state.routingSlip.number ?? ''
 
-    const LinkPrams = { childRoutingSlipNumber, parentRoutingSlipNumber }
+    const linkParams = { childRoutingSlipNumber, parentRoutingSlipNumber }
 
     try {
       // handle error condtions here
-      await usePayApi().saveLinkRoutingSlip(LinkPrams)
+      await usePayApi().saveLinkRoutingSlip(linkParams)
       return {
         error: false
       }
