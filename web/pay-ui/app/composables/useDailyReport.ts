@@ -12,28 +12,17 @@ export function useDailyReport() {
     if (!selectedDate.value) {
       return
     }
-
     isDownloading.value = true
-
+    const downloadType = 'application/pdf'
     try {
-      const downloadType = 'application/pdf'
       const response = await getDailyReportByDate(selectedDate.value, downloadType)
-      if (response && response.status === 201) {
-        const contentDispArr = response?.headers['content-disposition'].split(
-          '='
-        )
-
-        const fileName
-          = contentDispArr.length && contentDispArr[1]
-            ? contentDispArr[1]
-            : 'bcregistry-daily-report'
-
-        CommonUtils.fileDownload(response.data, fileName, downloadType)
+      if (response && response.type === downloadType) {
+        const fileName = 'Routing-Slip-Daily-Report-' + selectedDate.value + '.pdf'
+        CommonUtils.fileDownload(response, fileName, downloadType)
       } else {
         console.error(response)
       }
     } finally {
-      //  close cal after download
       isDownloading.value = false
     }
   }
