@@ -258,6 +258,7 @@ export const useRoutingSlip = () => {
       params as Record<string, unknown>
     ) as SearchRoutingSlipParams
 
+    try {
     const response = await usePayApi().getSearchRoutingSlip(cleanedParams)
     if (response && response.items) {
       state.searchRoutingSlipParams = {
@@ -273,7 +274,9 @@ export const useRoutingSlip = () => {
         state.searchRoutingSlipResult = response.items || []
       }
 
-      return
+      }
+    } catch (error) {
+      console.error('error ', error)
     }
   }
 
