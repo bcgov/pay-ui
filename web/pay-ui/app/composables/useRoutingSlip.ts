@@ -259,21 +259,20 @@ export const useRoutingSlip = () => {
     ) as SearchRoutingSlipParams
 
     try {
-    const response = await usePayApi().getSearchRoutingSlip(cleanedParams)
-    if (response && response.items) {
-      state.searchRoutingSlipParams = {
-        ...state.searchRoutingSlipParams,
-        total: response.total || 0
-      }
-      if (appendToResults) {
-        state.searchRoutingSlipResult = [
-          ...state.searchRoutingSlipResult,
-          ...(response.items || [])
-        ]
-      } else {
-        state.searchRoutingSlipResult = response.items || []
-      }
-
+      const response = await usePayApi().getSearchRoutingSlip(cleanedParams)
+      if (response && response.items) {
+        state.searchRoutingSlipParams = {
+          ...state.searchRoutingSlipParams,
+          total: response.total || 0
+        }
+        if (appendToResults) {
+          state.searchRoutingSlipResult = [
+            ...state.searchRoutingSlipResult,
+            ...(response.items || [])
+          ]
+        } else {
+          state.searchRoutingSlipResult = response.items || []
+        }
       }
     } catch (error) {
       console.error('error ', error)
