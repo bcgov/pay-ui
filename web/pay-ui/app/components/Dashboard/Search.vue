@@ -192,12 +192,6 @@ useInfiniteScroll(
             </UPopover>
           </div>
         </div>
-        <div class="absolute bottom-0 right-0 p-2">
-          <UIcon
-            name="i-mdi-menu-up"
-            class="text-gray-600 size-4"
-          />
-        </div>
       </div>
 
       <div>
