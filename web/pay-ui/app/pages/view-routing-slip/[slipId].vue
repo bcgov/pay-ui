@@ -3,7 +3,7 @@ import StaffComments from '~/components/RoutingSlip/StaffComments.vue'
 import LinkRoutingSlip from '~/components/RoutingSlip/LinkRoutingSlip.vue'
 import useViewRoutingSlip from '~/composables/viewRoutingSlip/useViewRoutingSlip'
 import PaymentInformation from '~/components/RoutingSlip/PaymentInformation.vue'
-import TransactionDataTable from '~/components/RoutingSlip/TransactionDataTable.vue'
+import RoutingSlipTransaction from '~/components/RoutingSlip/RoutingSlipTransaction.vue'
 import { useRoutingSlip } from '~/composables/useRoutingSlip'
 // TODO: all view components
 // TODO: breadcrumbs
@@ -51,17 +51,15 @@ onMounted(async () => {
     </div>
 
     <div class="mt-8">
-      <h2 class="text-xl font-bold text-gray-900 mb-2">
+      <h2 class="text-xl font-bold text-gray-900">
         {{ $t('page.viewRoutingSlip.routingSlipInformation.title') }}
       </h2>
-      <p class="description-text mb-4">
-        {{ $t('page.viewRoutingSlip.routingSlipInformation.description') }}
-      </p>
-      <!-- TODO: Add routing slip details here -->
+      <!-- TODO fix this one -->
+      <RoutingSlipInformation />
     </div>
 
     <div class="mt-8">
-      <h2 class="text-xl font-bold text-gray-900 mb-2">
+      <h2 class="text-xl font-bold text-gray-900">
         {{ $t('page.viewRoutingSlip.paymentInformation.title') }}
       </h2>
       <p class="description-text mb-4">
@@ -71,7 +69,7 @@ onMounted(async () => {
     </div>
 
     <div class="mt-8">
-      <h2 class="text-xl font-bold text-gray-900 mb-2">
+      <h2 class="text-xl font-bold text-gray-900">
         {{ $t('page.viewRoutingSlip.linkingRoutingSlip.title') }}
       </h2>
       <p class="description-text mb-4">
@@ -81,14 +79,13 @@ onMounted(async () => {
     </div>
 
     <div class="mt-8">
-      <h2 class="text-xl font-bold text-gray-900 mb-2">
+      <h2 class="text-xl font-bold text-gray-900">
         {{ $t('page.viewRoutingSlip.routingSlipTransaction.title') }}
       </h2>
       <p class="description-text mb-4">
         {{ $t('page.viewRoutingSlip.routingSlipTransaction.description') }}
       </p>
-      <RoutingSlipTransaction />
-      <TransactionDataTable :invoices="routingSlip?.invoices" />
+      <RoutingSlipTransaction :invoices="routingSlip?.invoices" />
     </div>
   </UContainer>
 </template>

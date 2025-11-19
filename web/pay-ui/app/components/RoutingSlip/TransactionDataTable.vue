@@ -19,7 +19,7 @@ const {
   getIndexedTag,
   disableCancelButton,
   isAlreadyCancelled
-} = useTransactionDataTable(props)
+} = useTransactionDataTable({ invoices: props.invoices })
 
 const formatDisplayDate = commonUtil.formatDisplayDate
 const appendCurrencySymbol = commonUtil.appendCurrencySymbol

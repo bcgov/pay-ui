@@ -1,11 +1,6 @@
 <script setup lang="ts">
+import type { Comment } from '@/interfaces/routing-slip'
 import { DateTime } from 'luxon'
-
-interface CommentIF {
-  comment: string
-  submitterDisplayName: string
-  timestamp: string
-}
 
 interface Props {
   identifier?: string
@@ -28,28 +23,26 @@ const textareaRef = useTemplateRef<HTMLTextAreaElement>('textareaRef')
 
 const state = reactive({
   showComments: false,
-  comments: [] as CommentIF[],
+  comments: [] as Comment[] | Array<{ comment: Comment }>,
   comment: '',
   isSaving: false,
   errorMessage: '',
-  isIntentionalClose: false
+  isIntentionalClose: false,
+  numComments: computed((): string => {
+    const num: number = state.comments.length
+    return num === 1 ? '1 Comment' : `${num} Comments`
+  }),
+  headerColor: computed((): string => {
+    return 'text-blue-600'
+  }),
+  charsRemaining: computed((): number => {
+    const length: number = state.comment ? state.comment.length : 0
+    return props.maxLength - length
+  })
 })
 
-const { showComments, comments, comment, isSaving, errorMessage } = toRefs(state)
-
-const charsRemaining = computed(() => {
-  const length = comment.value ? comment.value.length : 0
-  return props.maxLength - length
-})
-
-const numComments = computed(() => {
-  const num = comments.value.length
-  return num === 1 ? '1 Comment' : `${num} Comments`
-})
-
-const headerColor = computed(() => {
-  return 'text-blue-600'
-})
+const { showComments, comments, comment, isSaving, errorMessage, numComments, headerColor,
+  charsRemaining } = toRefs(state)
 
 function formatTimestamp(timestamp: string): string {
   if (!timestamp) {
@@ -61,15 +54,15 @@ function formatTimestamp(timestamp: string): string {
 }
 
 function validateComment(): void {
-  errorMessage.value = ''
+  state.errorMessage = ''
 
-  if (!comment.value || comment.value.trim().length === 0) {
-    errorMessage.value = 'Enter a comment.'
+  if (!state.comment || state.comment.trim().length === 0) {
+    state.errorMessage = 'Enter a comment.'
     return
   }
 
-  if (comment.value.length > props.maxLength) {
-    errorMessage.value = 'Maximum characters reached.'
+  if (state.comment.length > props.maxLength) {
+    state.errorMessage = 'Maximum characters reached.'
     return
   }
 }
@@ -80,39 +73,39 @@ async function fetchStaffComments(): Promise<void> {
     const fetchedComments = (response?.comments) || []
 
     if (Array.isArray(fetchedComments) && fetchedComments[0] && typeof fetchedComments[0].comment === 'string') {
-      comments.value = fetchedComments
+      state.comments = fetchedComments
     } else {
-      comments.value = flattenAndSortComments(fetchedComments)
+      state.comments = flattenAndSortComments(fetchedComments as Array<{ comment: Comment }>)
     }
   } catch (error) {
     console.error('Error fetching comments:', error)
-    comments.value = []
+    state.comments = []
   }
 }
 
 async function save(): Promise<void> {
   validateComment()
-  if (errorMessage.value) {
+  if (state.errorMessage) {
     return
   }
 
-  if (isSaving.value) {
+  if (state.isSaving) {
     return
   }
 
-  isSaving.value = true
+  state.isSaving = true
 
   const data = {
     comment: {
       businessId: props.identifier,
-      comment: comment.value
+      comment: state.comment
     }
   }
 
   try {
     await payApi.updateRoutingSlipComments(data, props.identifier)
-    comment.value = ''
-    errorMessage.value = ''
+    state.comment = ''
+    state.errorMessage = ''
     await fetchStaffComments()
   } catch (error) {
     console.error('save() error =', error)
@@ -120,14 +113,14 @@ async function save(): Promise<void> {
       alert('Could not save your comment. Please try again or cancel.')
     }
   } finally {
-    isSaving.value = false
+    state.isSaving = false
   }
 }
 
 function close(): void {
   state.isIntentionalClose = true
-  errorMessage.value = ''
-  showComments.value = false
+  state.errorMessage = ''
+  state.showComments = false
   nextTick(() => {
     state.isIntentionalClose = false
   })
@@ -135,14 +128,14 @@ function close(): void {
 
 function handleOpenUpdate(newValue: boolean): void {
   if (!newValue && !state.isIntentionalClose) {
-    showComments.value = true
+    state.showComments = true
   }
 }
 
-function flattenAndSortComments(commentsArray: Array<{ comment: CommentIF }>): Array<CommentIF> {
+function flattenAndSortComments(commentsArray: Array<{ comment: Comment }>): Array<Comment> {
   if (commentsArray && commentsArray.length > 0) {
     // first use map to change comment.comment to comment
-    const temp: Array<CommentIF> = commentsArray.map(c => c.comment)
+    const temp: Array<Comment> = commentsArray.map(c => c.comment)
     // then sort newest to oldest
     temp.sort((a, b) => new Date(a.timestamp) < new Date(b.timestamp) ? 1 : -1)
     return temp

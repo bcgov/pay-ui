@@ -1,6 +1,16 @@
 <script setup lang="ts">
+import type { Invoice } from '@/interfaces/invoice'
 import AddManualTransactionDetails from '@/components/RoutingSlip/AddManualTransactionDetails.vue'
+import TransactionDataTable from '@/components/RoutingSlip/TransactionDataTable.vue'
 import useRoutingSlipTransaction from '@/composables/viewRoutingSlip/useRoutingSlipTransaction'
+
+interface Props {
+  invoices?: Invoice[]
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  invoices: () => []
+})
 
 const {
   formRoutingSlipManualTransactions,
@@ -105,5 +115,6 @@ const {
         </div>
       </div>
     </UCard>
+    <TransactionDataTable :invoices="props.invoices" />
   </div>
 </template>

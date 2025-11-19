@@ -121,8 +121,7 @@ export default {
       h1: 'View Routing Slip: {id}',
       subtitle: 'Manage, and review details for this routing slip',
       routingSlipInformation: {
-        title: 'Routing Slip Information',
-        description: 'View and manage the core details of this routing slip.'
+        title: 'Routing Slip Information'
       },
       paymentInformation: {
         title: 'Payment Information',
