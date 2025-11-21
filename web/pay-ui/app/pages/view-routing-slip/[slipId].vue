@@ -25,7 +25,7 @@ useViewRoutingSlip({ slipId })
 
 const { getRoutingSlip, getLinkedRoutingSlips, routingSlip } = useRoutingSlip()
 
-const staffCommentsRef = useTemplateRef<InstanceType<typeof StaffComments> & { 
+const staffCommentsRef = useTemplateRef<InstanceType<typeof StaffComments> & {
   fetchStaffComments: () => Promise<void> }>('staffComments')
 
 function handlePaymentAdjusted() {
