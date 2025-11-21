@@ -125,7 +125,7 @@ export default function useTransactionDataTable(props: UseTransactionDataTablePr
   ])
 
   const isAlreadyCancelled = (statusCode?: string): boolean => {
-    return statusCode === InvoiceStatus.CANCELLED
+    return [InvoiceStatus.REFUNDED, InvoiceStatus.REFUND_REQUESTED].includes(statusCode as InvoiceStatus)
   }
 
   const cancel = async (invoiceId: number) => {
