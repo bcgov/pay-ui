@@ -143,20 +143,9 @@ useInfiniteScroll(
 </script>
 
 <template>
-  <div>
-    <div class="mb-4">
-      <UButton
-        color="primary"
-        size="lg"
-        leading-icon="i-mdi-plus"
-        class="rounded-lg shadow-md font-semibold text-white"
-        @click="navigateTo(localePath('/create-routing-slip'))"
-      >
-        Add New Routing Slip
-      </UButton>
-    </div>
-    <div class="bg-white fas-search">
-      <div class="relative rounded-t-lg px-4 py-3.5" style="background-color: #e0e7ed;">
+  <div class="h-full flex flex-col">
+    <div class="bg-white fas-search w-full flex flex-col h-full">
+      <div class="relative rounded-t-lg px-4 py-3.5 flex-shrink-0 search-header-bg">
         <div class="flex flex-wrap justify-between">
           <div class="flex">
             <UIcon
@@ -194,7 +183,7 @@ useInfiniteScroll(
         </div>
       </div>
 
-      <div>
+      <div class="w-full overflow-x-auto overflow-y-auto flex-1 min-h-0">
         <UTable
           ref="table"
           v-model:column-visibility="columnVisibility"
@@ -202,7 +191,7 @@ useInfiniteScroll(
           :data="routingSlips"
           :columns="searchRoutingSlipTableHeaders"
           :loading="isLoading"
-          class="max-h-[600px]"
+          class="h-full w-full"
           sticky
         >
           <template #body-top>
@@ -431,6 +420,10 @@ useInfiniteScroll(
 </style>
 
 <style scoped>
+.search-header-bg {
+  background-color: #e0e7ed;
+}
+
 :deep(table td) {
   color: #495057;
 }
@@ -456,5 +449,18 @@ useInfiniteScroll(
 :deep(input::placeholder) {
   font-weight: 400;
   color: #919191;
+}
+
+:deep(.overflow-x-auto) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+:deep(.overflow-x-auto > *) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 </style>

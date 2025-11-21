@@ -46,7 +46,7 @@ const formatSelectedDate = () => {
 </script>
 
 <template>
-  <div v-can:fas_reports.hide class="text-end daily-report">
+  <div v-can:fas_reports.hide class="daily-report">
     <UPopover v-model:open="showCalendar">
       <UButton
         label="Daily Report"

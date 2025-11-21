@@ -37,8 +37,8 @@ const state = reactive({
   }),
   charsRemaining: computed((): number => {
     const length: number = state.comment ? state.comment.length : 0
-    return props.maxLength - length
-  })
+  return props.maxLength - length
+})
 })
 
 const { showComments, comments, comment, isSaving, errorMessage, numComments, headerColor,
