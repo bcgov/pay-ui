@@ -87,4 +87,3 @@ const {
     </div>
   </UCard>
 </template>
-

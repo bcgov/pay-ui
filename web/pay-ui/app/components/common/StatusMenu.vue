@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
-import { SlipStatusDropdown } from '~/utils/constants'
+import type { SlipStatusDropdown } from '~/utils/constants'
 
 const { t, te } = useI18n()
 

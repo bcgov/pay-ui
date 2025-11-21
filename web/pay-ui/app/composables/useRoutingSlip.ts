@@ -22,6 +22,7 @@ const defaultParams: SearchRoutingSlipParams = {
 }
 const searchRoutingSlipTableHeaders = ref(SearchRoutingSlipTableHeaders)
 
+// TODO move this out of global state use useState instead or Pinia
 const state = reactive({
   routingSlip: {} as RoutingSlip,
   linkedRoutingSlips: undefined as LinkedRoutingSlips | undefined,
@@ -37,7 +38,6 @@ const state = reactive({
 })
 
 export const useRoutingSlip = () => {
-  // Computed
   const invoiceCount = computed<number | undefined>(() => {
     return state.routingSlip?.invoices?.length
   })

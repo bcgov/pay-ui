@@ -1,9 +1,8 @@
 import { useRoutingSlip } from '~/composables/useRoutingSlip'
-import { SlipStatus } from '~/enums/slip-status'
+import type { SlipStatus } from '~/enums/slip-status'
 import { SlipStatusDropdown } from '~/utils/constants'
 import commonUtil from '~/utils/common-util'
 import type { Address } from '~/interfaces/address'
-import { reactive, toRefs } from 'vue'
 import { DateTime } from 'luxon'
 
 export function useRoutingSlipInfo() {
@@ -11,7 +10,7 @@ export function useRoutingSlipInfo() {
   const { t } = useI18n()
 
   const mailingAddress = computed<Address | undefined>(() => {
-    const slip = routingSlip.value as any
+    const slip = routingSlip.value
     if (slip?.mailingAddress) {
       return slip.mailingAddress
     }
@@ -25,26 +24,32 @@ export function useRoutingSlipInfo() {
   const state = reactive({
     formattedDate: computed<string>(() => {
       const date = routingSlip.value?.routingSlipDate || routingSlip.value?.createdOn
-      if (!date) return '-'
+      if (!date) {
+        return '-'
+      }
       const dt = DateTime.fromISO(date, { zone: 'UTC' }).setZone('America/Vancouver')
       return dt.isValid ? dt.toFormat('MMM dd, yyyy') : '-'
     }),
     statusColor: computed<string>(() => {
       const status = routingSlip.value?.status
-      if (!status) return ''
+      if (!status) {
+        return ''
+      }
       return commonUtil.statusListColor(status, true)
     }),
     statusLabel: computed<string>(() => {
       const status = routingSlip.value?.status
-      if (!status) return '-'
+      if (!status) {
+        return '-'
+      }
       const i18nKey = `enum.SlipStatus.${status}`
       return t(i18nKey, status)
     }),
-    entityNumber: computed<string | undefined>(() => {
-      return routingSlip.value?.paymentAccount?.accountName
+    entityNumber: computed<string>(() => {
+      return routingSlip.value?.paymentAccount?.accountName || ''
     }),
     contactName: computed<string | undefined>(() => {
-      const slip = routingSlip.value as any
+      const slip = routingSlip.value
       if (slip?.contactName) {
         return slip.contactName
       }
@@ -63,7 +68,7 @@ export function useRoutingSlipInfo() {
       const statuses = routingSlip.value?.allowedStatuses || []
       const dropdownValues = Object.values(SlipStatusDropdown) as string[]
       return statuses
-        .map(status => {
+        .map((status) => {
           const statusString = status as string
           if (dropdownValues.includes(statusString)) {
             return statusString as SlipStatusDropdown
@@ -75,7 +80,9 @@ export function useRoutingSlipInfo() {
   })
 
   const handleStatusSelect = async (status: SlipStatus) => {
-    if (!routingSlip.value?.number) return
+    if (!routingSlip.value?.number) {
+      return
+    }
 
     try {
       await updateRoutingSlipStatus({ status })
@@ -94,4 +101,3 @@ export function useRoutingSlipInfo() {
     handleStatusSelect
   }
 }
-

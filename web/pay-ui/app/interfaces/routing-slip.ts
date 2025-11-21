@@ -75,6 +75,8 @@ export interface RoutingSlip {
   totalUsd?: number
   allowedStatuses?: SlipStatus[]
   refundStatus?: string
+  mailingAddress?: Address
+  contactName?: string
 }
 
 // update as needed
