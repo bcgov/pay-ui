@@ -1,5 +1,6 @@
 import type { GetRoutingSlipRequestPayload } from '@/interfaces/routing-slip'
 import { useRoutingSlip } from '@/composables/useRoutingSlip'
+import { toRef } from 'vue'
 
 interface UseViewRoutingSlipProps {
   slipId: string
@@ -7,7 +8,7 @@ interface UseViewRoutingSlipProps {
 
 export default function useViewRoutingSlip(props: UseViewRoutingSlipProps) {
   const { getLinkedRoutingSlips, getRoutingSlip, routingSlip } = useRoutingSlip()
-  const { slipId } = toRefs(props)
+  const slipId = toRef(props, 'slipId')
 
   watch(
     () => slipId.value,

@@ -15,11 +15,11 @@ export default function useLinkRoutingSlip() {
     showSearch: false,
     isLoading: false,
     childRoutingSlipDetails: computed<RoutingSlip[]>(() => {
-    return linkedRoutingSlips.value?.children || []
+      return linkedRoutingSlips.value?.children || []
     }),
     parentRoutingSlipDetails: computed<RoutingSlip>(() => {
       return linkedRoutingSlips.value?.parent || {}
-  })
+    })
   })
 
   function toggleSearch() {

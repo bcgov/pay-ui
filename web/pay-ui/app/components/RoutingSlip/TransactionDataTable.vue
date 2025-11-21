@@ -19,7 +19,7 @@ const {
   getIndexedTag,
   disableCancelButton,
   isAlreadyCancelled
-} = useTransactionDataTable(props)
+} = useTransactionDataTable(toRef(props.invoices))
 
 const formatDisplayDate = commonUtil.formatDisplayDate
 const appendCurrencySymbol = commonUtil.appendCurrencySymbol
@@ -74,23 +74,25 @@ const appendCurrencySymbol = commonUtil.appendCurrencySymbol
         </div>
       </template>
       <template #actions-cell="{ row }">
-        <span
-          v-if="isAlreadyCancelled(row.original.statusCode)"
-          :data-test="getIndexedTag('text-cancel', row.index)"
-          class="text-error font-bold"
-        >
-          Cancelled
-        </span>
+        <template v-if="isAlreadyCancelled(row.original.statusCode)">
+          <span
+            :data-test="getIndexedTag('text-cancel', row.index)"
+            class="text-error font-bold"
+          >
+            Cancelled
+          </span>
+        </template>
         <template v-else>
-          <UButton
-            v-can:fas_refund.hide
-            :data-test="getIndexedTag('btn-invoice-cancel', row.index)"
-            label="Cancel"
-            variant="outline"
-            color="primary"
-            :disabled="disableCancelButton"
-            @click="cancel(row.original.id!)"
-          />
+          <div v-can:fas_refund.hide>
+            <UButton
+              :data-test="getIndexedTag('btn-invoice-cancel', row.index)"
+              label="Cancel"
+              variant="outline"
+              color="primary"
+              :disabled="disableCancelButton"
+              @click="cancel(row.original.id!)"
+            />
+          </div>
         </template>
       </template>
     </UTable>

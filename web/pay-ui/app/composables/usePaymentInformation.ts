@@ -128,7 +128,7 @@ export const usePaymentInformation = (emit?: (event: 'paymentAdjusted') => void)
       routingSlipNumber: routingSlip.value.number
     }
     await getRoutingSlip(getRoutingSlipRequestPayload)
-    
+
     emit?.('paymentAdjusted')
   }
 

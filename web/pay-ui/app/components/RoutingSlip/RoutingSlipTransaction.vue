@@ -33,20 +33,23 @@ const {
 <template>
   <div>
     <div class="my-4">
-      <UButton
+      <div
         v-if="!isRoutingSlipAChild && !isRoutingSlipVoid"
         v-can:fas_transaction.hide
-        large
-        color="primary"
-        @click="showManualTransaction"
       >
-        <template #leading>
-          <UIcon name="mdi-plus" class="size-5" />
-        </template>
-        <span>
-          Add Transaction Manually
-        </span>
-      </UButton>
+        <UButton
+          large
+          color="primary"
+          @click="showManualTransaction"
+        >
+          <template #leading>
+            <UIcon name="mdi-plus" class="size-5" />
+          </template>
+          <span>
+            Add Transaction Manually
+          </span>
+        </UButton>
+      </div>
     </div>
     <UCard v-if="showAddManualTransaction">
       <div class="grid grid-cols-12 gap-6">
@@ -56,7 +59,7 @@ const {
           </span>
         </div>
         <div class="col-span-10">
-          <v-form
+          <form
             id="formRoutingSlipManualTransactions"
             ref="formRoutingSlipManualTransactions"
             class="mt-2"
@@ -70,7 +73,7 @@ const {
               />
               <USeparator v-if="isLastChild(index)" class="my-6" />
             </div>
-          </v-form>
+          </form>
           <div v-if="status" class="my-4">
             <p class="mb-0">
               <span class="pl-1 text-red-600">

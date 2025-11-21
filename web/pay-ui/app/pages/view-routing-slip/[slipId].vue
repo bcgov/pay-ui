@@ -39,7 +39,7 @@ onMounted(async () => {
 
 <template>
   <UContainer>
-    <div class="mb-6">
+    <div>
       <h1 class="text-3xl font-bold text-gray-900">
         {{ $t('page.viewRoutingSlip.h1', { id: slipId }) }}
       </h1>
@@ -57,7 +57,7 @@ onMounted(async () => {
       </div>
     </div>
 
-    <div class="mt-8">
+    <div>
       <h2 class="text-xl font-bold text-gray-900">
         {{ $t('page.viewRoutingSlip.routingSlipInformation.title') }}
       </h2>

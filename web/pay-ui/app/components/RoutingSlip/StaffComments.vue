@@ -37,8 +37,8 @@ const state = reactive({
   }),
   charsRemaining: computed((): number => {
     const length: number = state.comment ? state.comment.length : 0
-  return props.maxLength - length
-})
+    return props.maxLength - length
+  })
 })
 
 const { showComments, comments, comment, isSaving, errorMessage, numComments, headerColor,
@@ -150,7 +150,6 @@ function flattenAndSortComments(commentsArray: Array<{ comment: Comment }>): Arr
   }
   return []
 }
-
 </script>
 
 <template>
@@ -173,6 +172,7 @@ function flattenAndSortComments(commentsArray: Array<{ comment: Comment }>): Arr
         variant="ghost"
         size="sm"
         icon="i-mdi-comment-text-outline"
+        class="p-0"
       >
         {{ numComments }}
       </UButton>

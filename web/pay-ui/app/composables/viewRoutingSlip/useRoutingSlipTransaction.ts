@@ -111,7 +111,10 @@ export default function useRoutingSlipTransaction() {
   }
 
   function isValid(): boolean {
-    return formRoutingSlipManualTransactions.value.validate()
+    if (!formRoutingSlipManualTransactions.value) {
+      return false
+    }
+    return formRoutingSlipManualTransactions.value.checkValidity()
   }
 
   function removeManualTransactionRow(index: number) {

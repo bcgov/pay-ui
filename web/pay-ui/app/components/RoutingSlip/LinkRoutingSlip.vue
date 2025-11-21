@@ -79,15 +79,18 @@ const {
               {{ $t('text.routingSlipNoLinkedRoutingSlips') }}
             </span>
           </p>
-          <UButton
+          <div
             v-can:fas_edit.hide
             v-can:fas_link.hide
-            size="lg"
-            label="Link Routing Slip"
-            :disabled="showSearch || isRoutingSlipVoid"
-            class=""
-            @click="toggleSearch"
-          />
+          >
+            <UButton
+              size="lg"
+              label="Link Routing Slip"
+              :disabled="showSearch || isRoutingSlipVoid"
+              class=""
+              @click="toggleSearch"
+            />
+          </div>
         </div>
         <div v-if="showSearch" class="mb-4">
           <AutoComplete
