@@ -50,7 +50,7 @@ onMounted(async () => {
       <UIcon name="i-mdi-loading" class="animate-spin text-4xl text-primary" />
     </div>
     <div v-else>
-      <div>
+      <div class="mb-2">
         <h1 class="text-3xl font-bold text-gray-900">
           {{ $t('page.viewRoutingSlip.h1', { id: slipId }) }}
         </h1>

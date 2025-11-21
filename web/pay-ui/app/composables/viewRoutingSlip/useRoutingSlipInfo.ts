@@ -1,5 +1,5 @@
 import { useRoutingSlip } from '~/composables/useRoutingSlip'
-import type { SlipStatus } from '~/enums/slip-status'
+import { SlipStatus } from '~/enums/slip-status'
 import { SlipStatusDropdown } from '~/utils/constants'
 import commonUtil from '~/utils/common-util'
 import type { Address } from '~/interfaces/address'
@@ -8,6 +8,7 @@ import { DateTime } from 'luxon'
 export function useRoutingSlipInfo() {
   const { routingSlip, updateRoutingSlipStatus, getRoutingSlip } = useRoutingSlip()
   const { t } = useI18n()
+  const { baseModal } = useConnectModal()
 
   const mailingAddress = computed<Address | undefined>(() => {
     const slip = routingSlip.value
@@ -80,6 +81,56 @@ export function useRoutingSlipInfo() {
   })
 
   const handleStatusSelect = async (status: SlipStatus) => {
+    if (!routingSlip.value?.number) {
+      return
+    }
+
+    if (status === SlipStatus.NSF) {
+      await baseModal.open({
+        title: t('modal.placeRoutingSlipToNSF.title'),
+        description: t('modal.placeRoutingSlipToNSF.description'),
+        dismissible: true,
+        buttons: [
+          {
+            label: t('modal.placeRoutingSlipToNSF.confirmButton'),
+            onClick: async () => {
+              await updateRoutingSlipStatusHandler(status)
+            },
+            shouldClose: true
+          },
+          {
+            label: t('label.cancel'),
+            variant: 'outline',
+            shouldClose: true
+          }
+        ]
+      })
+    } else if (status === SlipStatus.VOID) {
+      await baseModal.open({
+        title: t('modal.voidRoutingSlip.title'),
+        description: t('modal.voidRoutingSlip.description'),
+        dismissible: true,
+        buttons: [
+          {
+            label: t('modal.voidRoutingSlip.confirmButton'),
+            onClick: async () => {
+              await updateRoutingSlipStatusHandler(status)
+            },
+            shouldClose: true
+          },
+          {
+            label: t('label.cancel'),
+            variant: 'outline',
+            shouldClose: true
+          }
+        ]
+      })
+    } else {
+      await updateRoutingSlipStatusHandler(status)
+    }
+  }
+
+  const updateRoutingSlipStatusHandler = async (status: SlipStatus) => {
     if (!routingSlip.value?.number) {
       return
     }

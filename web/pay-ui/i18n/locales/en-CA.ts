@@ -34,7 +34,7 @@ export default {
       ACTIVE: 'Active',
       COMPLETE: 'Complete',
       BOUNCED: 'Bounced',
-      NSF: 'NSF',
+      NSF: 'Non Sufficient Fund',
       REFUND: 'Refund',
       LAST: 'Last',
       HOLD: 'On Hold',
@@ -110,6 +110,18 @@ export default {
     leaveCreateRoutingSlip: {
       title: 'Leave Add Routing Slip?',
       description: 'If you leave this page, your routing slip information will not be created or saved.'
+    },
+    placeRoutingSlipToNSF: {
+      title: 'Place Routing Slip to NSF?',
+      description:
+        `By placing status to NSF, this routing slip will not be usable, 
+        and current transactions will change to pending until it has been repaid by having another slip linked to it.`,
+      confirmButton: 'Place status to NSF'
+    },
+    voidRoutingSlip: {
+      title: 'Void Routing Slip?',
+      description: 'By placing status to void, this routing slip will not be usable, and this action cannot be undone.',
+      confirmButton: 'Void Routing Slip'
     }
   },
   page: {
