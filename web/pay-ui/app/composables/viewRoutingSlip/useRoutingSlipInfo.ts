@@ -23,7 +23,7 @@ export function useRoutingSlipInfo() {
 
   const state = reactive({
     formattedDate: computed<string>(() => {
-      const date = routingSlip.value?.routingSlipDate || routingSlip.value?.createdOn
+      const date = routingSlip.value?.createdOn
       if (!date) {
         return '-'
       }

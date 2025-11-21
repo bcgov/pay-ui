@@ -37,7 +37,7 @@ export default {
       NSF: 'NSF',
       REFUND: 'Refund',
       LAST: 'Last',
-      HOLD: 'Hold',
+      HOLD: 'On Hold',
       LINKED: 'Linked',
       REFUND_REQUESTED: 'Refund Requested',
       REFUND_AUTHORIZED: 'Refund Authorized',
