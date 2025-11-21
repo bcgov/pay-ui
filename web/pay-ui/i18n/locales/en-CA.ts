@@ -114,7 +114,7 @@ export default {
     placeRoutingSlipToNSF: {
       title: 'Place Routing Slip to NSF?',
       description:
-        `By placing status to NSF, this routing slip will not be usable, 
+        `By placing status to NSF, this routing slip will not be usable 
         and current transactions will change to pending until it has been repaid by having another slip linked to it.`,
       confirmButton: 'Place status to NSF'
     },
