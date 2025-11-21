@@ -49,7 +49,7 @@ export default function useTransactionDataTable(invoices: Ref<Invoice[]>) {
     selectedInvoiceId: null as number | null,
     disableCancelButton: false,
     invoiceCount: computed<number>(() => {
-      return invoices.length ?? 0
+      return invoices.value.length ?? 0
     }),
     invoiceDisplay: computed<InvoiceDisplay[]>(() => {
       const invoicesValue = invoices.value
