@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
+import { SlipStatusDropdown } from '~/utils/constants'
 
 const { t, te } = useI18n()
 
 const props = defineProps<{
-  allowedStatusList: SlipStatus[]
+  allowedStatusList: SlipStatusDropdown[]
 }>()
 
 const emit = defineEmits<{
@@ -13,11 +14,11 @@ const emit = defineEmits<{
 
 const items = computed<DropdownMenuItem[]>(() => {
   return props.allowedStatusList.reduce((a, status) => {
-    const i18nKey = `enum.SlipStatus.${status}`
+    const i18nKey = `enum.SlipStatusDropdown.${status}`
     if (te(i18nKey)) {
       a.push({
         onSelect: () => {
-          emit('select', status)
+          emit('select', status as unknown as SlipStatus)
         },
         label: t(i18nKey)
       })

@@ -31,10 +31,31 @@ export default {
       CREDIT: 'Account Credit'
     },
     SlipStatus: {
+      ACTIVE: 'Active',
+      COMPLETE: 'Complete',
+      BOUNCED: 'Bounced',
+      NSF: 'NSF',
+      REFUND: 'Refund',
+      LAST: 'Last',
+      HOLD: 'Hold',
+      LINKED: 'Linked',
+      REFUND_REQUESTED: 'Refund Requested',
+      REFUND_AUTHORIZED: 'Refund Authorized',
+      REFUND_PROCESSED: 'Refund Processed',
+      REFUND_UPLOADED: 'Refund Uploaded',
+      REFUND_REJECTED: 'Refund Rejected',
+      CANCEL_REFUND_REQUEST: 'Cancel Refund Request',
+      CANCEL_WRITE_OFF_REQUEST: 'Cancel Write Off Request',
+      WRITE_OFF_AUTHORIZED: 'Write Off Authorized',
+      WRITE_OFF_REQUESTED: 'Write Off Requested',
+      WRITE_OFF_COMPLETED: 'Write Off Completed',
+      VOID: 'Void',
+      CORRECTION: 'Correction'
+    },
+    SlipStatusDropdown: {
       ACTIVE: 'Place routing slip to active',
       NSF: 'Place routing slip to NSF',
       HOLD: 'Place routing slip on hold',
-      LINKED: 'LINKED',
       REFUND_REQUESTED: 'Refund request',
       WRITE_OFF_REQUESTED: 'Write off request',
       CANCEL_REFUND_REQUEST: 'Cancel refund request',
@@ -42,7 +63,6 @@ export default {
       WRITE_OFF_AUTHORIZED: 'Authorize Write off request',
       CANCEL_WRITE_OFF_REQUEST: 'Cancel Write off request',
       VOID: 'Void Routing Slip'
-      // CORRECTION='Correct Routing Slip' - Future
     }
   },
   error: {

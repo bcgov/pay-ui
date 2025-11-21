@@ -4,6 +4,7 @@ import LinkRoutingSlip from '~/components/RoutingSlip/LinkRoutingSlip.vue'
 import useViewRoutingSlip from '~/composables/viewRoutingSlip/useViewRoutingSlip'
 import PaymentInformation from '~/components/RoutingSlip/PaymentInformation.vue'
 import RoutingSlipTransaction from '~/components/RoutingSlip/RoutingSlipTransaction.vue'
+import RoutingSlipInformation from '~/components/RoutingSlip/RoutingSlipInformation.vue'
 import { useRoutingSlip } from '~/composables/useRoutingSlip'
 // TODO: all view components
 // TODO: breadcrumbs
@@ -59,10 +60,9 @@ onMounted(async () => {
     </div>
 
     <div>
-      <h2 class="text-xl font-bold text-gray-900">
+      <h2 class="text-xl font-bold text-gray-900 mb-2">
         {{ $t('page.viewRoutingSlip.routingSlipInformation.title') }}
       </h2>
-      <!-- TODO fix this one -->
       <RoutingSlipInformation />
     </div>
 

@@ -49,19 +49,30 @@ export enum PaymentMethods {
   CHEQUE = 'CHEQUE'
 }
 
+export enum SlipStatusDropdown {
+  ACTIVE = 'ACTIVE',
+  NSF = 'NSF',
+  HOLD = 'HOLD',
+  REFUND_REQUESTED = 'REFUND_REQUESTED',
+  WRITE_OFF_REQUESTED = 'WRITE_OFF_REQUESTED',
+  CANCEL_REFUND_REQUEST = 'CANCEL_REFUND_REQUEST',
+  REFUND_AUTHORIZED = 'REFUND_AUTHORIZED',
+  WRITE_OFF_AUTHORIZED = 'WRITE_OFF_AUTHORIZED',
+  CANCEL_WRITE_OFF_REQUEST = 'CANCEL_WRITE_OFF_REQUEST',
+  VOID = 'VOID'
+}
+
 export enum SlipStatusLabel {
-  ACTIVE = 'Place routing slip to active',
-  NSF = 'Place routing slip to NSF',
-  HOLD = 'Place routing slip on hold',
-  LINKED = 'LINKED',
-  REFUND_REQUESTED = 'Refund request',
-  WRITE_OFF_REQUESTED = 'Write off request',
-  CANCEL_REFUND_REQUEST = 'Cancel refund request',
-  REFUND_AUTHORIZED = 'Review refund request',
-  WRITE_OFF_AUTHORIZED = 'Authorize Write off request',
-  CANCEL_WRITE_OFF_REQUEST = 'Cancel Write off request',
-  VOID = 'Void Routing Slip'
-  // CORRECTION='Correct Routing Slip' - Future
+  ACTIVE = 'ACTIVE',
+  NSF = 'NSF',
+  HOLD = 'HOLD',
+  REFUND_REQUESTED = 'REFUND_REQUESTED',
+  WRITE_OFF_REQUESTED = 'WRITE_OFF_REQUESTED',
+  CANCEL_REFUND_REQUEST = 'CANCEL_REFUND_REQUEST',
+  REFUND_AUTHORIZED = 'REFUND_AUTHORIZED',
+  WRITE_OFF_AUTHORIZED = 'WRITE_OFF_AUTHORIZED',
+  CANCEL_WRITE_OFF_REQUEST = 'CANCEL_WRITE_OFF_REQUEST',
+  VOID = 'VOID'
 }
 
 export enum InvoiceStatus {
