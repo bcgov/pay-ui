@@ -8,7 +8,7 @@ import type { TableColumn } from '@nuxt/ui'
 import { reactive, toRefs, toRef } from 'vue'
 
 interface UseTransactionDataTableProps {
-  invoices?: Invoice[]
+  invoices: Invoice[]
 }
 
 export default function useTransactionDataTable(props: UseTransactionDataTableProps) {
@@ -16,8 +16,6 @@ export default function useTransactionDataTable(props: UseTransactionDataTablePr
   const { cancelRoutingSlipInvoice } = usePayApi()
   const { isLoading } = useLoader()
   const { baseModal } = useConnectModal()
-
-  const invoicesRef = toRef(props, 'invoices')
 
   const transformInvoices = (invoices: Invoice[]): InvoiceDisplay[] => {
     return invoices.map((invoice) => {
@@ -55,10 +53,10 @@ export default function useTransactionDataTable(props: UseTransactionDataTablePr
     selectedInvoiceId: null as number | null,
     disableCancelButton: false,
     invoiceCount: computed<number>(() => {
-      return invoicesRef.value?.length ?? 0
+      return props.invoices.length ?? 0
     }),
     invoiceDisplay: computed<InvoiceDisplay[]>(() => {
-      const invoicesValue = invoicesRef.value
+      const invoicesValue = props.invoices
       if (!invoicesValue || !Array.isArray(invoicesValue)) {
         return []
       }

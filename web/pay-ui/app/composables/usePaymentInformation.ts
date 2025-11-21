@@ -9,12 +9,11 @@ import { SlipStatus } from '~/enums/slip-status'
 import { PaymentTypes } from '~/enums/payment-types'
 import CommonUtils from '~/utils/common-util'
 import { useRoutingSlip } from './useRoutingSlip'
-import { useStaffCommentsRefresh } from './viewRoutingSlip/useStaffCommentsRefresh'
 
 const routingSlipBeforeEdit = ref<RoutingSlip>({})
 
 // Composable function to inject Props, options and values to PaymentInformation component
-export const usePaymentInformation = () => {
+export const usePaymentInformation = (emit?: (event: 'paymentAdjusted') => void) => {
   const {
     adjustRoutingSlip,
     getRoutingSlip,
@@ -121,8 +120,6 @@ export const usePaymentInformation = () => {
     return paymentRequest
   }
 
-  const { refresh: refreshStaffComments } = useStaffCommentsRefresh()
-
   async function adjustRoutingSlipHandler() {
     const paymentRequest: Payment[] = filterUnchangedChequeReceiptNumbersFromPayment()
     await adjustRoutingSlip(paymentRequest)
@@ -132,7 +129,7 @@ export const usePaymentInformation = () => {
     }
     await getRoutingSlip(getRoutingSlipRequestPayload)
     
-    await refreshStaffComments()
+    emit?.('paymentAdjusted')
   }
 
   function adjustRoutingSlipStatus() {

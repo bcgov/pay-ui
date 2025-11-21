@@ -25,6 +25,12 @@ useViewRoutingSlip({ slipId })
 
 const { getRoutingSlip, getLinkedRoutingSlips, routingSlip } = useRoutingSlip()
 
+const staffCommentsRef = useTemplateRef<InstanceType<typeof StaffComments> & { fetchStaffComments: () => Promise<void> }>('staffComments')
+
+function handlePaymentAdjusted() {
+  staffCommentsRef.value?.fetchStaffComments()
+}
+
 onMounted(async () => {
   await getRoutingSlip({ routingSlipNumber: slipId })
   await getLinkedRoutingSlips(slipId)
@@ -42,6 +48,7 @@ onMounted(async () => {
       </p>
       <div class="inline-block">
         <StaffComments
+          ref="staffComments"
           :identifier="slipId"
           :nudge-top="33"
           :nudge-left="20"
@@ -65,7 +72,7 @@ onMounted(async () => {
       <p class="description-text mb-4">
         {{ $t('page.viewRoutingSlip.paymentInformation.description') }}
       </p>
-      <PaymentInformation />
+      <PaymentInformation @payment-adjusted="handlePaymentAdjusted" />
     </div>
 
     <div class="mt-8">

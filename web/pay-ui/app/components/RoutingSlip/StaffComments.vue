@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Comment } from '@/interfaces/routing-slip'
 import { DateTime } from 'luxon'
-import { useStaffCommentsRefresh } from '~/composables/viewRoutingSlip/useStaffCommentsRefresh'
 
 interface Props {
   identifier?: string
@@ -84,10 +83,12 @@ async function fetchStaffComments(): Promise<void> {
   }
 }
 
-const { registerRefresh } = useStaffCommentsRefresh()
-onMounted(() => {
-  registerRefresh(fetchStaffComments)
-  fetchStaffComments()
+defineExpose({
+  fetchStaffComments
+})
+
+onMounted(async () => {
+  await fetchStaffComments()
 })
 
 async function save(): Promise<void> {

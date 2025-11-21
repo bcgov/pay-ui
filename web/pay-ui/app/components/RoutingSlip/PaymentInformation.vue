@@ -2,6 +2,10 @@
 import { usePaymentInformation } from '~/composables/usePaymentInformation'
 import { PaymentTypes } from '~/enums/payment-types'
 
+const emit = defineEmits<{
+  paymentAdjusted: []
+}>()
+
 const {
   routingSlip,
   isExpanded,
@@ -22,7 +26,7 @@ const {
   viewPaymentInformation,
   navigateTo,
   hasPaymentChanges
-} = usePaymentInformation()
+} = usePaymentInformation(emit)
 
 function getIndexedTag(tag: string, index: number) {
   return `${tag}-${index}`
