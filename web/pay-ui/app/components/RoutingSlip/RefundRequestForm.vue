@@ -16,7 +16,7 @@ const emit = defineEmits<{
   cancel: []
 }>()
 
-const formRef = useTemplateRef<Form<RefundRequestFormSchema>>('form-ref')
+useTemplateRef<Form<RefundRequestFormSchema>>('form-ref')
 
 const addressSchema = z.object({
   street: z.string().optional(),
@@ -107,7 +107,9 @@ function onCancel() {
 }
 
 const formattedRefundAmount = computed(() => {
-  if (!props.refundAmount) return '$0.00'
+  if (!props.refundAmount) {
+    return '$0.00'
+  }
   return `$${props.refundAmount.toFixed(2)}`
 })
 </script>
@@ -195,4 +197,3 @@ const formattedRefundAmount = computed(() => {
     </div>
   </UForm>
 </template>
-

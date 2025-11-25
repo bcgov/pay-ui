@@ -14,15 +14,11 @@ export function useRoutingSlipInfo() {
   const showRefundForm = ref(false)
 
   const mailingAddress = computed<Address | undefined>(() => {
-    const slip = routingSlip.value
-    if (slip?.mailingAddress) {
-      return slip.mailingAddress
-    }
     const refunds = routingSlip.value?.refunds
-    if (refunds && refunds.length > 0) {
-      return refunds[0]?.details?.mailingAddress
+    if (refunds && refunds.length > 0 && refunds[0]?.details?.mailingAddress) {
+      return refunds[0].details.mailingAddress
     }
-    return undefined
+    return routingSlip.value?.mailingAddress
   })
 
   const state = reactive({
@@ -53,15 +49,11 @@ export function useRoutingSlipInfo() {
       return routingSlip.value?.paymentAccount?.accountName || ''
     }),
     contactName: computed<string | undefined>(() => {
-      const slip = routingSlip.value
-      if (slip?.contactName) {
-        return slip.contactName
-      }
       const refunds = routingSlip.value?.refunds
-      if (refunds && refunds.length > 0) {
-        return refunds[0]?.details?.name
+      if (refunds && refunds.length > 0 && refunds[0]?.details?.name) {
+        return refunds[0].details.name
       }
-      return undefined
+      return routingSlip.value?.contactName
     }),
     mailingAddress,
     deliveryInstructions: computed<string | undefined>(() => {

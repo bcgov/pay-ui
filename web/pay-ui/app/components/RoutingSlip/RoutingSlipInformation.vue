@@ -2,6 +2,7 @@
 import StatusMenu from '~/components/common/StatusMenu.vue'
 import RefundRequestForm from '~/components/RoutingSlip/RefundRequestForm.vue'
 import { useRoutingSlipInfo } from '~/composables/viewRoutingSlip/useRoutingSlipInfo'
+import { SlipStatus } from '~/enums/slip-status'
 
 const {
   routingSlip,
@@ -21,6 +22,14 @@ const {
 
 const refundAmount = computed(() => routingSlip.value?.refundAmount || routingSlip.value?.remainingAmount || 0)
 
+const isRefundRequested = computed(() => routingSlip.value?.status === SlipStatus.REFUNDREQUEST)
+
+const shouldShowRefundAmount = computed(() => {
+  const hasRefundAmount = !!(routingSlip.value?.refundAmount || routingSlip.value?.remainingAmount)
+  const isNotActive = routingSlip.value?.status !== SlipStatus.ACTIVE
+  return hasRefundAmount && !showRefundForm.value && isNotActive
+})
+
 const refundFormInitialData = computed(() => {
   const refundDetails = routingSlip.value?.refunds?.[0]?.details
   if (refundDetails) {
@@ -32,6 +41,10 @@ const refundFormInitialData = computed(() => {
     chequeAdvice: undefined
   }
 })
+
+const refundStatus = computed(() => routingSlip.value?.refundStatus || '')
+
+const chequeAdvice = computed(() => routingSlip.value?.refunds?.[0]?.details?.chequeAdvice || '')
 </script>
 
 <template>
@@ -73,12 +86,27 @@ const refundFormInitialData = computed(() => {
           </div>
         </div>
 
-        <div v-if="(routingSlip?.refundAmount || routingSlip?.remainingAmount) && !showRefundForm" class="flex flex-col sm:flex-row sm:items-start gap-2">
+        <div
+          v-if="shouldShowRefundAmount"
+          class="flex flex-col sm:flex-row sm:items-start gap-2"
+        >
           <div class="w-full sm:w-1/4 font-semibold p-4">
             {{ $t('label.refundAmount') }}
           </div>
           <div class="w-full sm:w-3/4 p-4">
             ${{ (routingSlip.refundAmount || routingSlip.remainingAmount || 0).toFixed(2) }}
+          </div>
+        </div>
+
+        <div
+          v-if="isRefundRequested && !showRefundForm"
+          class="flex flex-col sm:flex-row sm:items-start gap-2"
+        >
+          <div class="w-full sm:w-1/4 font-semibold p-4">
+            {{ $t('label.clientName') }}
+          </div>
+          <div class="w-full sm:w-3/4 p-4">
+            {{ contactName || '-' }}
           </div>
         </div>
 
@@ -94,20 +122,11 @@ const refundFormInitialData = computed(() => {
 
         <div v-if="!showRefundForm" class="flex flex-col sm:flex-row sm:items-start gap-2">
           <div class="w-full sm:w-1/4 font-semibold p-4">
-            {{ $t('label.entityNumber') }}
-          </div>
-          <div class="w-full sm:w-3/4 p-4">
-            {{ entityNumber || '-' }}
-          </div>
-        </div>
-
-        <div v-if="!showRefundForm" class="flex flex-col sm:flex-row sm:items-start gap-2">
-          <div class="w-full sm:w-1/4 font-semibold p-4">
             {{ $t('label.nameOfPersonOrOrgAndAddress') }}
           </div>
           <div class="w-full sm:w-3/4 p-4">
             <div v-if="contactName || mailingAddress" class="flex flex-col gap-1">
-              <span v-if="contactName">{{ contactName }}</span>
+              <span v-if="contactName && !isRefundRequested">{{ contactName }} </span>
               <ConnectAddressDisplay
                 v-if="mailingAddress"
                 :address="mailingAddress"
@@ -118,6 +137,55 @@ const refundFormInitialData = computed(() => {
               </span>
             </div>
             <span v-else>-</span>
+          </div>
+        </div>
+
+        <div
+          v-if="isRefundRequested && !showRefundForm"
+          class="border-t border-line-muted pt-4 mt-4"
+        >
+          <div class="flex flex-col sm:flex-row sm:items-start gap-2">
+            <div class="w-full sm:w-1/4 font-semibold p-4">
+              {{ $t('label.refundStatus') }}
+            </div>
+            <div class="w-full sm:w-3/4 p-4">
+              <UBadge
+                v-if="refundStatus"
+                :label="refundStatus"
+                color="neutral"
+              />
+              <span v-else>-</span>
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row sm:items-start gap-2">
+            <div class="w-full sm:w-1/4 font-semibold p-4">
+              {{ $t('label.chequeAdvice') }}
+            </div>
+            <div class="w-full sm:w-3/4 p-4">
+              {{ chequeAdvice || '-' }}
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row sm:items-start gap-2">
+            <div class="w-full sm:w-1/4 font-semibold p-4">
+              {{ $t('label.entityNumber') }}
+            </div>
+            <div class="w-full sm:w-3/4 p-4">
+              {{ entityNumber || '-' }}
+            </div>
+          </div>
+        </div>
+
+        <div
+          v-if="!isRefundRequested && !showRefundForm"
+          class="flex flex-col sm:flex-row sm:items-start gap-2"
+        >
+          <div class="w-full sm:w-1/4 font-semibold p-4">
+            {{ $t('label.entityNumber') }}
+          </div>
+          <div class="w-full sm:w-3/4 p-4">
+            {{ entityNumber || '-' }}
           </div>
         </div>
       </div>
