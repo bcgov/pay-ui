@@ -3,12 +3,15 @@ import { SlipStatus } from '~/enums/slip-status'
 import { SlipStatusDropdown } from '~/utils/constants'
 import commonUtil from '~/utils/common-util'
 import type { Address } from '~/interfaces/address'
+import type { RefundRequestDetails } from '~/interfaces/routing-slip'
 import { DateTime } from 'luxon'
 
 export function useRoutingSlipInfo() {
   const { routingSlip, updateRoutingSlipStatus, getRoutingSlip } = useRoutingSlip()
   const { t } = useI18n()
   const { baseModal } = useConnectModal()
+
+  const showRefundForm = ref(false)
 
   const mailingAddress = computed<Address | undefined>(() => {
     const slip = routingSlip.value
@@ -85,7 +88,9 @@ export function useRoutingSlipInfo() {
       return
     }
 
-    if (status === SlipStatus.NSF) {
+    if (status === SlipStatus.REFUNDREQUEST) {
+      showRefundForm.value = true
+    } else if (status === SlipStatus.NSF) {
       await baseModal.open({
         title: t('modal.placeRoutingSlipToNSF.title'),
         description: t('modal.placeRoutingSlipToNSF.description'),
@@ -130,6 +135,32 @@ export function useRoutingSlipInfo() {
     }
   }
 
+  const handleRefundFormSubmit = async (details: RefundRequestDetails) => {
+    if (!routingSlip.value?.number) {
+      return
+    }
+
+    try {
+      const payload = {
+        ...details,
+        status: SlipStatus.REFUNDREQUEST
+      }
+      const detailsString = JSON.stringify(payload)
+      await usePayApi().updateRoutingSlipRefund(detailsString, routingSlip.value.number)
+      const routingSlipNumber = routingSlip.value.number
+      if (routingSlipNumber) {
+        await getRoutingSlip({ routingSlipNumber, showGlobalLoader: false })
+      }
+      showRefundForm.value = false
+    } catch (error) {
+      console.error('Error submitting refund request:', error)
+    }
+  }
+
+  const handleRefundFormCancel = () => {
+    showRefundForm.value = false
+  }
+
   const updateRoutingSlipStatusHandler = async (status: SlipStatus) => {
     if (!routingSlip.value?.number) {
       return
@@ -149,6 +180,9 @@ export function useRoutingSlipInfo() {
   return {
     routingSlip,
     ...toRefs(state),
-    handleStatusSelect
+    handleStatusSelect,
+    showRefundForm,
+    handleRefundFormSubmit,
+    handleRefundFormCancel
   }
 }
