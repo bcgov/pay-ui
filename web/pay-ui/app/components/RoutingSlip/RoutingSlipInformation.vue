@@ -122,6 +122,15 @@ const chequeAdvice = computed(() => routingSlip.value?.refunds?.[0]?.details?.ch
 
         <div v-if="!showRefundForm" class="flex flex-col sm:flex-row sm:items-start gap-2">
           <div class="w-full sm:w-1/4 font-semibold p-4">
+            {{ $t('label.entityNumber') }}
+          </div>
+          <div class="w-full sm:w-3/4 p-4">
+            {{ entityNumber || '-' }}
+          </div>
+        </div>
+
+        <div v-if="!showRefundForm" class="flex flex-col sm:flex-row sm:items-start gap-2">
+          <div class="w-full sm:w-1/4 font-semibold p-4">
             {{ $t('label.nameOfPersonOrOrgAndAddress') }}
           </div>
           <div class="w-full sm:w-3/4 p-4">
@@ -165,27 +174,6 @@ const chequeAdvice = computed(() => routingSlip.value?.refunds?.[0]?.details?.ch
             <div class="w-full sm:w-3/4 p-4">
               {{ chequeAdvice || '-' }}
             </div>
-          </div>
-
-          <div class="flex flex-col sm:flex-row sm:items-start gap-2">
-            <div class="w-full sm:w-1/4 font-semibold p-4">
-              {{ $t('label.entityNumber') }}
-            </div>
-            <div class="w-full sm:w-3/4 p-4">
-              {{ entityNumber || '-' }}
-            </div>
-          </div>
-        </div>
-
-        <div
-          v-if="!isRefundRequested && !showRefundForm"
-          class="flex flex-col sm:flex-row sm:items-start gap-2"
-        >
-          <div class="w-full sm:w-1/4 font-semibold p-4">
-            {{ $t('label.entityNumber') }}
-          </div>
-          <div class="w-full sm:w-3/4 p-4">
-            {{ entityNumber || '-' }}
           </div>
         </div>
       </div>
