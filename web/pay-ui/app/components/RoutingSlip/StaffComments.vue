@@ -192,7 +192,7 @@ function flattenAndSortComments(commentsArray: Array<{ comment: Comment }>): Arr
             </div>
             <button
               id="close-button"
-              class="text-blue-600 hover:text-blue-700 transition-colors"
+              class="text-blue-600 hover:text-blue-700 transition-colors cursor-pointer"
               @click="close()"
             >
               <UIcon

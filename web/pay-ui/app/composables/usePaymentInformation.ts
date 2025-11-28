@@ -110,19 +110,8 @@ export const usePaymentInformation = (emit?: (event: 'paymentAdjusted') => void)
     return !CommonUtils.isDeepEqual(current, before)
   })
 
-  const filterUnchangedChequeReceiptNumbersFromPayment = () => {
-    const paymentRequest: Payment[] = routingSlip.value.payments || []
-    paymentRequest.forEach((payment, index) => {
-      if (payment.chequeReceiptNumber === routingSlipBeforeEdit.value?.payments?.[index]?.chequeReceiptNumber) {
-        delete payment.chequeReceiptNumber
-      }
-    })
-    return paymentRequest
-  }
-
   async function adjustRoutingSlipHandler() {
-    const paymentRequest: Payment[] = filterUnchangedChequeReceiptNumbersFromPayment()
-    await adjustRoutingSlip(paymentRequest)
+    await adjustRoutingSlip(routingSlip.value.payments || [])
     adjustRoutingSlipStatus()
     const getRoutingSlipRequestPayload: GetRoutingSlipRequestPayload = {
       routingSlipNumber: routingSlip.value.number

@@ -29,7 +29,7 @@ useHead({
       {{ $t('page.createRoutingSlip.h1') }}
     </h1>
     <ConnectPageSection
-      ui-body="p-4 sm:p-10 space-y-6"
+      ui-body="p-4 sm:p-8 space-y-6"
       :heading="{
         label: crsStore.reviewMode ? $t('label.reviewNewRoutingSlip') : $t('label.addNewRoutingSlip'),
         icon: 'i-mdi-clipboard-text'

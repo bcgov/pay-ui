@@ -70,26 +70,34 @@ const {
             </p>
           </div>
         </div>
-        <div v-else class="flex justify-between flex-wrap mb-4 gap-4">
-          <p class="font-bold">
-            <span v-if="isRoutingSlipVoid">
-              {{ $t('text.cantLinkBecauseVoided') }}
-            </span>
-            <span v-else>
-              {{ $t('text.routingSlipNoLinkedRoutingSlips') }}
-            </span>
-          </p>
-          <div
-            v-can:fas_edit.hide
-            v-can:fas_link.hide
-          >
-            <UButton
-              size="lg"
-              label="Link Routing Slip"
-              :disabled="showSearch || isRoutingSlipVoid"
-              class=""
-              @click="toggleSearch"
-            />
+        <div v-else>
+          <div class="flex justify-between items-center flex-wrap mb-4 gap-4">
+            <div class="flex-1 min-w-0">
+              <p class="font-bold">
+                <span v-if="isRoutingSlipVoid">
+                  {{ $t('text.cantLinkBecauseVoided') }}
+                </span>
+                <span v-else>
+                  {{ $t('text.routingSlipNoLinkedRoutingSlips') }}
+                </span>
+              </p>
+              <p v-if="showSearch && !isRoutingSlipVoid && !invoiceCount" class="text-sm text-neutral mt-2 max-w-2xl">
+                {{ $t('text.linkRSSearchInfo') }}
+              </p>
+            </div>
+            <div
+              v-can:fas_edit.hide
+              v-can:fas_link.hide
+              class="flex-shrink-0"
+            >
+              <UButton
+                size="lg"
+                label="Link Routing Slip"
+                :disabled="showSearch || isRoutingSlipVoid"
+                class=""
+                @click="toggleSearch"
+              />
+            </div>
           </div>
         </div>
         <div v-if="showSearch" class="mb-4">

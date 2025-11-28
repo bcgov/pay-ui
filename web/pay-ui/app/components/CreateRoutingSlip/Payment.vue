@@ -93,6 +93,7 @@ const model = defineModel<RoutingSlipPaymentSchema>({ required: true })
           :label="$t('label.additionalCheque')"
           variant="ghost"
           icon="i-mdi-plus-box"
+          class="pl-0"
           @click="$emit('add-cheque')"
         />
         <UCheckbox
