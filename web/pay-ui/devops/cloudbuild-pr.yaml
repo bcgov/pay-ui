@@ -1,6 +1,6 @@
 steps:
   # install / setup ci
-  - name: node:20.5.1
+  - name: node:24.11.1
     entrypoint: npm
     dir: "."
     args: ['install']
@@ -15,13 +15,13 @@ steps:
   #
   # Generate the static site
   #
-  - name: node:20.5.1
+  - name: node:24.11.1
     dir: "."
     entrypoint: npm
     env:
-      - 'VUE_APP_ADDRESS_COMPLETE_KEY=$_VUE_APP_ADDRESS_COMPLETE_KEY'
-      - 'VUE_APP_PAY_LD_CLIENT_ID=$_VUE_APP_PAY_LD_CLIENT_ID'
-      - 'VUE_APP_REGISTRIES_SEARCH_API_KEY=$_VUE_APP_REGISTRIES_SEARCH_API_KEY'
+      - 'NUXT_PUBLIC_ADDRESS_COMPLETE_KEY=$_NUXT_PUBLIC_ADDRESS_COMPLETE_KEY'
+      - 'NUXT_PUBLIC_LD_CLIENT_ID=$_NUXT_PUBLIC_LD_CLIENT_ID'
+      - 'NUXT_PUBLIC_X_API_KEY=$_NUXT_PUBLIC_X_API_KEY'
     args: ['--openssl-legacy-provider', 'run', 'build']
 
   #
@@ -49,7 +49,7 @@ steps:
         echo "this is the body:"
         echo '{"body": "Temporary Url for review:'"$url"'"}'
         curl -X POST \
-        https://api.github.com/repos/bcgov/fas-ui/issues/$_PR_NUMBER/comments \
+        https://api.github.com/repos/bcgov/pay-ui/issues/$_PR_NUMBER/comments \
         --header "Authorization: Token $$TOKEN" \
         --header "Accept: application/vnd.github.v3+json" \
         --data-binary '{"body": "Temporary Url for review: '"$url"'"}'
