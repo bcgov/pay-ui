@@ -106,6 +106,28 @@ export default function useAddManualTransactionDetails(
     }
   })
 
+  const errors = reactive({
+    filingType: '',
+    quantity: ''
+  })
+
+  function validate() {
+    errors.filingType = ''
+    errors.quantity = ''
+    let isValid = true
+
+    if (!manualTransactionDetails.value?.filingType) {
+      errors.filingType = 'This field is required'
+      isValid = false
+    }
+    if (!manualTransactionDetails.value?.quantity || manualTransactionDetails.value.quantity <= 0) {
+      errors.quantity = 'This field is required'
+      isValid = false
+    }
+
+    return isValid
+  }
+
   return {
     manualTransactionDetails,
     requiredFieldRule,
@@ -117,6 +139,8 @@ export default function useAddManualTransactionDetails(
     errorMessage,
     totalFormatted,
     referenceNumberRules,
-    quantityRules
+    quantityRules,
+    errors,
+    validate
   }
 }

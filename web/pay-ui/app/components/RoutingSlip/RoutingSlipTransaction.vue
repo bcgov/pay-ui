@@ -28,6 +28,26 @@ const {
   hideManualTransaction,
   status
 } = useRoutingSlipTransaction()
+
+type TransactionDetailsRef = { validate: () => boolean }
+
+const transactionDetailsRefs = ref<Array<TransactionDetailsRef | null>>([])
+
+function setTransactionRef(index: number) {
+  return (el: unknown) => {
+    if (el) {
+      transactionDetailsRefs.value[index] = el as TransactionDetailsRef
+    }
+  }
+}
+
+function handleAddTransaction() {
+  addManualTransactions(() => {
+    return transactionDetailsRefs.value
+      .filter((ref): ref is TransactionDetailsRef => ref !== null)
+      .every(ref => ref.validate())
+  })
+}
 </script>
 
 <template>
@@ -66,6 +86,7 @@ const {
           >
             <div v-for="(transaction, index) in manualTransactionsList" :key="transaction.key">
               <AddManualTransactionDetails
+                :ref="setTransactionRef(index)"
                 :index="index"
                 :manual-transaction="transaction"
                 @update-manual-transaction="updateManualTransactionDetails($event)"
@@ -101,7 +122,7 @@ const {
                 color="primary"
                 :loading="isLoading"
                 class="px-10"
-                @click="addManualTransactions"
+                @click="handleAddTransaction"
               >
                 Add Transaction
               </UButton>

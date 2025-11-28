@@ -4,7 +4,8 @@ import type { RoutingSlipComments, UpdateCommentsParams,
   FilingType, GetFeeRequestParams } from '~/interfaces/routing-slip'
 
 export const usePayApi = () => {
-  const { $payApi } = useNuxtApp()
+  const nuxtApp = useNuxtApp()
+  const $payApi = (nuxtApp.$payApiWithErrorHandling || nuxtApp.$payApi) as typeof nuxtApp.$payApi
 
   async function getCodes<T>(codeType: string): Promise<T[]> {
     const res = await $payApi<{ codes: T[] }>(`/codes/${codeType}`)
@@ -165,10 +166,11 @@ export const usePayApi = () => {
   async function getSearchFilingType(
     searchParams: string
   ): Promise<FilingType[]> {
-    return $payApi<FilingType[]>(
+    const response = await $payApi<FilingTypeResponse>(
       `/fees/schedules?description=${searchParams}`,
       { method: 'GET' }
     )
+    return response.items
   }
 
   // TODO: fix type

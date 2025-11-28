@@ -19,6 +19,22 @@ const selected = defineModel<any>({ required: true, default: undefined })
 
 const searchTerm = ref('')
 const searchTermDebounced = refDebounced(searchTerm, 300)
+const open = ref(false)
+
+const searchLength = computed(() => searchTerm.value?.trim().length ?? 0)
+const hasMinSearchLength = computed(() => searchLength.value >= 3)
+
+function handleOpenUpdate(isOpen: boolean) {
+  open.value = isOpen && hasMinSearchLength.value
+}
+
+watch(searchLength, () => {
+  if (!hasMinSearchLength.value) {
+    open.value = false
+  } else if (!open.value) {
+    open.value = true
+  }
+})
 
 const { data: items, status } = await useAsyncData<T[]>(
   props.id,
@@ -52,6 +68,7 @@ const { data: items, status } = await useAsyncData<T[]>(
     <UInputMenu
       v-model:search-term="searchTerm"
       v-model="selected"
+      :open="open"
       v-bind="$attrs"
       :items="items"
       :aria-labelledby="`${id}-label`"
@@ -62,6 +79,7 @@ const { data: items, status } = await useAsyncData<T[]>(
         trailingIcon: 'hidden'
       }"
       :data-testid="`${id}-input`"
+      @update:open="handleOpenUpdate"
       @blur="$emit('blur')"
       @focus="$emit('focus')"
     >

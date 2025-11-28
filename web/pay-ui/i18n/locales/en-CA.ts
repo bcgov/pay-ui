@@ -66,6 +66,9 @@ export default {
     }
   },
   error: {
+    api: {
+      generic: 'An error occurred: {message}'
+    },
     createRoutingSlip: {
       generic: '{status}Error creating routing slip, please try again later.'
     }

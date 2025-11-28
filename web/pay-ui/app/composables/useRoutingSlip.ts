@@ -380,8 +380,8 @@ export const useRoutingSlip = () => {
         filingTypes: [
           {
             filingTypeCode: filingType?.filingTypeCode?.code,
-            futureEffective: futureEffective?.toString(),
-            priority: priority?.toString(),
+            futureEffective: futureEffective,
+            priority: priority,
             quantity: quantity ? parseInt(quantity.toString()) : undefined
           }
         ]

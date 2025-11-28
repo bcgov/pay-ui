@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import useAddManualTransactionDetails from '@/composables/viewRoutingSlip/useAddManualTransactionDetails'
 import type { ManualTransactionDetails } from '@/interfaces/routing-slip'
+import FilingTypeAutoComplete from './FilingTypeAutoComplete.vue'
 
 interface Props {
   index?: number
@@ -25,19 +26,32 @@ const {
   calculateTotal,
   delayedCalculateTotal,
   emitManualTransactionDetails,
-  totalFormatted
+  totalFormatted,
+  errors,
+  validate
 } = useAddManualTransactionDetails(props, emit)
+
+defineExpose({
+  validate
+})
 </script>
 
 <template>
   <div v-if="manualTransactionDetails" class="grid grid-cols-12 gap-6 mr-9">
     <div class="col-span-12">
-      <filing-type-auto-complete
+      <FilingTypeAutoComplete
+        :id="`filing-type-autocomplete-${index}`"
         v-model="manualTransactionDetails.filingType"
         required
         :rules="requiredFieldRule"
-        @input="delayedCalculateTotal()"
+        @input="errors.filingType = ''; delayedCalculateTotal()"
       />
+      <div v-if="errors.filingType" class="relative -mt-px">
+        <div class="h-px bg-error" />
+        <div class="text-xs text-error mt-1">
+          {{ errors.filingType }}
+        </div>
+      </div>
     </div>
 
     <div class="col-span-2">
@@ -50,10 +64,17 @@ const {
         @update:model-value="(value) => {
           if (manualTransactionDetails) {
             manualTransactionDetails.quantity = Number(value)
+            errors.quantity = ''
           }
           delayedCalculateTotal()
         }"
       />
+      <div v-if="errors.quantity" class="relative -mt-px">
+        <div class="h-px bg-error" />
+        <div class="text-xs text-error mt-1">
+          {{ errors.quantity }}
+        </div>
+      </div>
     </div>
 
     <div class="col-span-5">

@@ -108,6 +108,10 @@ export interface FilingType {
   serviceFee?: number
 }
 
+export interface FilingTypeResponse {
+  items: FilingType[]
+}
+
 export interface GetFeeRequestParams {
   corpTypeCode: string
   filingTypeCode: string
@@ -125,8 +129,8 @@ export interface BusinessInfo {
 
 export interface FilingTypes {
   filingTypeCode?: string
-  futureEffective?: string
-  priority?: string
+  futureEffective?: boolean
+  priority?: boolean
   quantity?: number
 }
 

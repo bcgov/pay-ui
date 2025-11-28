@@ -27,7 +27,13 @@ export default function useRoutingSlipTransaction() {
     }
   }
 
-  async function addManualTransactions() {
+  async function addManualTransactions(validateFn?: () => boolean) {
+    status.value = ''
+
+    if (validateFn && !validateFn()) {
+      return
+    }
+
     let error = false
     const isExcessAmount: boolean = availableAmountForManualTransaction() < 0
     if (isExcessAmount) {
@@ -41,12 +47,8 @@ export default function useRoutingSlipTransaction() {
         try {
           await saveManualTransactions(transactions)
         } catch (err) {
-          // TODO error handling
           error = true
-          // eslint-disable-next-line no-console
-          console.log('error', err)
-          // breaking loop if any transaction failed
-          // TODO if transaction failed, need to reset filed or not?
+          console.error('error', err)
           break
         }
       }
@@ -61,8 +63,11 @@ export default function useRoutingSlipTransaction() {
       if (!error) {
         resetManualTransaction()
       }
+    } else {
+      if (formRoutingSlipManualTransactions.value) {
+        formRoutingSlipManualTransactions.value.reportValidity()
+      }
     }
-    error = false
   }
 
   function availableAmountForManualTransaction() {
