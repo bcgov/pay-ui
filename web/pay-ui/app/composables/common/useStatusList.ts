@@ -1,4 +1,6 @@
 import type { Code } from '~/interfaces/code'
+import type { SelectItem } from '@nuxt/ui'
+import { ChequeRefundStatus } from '~/utils/constants'
 
 interface StatusListProps {
   value?: string
@@ -8,14 +10,20 @@ interface StatusListEmit {
   emit: (event: 'update:modelValue', value: string | undefined) => void
 }
 
-export async function useStatusList(props: StatusListProps, { emit }: StatusListEmit) {
-  const getRoutingSlipStatusList = async () => {
-    const response = await usePayApi().getCodes<Code>('routing_slip_statuses')
-    return response
-  }
+interface UseStatusListSelectProps {
+  column: 'status' | 'refundStatus'
+}
 
-  const routingSlipStatusList = ref<Code[]>(await getRoutingSlipStatusList())
-  // default value set blank incase if we didnt pass props
+async function loadRoutingSlipStatusList() {
+  try {
+    return await usePayApi().getCodes<Code>('routing_slip_statuses')
+  } catch {
+    return []
+  }
+}
+
+export async function useStatusList(props: StatusListProps, { emit }: StatusListEmit) {
+  const routingSlipStatusList = ref<Code[]>(await loadRoutingSlipStatusList())
   const { value = ref('') } = toRefs(props)
 
   const currentStatus = computed({
@@ -26,28 +34,14 @@ export async function useStatusList(props: StatusListProps, { emit }: StatusList
   })
 
   onMounted(() => {
-    // getting status list mouint and setting inside store
-    // will make call once till page refresh
-    getRoutingSlipStatusList()
+    loadRoutingSlipStatusList()
   })
 
-  /**
-   * return status label on code
-   *
-   * @param {string} code
-   * @returns {string} description - label
-   */
   function statusLabel(code: string) {
     const statusObject = selectedStatusObject(code)
     return statusObject?.description || ''
   }
 
-  /**
-   * filtering array and find given value of object
-   * use full when needed to set object of status
-   * @param {string} code
-   * @returns {Code | undefined} status object with code and description
-   */
   function selectedStatusObject(code: string): Code | undefined {
     return routingSlipStatusList.value?.find(
       statusList => statusList.code === code
@@ -59,5 +53,41 @@ export async function useStatusList(props: StatusListProps, { emit }: StatusList
     currentStatus,
     statusLabel,
     selectedStatusObject
+  }
+}
+
+export function useStatusListSelect(props: UseStatusListSelectProps) {
+  const { t } = useI18n()
+  const isStatusColumn = props.column === 'status'
+  const routingSlipStatusList = shallowRef<Code[]>([])
+
+  const items = computed<SelectItem[]>(() => {
+    const options = isStatusColumn ? routingSlipStatusList.value : ChequeRefundStatus
+
+    return options.map(o => ({
+      // @ts-expect-error - TODO: fix type mismatch between Code and ChequeRefundStatus
+      label: o.text || o.description,
+      value: o.code
+    }))
+  })
+
+  const placeholder = isStatusColumn
+    ? t('label.status')
+    : t('label.refundStatus')
+
+  async function loadStatusList() {
+    if (isStatusColumn && routingSlipStatusList.value.length === 0) {
+      routingSlipStatusList.value = await loadRoutingSlipStatusList()
+    }
+  }
+
+  onMounted(() => {
+    loadStatusList()
+  })
+
+  return {
+    items,
+    placeholder,
+    routingSlipStatusList
   }
 }

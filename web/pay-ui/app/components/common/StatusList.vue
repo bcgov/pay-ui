@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import type { SelectItem } from '@nuxt/ui'
-
-// TODO: move into common store/composable once established
-const payApi = usePayApi()
-const { t } = useI18n()
+import { useStatusListSelect } from '~/composables/common/useStatusList'
 
 const props = defineProps<{
   column: 'status' | 'refundStatus'
@@ -11,45 +7,36 @@ const props = defineProps<{
 
 const model = defineModel<string | null>({ required: true })
 
-const isStatusColumn = props.column === 'status'
-const routingSlipStatusList = shallowRef<Code[]>([])
+const { items, placeholder } = useStatusListSelect(props)
 
-const items = computed<SelectItem[]>(() => {
-  const options = isStatusColumn ? routingSlipStatusList.value : ChequeRefundStatus
-
-  return options.map(o => ({
-    // @ts-expect-error - TODO: fix type mismatch between Code and ChequeRefundStatus
-    label: o.text || o.description,
-    value: o.code
-  }))
-})
-
-const placeholder = isStatusColumn
-  ? t('label.status')
-  : t('label.refundStatus')
-
-onMounted(async () => {
-  if (isStatusColumn && routingSlipStatusList.value.length === 0) {
-    try {
-      // TODO: move into common store/composable once established
-      routingSlipStatusList.value = await payApi.getCodes<Code>('routing_slip_statuses')
-    } catch {
-      routingSlipStatusList.value = []
-    }
-  }
-})
+function clearSelection() {
+  model.value = null
+}
 </script>
 
 <template>
-  <USelect
-    v-model="model"
-    :items="items"
-    :placeholder
-    size="md"
-    class="input-text w-full"
-    :ui="{
-      placeholder: 'placeholder',
-      content: 'wide-dropdown'
-    }"
-  />
+  <div class="relative w-full">
+    <USelect
+      v-model="model"
+      :items="items"
+      :placeholder
+      size="md"
+      class="input-text w-full"
+      :class="{ '!pr-14': model }"
+      :ui="{
+        placeholder: 'placeholder',
+        content: 'wide-dropdown',
+        trailing: model ? '!pr-8' : ''
+      }"
+    />
+    <button
+      v-if="model"
+      type="button"
+      class="absolute top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 rounded z-10"
+      style="right: 0.5rem;"
+      @click.stop="clearSelection"
+    >
+      <UIcon name="i-mdi-close" class="size-5" />
+    </button>
+  </div>
 </template>

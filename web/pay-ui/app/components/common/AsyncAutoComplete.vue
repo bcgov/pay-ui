@@ -75,8 +75,7 @@ const { data: items, status } = await useAsyncData<T[]>(
       ignore-filter
       class="w-full"
       :ui="{
-        content: 'min-w-fit',
-        trailingIcon: 'hidden'
+        content: 'min-w-fit'
       }"
       :data-testid="`${id}-input`"
       @update:open="handleOpenUpdate"
@@ -84,11 +83,26 @@ const { data: items, status } = await useAsyncData<T[]>(
       @focus="$emit('focus')"
     >
       <template #trailing>
-        <UIcon
-          v-if="status === 'pending'"
-          name="i-mdi-loading"
-          class="animate-spin shrink-0 size-6 text-primary"
-        />
+        <div class="flex items-center gap-3 shrink-0">
+          <UIcon
+            v-if="status === 'pending'"
+            name="i-mdi-loading"
+            class="animate-spin shrink-0 size-6 text-primary"
+          />
+          <UIcon
+            v-else
+            name="i-mdi-menu-down"
+            class="shrink-0 size-6 text-gray-600"
+          />
+          <button
+            v-if="selected && status !== 'pending'"
+            type="button"
+            class="text-gray-600 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 rounded"
+            @click.stop="() => { selected = null; searchTerm = '' }"
+          >
+            <UIcon name="i-mdi-close" class="size-6" />
+          </button>
+        </div>
       </template>
 
       <template #item="{ item }">
