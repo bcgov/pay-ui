@@ -7,7 +7,7 @@ import type { RefundRequestDetails } from '~/interfaces/routing-slip'
 import { DateTime } from 'luxon'
 
 export function useRoutingSlipInfo() {
-  const { routingSlip, updateRoutingSlipStatus, getRoutingSlip } = useRoutingSlip()
+  const { routingSlip, updateRoutingSlipStatus, updateRoutingSlipRefundStatus, getRoutingSlip } = useRoutingSlip()
   const { t } = useI18n()
   const { baseModal } = useConnectModal()
 
@@ -169,10 +169,27 @@ export function useRoutingSlipInfo() {
     }
   }
 
+  const handleRefundStatusSelect = async (status: string) => {
+    if (!routingSlip.value?.number) {
+      return
+    }
+
+    try {
+      await updateRoutingSlipRefundStatus(status)
+      const routingSlipNumber = routingSlip.value.number
+      if (routingSlipNumber) {
+        await getRoutingSlip({ routingSlipNumber, showGlobalLoader: false })
+      }
+    } catch (error) {
+      console.error('Error updating refund status:', error)
+    }
+  }
+
   return {
     routingSlip,
     ...toRefs(state),
     handleStatusSelect,
+    handleRefundStatusSelect,
     showRefundForm,
     handleRefundFormSubmit,
     handleRefundFormCancel

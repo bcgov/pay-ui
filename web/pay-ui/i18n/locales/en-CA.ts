@@ -113,7 +113,8 @@ export default {
     selectedDateRange: '{boldStart}{name}:{boldEnd} {value}',
     status: 'Status',
     totalAmount: 'Total Amount',
-    totalAmountReceived: 'Total Amount Received ($)'
+    totalAmountReceived: 'Total Amount Received ($)',
+    updateStatus: 'Update Status'
   },
   modal: {
     leaveCreateRoutingSlip: {

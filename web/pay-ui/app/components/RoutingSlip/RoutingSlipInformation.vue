@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import StatusMenu from '~/components/common/StatusMenu.vue'
+import RefundStatusMenu from '~/components/common/RefundStatusMenu.vue'
 import RefundRequestForm from '~/components/RoutingSlip/RefundRequestForm.vue'
 import { useRoutingSlipInfo } from '~/composables/viewRoutingSlip/useRoutingSlipInfo'
 import { SlipStatus } from '~/enums/slip-status'
@@ -15,6 +16,7 @@ const {
   deliveryInstructions,
   allowedStatuses,
   handleStatusSelect,
+  handleRefundStatusSelect,
   showRefundForm,
   handleRefundFormSubmit,
   handleRefundFormCancel
@@ -153,17 +155,22 @@ const chequeAdvice = computed(() => routingSlip.value?.refunds?.[0]?.details?.ch
           v-if="isRefundRequested && !showRefundForm"
           class="border-t border-line-muted pt-4 mt-4"
         >
-          <div class="flex flex-col sm:flex-row sm:items-start gap-2">
+          <div class="flex flex-col sm:flex-row sm:items-start gap-2 relative">
             <div class="w-full sm:w-1/4 font-semibold p-4">
               {{ $t('label.refundStatus') }}
             </div>
             <div class="w-full sm:w-3/4 p-4">
-              <UBadge
-                v-if="refundStatus"
-                :label="refundStatus"
-                color="neutral"
-              />
-              <span v-else>-</span>
+              <div class="flex items-center gap-2">
+                <UBadge
+                  v-if="refundStatus"
+                  :label="refundStatus"
+                  color="neutral"
+                />
+                <span v-else>-</span>
+                <div v-if="refundStatus">
+                  <RefundStatusMenu @select="handleRefundStatusSelect" />
+                </div>
+              </div>
             </div>
           </div>
 
