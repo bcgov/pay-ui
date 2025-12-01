@@ -32,7 +32,7 @@ const i18n = createI18n({
     'en-CA': en,
     'fr-CA': fr
   }
-} as any)
+})
 
 config.global.plugins.push(i18n)
 
