@@ -34,7 +34,7 @@ export default createConfigForNuxt({
     'vue/html-indent': 'warn',
     'vue/max-attributes-per-line': ['error', { singleline: { max: 2 }, multiline: { max: 1 } }],
     'vue/script-indent': 'off',
-    'vue/no-unused-properties': ['error', { deepData: true, groups: ['props', 'data', 'computed', 'methods', 'setup'] }],
+    'vue/no-unused-properties': ['error', { deepData: true, groups: ['data', 'computed', 'methods', 'setup'] }],
     'vue/prefer-use-template-ref': 'error',
     'vue/require-typed-ref': 'error',
     'vue/block-order': ['error', { order: ['script', 'template', 'style'] }],

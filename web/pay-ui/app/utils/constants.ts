@@ -429,7 +429,14 @@ export enum Product {
   NRO = 'NRO'
 }
 
-export const chequeRefundCodes = ChequeRefundStatus.reduce((acc, status) => {
-  acc[status.code] = status.code
-  return acc
-}, {} as { [key: string]: string })
+export enum ChequeRefundCode {
+  PROCESSING = 'PROCESSING',
+  PROCESSED = 'PROCESSED',
+  CHEQUE_UNDELIVERABLE = 'CHEQUE_UNDELIVERABLE'
+}
+
+export const chequeRefundCodes = {
+  PROCESSING: ChequeRefundCode.PROCESSING,
+  PROCESSED: ChequeRefundCode.PROCESSED,
+  CHEQUE_UNDELIVERABLE: ChequeRefundCode.CHEQUE_UNDELIVERABLE
+} as const

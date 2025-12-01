@@ -72,7 +72,7 @@ onMounted(async () => {
         <h2 class="text-xl font-bold text-gray-900 mb-2">
           {{ $t('page.viewRoutingSlip.routingSlipInformation.title') }}
         </h2>
-        <RoutingSlipInformation />
+        <RoutingSlipInformation @comments-updated="handlePaymentAdjusted" />
       </div>
 
       <div class="mt-8">

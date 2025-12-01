@@ -32,7 +32,8 @@ function clearSelection() {
     <button
       v-if="model"
       type="button"
-      class="absolute top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 rounded z-10"
+      class="absolute top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-700
+      focus:outline-none focus:ring-2 focus:ring-gray-500 rounded z-10"
       style="right: 0.5rem;"
       @click.stop="clearSelection"
     >

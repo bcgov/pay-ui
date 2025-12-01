@@ -1,17 +1,24 @@
 import { useRoutingSlip } from '~/composables/useRoutingSlip'
 import { SlipStatus } from '~/enums/slip-status'
-import { SlipStatusDropdown } from '~/utils/constants'
+import { SlipStatusDropdown, ChequeRefundStatus, chequeRefundCodes } from '~/utils/constants'
 import commonUtil from '~/utils/common-util'
 import type { Address } from '~/interfaces/address'
 import type { RefundRequestDetails } from '~/interfaces/routing-slip'
 import { DateTime } from 'luxon'
 
 export function useRoutingSlipInfo() {
-  const { routingSlip, updateRoutingSlipStatus, updateRoutingSlipRefundStatus, getRoutingSlip } = useRoutingSlip()
+  const { routingSlip, updateRoutingSlipStatus, updateRoutingSlipRefundStatus,
+    getRoutingSlip, updateRoutingSlipComments } = useRoutingSlip()
   const { t } = useI18n()
   const { baseModal } = useConnectModal()
 
   const showRefundForm = ref(false)
+
+  function getRefundStatusText(statusCode: string | null): string {
+    return ChequeRefundStatus.find(item => item.code === statusCode)?.text
+      ?? ChequeRefundStatus.find(item => item.code === chequeRefundCodes.PROCESSING)?.text
+      ?? 'N/A'
+  }
 
   const mailingAddress = computed<Address | undefined>(() => {
     const refunds = routingSlip.value?.refunds
@@ -72,6 +79,39 @@ export function useRoutingSlipInfo() {
           return null
         })
         .filter((status): status is SlipStatusDropdown => status !== null)
+    }),
+    refundAmount: computed(() => routingSlip.value?.refundAmount || 0),
+    shouldShowRefundAmount: computed(() => {
+      const hasRefundAmount = !!(routingSlip.value?.refundAmount)
+      const isNotActive = routingSlip.value?.status !== SlipStatus.ACTIVE
+      return hasRefundAmount && !showRefundForm.value && isNotActive
+    }),
+    refundFormInitialData: computed(() => {
+      const refundDetails = routingSlip.value?.refunds?.[0]?.details
+      if (refundDetails) {
+        return refundDetails
+      }
+      return {
+        name: routingSlip.value?.contactName || '',
+        mailingAddress: routingSlip.value?.mailingAddress || undefined,
+        chequeAdvice: undefined
+      }
+    }),
+    refundStatus: computed(() => {
+      return getRefundStatusText(routingSlip.value?.refundStatus || null)?.toUpperCase()
+    }),
+    chequeAdvice: computed(() => routingSlip.value?.refunds?.[0]?.details?.chequeAdvice || ''),
+    isRefundRequested: computed(() => routingSlip.value?.status === SlipStatus.REFUNDREQUEST),
+    isRefundStatusUndeliverable: computed(() =>
+      routingSlip.value?.refundStatus === chequeRefundCodes.CHEQUE_UNDELIVERABLE),
+    canUpdateRefundStatus: computed(() => {
+      const isProcessed = routingSlip.value?.refundStatus === chequeRefundCodes.PROCESSED
+      const isUndeliverable = routingSlip.value?.refundStatus === chequeRefundCodes.CHEQUE_UNDELIVERABLE
+      return isProcessed || isUndeliverable
+    }),
+    shouldShowRefundStatusSection: computed(() => {
+      const isRequested = routingSlip.value?.status === SlipStatus.REFUNDREQUEST
+      return (isRequested || routingSlip.value?.status === SlipStatus.REFUNDPROCESSED) && !showRefundForm.value
     })
   })
 
@@ -169,13 +209,25 @@ export function useRoutingSlipInfo() {
     }
   }
 
-  const handleRefundStatusSelect = async (status: string) => {
+  const handleRefundStatusSelect = async (status: string, onCommentsUpdated?: () => void) => {
     if (!routingSlip.value?.number) {
       return
     }
 
     try {
+      const currentRefundStatus = routingSlip.value?.refundStatus || null
       await updateRoutingSlipRefundStatus(status)
+
+      const oldStatusText = getRefundStatusText(currentRefundStatus)
+      const newStatusText = getRefundStatusText(status)
+      const comment = `Refund status updated from ${oldStatusText} to ${newStatusText}`
+
+      await updateRoutingSlipComments(comment)
+
+      if (onCommentsUpdated) {
+        onCommentsUpdated()
+      }
+
       const routingSlipNumber = routingSlip.value.number
       if (routingSlipNumber) {
         await getRoutingSlip({ routingSlipNumber, showGlobalLoader: false })

@@ -3,7 +3,10 @@ import StatusMenu from '~/components/common/StatusMenu.vue'
 import RefundStatusMenu from '~/components/common/RefundStatusMenu.vue'
 import RefundRequestForm from '~/components/RoutingSlip/RefundRequestForm.vue'
 import { useRoutingSlipInfo } from '~/composables/viewRoutingSlip/useRoutingSlipInfo'
-import { SlipStatus } from '~/enums/slip-status'
+
+const emit = defineEmits<{
+  commentsUpdated: []
+}>()
 
 const {
   routingSlip,
@@ -19,34 +22,23 @@ const {
   handleRefundStatusSelect,
   showRefundForm,
   handleRefundFormSubmit,
-  handleRefundFormCancel
+  handleRefundFormCancel,
+  refundAmount,
+  isRefundRequested,
+  shouldShowRefundAmount,
+  refundFormInitialData,
+  refundStatus,
+  chequeAdvice,
+  isRefundStatusUndeliverable,
+  canUpdateRefundStatus,
+  shouldShowRefundStatusSection
 } = useRoutingSlipInfo()
 
-const refundAmount = computed(() => routingSlip.value?.refundAmount || routingSlip.value?.remainingAmount || 0)
-
-const isRefundRequested = computed(() => routingSlip.value?.status === SlipStatus.REFUNDREQUEST)
-
-const shouldShowRefundAmount = computed(() => {
-  const hasRefundAmount = !!(routingSlip.value?.refundAmount || routingSlip.value?.remainingAmount)
-  const isNotActive = routingSlip.value?.status !== SlipStatus.ACTIVE
-  return hasRefundAmount && !showRefundForm.value && isNotActive
-})
-
-const refundFormInitialData = computed(() => {
-  const refundDetails = routingSlip.value?.refunds?.[0]?.details
-  if (refundDetails) {
-    return refundDetails
-  }
-  return {
-    name: routingSlip.value?.contactName || '',
-    mailingAddress: routingSlip.value?.mailingAddress || undefined,
-    chequeAdvice: undefined
-  }
-})
-
-const refundStatus = computed(() => routingSlip.value?.refundStatus || '')
-
-const chequeAdvice = computed(() => routingSlip.value?.refunds?.[0]?.details?.chequeAdvice || '')
+const handleRefundStatusSelectWithComments = async (status: string) => {
+  await handleRefundStatusSelect(status, () => {
+    emit('commentsUpdated')
+  })
+}
 </script>
 
 <template>
@@ -152,7 +144,7 @@ const chequeAdvice = computed(() => routingSlip.value?.refunds?.[0]?.details?.ch
         </div>
 
         <div
-          v-if="isRefundRequested && !showRefundForm"
+          v-if="shouldShowRefundStatusSection"
           class="border-t border-line-muted pt-4 mt-4"
         >
           <div class="flex flex-col sm:flex-row sm:items-start gap-2 relative">
@@ -164,11 +156,15 @@ const chequeAdvice = computed(() => routingSlip.value?.refunds?.[0]?.details?.ch
                 <UBadge
                   v-if="refundStatus"
                   :label="refundStatus"
-                  color="neutral"
+                  :color="isRefundStatusUndeliverable ? 'error' : 'neutral'"
+                  :class="isRefundStatusUndeliverable ? '!bg-red-600 !text-white' : ''"
                 />
                 <span v-else>-</span>
-                <div v-if="refundStatus">
-                  <RefundStatusMenu @select="handleRefundStatusSelect" />
+                <div v-if="canUpdateRefundStatus">
+                  <RefundStatusMenu
+                    :current-refund-status="routingSlip?.refundStatus"
+                    @select="handleRefundStatusSelectWithComments"
+                  />
                 </div>
               </div>
             </div>

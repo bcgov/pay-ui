@@ -2,8 +2,7 @@ import type {
   AdjustRoutingSlipAmountParams,
   AdjustRoutingSlipChequeParams,
   GetRoutingSlipRequestPayload,
-  RoutingSlip,
-  Payment
+  RoutingSlip
 } from '~/interfaces/routing-slip'
 import { SlipStatus } from '~/enums/slip-status'
 import { PaymentTypes } from '~/enums/payment-types'

@@ -5,7 +5,7 @@ import FilingTypeAutoComplete from './FilingTypeAutoComplete.vue'
 
 interface Props {
   index?: number
-  // eslint-disable-next-line vue/no-unused-properties
+
   manualTransaction?: ManualTransactionDetails | null
 }
 
