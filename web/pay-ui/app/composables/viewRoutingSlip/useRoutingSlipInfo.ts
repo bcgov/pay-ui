@@ -112,6 +112,25 @@ export function useRoutingSlipInfo() {
     shouldShowRefundStatusSection: computed(() => {
       const isRequested = routingSlip.value?.status === SlipStatus.REFUNDREQUEST
       return (isRequested || routingSlip.value?.status === SlipStatus.REFUNDPROCESSED) && !showRefundForm.value
+    }),
+    shouldShowNameAndAddress: computed(() => {
+      if (showRefundForm.value) {
+        return false
+      }
+      const refunds = routingSlip.value?.refunds
+      const contactNameValue = refunds && refunds.length > 0 && refunds[0]?.details?.name
+        ? refunds[0].details.name
+        : routingSlip.value?.contactName
+      const mailingAddressValue = mailingAddress.value
+      const hasContactName = !!contactNameValue
+      const hasMailingAddress = !!mailingAddressValue && (
+        mailingAddressValue.street
+        || mailingAddressValue.city
+        || mailingAddressValue.region
+        || mailingAddressValue.postalCode
+        || mailingAddressValue.country
+      )
+      return hasContactName || hasMailingAddress
     })
   })
 

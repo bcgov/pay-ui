@@ -5,7 +5,7 @@ import type {
 } from '~/interfaces/routing-slip'
 import { reactive, toRefs } from 'vue'
 import {
-  CreateRoutingSlipStatus, SearchRoutingSlipTableHeaders
+  CreateRoutingSlipStatus, SearchRoutingSlipTableHeaders, chequeRefundCodes
 } from '@/utils/constants'
 import { SlipStatus } from '~/enums/slip-status'
 import { ApiErrors } from '~/enums/api-errors'
@@ -97,17 +97,17 @@ export const useRoutingSlip = () => {
   // Functions
   const createRoutingSlip = async () => {
     // build the RoutingSlip Request JSON object that needs to be sent.
-    let routingSlipRequest: RoutingSlip = {}
-    routingSlipRequest = { ...state.routingSlipDetails, ...state.routingSlipAddress }
-    routingSlipRequest.paymentAccount = state.accountInfo
-
-    // By design, a routing slip can only have one payment method - CASH or CHEQUE.
-    routingSlipRequest.payments = state.isPaymentMethodCheque
-      ? state.chequePayment
-      : (state.cashPayment ? [state.cashPayment] : [])
+    const routingSlipRequest: Partial<RoutingSlip> = {
+      ...state.routingSlipDetails,
+      ...state.routingSlipAddress,
+      paymentAccount: state.accountInfo,
+      payments: state.isPaymentMethodCheque
+        ? state.chequePayment
+        : (state.cashPayment ? [state.cashPayment] : [])
+    }
 
     const response = await usePayApi().createRoutingSlip(
-      routingSlipRequest
+      routingSlipRequest as RoutingSlip
     )
     if (response) {
       state.routingSlip = response
@@ -140,14 +140,58 @@ export const useRoutingSlip = () => {
     }
   }
 
+  const syncRefundStatusToProcessing = async (
+    routingSlip: RoutingSlip,
+    routingSlipNumber: string
+  ): Promise<RoutingSlip | null> => {
+    if (!routingSlipNumber) {
+      return null
+    }
+
+    const status = routingSlip.status as SlipStatus
+    const refundStatus = routingSlip.refundStatus
+
+    const isRefundStatus = [
+      SlipStatus.REFUNDREJECTED,
+      SlipStatus.REFUNDAUTHORIZED,
+      SlipStatus.REFUNDREQUEST
+    ].includes(status)
+
+    const isNotProcessing = refundStatus !== chequeRefundCodes.PROCESSING
+
+    if (isRefundStatus && isNotProcessing) {
+      try {
+        await usePayApi().updateRoutingSlipRefundStatus(
+          chequeRefundCodes.PROCESSING,
+          routingSlipNumber
+        )
+        const updatedResponse = await usePayApi().getRoutingSlip(routingSlipNumber)
+        return updatedResponse || null
+      } catch (updateError) {
+        console.error('Error updating refund status to PROCESSING:', updateError)
+        return null
+      }
+    }
+
+    return null
+  }
+
   const getRoutingSlip = async (getRoutingSlipRequestPayload: GetRoutingSlipRequestPayload) => {
     try {
       state.routingSlip = {} as RoutingSlip
       const response = await usePayApi().getRoutingSlip(
-        getRoutingSlipRequestPayload.routingSlipNumber ?? ''
+        getRoutingSlipRequestPayload.routingSlipNumber
       )
       if (response) {
         state.routingSlip = response
+
+        const updatedResponse = await syncRefundStatusToProcessing(
+          response,
+          getRoutingSlipRequestPayload.routingSlipNumber
+        )
+        if (updatedResponse) {
+          state.routingSlip = updatedResponse
+        }
       }
       // TODO : need to handle if slip not existing
     } catch (error) {
@@ -166,12 +210,12 @@ export const useRoutingSlip = () => {
       if (CommonUtils.isRefundProcessStatus((statusDetails as StatusDetails)?.status as SlipStatus)) {
         response = await usePayApi().updateRoutingSlipRefund(
           statusDetails as string,
-          slipNumber ?? ''
+          slipNumber
         )
       } else {
         response = await usePayApi().updateRoutingSlipStatus(
           (statusDetails as StatusDetails)?.status,
-          slipNumber ?? ''
+          slipNumber
         )
       }
       if (response) {
@@ -209,7 +253,7 @@ export const useRoutingSlip = () => {
       }
     }
     try {
-      const responseData = await usePayApi().updateRoutingSlipComments(data, slipNumber ?? '')
+      const responseData = await usePayApi().updateRoutingSlipComments(data, slipNumber)
       return responseData
     } catch (error) {
       console.error('Error updating routing slip comments:', error)
@@ -223,7 +267,7 @@ export const useRoutingSlip = () => {
     try {
       const response = await usePayApi().adjustRoutingSlip(
         payments,
-        slipNumber ?? ''
+        slipNumber
       )
       return response
     } catch (error) {

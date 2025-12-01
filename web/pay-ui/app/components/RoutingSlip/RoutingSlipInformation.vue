@@ -31,7 +31,8 @@ const {
   chequeAdvice,
   isRefundStatusUndeliverable,
   canUpdateRefundStatus,
-  shouldShowRefundStatusSection
+  shouldShowRefundStatusSection,
+  shouldShowNameAndAddress
 } = useRoutingSlipInfo()
 
 const handleRefundStatusSelectWithComments = async (status: string) => {
@@ -123,12 +124,12 @@ const handleRefundStatusSelectWithComments = async (status: string) => {
           </div>
         </div>
 
-        <div v-if="!showRefundForm" class="flex flex-col sm:flex-row sm:items-start gap-2">
+        <div v-if="shouldShowNameAndAddress" class="flex flex-col sm:flex-row sm:items-start gap-2">
           <div class="w-full sm:w-1/4 font-semibold p-4">
             {{ $t('label.nameOfPersonOrOrgAndAddress') }}
           </div>
           <div class="w-full sm:w-3/4 p-4">
-            <div v-if="contactName || mailingAddress" class="flex flex-col gap-1">
+            <div class="flex flex-col gap-1">
               <span v-if="contactName && !isRefundRequested">{{ contactName }} </span>
               <ConnectAddressDisplay
                 v-if="mailingAddress"
@@ -139,7 +140,6 @@ const handleRefundStatusSelectWithComments = async (status: string) => {
                 {{ deliveryInstructions }}
               </span>
             </div>
-            <span v-else>-</span>
           </div>
         </div>
 

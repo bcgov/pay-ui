@@ -58,7 +58,7 @@ export interface Refund {
 
 export interface RoutingSlip {
   id?: number
-  number?: string
+  number: string
   paymentAccount?: AccountInfo
   payments?: Payment[]
   routingSlipDate?: string
@@ -68,7 +68,7 @@ export interface RoutingSlip {
   remainingAmount?: number
   refundAmount?: number
   invoices?: Invoice[]
-  status?: string
+  status: string
   createdName?: string
   parentNumber?: string
   refunds?: Refund[]
@@ -146,7 +146,7 @@ export interface TransactionParams {
 
 // From RoutingSlip.ts
 export interface RoutingSlipDetails {
-  number?: string
+  number: string
   routingSlipDate?: string
 }
 
@@ -178,7 +178,7 @@ export interface ManualTransactionDetails {
 }
 
 export interface GetRoutingSlipRequestPayload {
-  routingSlipNumber: string | undefined
+  routingSlipNumber: string
   showGlobalLoader?: boolean
 }
 
