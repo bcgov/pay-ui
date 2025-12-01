@@ -8,7 +8,7 @@ mockNuxtImport('useConnectModal', () => {
   })
 })
 
-mockNuxtImport('useLocalePath', () => () => vi.fn((path: string) => `/en-CA${path}`))
+mockNuxtImport('useLocalePath', () => () => vi.fn((path: string) => path))
 
 // mock navigateTo util
 // const { mockNavigateTo } = vi.hoisted(() => ({ mockNavigateTo: vi.fn() }))
@@ -48,7 +48,7 @@ describe('usePayModals', () => {
 
       const leaveButton = props.buttons[0]
       expect(leaveButton.label).toBe('Leave')
-      expect(leaveButton.to).toBe('/en-CA/dashboard')
+      expect(leaveButton.to).toBe('/home')
       expect(leaveButton.shouldClose).toBe(true)
 
       const cancelButton = props.buttons[1]

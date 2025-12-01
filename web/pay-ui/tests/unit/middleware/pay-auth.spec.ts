@@ -17,12 +17,12 @@ const { mockNavigateTo } = vi.hoisted(() => ({ mockNavigateTo: vi.fn() }))
 mockNuxtImport('navigateTo', () => mockNavigateTo)
 
 mockNuxtImport('useRuntimeConfig', () => () => ({ public: { baseUrl: 'https://app.example.com/' } }))
-mockNuxtImport('useLocalePath', () => () => (path: string) => `/en-CA${path}`)
+mockNuxtImport('useLocalePath', () => () => (path: string) => path)
 
 function createRoute(meta: any = {}) {
   return {
-    path: '/en-CA/some-path',
-    fullPath: '/en-CA/some-path',
+    path: '/some-path',
+    fullPath: '/some-path',
     query: {},
     meta
   } as unknown as RouteLocationNormalizedGeneric
@@ -45,7 +45,7 @@ describe('pay-auth middleware', () => {
     it('should redirect to login page if not authenticated', async () => {
       mockIsAuthenticated.value = false
       await middleware(createRoute(), from)
-      const expectedRedirectUrl = '/en-CA/auth/login?return=https://app.example.com/en-CA/some-path'
+      const expectedRedirectUrl = '/auth/login?return=https://app.example.com/some-path'
       expect(mockNavigateTo).toHaveBeenCalledWith(expectedRedirectUrl)
     })
   })

@@ -4,8 +4,9 @@ export default defineAppConfig({
     header: {
       localeSelect: false
     },
+    //TODO: Hmm what happens if we login with EFT, EFT isn't part of the home page.
     login: {
-      redirect: '/dashboard'
+      redirect: '/home'
     },
     logout: {
       redirect: '/auth/login'

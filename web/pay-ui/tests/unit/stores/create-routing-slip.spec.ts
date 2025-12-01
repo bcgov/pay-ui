@@ -12,7 +12,7 @@ mockNuxtImport('usePayApi', () => () => mockPayApi)
 const mockToast = { add: vi.fn() }
 mockNuxtImport('useToast', () => () => mockToast)
 
-mockNuxtImport('useLocalePath', () => () => vi.fn((path: string) => `/en-CA${path}`))
+mockNuxtImport('useLocalePath', () => () => vi.fn((path: string) => path))
 
 const mockUUIDs = ['1', '2', '3']
 let uuidIndex = 0
@@ -190,7 +190,7 @@ describe('useCreateRoutingSlipStore', () => {
         expect(vi.mocked(createRoutingSlipPayload)).toHaveBeenCalledWith(store.state)
         expect(mockPayApi.postRoutingSlip).toHaveBeenCalledWith({ payload: store.state })
         expect(mockNavigateTo).toHaveBeenCalledOnce()
-        expect(mockNavigateTo).toHaveBeenCalledWith('/en-CA/view-routing-slip/ROUTING123')
+        expect(mockNavigateTo).toHaveBeenCalledWith('/view-routing-slip/ROUTING123')
         expect(store.reviewMode).toBe(false)
         expect(store.loading).toBe(false)
       })
