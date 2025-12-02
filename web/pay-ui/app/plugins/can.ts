@@ -28,7 +28,6 @@ function canAccess(binding: DirectiveBinding, el: HTMLElement) {
     } else if (behaviour === 'disable' && isCard === false) {
       customeEl.disabled = true
     } else if (behaviour === 'disable' && isCard === true) {
-      // TODO tab still works.. can tab to the text field and make it work
       customeEl.classList.add('v-card--disabled')
       customeEl.style.pointerEvents = 'none'
     }

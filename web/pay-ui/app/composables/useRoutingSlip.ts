@@ -128,14 +128,14 @@ export const useRoutingSlip = () => {
       // routing slip doesn't exist
       return CreateRoutingSlipStatus.VALID
     } catch (error) {
-      const axiosError = error as { response?: { status?: number, data?: { type?: string } } }
-      if (axiosError.response?.status === 400
-        && axiosError.response?.data?.type === ApiErrors.FAS_INVALID_ROUTING_SLIP_DIGITS
+      const errorResponse = error as { response?: { status?: number, data?: { type?: string } } }
+      if (errorResponse.response?.status === 400
+        && errorResponse.response?.data?.type === ApiErrors.FAS_INVALID_ROUTING_SLIP_DIGITS
       ) {
         return CreateRoutingSlipStatus.INVALID_DIGITS
       }
 
-      console.error('error ', axiosError.response?.data)
+      console.error('error ', errorResponse.response?.data)
       // on error we allow the routing number which should break on create and show error message
       return CreateRoutingSlipStatus.VALID
     }
@@ -194,10 +194,8 @@ export const useRoutingSlip = () => {
           state.routingSlip = updatedResponse
         }
       }
-      // TODO : need to handle if slip not existing
     } catch (error) {
-      const axiosError = error as { response?: { data?: unknown } }
-      console.error('error ', axiosError.response?.data) // 500 errors may not return data
+      console.error('error ', error) // 500 errors may not return data
     }
   }
 

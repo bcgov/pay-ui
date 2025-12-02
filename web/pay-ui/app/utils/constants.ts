@@ -257,8 +257,6 @@ export enum LookupStates {
   SUMMARY = 'summary'
 }
 
-export const AXIOS_ERROR_ALERT_TIME_OUT = 5000
-
 export const SearchRoutingSlipTableHeaders
   = [
     {
