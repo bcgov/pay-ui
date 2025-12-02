@@ -1,10 +1,4 @@
 <script setup lang="ts">
-// TODO/FUTURE: currently these options are a list of strings passed from the props
-// this will need to be updated to display options based off the columns from whatever table it's tied to
-// need column definition to be completed before this can be finished
-// checkbox item theme & styling is complete
-// testing TBD when implementing column options
-
 defineProps<{
   columns: string[]
 }>()

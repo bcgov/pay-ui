@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { DateTime } from 'luxon'
 
-const { t } = useI18n()
 const crsStore = useCreateRoutingSlipStore()
 
 defineEmits<{

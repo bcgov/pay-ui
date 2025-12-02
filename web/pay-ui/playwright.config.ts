@@ -17,7 +17,6 @@ const deviceNames = [
       'Desktop Firefox',
       'Desktop Edge',
       'Desktop Safari'
-      // TODO: add fix mobile tests?
       // 'iPad (gen 11) landscape',
       // 'Blackberry PlayBook landscape',
       // 'Nexus 10 landscape',

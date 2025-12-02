@@ -97,6 +97,6 @@ describe('DatePicker', () => {
     await nextTick()
 
     popover = document.querySelector('[role="dialog"]')
-    expect(popover).toBeNull() // TODO: this line is failing
+    expect(popover).toBeNull()
   })
 })
