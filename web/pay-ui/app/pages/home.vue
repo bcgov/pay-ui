@@ -7,7 +7,8 @@ const localePath = useLocalePath()
 
 definePageMeta({
   layout: 'connect-auth',
-  middleware: ['mock-connect-auth', 'connect-auth']
+  middleware: ['mock-connect-auth', 'connect-auth'],
+  hideBreadcrumbs: true
 })
 
 useHead({

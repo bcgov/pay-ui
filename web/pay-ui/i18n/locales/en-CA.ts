@@ -90,6 +90,7 @@ export default {
     date: 'Date',
     editStatus: 'Edit Status',
     entityNumber: 'Entity Number',
+    fasDashboard: 'FAS Dashboard',
     fundsReceivedInUSD: 'Funds received in USD',
     leave: 'Leave',
     link: 'Link',

@@ -45,7 +45,7 @@ const routingSlips = computed(() => searchRoutingSlipResult.value?.map((item) =>
   return {
     routingSlipNumber: item.number ?? '-',
     receiptNumber: item.paymentAccount
-      && item.paymentAccount.paymentMethod === 'CASH'
+      && item.paymentAccount.paymentMethod === PaymentMethods.CASH
       ? (item.payments?.[0]?.chequeReceiptNumber ?? '-')
       : '-',
     accountName: item.paymentAccount?.accountName ?? '-',

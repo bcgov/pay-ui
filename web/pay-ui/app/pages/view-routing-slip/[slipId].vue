@@ -9,10 +9,12 @@ import { useRoutingSlip } from '~/composables/useRoutingSlip'
 import { useLoader } from '~/composables/common/useLoader'
 
 const route = useRoute()
+const localePath = useLocalePath()
 const { t } = useI18n()
 
 definePageMeta({
-  layout: 'connect-auth'
+  layout: 'connect-auth',
+  hideBreadcrumbs: false
   // allowedRoles: [Role.FAS_VIEW] // TODO: role check
 })
 
@@ -21,6 +23,16 @@ useHead({
 })
 
 const slipId = route.params.slipId as string
+
+setBreadcrumbs([
+  {
+    label: t('label.fasDashboard'),
+    to: localePath('/home')
+  },
+  {
+    label: t('page.viewRoutingSlip.h1', { id: slipId })
+  }
+])
 useViewRoutingSlip({ slipId })
 
 const { getRoutingSlip, getLinkedRoutingSlips, routingSlip } = useRoutingSlip()
