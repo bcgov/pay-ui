@@ -69,16 +69,13 @@ export const usePayApi = () => {
   async function updateRoutingSlipRefundStatus(
     code: string,
     routingSlipNumber: string
-  ): Promise<RoutingSlip | null> {
+  ): Promise<RoutingSlip> {
     try {
       const response = await $payApi(
         `/fas/routing-slips/${routingSlipNumber}?action=updateRefundStatus`,
         { method: 'PATCH', body: { refund_status: code } }
       )
-      if (response) {
-        return response
-      }
-      return null
+      return response as RoutingSlip
     } catch (error) {
       console.error('Routing slip refund status update failed', error)
       throw error

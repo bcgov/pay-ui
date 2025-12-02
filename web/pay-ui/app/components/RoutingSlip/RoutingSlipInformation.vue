@@ -124,6 +124,17 @@ const handleRefundStatusSelectWithComments = async (status: string) => {
           </div>
         </div>
 
+        <!-- TODO not sure if this needed.
+        <div v-if="contactName && !showRefundForm && !isRefundRequested" class="flex flex-col sm:flex-row sm:items-start gap-2">
+          <div class="w-full sm:w-1/4 font-semibold p-4">
+            {{ $t('label.clientName') }}
+          </div>
+          <div class="w-full sm:w-3/4 p-4">
+            {{ contactName }}
+          </div>
+        </div>
+      -->
+
         <div v-if="shouldShowNameAndAddress" class="flex flex-col sm:flex-row sm:items-start gap-2">
           <div class="w-full sm:w-1/4 font-semibold p-4">
             {{ $t('label.nameOfPersonOrOrgAndAddress') }}
@@ -170,12 +181,12 @@ const handleRefundStatusSelectWithComments = async (status: string) => {
             </div>
           </div>
 
-          <div class="flex flex-col sm:flex-row sm:items-start gap-2">
+          <div v-if="chequeAdvice" class="flex flex-col sm:flex-row sm:items-start gap-2">
             <div class="w-full sm:w-1/4 font-semibold p-4">
               {{ $t('label.chequeAdvice') }}
             </div>
             <div class="w-full sm:w-3/4 p-4">
-              {{ chequeAdvice || '-' }}
+              {{ chequeAdvice }}
             </div>
           </div>
         </div>

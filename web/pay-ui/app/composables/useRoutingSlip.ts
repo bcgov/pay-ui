@@ -9,6 +9,7 @@ import {
 } from '@/utils/constants'
 import { SlipStatus } from '~/enums/slip-status'
 import { ApiErrors } from '~/enums/api-errors'
+import { Role } from '~/enums/fas-roles'
 import CommonUtils from '@/utils/common-util'
 
 interface StatusDetails {
@@ -144,7 +145,7 @@ export const useRoutingSlip = () => {
     routingSlip: RoutingSlip,
     routingSlipNumber: string
   ): Promise<RoutingSlip | null> => {
-    if (!routingSlipNumber) {
+    if (!routingSlipNumber || !CommonUtils.verifyRoles([Role.FAS_EDIT])) {
       return null
     }
 

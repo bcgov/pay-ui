@@ -54,13 +54,24 @@ export function createRoutingSlipPayload(data: RoutingSlipSchema): CreateRouting
   for (const uuid in data.payment.paymentItems) {
     const item = data.payment.paymentItems[uuid]!
 
-    payments.push({
+    const payment: {
+      chequeReceiptNumber: string
+      paidAmount: number
+      paidUsdAmount: number
+      paymentDate?: string
+      paymentMethod: PaymentTypes.CASH | PaymentTypes.CHEQUE
+    } = {
       chequeReceiptNumber: item.identifier,
       paidAmount: parseFloat(item.amountCAD) || 0,
       paidUsdAmount: parseFloat(item.amountUSD) || 0,
-      paymentDate: DateTime.fromISO(item.date).setZone('UTC').toFormat('yyyy-MM-dd'),
       paymentMethod: data.payment.paymentType
-    })
+    }
+
+    if (data.payment.paymentType === PaymentTypes.CHEQUE) {
+      payment.paymentDate = DateTime.fromISO(item.date).setZone('UTC').toFormat('yyyy-MM-dd')
+    }
+
+    payments.push(payment)
   }
 
   return {

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { TableColumn } from '@nuxt/ui'
 import { DateTime } from 'luxon'
 
 const { t } = useI18n()
@@ -27,45 +26,6 @@ const payData = computed<RoutingSlipPaymentItem[]>(() => {
 
   return items
 })
-
-const payColumns = computed<TableColumn<RoutingSlipPaymentItem>[]>(() => {
-  const meta = {
-    class: {
-      th: 'text-center',
-      td: 'text-center text-neutral'
-    }
-  }
-
-  const cols = [
-    {
-      accessorKey: 'identifier',
-      header: crsStore.isCheque ? t('label.chequeNumber') : t('label.receiptNumber'),
-      meta
-    },
-    {
-      accessorKey: 'amountCAD',
-      header: t('label.amountCAD'),
-      meta
-    }
-  ]
-
-  if (crsStore.isCheque) {
-    cols.splice(1, 0, {
-      accessorKey: 'date',
-      header: t('label.chequeDate'),
-      meta
-    })
-  }
-
-  if (crsStore.state.payment.isUSD) {
-    cols.push({
-      accessorKey: 'amountUSD',
-      header: t('label.amountUSD'),
-      meta
-    })
-  }
-  return cols
-})
 </script>
 
 <template>
@@ -89,16 +49,44 @@ const payColumns = computed<TableColumn<RoutingSlipPaymentItem>[]>(() => {
         :label="$t('label.paymentInformation')"
         :value="crsStore.isCheque ? $t('enum.PaymentTypes.CHEQUE') : $t('enum.PaymentTypes.CASH')"
       />
-      <UTable
-        class="max-h-48 mx-0 sm:mx-10"
-        :data="payData"
-        :columns="payColumns"
-        sticky
-        :ui="{
-          separator: 'bg-line-muted',
-          tbody: 'divide-line-muted'
-        }"
-      />
+      <div class="space-y-6">
+        <div
+          v-for="(item, index) in payData"
+          :key="index"
+          class="flex flex-col gap-2 sm:gap-4 sm:flex-row"
+        >
+          <ConnectInput
+            :id="`review-${crsStore.isCheque ? 'cheque' : 'receipt'}-number-${index}`"
+            :model-value="item.identifier"
+            :label="crsStore.isCheque ? $t('label.chequeNumber') : $t('label.receiptNumber')"
+            disabled
+            class="flex-1"
+          />
+          <ConnectInput
+            v-if="crsStore.isCheque"
+            :id="`review-cheque-date-${index}`"
+            :model-value="item.date"
+            :label="$t('label.chequeDate')"
+            disabled
+            class="flex-1"
+          />
+          <ConnectInput
+            :id="`review-amount-cad-${index}`"
+            :model-value="item.amountCAD"
+            :label="$t('label.amountCAD')"
+            disabled
+            class="flex-1"
+          />
+          <ConnectInput
+            v-if="crsStore.state.payment.isUSD"
+            :id="`review-amount-usd-${index}`"
+            :model-value="item.amountUSD"
+            :label="$t('label.amountUSD')"
+            disabled
+            class="flex-1"
+          />
+        </div>
+      </div>
       <ReviewRoutingSlipRow
         v-if="crsStore.isCheque"
         :label="$t('label.totalAmount')"

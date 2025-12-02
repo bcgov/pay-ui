@@ -80,19 +80,24 @@ export function useRoutingSlipInfo() {
         })
         .filter((status): status is SlipStatusDropdown => status !== null)
     }),
-    refundAmount: computed(() => routingSlip.value?.refundAmount || 0),
+    refundAmount: computed(() => routingSlip.value?.refundAmount || routingSlip.value?.remainingAmount || 0),
     shouldShowRefundAmount: computed(() => {
-      const hasRefundAmount = !!(routingSlip.value?.refundAmount)
+      const hasRefundAmount = !!(routingSlip.value?.refundAmount || routingSlip.value?.remainingAmount)
       const isNotActive = routingSlip.value?.status !== SlipStatus.ACTIVE
       return hasRefundAmount && !showRefundForm.value && isNotActive
     }),
     refundFormInitialData: computed(() => {
       const refundDetails = routingSlip.value?.refunds?.[0]?.details
+      const contactName = routingSlip.value?.contactName || ''
+      
       if (refundDetails) {
-        return refundDetails
+        return {
+          ...refundDetails,
+          name: refundDetails.name || contactName
+        }
       }
       return {
-        name: routingSlip.value?.contactName || '',
+        name: contactName,
         mailingAddress: routingSlip.value?.mailingAddress || undefined,
         chequeAdvice: undefined
       }

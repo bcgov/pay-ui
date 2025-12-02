@@ -15,7 +15,7 @@ export interface CreateRoutingSlipPayload {
     chequeReceiptNumber: string
     paidAmount: number
     paidUsdAmount: number
-    paymentDate: string
+    paymentDate?: string
     paymentMethod: PaymentTypes.CASH | PaymentTypes.CHEQUE
   }>
 }
