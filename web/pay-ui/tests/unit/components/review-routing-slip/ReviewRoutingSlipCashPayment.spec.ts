@@ -1,4 +1,3 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import ReviewRoutingSlipCashPayment from '~/components/ReviewRoutingSlip/ReviewRoutingSlipCashPayment.vue'
 import { cashPaymentMock } from '../../test-data/mock-routing-slip'

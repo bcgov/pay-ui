@@ -1,4 +1,3 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 const mockBaseModalOpen = vi.fn()

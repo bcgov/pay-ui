@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { RouteLocationNormalizedGeneric } from 'vue-router'
 import middleware from '~/middleware/pay-auth'

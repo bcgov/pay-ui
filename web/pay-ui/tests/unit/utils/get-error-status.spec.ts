@@ -1,4 +1,3 @@
-import { describe, it, expect } from 'vitest'
 
 describe('getErrorStatus', () => {
   it('should return the status code from response.status error object', () => {
