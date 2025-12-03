@@ -1,134 +1,31 @@
 <script setup lang="ts">
 import { useSearch } from '~/composables/dashboard/useSearch'
-import { SearchRoutingSlipTableHeaders } from '@/utils/constants'
 import { useInfiniteScroll } from '@vueuse/core'
 
 const localePath = useLocalePath()
-
-interface SearchFilterState {
-  routingSlipNumber: string | null
-  receiptNumber: string | null
-  accountName: string | null
-  createdName: string | null
-  dateFilter: { startDate: string | null, endDate: string | null }
-  status: string | null
-  refundStatus: string | null
-  businessIdentifier: string | null
-  chequeReceiptNumber: string | null
-  remainingAmount: string | null
-}
-
 const { t } = useI18n()
-const searchRoutingSlipTableHeaders = ref(SearchRoutingSlipTableHeaders)
 
 const {
-  searchRoutingSlipResult,
-  searchNow,
+  searchRoutingSlipTableHeaders,
   debouncedSearch,
   getStatusLabel,
   searchParamsExist,
-  formatFolioResult,
   showExpandedFolio,
   showExpandedCheque,
   toggleFolio,
   toggleCheque,
   isLoading,
   getNext,
-  getRefundStatusText,
-  updateSearchFilter
+  filters,
+  routingSlips,
+  columnPinning,
+  isInitialLoad,
+  columnVisibility,
+  resetSearchFilters,
+  search
 } = await useSearch()
 
 const table = useTemplateRef<HTMLElement>('table')
-const appendCurrencySymbol = commonUtil.appendCurrencySymbol
-
-const routingSlips = computed(() => searchRoutingSlipResult.value?.map((item) => {
-  return {
-    routingSlipNumber: item.number ?? '-',
-    receiptNumber: item.paymentAccount
-      && item.paymentAccount.paymentMethod === PaymentMethods.CASH
-      ? (item.payments?.[0]?.chequeReceiptNumber ?? '-')
-      : '-',
-    accountName: item.paymentAccount?.accountName ?? '-',
-    createdName: item.createdName ?? '-',
-    date: commonUtil.formatDisplayDate(item.routingSlipDate || '', 'MMMM dd, yyyy'),
-    status: item.status || '',
-    refundStatus: item.refundStatus ? getRefundStatusText(item.refundStatus) : '-',
-    businessIdentifier: formatFolioResult(item.invoices || [], filters.businessIdentifier),
-    chequeReceiptNumber: item.paymentAccount && item.paymentAccount.paymentMethod === PaymentMethods.CHEQUE
-      ? (item.payments?.map(p => p.chequeReceiptNumber) || ['-'])
-      : ['-'],
-    remainingAmount: item.remainingAmount
-      ? appendCurrencySymbol(item.remainingAmount.toFixed(2))
-      : '-'
-  }
-}) || [])
-
-const columnPinning = ref({
-  right: ['actions']
-})
-
-const isInitialLoad = ref(true)
-
-const filterInitialState: SearchFilterState = {
-  routingSlipNumber: null,
-  receiptNumber: null,
-  accountName: null,
-  createdName: null,
-  dateFilter: { startDate: null, endDate: null },
-  status: null,
-  refundStatus: null,
-  businessIdentifier: null,
-  chequeReceiptNumber: null,
-  remainingAmount: null
-}
-
-const filters = reactive<SearchFilterState>({
-  routingSlipNumber: null,
-  receiptNumber: null,
-  accountName: null,
-  createdName: null,
-  dateFilter: { startDate: null, endDate: null },
-  status: null,
-  refundStatus: null,
-  businessIdentifier: null,
-  chequeReceiptNumber: null,
-  remainingAmount: null
-})
-
-const search = async () => {
-  await nextTick()
-  searchNow()
-}
-
-watch(() => filters.routingSlipNumber, newVal => updateSearchFilter({ routingSlipNumber: newVal }))
-watch(() => filters.receiptNumber, newVal => updateSearchFilter({ receiptNumber: newVal }))
-watch(() => filters.accountName, newVal => updateSearchFilter({ accountName: newVal }))
-watch(() => filters.createdName, newVal => updateSearchFilter({ createdName: newVal }))
-watch(
-  () => filters.dateFilter,
-  (newVal) => {
-    updateSearchFilter({ dateFilter: newVal })
-  },
-  { deep: true }
-)
-watch(() => filters.status, newVal => updateSearchFilter({ status: newVal }))
-watch(() => filters.refundStatus, newVal => updateSearchFilter({ refundStatus: newVal }))
-watch(() => filters.businessIdentifier, newVal => updateSearchFilter({ businessIdentifier: newVal }))
-watch(() => filters.chequeReceiptNumber, newVal => updateSearchFilter({ chequeReceiptNumber: newVal }))
-watch(() => filters.remainingAmount, newVal => updateSearchFilter({ remainingAmount: newVal }))
-
-const columnVisibility = computed<Record<string, boolean>>(() => {
-  const visibility: Record<string, boolean> = {}
-  searchRoutingSlipTableHeaders.value.forEach((item) => {
-    visibility[item.accessorKey] = item.display
-  })
-  return visibility
-})
-
-const resetSearchFilters = async () => {
-  Object.assign(filters, filterInitialState)
-  search()
-}
 
 useInfiniteScroll(
   table,
@@ -300,7 +197,6 @@ useInfiniteScroll(
             Loading...
           </template>
           <template #empty>
-            <!-- TODO sanitize html -->
             <!-- eslint-disable vue/no-v-html -->
             <div
               class="text-center py-8 text-gray-600"

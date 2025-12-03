@@ -11,6 +11,8 @@ interface Props {
 
 const payApi = usePayApi()
 const { $sanitize } = useNuxtApp()
+const modal = usePayModals()
+const { t } = useI18n()
 
 const props = withDefaults(defineProps<Props>(), {
   identifier: '',
@@ -69,6 +71,7 @@ function validateComment(): void {
 
 async function fetchStaffComments(): Promise<void> {
   try {
+    // Global Exception handler will handle this one.
     const response = await payApi.getRoutingSlipComments(props.identifier)
     const fetchedComments = (response?.comments) || []
 
@@ -111,15 +114,14 @@ async function save(): Promise<void> {
   }
 
   try {
+    // Global Exception handler will handle this one.
     await payApi.updateRoutingSlipComments(data, props.identifier)
     state.comment = ''
     state.errorMessage = ''
     await fetchStaffComments()
   } catch (error) {
     console.error('save() error =', error)
-    if (typeof window !== 'undefined') {
-      alert('Could not save your comment. Please try again or cancel.')
-    }
+    await modal.openErrorDialog(t('error.saveComment.title'), t('error.saveComment.description'))
   } finally {
     state.isSaving = false
   }

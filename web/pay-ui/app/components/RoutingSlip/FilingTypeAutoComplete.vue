@@ -34,6 +34,7 @@ const searchFilingTypes = async (searchTerm: string | undefined): Promise<Array<
   }
 
   try {
+    // Global Exception handler will handle this one.
     const results = await payApi.getSearchFilingType(trimmedTerm)
     return results.map((item: FilingType) => ({
       ...item,

@@ -14,8 +14,8 @@ const { t } = useI18n()
 
 definePageMeta({
   layout: 'connect-auth',
-  hideBreadcrumbs: false
-  // allowedRoles: [Role.FAS_VIEW] // TODO: role check
+  hideBreadcrumbs: false,
+  allowedRoles: [Role.FAS_VIEW]
 })
 
 useHead({

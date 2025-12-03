@@ -1,4 +1,5 @@
 import { useRoutingSlip } from '~/composables/useRoutingSlip'
+import { useLoader } from '@/composables/common/useLoader'
 import { SlipStatus } from '~/enums/slip-status'
 import { SlipStatusDropdown, ChequeRefundStatus, chequeRefundCodes } from '~/utils/constants'
 import commonUtil from '~/utils/common-util'
@@ -7,10 +8,12 @@ import type { RefundRequestDetails } from '~/interfaces/routing-slip'
 import { DateTime } from 'luxon'
 
 export function useRoutingSlipInfo() {
-  const { routingSlip, updateRoutingSlipStatus, updateRoutingSlipRefundStatus,
+  const { updateRoutingSlipStatus, updateRoutingSlipRefundStatus,
     getRoutingSlip, updateRoutingSlipComments } = useRoutingSlip()
+  const { store } = useRoutingSlipStore()
   const { t } = useI18n()
-  const { baseModal } = useConnectModal()
+  const modal = usePayModals()
+  const { toggleLoading } = useLoader()
 
   const showRefundForm = ref(false)
 
@@ -21,16 +24,16 @@ export function useRoutingSlipInfo() {
   }
 
   const mailingAddress = computed<Address | undefined>(() => {
-    const refunds = routingSlip.value?.refunds
+    const refunds = store.routingSlip.refunds
     if (refunds && refunds.length > 0 && refunds[0]?.details?.mailingAddress) {
       return refunds[0].details.mailingAddress
     }
-    return routingSlip.value?.mailingAddress
+    return store.routingSlip.mailingAddress
   })
 
   const state = reactive({
     formattedDate: computed<string>(() => {
-      const date = routingSlip.value?.createdOn
+      const date = store.routingSlip.createdOn
       if (!date) {
         return '-'
       }
@@ -38,14 +41,14 @@ export function useRoutingSlipInfo() {
       return dt.isValid ? dt.toFormat('MMM dd, yyyy') : '-'
     }),
     statusColor: computed<string>(() => {
-      const status = routingSlip.value?.status
+      const status = store.routingSlip.status
       if (!status) {
         return ''
       }
       return commonUtil.statusListColor(status, true)
     }),
     statusLabel: computed<string>(() => {
-      const status = routingSlip.value?.status
+      const status = store.routingSlip.status
       if (!status) {
         return '-'
       }
@@ -53,14 +56,14 @@ export function useRoutingSlipInfo() {
       return t(i18nKey, status)
     }),
     entityNumber: computed<string>(() => {
-      return routingSlip.value?.paymentAccount?.accountName || ''
+      return store.routingSlip.paymentAccount?.accountName || ''
     }),
     contactName: computed<string | undefined>(() => {
-      const refunds = routingSlip.value?.refunds
+      const refunds = store.routingSlip.refunds
       if (refunds && refunds.length > 0 && refunds[0]?.details?.name) {
         return refunds[0].details.name
       }
-      return routingSlip.value?.contactName
+      return store.routingSlip.contactName
     }),
     mailingAddress,
     deliveryInstructions: computed<string | undefined>(() => {
@@ -68,10 +71,10 @@ export function useRoutingSlipInfo() {
       return address?.deliveryInstructions
     }),
     allowedStatuses: computed<SlipStatusDropdown[]>(() => {
-      const statuses = routingSlip.value?.allowedStatuses || []
+      const statuses = store.routingSlip.allowedStatuses || []
       const dropdownValues = Object.values(SlipStatusDropdown) as string[]
       return statuses
-        .map((status) => {
+        .map((status: string) => {
           const statusString = status as string
           if (dropdownValues.includes(statusString)) {
             return statusString as SlipStatusDropdown
@@ -80,16 +83,16 @@ export function useRoutingSlipInfo() {
         })
         .filter((status): status is SlipStatusDropdown => status !== null)
     }),
-    refundAmount: computed(() => routingSlip.value?.refundAmount || routingSlip.value?.remainingAmount || 0),
+    refundAmount: computed(() => store.routingSlip.refundAmount || store.routingSlip.remainingAmount || 0),
     shouldShowRefundAmount: computed(() => {
-      const hasRefundAmount = !!(routingSlip.value?.refundAmount || routingSlip.value?.remainingAmount)
-      const isNotActive = routingSlip.value?.status !== SlipStatus.ACTIVE
+      const hasRefundAmount = !!(store.routingSlip.refundAmount || store.routingSlip.remainingAmount)
+      const isNotActive = store.routingSlip.status !== SlipStatus.ACTIVE
       return hasRefundAmount && !showRefundForm.value && isNotActive
     }),
     refundFormInitialData: computed(() => {
-      const refundDetails = routingSlip.value?.refunds?.[0]?.details
-      const contactName = routingSlip.value?.contactName || ''
-      
+      const refundDetails = store.routingSlip.refunds?.[0]?.details
+      const contactName = store.routingSlip.contactName || ''
+
       if (refundDetails) {
         return {
           ...refundDetails,
@@ -98,34 +101,34 @@ export function useRoutingSlipInfo() {
       }
       return {
         name: contactName,
-        mailingAddress: routingSlip.value?.mailingAddress || undefined,
+        mailingAddress: store.routingSlip.mailingAddress || undefined,
         chequeAdvice: undefined
       }
     }),
     refundStatus: computed(() => {
-      return getRefundStatusText(routingSlip.value?.refundStatus || null)?.toUpperCase()
+      return getRefundStatusText(store.routingSlip.refundStatus || null)?.toUpperCase()
     }),
-    chequeAdvice: computed(() => routingSlip.value?.refunds?.[0]?.details?.chequeAdvice || ''),
-    isRefundRequested: computed(() => routingSlip.value?.status === SlipStatus.REFUNDREQUEST),
+    chequeAdvice: computed(() => store.routingSlip.refunds?.[0]?.details?.chequeAdvice || ''),
+    isRefundRequested: computed(() => store.routingSlip.status === SlipStatus.REFUNDREQUEST),
     isRefundStatusUndeliverable: computed(() =>
-      routingSlip.value?.refundStatus === chequeRefundCodes.CHEQUE_UNDELIVERABLE),
+      store.routingSlip.refundStatus === chequeRefundCodes.CHEQUE_UNDELIVERABLE),
     canUpdateRefundStatus: computed(() => {
-      const isProcessed = routingSlip.value?.refundStatus === chequeRefundCodes.PROCESSED
-      const isUndeliverable = routingSlip.value?.refundStatus === chequeRefundCodes.CHEQUE_UNDELIVERABLE
+      const isProcessed = store.routingSlip.refundStatus === chequeRefundCodes.PROCESSED
+      const isUndeliverable = store.routingSlip.refundStatus === chequeRefundCodes.CHEQUE_UNDELIVERABLE
       return isProcessed || isUndeliverable
     }),
     shouldShowRefundStatusSection: computed(() => {
-      const isRequested = routingSlip.value?.status === SlipStatus.REFUNDREQUEST
-      return (isRequested || routingSlip.value?.status === SlipStatus.REFUNDPROCESSED) && !showRefundForm.value
+      const isRequested = store.routingSlip.status === SlipStatus.REFUNDREQUEST
+      return (isRequested || store.routingSlip.status === SlipStatus.REFUNDPROCESSED) && !showRefundForm.value
     }),
     shouldShowNameAndAddress: computed(() => {
       if (showRefundForm.value) {
         return false
       }
-      const refunds = routingSlip.value?.refunds
+      const refunds = store.routingSlip.refunds
       const contactNameValue = refunds && refunds.length > 0 && refunds[0]?.details?.name
         ? refunds[0].details.name
-        : routingSlip.value?.contactName
+        : store.routingSlip.contactName
       const mailingAddressValue = mailingAddress.value
       const hasContactName = !!contactNameValue
       const hasMailingAddress = !!mailingAddressValue && (
@@ -140,51 +143,19 @@ export function useRoutingSlipInfo() {
   })
 
   const handleStatusSelect = async (status: SlipStatus) => {
-    if (!routingSlip.value?.number) {
+    if (!store.routingSlip.number) {
       return
     }
 
     if (status === SlipStatus.REFUNDREQUEST) {
       showRefundForm.value = true
     } else if (status === SlipStatus.NSF) {
-      await baseModal.open({
-        title: t('modal.placeRoutingSlipToNSF.title'),
-        description: t('modal.placeRoutingSlipToNSF.description'),
-        dismissible: true,
-        buttons: [
-          {
-            label: t('modal.placeRoutingSlipToNSF.confirmButton'),
-            onClick: async () => {
-              await updateRoutingSlipStatusHandler(status)
-            },
-            shouldClose: true
-          },
-          {
-            label: t('label.cancel'),
-            variant: 'outline',
-            shouldClose: true
-          }
-        ]
+      await modal.openPlaceRoutingSlipToNSFModal(async () => {
+        await updateRoutingSlipStatusHandler(status)
       })
     } else if (status === SlipStatus.VOID) {
-      await baseModal.open({
-        title: t('modal.voidRoutingSlip.title'),
-        description: t('modal.voidRoutingSlip.description'),
-        dismissible: true,
-        buttons: [
-          {
-            label: t('modal.voidRoutingSlip.confirmButton'),
-            onClick: async () => {
-              await updateRoutingSlipStatusHandler(status)
-            },
-            shouldClose: true
-          },
-          {
-            label: t('label.cancel'),
-            variant: 'outline',
-            shouldClose: true
-          }
-        ]
+      await modal.openVoidRoutingSlipModal(async () => {
+        await updateRoutingSlipStatusHandler(status)
       })
     } else {
       await updateRoutingSlipStatusHandler(status)
@@ -192,7 +163,7 @@ export function useRoutingSlipInfo() {
   }
 
   const handleRefundFormSubmit = async (details: RefundRequestDetails) => {
-    if (!routingSlip.value?.number) {
+    if (!store.routingSlip.number) {
       return
     }
 
@@ -202,14 +173,16 @@ export function useRoutingSlipInfo() {
         status: SlipStatus.REFUNDREQUEST
       }
       const detailsString = JSON.stringify(payload)
-      await usePayApi().updateRoutingSlipRefund(detailsString, routingSlip.value.number)
-      const routingSlipNumber = routingSlip.value.number
+      await usePayApi().updateRoutingSlipRefund(detailsString, store.routingSlip.number)
+      const routingSlipNumber = store.routingSlip.number
       if (routingSlipNumber) {
-        await getRoutingSlip({ routingSlipNumber, showGlobalLoader: false })
+        toggleLoading(true)
+        await getRoutingSlip({ routingSlipNumber })
       }
       showRefundForm.value = false
     } catch (error) {
       console.error('Error submitting refund request:', error)
+      toggleLoading(false)
     }
   }
 
@@ -218,28 +191,31 @@ export function useRoutingSlipInfo() {
   }
 
   const updateRoutingSlipStatusHandler = async (status: SlipStatus) => {
-    if (!routingSlip.value?.number) {
+    if (!store.routingSlip.number) {
       return
     }
 
     try {
       await updateRoutingSlipStatus({ status })
-      const routingSlipNumber = routingSlip.value.number
+      const routingSlipNumber = store.routingSlip.number
       if (routingSlipNumber) {
-        await getRoutingSlip({ routingSlipNumber, showGlobalLoader: false })
+        toggleLoading(true)
+        await getRoutingSlip({ routingSlipNumber })
+        toggleLoading(false)
       }
     } catch (error) {
       console.error('Error updating routing slip status:', error)
+      toggleLoading(false)
     }
   }
 
   const handleRefundStatusSelect = async (status: string, onCommentsUpdated?: () => void) => {
-    if (!routingSlip.value?.number) {
+    if (!store.routingSlip.number) {
       return
     }
 
     try {
-      const currentRefundStatus = routingSlip.value?.refundStatus || null
+      const currentRefundStatus = store.routingSlip.refundStatus || null
       await updateRoutingSlipRefundStatus(status)
 
       const oldStatusText = getRefundStatusText(currentRefundStatus)
@@ -252,17 +228,20 @@ export function useRoutingSlipInfo() {
         onCommentsUpdated()
       }
 
-      const routingSlipNumber = routingSlip.value.number
+      const routingSlipNumber = store.routingSlip.number
       if (routingSlipNumber) {
-        await getRoutingSlip({ routingSlipNumber, showGlobalLoader: false })
+        toggleLoading(true)
+        await getRoutingSlip({ routingSlipNumber })
+        toggleLoading(false)
       }
     } catch (error) {
       console.error('Error updating refund status:', error)
+      toggleLoading(false)
     }
   }
 
   return {
-    routingSlip,
+    routingSlip: computed(() => store.routingSlip),
     ...toRefs(state),
     handleStatusSelect,
     handleRefundStatusSelect,

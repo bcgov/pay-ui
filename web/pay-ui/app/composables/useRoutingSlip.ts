@@ -1,88 +1,53 @@
 import type {
-  AccountInfo, AdjustRoutingSlipAmountParams, AdjustRoutingSlipChequeParams, GetRoutingSlipRequestPayload,
-  LinkedRoutingSlips, RoutingSlip, RoutingSlipDetails, RoutingSlipAddress, ManualTransactionDetails,
-  BusinessInfo, GetFeeRequestParams, Payment, TransactionParams, SearchRoutingSlipParams
+  AdjustRoutingSlipAmountParams, AdjustRoutingSlipChequeParams, GetRoutingSlipRequestPayload,
+  ManualTransactionDetails, BusinessInfo, GetFeeRequestParams, TransactionParams, Payment
 } from '~/interfaces/routing-slip'
-import { reactive, toRefs } from 'vue'
 import {
-  CreateRoutingSlipStatus, SearchRoutingSlipTableHeaders, chequeRefundCodes
+  CreateRoutingSlipStatus
 } from '@/utils/constants'
 import { SlipStatus } from '~/enums/slip-status'
 import { ApiErrors } from '~/enums/api-errors'
-import { Role } from '~/enums/fas-roles'
 import CommonUtils from '@/utils/common-util'
+import { createRoutingSlipPayload } from '~/utils/create-routing-slip'
+import { useLoader } from '@/composables/common/useLoader'
 
 interface StatusDetails {
   status: string
 }
 
-const defaultParams: SearchRoutingSlipParams = {
-  page: 1,
-  limit: 50,
-  total: Infinity
-}
-const searchRoutingSlipTableHeaders = ref(SearchRoutingSlipTableHeaders)
-
-// TODO move this out of global state use useState instead or Pinia
-const state = reactive({
-  routingSlip: {} as RoutingSlip,
-  linkedRoutingSlips: undefined as LinkedRoutingSlips | undefined,
-  routingSlipDetails: {} as RoutingSlipDetails | undefined,
-  routingSlipAddress: {} as RoutingSlipAddress | undefined,
-  accountInfo: {} as AccountInfo | undefined,
-  chequePayment: [] as Payment[] | undefined,
-  cashPayment: {} as Payment | undefined,
-  isPaymentMethodCheque: true as boolean | undefined,
-  isAmountPaidInUsd: false,
-  searchRoutingSlipResult: [] as RoutingSlip[],
-  searchRoutingSlipParams: defaultParams as SearchRoutingSlipParams
-})
-
 export const useRoutingSlip = () => {
+  const { store } = useRoutingSlipStore()
+
   const invoiceCount = computed<number | undefined>(() => {
-    return state.routingSlip?.invoices?.length
+    return store.routingSlip?.invoices?.length
   })
 
-  const searchParamsExist = computed<boolean>(() => {
-    const params = state.searchRoutingSlipParams as Record<string, unknown>
-    for (const key in params) {
-      if (params[key] && params[key] !== '') {
-        return false
-      }
-    }
-    return true
-  })
-
-  // for a child linked to a parent routing slip, there would be a parentNumber
   const isRoutingSlipAChild = computed<boolean>(() => {
-    return !!state.routingSlip?.parentNumber
+    return !!store.routingSlip?.parentNumber
   })
 
-  // if routingslip has parentNumber then it is a child Else,
-  // check if there are any children in linkedroutingslips for
-  // it.(in this case, it is a parent)
   const isRoutingSlipLinked = computed<boolean>(() => {
     return (
-      isRoutingSlipAChild.value || !!state.linkedRoutingSlips?.children?.length
+      isRoutingSlipAChild.value || !!store.linkedRoutingSlips?.children?.length
     )
   })
 
   const isRoutingSlipVoid = computed<boolean>(() => {
-    return state.routingSlip?.status === SlipStatus.VOID
+    return store.routingSlip?.status === SlipStatus.VOID
   })
 
   const updateRoutingSlipChequeNumber = (chequeNumToChange: AdjustRoutingSlipChequeParams) => {
-    const payments = state.routingSlip.payments?.map((payment: Payment, i: number) => {
+    const payments = store.routingSlip.payments?.map((payment: Payment, i: number) => {
       if (chequeNumToChange.paymentIndex === i) {
         payment.chequeReceiptNumber = chequeNumToChange.chequeNum
       }
       return { ...payment }
     })
-    state.routingSlip.payments = payments
+    store.routingSlip.payments = payments
   }
 
   const updateRoutingSlipAmount = (amountToChange: AdjustRoutingSlipAmountParams) => {
-    const payments = state.routingSlip.payments?.map((payment: Payment, i: number) => {
+    const payments = store.routingSlip.payments?.map((payment: Payment, i: number) => {
       if (amountToChange.paymentIndex === i) {
         if (amountToChange.isRoutingSlipPaidInUsd) {
           payment.paidUsdAmount = amountToChange.amount
@@ -92,32 +57,39 @@ export const useRoutingSlip = () => {
       }
       return { ...payment }
     })
-    state.routingSlip.payments = payments
+    store.routingSlip.payments = payments
   }
 
-  // Functions
-  const createRoutingSlip = async () => {
-    // build the RoutingSlip Request JSON object that needs to be sent.
-    const routingSlipRequest: Partial<RoutingSlip> = {
-      ...state.routingSlipDetails,
-      ...state.routingSlipAddress,
-      paymentAccount: state.accountInfo,
-      payments: state.isPaymentMethodCheque
-        ? state.chequePayment
-        : (state.cashPayment ? [state.cashPayment] : [])
-    }
+  async function createRoutingSlip() {
+    const crsStore = useCreateRoutingSlipStore()
+    const payApi = usePayApi()
+    const localePath = useLocalePath()
+    const t = useNuxtApp().$i18n.t
+    const toast = useToast()
+    const { toggleLoading } = useLoader()
 
-    const response = await usePayApi().createRoutingSlip(
-      routingSlipRequest as RoutingSlip
-    )
-    if (response) {
-      state.routingSlip = response
+    try {
+      toggleLoading(true)
+      const payload = createRoutingSlipPayload(crsStore.state)
+      const res = await payApi.postRoutingSlip(payload, false)
+      await navigateTo(localePath(`/view-routing-slip/${res.number}`))
+      crsStore.$reset()
+    } catch (e) {
+      const status = getErrorStatus(e)
+      toast.add({
+        description: t('error.createRoutingSlip.generic', { status: status ? `${status}: ` : '' }),
+        icon: 'i-mdi-alert',
+        color: 'error',
+        progress: false
+      })
+    } finally {
+      toggleLoading(false)
     }
   }
 
   const checkRoutingNumber = async (): Promise<CreateRoutingSlipStatus> => {
     try {
-      const routingNumber = state.routingSlipDetails?.number ?? ''
+      const routingNumber = store.routingSlipDetails?.number ?? ''
       const response = await usePayApi().getRoutingSlip(routingNumber)
       // if routing number exists, we get a response object
       // if it doesn't exist, we get undefined or throw error
@@ -141,58 +113,14 @@ export const useRoutingSlip = () => {
     }
   }
 
-  const syncRefundStatusToProcessing = async (
-    routingSlip: RoutingSlip,
-    routingSlipNumber: string
-  ): Promise<RoutingSlip | null> => {
-    if (!routingSlipNumber || !CommonUtils.verifyRoles([Role.FAS_EDIT])) {
-      return null
-    }
-
-    const status = routingSlip.status as SlipStatus
-    const refundStatus = routingSlip.refundStatus
-
-    const isRefundStatus = [
-      SlipStatus.REFUNDREJECTED,
-      SlipStatus.REFUNDAUTHORIZED,
-      SlipStatus.REFUNDREQUEST
-    ].includes(status)
-
-    const isNotProcessing = refundStatus !== chequeRefundCodes.PROCESSING
-
-    if (isRefundStatus && isNotProcessing) {
-      try {
-        await usePayApi().updateRoutingSlipRefundStatus(
-          chequeRefundCodes.PROCESSING,
-          routingSlipNumber
-        )
-        const updatedResponse = await usePayApi().getRoutingSlip(routingSlipNumber)
-        return updatedResponse || null
-      } catch (updateError) {
-        console.error('Error updating refund status to PROCESSING:', updateError)
-        return null
-      }
-    }
-
-    return null
-  }
-
   const getRoutingSlip = async (getRoutingSlipRequestPayload: GetRoutingSlipRequestPayload) => {
     try {
-      state.routingSlip = {} as RoutingSlip
+      store.routingSlip = {} as RoutingSlip
       const response = await usePayApi().getRoutingSlip(
         getRoutingSlipRequestPayload.routingSlipNumber
       )
       if (response) {
-        state.routingSlip = response
-
-        const updatedResponse = await syncRefundStatusToProcessing(
-          response,
-          getRoutingSlipRequestPayload.routingSlipNumber
-        )
-        if (updatedResponse) {
-          state.routingSlip = updatedResponse
-        }
+        store.routingSlip = response
       }
     } catch (error) {
       console.error('error ', error) // 500 errors may not return data
@@ -202,7 +130,7 @@ export const useRoutingSlip = () => {
   const updateRoutingSlipStatus = async (
     statusDetails: string | StatusDetails
   ) => {
-    const slipNumber = state.routingSlip.number
+    const slipNumber = store.routingSlip.number
     // update status
     try {
       let response
@@ -219,7 +147,7 @@ export const useRoutingSlip = () => {
       }
       if (response) {
         if (!CommonUtils.isRefundProcessStatus((statusDetails as StatusDetails)?.status as SlipStatus)) {
-          state.routingSlip = response as RoutingSlip
+          store.routingSlip = response as RoutingSlip
         } else {
           const getRoutingSlipRequestPayload: GetRoutingSlipRequestPayload = { routingSlipNumber: slipNumber }
           getRoutingSlip(getRoutingSlipRequestPayload)
@@ -233,7 +161,7 @@ export const useRoutingSlip = () => {
   }
 
   const updateRoutingSlipRefundStatus = async (status: string) => {
-    const slipNumber = state.routingSlip.number
+    const slipNumber = store.routingSlip.number
     try {
       const responseData = await usePayApi().updateRoutingSlipRefundStatus(status, slipNumber ?? '')
       return responseData
@@ -244,7 +172,7 @@ export const useRoutingSlip = () => {
   }
 
   const updateRoutingSlipComments = async (text: string) => {
-    const slipNumber = state.routingSlip.number
+    const slipNumber = store.routingSlip.number
     const data = {
       comment: {
         businessId: slipNumber,
@@ -262,7 +190,7 @@ export const useRoutingSlip = () => {
 
   const adjustRoutingSlip = async (payments: Payment[]): Promise<RoutingSlip | null> => {
     // build the RoutingSlip Request JSON object that needs to be sent.
-    const slipNumber = state.routingSlip.number
+    const slipNumber = store.routingSlip.number
     try {
       const response = await usePayApi().adjustRoutingSlip(
         payments,
@@ -276,56 +204,18 @@ export const useRoutingSlip = () => {
   }
 
   const resetRoutingSlipDetails = () => {
-    state.routingSlipDetails = undefined
-    state.accountInfo = undefined
-    state.chequePayment = undefined
-    state.cashPayment = undefined
-    state.isPaymentMethodCheque = undefined
-    state.routingSlipAddress = undefined
-  }
-
-  const resetSearchParams = (): void => {
-    state.searchRoutingSlipParams = defaultParams
-    state.searchRoutingSlipResult = []
-  }
-
-  const searchRoutingSlip = async (appendToResults = false) => {
-    // build the RoutingSlip Request JSON object that needs to be sent.
-    const params: SearchRoutingSlipParams = { ...state.searchRoutingSlipParams }
-
-    // filtering and removing all non set values
-    if (!params.dateFilter?.startDate || !params.dateFilter?.endDate) {
-      delete params.dateFilter
-    }
-    const cleanedParams = CommonUtils.cleanObject(
-      params as Record<string, unknown>
-    ) as SearchRoutingSlipParams
-
-    try {
-      const response = await usePayApi().getSearchRoutingSlip(cleanedParams)
-      if (response && response.items) {
-        state.searchRoutingSlipParams = {
-          ...state.searchRoutingSlipParams,
-          total: response.total || 0
-        }
-        if (appendToResults) {
-          state.searchRoutingSlipResult = [
-            ...state.searchRoutingSlipResult,
-            ...(response.items || [])
-          ]
-        } else {
-          state.searchRoutingSlipResult = response.items || []
-        }
-      }
-    } catch (error) {
-      console.error('error ', error)
-    }
+    store.routingSlipDetails = undefined
+    store.accountInfo = undefined
+    store.chequePayment = undefined
+    store.cashPayment = undefined
+    store.isPaymentMethodCheque = undefined
+    store.routingSlipAddress = undefined
   }
 
   const saveLinkRoutingSlip = async (
     parentRoutingSlipNumber: string
   ): Promise<{ error: boolean, details?: unknown } | undefined> => {
-    const childRoutingSlipNumber: string = state.routingSlip.number ?? ''
+    const childRoutingSlipNumber: string = store.routingSlip.number ?? ''
 
     const linkParams = { childRoutingSlipNumber, parentRoutingSlipNumber }
 
@@ -350,9 +240,9 @@ export const useRoutingSlip = () => {
       const response = await usePayApi().getLinkedRoutingSlips(
         routingSlipNumber
       )
-      state.linkedRoutingSlips = response || undefined
+      store.linkedRoutingSlips = response || undefined
     } catch (error) {
-      state.linkedRoutingSlips = undefined
+      store.linkedRoutingSlips = undefined
       console.error('error ', error) // 500 errors may not return data
     }
   }
@@ -399,7 +289,7 @@ export const useRoutingSlip = () => {
 
   const saveManualTransactions = async (transation: ManualTransactionDetails): Promise<Invoice> => {
     // prepare format from here
-    const routingSlipNumber: string | undefined = state.routingSlip.number
+    const routingSlipNumber: string | undefined = store.routingSlip.number
 
     const {
       referenceNumber,
@@ -444,30 +334,11 @@ export const useRoutingSlip = () => {
     return await usePayApi().cancelRoutingSlipInvoice(invoiceId)
   }
 
-  async function infiniteScrollCallback(isInitialLoad: boolean): Promise<boolean> {
-    const params = { ...state.searchRoutingSlipParams }
-    if (params.total !== Infinity && params?.total && params?.limit && params?.total < params?.limit) {
-      return true
-    }
-    state.searchRoutingSlipParams = {
-      ...state.searchRoutingSlipParams,
-      page: state.searchRoutingSlipParams.page && !isInitialLoad
-        ? state.searchRoutingSlipParams.page + 1
-        : 1
-    }
-    await searchRoutingSlip(true)
-    return false
-  }
-
   return {
-    searchRoutingSlipTableHeaders,
-    ...toRefs(state),
     invoiceCount,
-    searchParamsExist,
     isRoutingSlipAChild,
     isRoutingSlipLinked,
     isRoutingSlipVoid,
-    defaultParams,
     updateRoutingSlipChequeNumber,
     updateRoutingSlipAmount,
     createRoutingSlip,
@@ -477,8 +348,6 @@ export const useRoutingSlip = () => {
     updateRoutingSlipRefundStatus,
     adjustRoutingSlip,
     resetRoutingSlipDetails,
-    resetSearchParams,
-    searchRoutingSlip,
     saveLinkRoutingSlip,
     getLinkedRoutingSlips,
     getDailyReportByDate,
@@ -486,7 +355,6 @@ export const useRoutingSlip = () => {
     getFeeByCorpTypeAndFilingType,
     saveManualTransactions,
     cancelRoutingSlipInvoice,
-    infiniteScrollCallback,
     updateRoutingSlipComments
   }
 }

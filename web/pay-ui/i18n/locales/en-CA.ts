@@ -71,6 +71,10 @@ export default {
     },
     createRoutingSlip: {
       generic: '{status}Error creating routing slip, please try again later.'
+    },
+    saveComment: {
+      title: 'Error Saving Comment',
+      description: 'Could not save your comment. Please try again or cancel.'
     }
   },
   label: {
@@ -96,6 +100,7 @@ export default {
     link: 'Link',
     nameOfPersonOrOrgAndAddress: 'Name of Person or Organization & Address',
     nameOfPersonOrOrgOpt: 'Name of Person or Organization (Optional)',
+    ok: 'OK',
     paymentInformation: 'Payment Information',
     receiptNumber: 'Receipt Number',
     refundAmount: 'Refund Amount',

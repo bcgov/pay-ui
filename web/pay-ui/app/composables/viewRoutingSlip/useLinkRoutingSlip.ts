@@ -6,20 +6,21 @@ export default function useLinkRoutingSlip() {
     invoiceCount,
     isRoutingSlipAChild,
     isRoutingSlipLinked,
-    isRoutingSlipVoid,
-    linkedRoutingSlips,
-    routingSlip
+    isRoutingSlipVoid
   } = useRoutingSlip()
+  const { store } = useRoutingSlipStore()
 
   const state = reactive({
     showSearch: false,
     isLoading: false,
     childRoutingSlipDetails: computed<RoutingSlip[]>(() => {
-      return linkedRoutingSlips.value?.children || []
+      return store.linkedRoutingSlips?.children || []
     }),
     parentRoutingSlipDetails: computed<RoutingSlip>(() => {
-      return linkedRoutingSlips.value?.parent || {}
-    })
+      return store.linkedRoutingSlips?.parent || ({} as RoutingSlip)
+    }),
+    routingSlip: computed(() => store.routingSlip),
+    linkedRoutingSlips: computed(() => store.linkedRoutingSlips)
   })
 
   function toggleSearch() {
@@ -32,7 +33,6 @@ export default function useLinkRoutingSlip() {
     isRoutingSlipLinked,
     isRoutingSlipAChild,
     isRoutingSlipVoid,
-    invoiceCount,
-    routingSlip
+    invoiceCount
   }
 }

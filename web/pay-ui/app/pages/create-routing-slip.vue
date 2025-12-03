@@ -2,6 +2,7 @@
 const { t } = useI18n()
 const crsStore = useCreateRoutingSlipStore()
 const modal = usePayModals()
+const { createRoutingSlip } = useRoutingSlip()
 
 definePageMeta({
   layout: 'connect-auth',
@@ -43,7 +44,7 @@ useHead({
       <ReviewRoutingSlip
         v-else
         @cancel="modal.openLeaveCreateRoutingSlipModal"
-        @create="crsStore.createRoutingSlip"
+        @create="createRoutingSlip()"
       />
     </ConnectPageSection>
   </UContainer>

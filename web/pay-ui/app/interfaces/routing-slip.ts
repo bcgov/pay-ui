@@ -148,6 +148,7 @@ export interface TransactionParams {
 export interface RoutingSlipDetails {
   number: string
   routingSlipDate?: string
+  total?: number
 }
 
 export interface RoutingSlipAddress {
@@ -179,7 +180,6 @@ export interface ManualTransactionDetails {
 
 export interface GetRoutingSlipRequestPayload {
   routingSlipNumber: string
-  showGlobalLoader?: boolean
 }
 
 export interface AdjustRoutingSlipChequeParams {

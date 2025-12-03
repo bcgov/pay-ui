@@ -16,10 +16,11 @@ export const usePayApi = () => {
     return $payApi(`/fas/routing-slips/${routingNumber}`)
   }
 
-  async function postRoutingSlip(payload: CreateRoutingSlipPayload): Promise<RoutingSlip> {
+  async function postRoutingSlip(payload: CreateRoutingSlipPayload, showErrorToast = false): Promise<RoutingSlip> {
     return $payApi('/fas/routing-slips', {
       method: 'POST',
-      body: payload
+      body: payload,
+      showErrorToast
     })
   }
 
@@ -170,11 +171,10 @@ export const usePayApi = () => {
     return response.items
   }
 
-  // TODO: fix type
   async function getFeeByCorpTypeAndFilingType(
     getFeeRequestParams: GetFeeRequestParams
   ): Promise<FeeResponse> {
-    const requestParams = commonUtil.createQueryParams(getFeeRequestParams.requestParams)
+    const requestParams = commonUtil.createQueryParams(getFeeRequestParams.requestParams as Record<string, string>)
     return $payApi(
       `/fees/${getFeeRequestParams.corpTypeCode}/${getFeeRequestParams.filingTypeCode}?${requestParams}`,
       { method: 'GET' }

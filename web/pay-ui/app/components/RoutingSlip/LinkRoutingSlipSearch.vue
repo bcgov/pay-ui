@@ -8,9 +8,10 @@ const payApi = usePayApi()
 
 const {
   getLinkedRoutingSlips,
-  getRoutingSlip,
-  routingSlip
+  getRoutingSlip
 } = useRoutingSlip()
+
+const { store } = useRoutingSlipStore()
 
 const props = defineProps<{
   parentRoutingSlipNumber: string
@@ -36,13 +37,14 @@ function validate() {
 
 const debounceValidate = debounce(validate, 100)
 
-async function searchRoutingSlip(number: string): Promise<RoutingSlip[]> {
+async function searchRoutingSlipForLinking(number: string): Promise<RoutingSlipDetails[]> {
   if (number.length < 3) {
     return []
   }
+  // Global Exception handler will handle this one.
   const response = await payApi.postSearchRoutingSlip({ routingSlipNumber: number })
 
-  return response.items.map(i => ({
+  return response.items.map((i: RoutingSlipDetails) => ({
     number: i.number!,
     routingSlipDate: DateTime.fromISO(i.routingSlipDate as string).toFormat('DDD'),
     total: i.total!
@@ -60,7 +62,7 @@ async function linkRoutingSlip(): Promise<void> {
       parentRoutingSlipNumber: props.parentRoutingSlipNumber
     })
     emit('success', selected.value)
-    const currentRoutingSlipId = routingSlip.value?.number || ''
+    const currentRoutingSlipId = store.routingSlip?.number || ''
     const getRoutingSlipRequestPayload: GetRoutingSlipRequestPayload = { routingSlipNumber: currentRoutingSlipId }
     await getRoutingSlip(getRoutingSlipRequestPayload)
     await getLinkedRoutingSlips(currentRoutingSlipId)
@@ -86,7 +88,7 @@ async function linkRoutingSlip(): Promise<void> {
           id="routing-slip-autocomplete"
           v-model="selected"
           :placeholder="$t('label.searchRoutingSlipUniqueID')"
-          :query-fn="searchRoutingSlip"
+          :query-fn="searchRoutingSlipForLinking"
           value-key="number"
           label-key="number"
           size="lg"

@@ -68,6 +68,7 @@ export function createRoutingSlipPayload(data: RoutingSlipSchema): CreateRouting
     }
 
     if (data.payment.paymentType === PaymentTypes.CHEQUE) {
+      // Confirmed using UTC time.
       payment.paymentDate = DateTime.fromISO(item.date).setZone('UTC').toFormat('yyyy-MM-dd')
     }
 
@@ -84,6 +85,7 @@ export function createRoutingSlipPayload(data: RoutingSlipSchema): CreateRouting
     paymentAccount: {
       accountName: data.details.entity
     },
+    // Confirmed using UTC time.
     routingSlipDate: DateTime.fromISO(data.details.date).setZone('UTC').toFormat('yyyy-MM-dd'),
     payments
   }

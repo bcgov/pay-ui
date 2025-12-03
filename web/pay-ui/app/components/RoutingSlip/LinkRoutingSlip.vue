@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import useLinkRoutingSlip from '@/composables/viewRoutingSlip/useLinkRoutingSlip'
-import AutoComplete from './AutoComplete.vue'
+import RoutingSlipLinkSearch from './LinkRoutingSlipSearch.vue'
 import LinkedRoutingSlipDetails from '@/components/RoutingSlip/LinkedRoutingSlipDetails.vue'
 
 const { slipId } = defineProps<{
@@ -101,7 +101,7 @@ const {
           </div>
         </div>
         <div v-if="showSearch" class="mb-4">
-          <AutoComplete
+          <RoutingSlipLinkSearch
             :parent-routing-slip-number="slipId"
             @cancel="toggleSearch()"
           />

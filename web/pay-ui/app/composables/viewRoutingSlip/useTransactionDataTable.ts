@@ -8,10 +8,11 @@ import type { TableColumn } from '@nuxt/ui'
 import { reactive, toRefs } from 'vue'
 
 export default function useTransactionDataTable(invoices: Ref<Invoice[]>) {
-  const { routingSlip, getRoutingSlip } = useRoutingSlip()
+  const { getRoutingSlip } = useRoutingSlip()
+  const { store } = useRoutingSlipStore()
   const { cancelRoutingSlipInvoice } = usePayApi()
   const { isLoading } = useLoader()
-  const { baseModal } = useConnectModal()
+  const modal = usePayModals()
 
   const transformInvoices = (invoices: Invoice[]): InvoiceDisplay[] => {
     return invoices.map((invoice) => {
@@ -126,24 +127,8 @@ export default function useTransactionDataTable(invoices: Ref<Invoice[]>) {
 
   const cancel = async (invoiceId: number) => {
     state.selectedInvoiceId = invoiceId
-    await baseModal.open({
-      title: 'Cancel Transaction?',
-      description: 'Canceling a transaction will place the transaction amount back to the routing slip.',
-      dismissible: true,
-      buttons: [
-        {
-          label: 'Cancel Transaction',
-          onClick: async () => {
-            await modalDialogConfirm()
-          },
-          shouldClose: true
-        },
-        {
-          label: 'Cancel',
-          variant: 'outline',
-          shouldClose: true
-        }
-      ]
+    await modal.openCancelTransactionModal(async () => {
+      await modalDialogConfirm()
     })
   }
 
@@ -156,11 +141,12 @@ export default function useTransactionDataTable(invoices: Ref<Invoice[]>) {
     isLoading.value = true
 
     try {
+      // Do nothing with this, this will get moved out of FAS in the future.
       await cancelRoutingSlipInvoice(state.selectedInvoiceId)
 
-      const routingSlipNumber = routingSlip.value?.number
+      const routingSlipNumber = store.routingSlip.number
       if (routingSlipNumber) {
-        const payload: GetRoutingSlipRequestPayload = { routingSlipNumber, showGlobalLoader: false }
+        const payload: GetRoutingSlipRequestPayload = { routingSlipNumber }
         await getRoutingSlip(payload)
       }
 

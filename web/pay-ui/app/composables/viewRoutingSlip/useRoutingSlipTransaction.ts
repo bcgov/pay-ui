@@ -6,9 +6,9 @@ export default function useRoutingSlipTransaction() {
     getRoutingSlip,
     isRoutingSlipAChild,
     isRoutingSlipVoid,
-    routingSlip,
     saveManualTransactions
   } = useRoutingSlip()
+  const { store } = useRoutingSlipStore()
 
   const showAddManualTransaction = ref<boolean>(false)
   const formRoutingSlipManualTransactions = ref<HTMLFormElement>()
@@ -53,9 +53,9 @@ export default function useRoutingSlipTransaction() {
         }
       }
 
-      if (routingSlip.value?.number) {
+      if (store.routingSlip.number) {
         const getRoutingSlipRequestPayload: GetRoutingSlipRequestPayload
-          = { routingSlipNumber: routingSlip.value?.number }
+          = { routingSlipNumber: store.routingSlip.number }
         await getRoutingSlip(getRoutingSlipRequestPayload)
       }
       toggleLoading(false)
@@ -73,8 +73,8 @@ export default function useRoutingSlipTransaction() {
   function availableAmountForManualTransaction() {
     // iterate all manualTransactionsList and find sum
     // reduce it from the remainingAmount amount and return
-    const sum = manualTransactionsList.value.reduce((sum, current) => sum + current?.total, 0)
-    return routingSlip.value.remainingAmount - sum
+    const sum = manualTransactionsList.value.reduce((sum, current) => sum + (current?.total || 0), 0)
+    return (store.routingSlip?.remainingAmount || 0) - sum
   }
 
   function resetManualTransaction() {
@@ -93,14 +93,13 @@ export default function useRoutingSlipTransaction() {
     // By default, the flags futureEffective, priority are false
     const amount = availableAmountForManualTransaction()
     return {
-      // we would need this column with unique value to be used for iterator.
       // we cannot use index as it would be inconsistent with push/pop
       key: Math.random(),
       futureEffective: false,
       priority: false,
-      total: null,
-      referenceNumber: null,
-      filingType: null,
+      total: undefined,
+      referenceNumber: undefined,
+      filingType: undefined,
       availableAmountForManualTransaction: amount
 
     } as ManualTransactionDetails
@@ -132,13 +131,17 @@ export default function useRoutingSlipTransaction() {
   therefore using event listener, we update the properties of the parent list elements
   */
   function updateManualTransactionDetails(payload: { index: number, transaction: ManualTransactionDetails }) {
+    const transaction = manualTransactionsList.value[payload.index]
+    if (!transaction) {
+      return
+    }
     // assigning individual properties rather than spread or splice as computed/watch not recognizing it
-    manualTransactionsList.value[payload.index].filingType = JSON.parse(JSON.stringify(payload.transaction.filingType))
-    manualTransactionsList.value[payload.index].futureEffective = payload.transaction.futureEffective
-    manualTransactionsList.value[payload.index].priority = payload.transaction.priority
-    manualTransactionsList.value[payload.index].quantity = payload.transaction.quantity
-    manualTransactionsList.value[payload.index].referenceNumber = payload.transaction.referenceNumber
-    manualTransactionsList.value[payload.index].total = payload.transaction.total
+    transaction.filingType = JSON.parse(JSON.stringify(payload.transaction.filingType))
+    transaction.futureEffective = payload.transaction.futureEffective
+    transaction.priority = payload.transaction.priority
+    transaction.quantity = payload.transaction.quantity
+    transaction.referenceNumber = payload.transaction.referenceNumber
+    transaction.total = payload.transaction.total
     updateAvailableAmountForManualTransaction()
     status.value = ''
   }
@@ -146,13 +149,18 @@ export default function useRoutingSlipTransaction() {
   function updateAvailableAmountForManualTransaction(): void {
     // We dont need the first item as it would have the entire remainingAmount of the routingslip
     for (let i = 1; i <= manualTransactionsList.value.length - 1; i++) {
+      const currentTransaction = manualTransactionsList.value[i]
+      const previousTransaction = manualTransactionsList.value[i - 1]
+      if (!currentTransaction || !previousTransaction) {
+        continue
+      }
       // if previous record has no total, then the available amount is carried over to the next record
-      if (manualTransactionsList.value[i - 1].total > 0) {
-        manualTransactionsList.value[i].availableAmountForManualTransaction
-          = routingSlip.value.remainingAmount - manualTransactionsList.value[i - 1].total
+      if (previousTransaction.total && previousTransaction.total > 0) {
+        currentTransaction.availableAmountForManualTransaction
+          = (store.routingSlip.remainingAmount || 0) - previousTransaction.total
       } else {
-        manualTransactionsList.value[i].availableAmountForManualTransaction
-          = manualTransactionsList.value[i - 1].availableAmountForManualTransaction
+        currentTransaction.availableAmountForManualTransaction
+          = previousTransaction.availableAmountForManualTransaction
       }
     }
   }
@@ -178,7 +186,6 @@ export default function useRoutingSlipTransaction() {
     removeManualTransactionRow,
     updateManualTransactionDetails,
     hideManualTransaction,
-    status,
-    routingSlip
+    status
   }
 }

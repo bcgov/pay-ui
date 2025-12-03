@@ -9,8 +9,6 @@ import { PaymentTypes } from '~/enums/payment-types'
 import CommonUtils from '~/utils/common-util'
 import { useRoutingSlip } from './useRoutingSlip'
 
-const routingSlipBeforeEdit = ref<RoutingSlip>({})
-
 // Composable function to inject Props, options and values to PaymentInformation component
 export const usePaymentInformation = (emit?: (event: 'paymentAdjusted') => void) => {
   const {
@@ -18,11 +16,10 @@ export const usePaymentInformation = (emit?: (event: 'paymentAdjusted') => void)
     getRoutingSlip,
     isRoutingSlipAChild,
     isRoutingSlipLinked,
-    linkedRoutingSlips,
-    routingSlip,
     updateRoutingSlipAmount,
     updateRoutingSlipChequeNumber
   } = useRoutingSlip()
+  const { store } = useRoutingSlipStore()
 
   const route = useRoute()
 
@@ -33,7 +30,7 @@ export const usePaymentInformation = (emit?: (event: 'paymentAdjusted') => void)
   // As per current business rule, a routingslip has one-to-one relation with payment method (Cash/Cheque)
   // Therefore, we can determine the payment method of the current routingslip from the first payment record
   const isPaymentCheque = computed(() => {
-    const payments = routingSlip.value?.payments
+    const payments = store.routingSlip.payments
     // to prevent lazy load
     return payments && payments[0]?.paymentMethod === PaymentTypes.CHEQUE
   })
@@ -41,13 +38,13 @@ export const usePaymentInformation = (emit?: (event: 'paymentAdjusted') => void)
   const displayEditRoutingSlip = computed(() => {
     return !isEditable.value
       && isExpanded.value
-      && routingSlip.value
-      && routingSlip.value.payments
+      && store.routingSlip
+      && store.routingSlip.payments
   })
 
   const enableEditRoutingSlip = computed(() => {
-    return [SlipStatus.ACTIVE, SlipStatus.COMPLETE, SlipStatus.CORRECTION]
-      .includes(routingSlip.value.status as SlipStatus)
+    return store.routingSlip.status && [SlipStatus.ACTIVE, SlipStatus.COMPLETE, SlipStatus.CORRECTION]
+      .includes(store.routingSlip.status as SlipStatus)
   })
 
   function adjustRoutingSlipChequeNumber(num: string, paymentIndex = 0) {
@@ -69,10 +66,10 @@ export const usePaymentInformation = (emit?: (event: 'paymentAdjusted') => void)
 
   // Backend returns individual routing slip total. Therefore, we need to sum up the children routing slips as well
   const totalAmount = computed(() => {
-    let routingSlipTotal = routingSlip.value?.total || 0
+    let routingSlipTotal = store.routingSlip.total || 0
     if (isRoutingSlipLinked.value === true && isRoutingSlipAChild.value === false) {
       // this means it is a parent routing slip
-      const linkedRoutingSlipsTotal = linkedRoutingSlips.value?.children?.reduce((acc, slip: RoutingSlip) => {
+      const linkedRoutingSlipsTotal = store.linkedRoutingSlips?.children?.reduce((acc: number, slip: RoutingSlip) => {
         return acc + (slip.total || 0)
       }, 0) || 0
       routingSlipTotal += linkedRoutingSlipsTotal
@@ -81,39 +78,39 @@ export const usePaymentInformation = (emit?: (event: 'paymentAdjusted') => void)
   })
 
   const remainingAmount = computed(() => {
-    const amount = routingSlip.value.remainingAmount
+    const amount = store.routingSlip.remainingAmount
     return amount
       ? CommonUtils.appendCurrencySymbol(amount.toFixed(2))
       : '$0.00'
   })
 
   const isRoutingSlipPaidInUsd = computed(() => {
-    return routingSlip.value.totalUsd && routingSlip.value.totalUsd > 0
+    return store.routingSlip.totalUsd && store.routingSlip.totalUsd > 0
   })
 
   const isRoutingSlipChildPaidInUsd = computed(() => {
-    return linkedRoutingSlips.value
-      && linkedRoutingSlips.value.children
-      && linkedRoutingSlips.value.children.length > 0
-      && linkedRoutingSlips.value.children[0]?.totalUsd
-      && linkedRoutingSlips.value.children[0]?.totalUsd > 0
+    return store.linkedRoutingSlips
+      && store.linkedRoutingSlips.children
+      && store.linkedRoutingSlips.children.length > 0
+      && store.linkedRoutingSlips.children[0]?.totalUsd
+      && store.linkedRoutingSlips.children[0]?.totalUsd > 0
   })
 
   const hasPaymentChanges = computed(() => {
     // If routingSlipBeforeEdit is empty, no changes have been made yet
-    if (!routingSlipBeforeEdit.value || Object.keys(routingSlipBeforeEdit.value).length === 0) {
+    if (!store.routingSlipBeforeEdit || Object.keys(store.routingSlipBeforeEdit).length === 0) {
       return false
     }
-    const current = routingSlip.value as Record<string, unknown>
-    const before = routingSlipBeforeEdit.value as Record<string, unknown>
+    const current = store.routingSlip as Record<string, unknown>
+    const before = store.routingSlipBeforeEdit as Record<string, unknown>
     return !CommonUtils.isDeepEqual(current, before)
   })
 
   async function adjustRoutingSlipHandler() {
-    await adjustRoutingSlip(routingSlip.value.payments || [])
+    await adjustRoutingSlip(store.routingSlip.payments || [])
     adjustRoutingSlipStatus()
     const getRoutingSlipRequestPayload: GetRoutingSlipRequestPayload = {
-      routingSlipNumber: routingSlip.value.number
+      routingSlipNumber: store.routingSlip.number || ''
     }
     await getRoutingSlip(getRoutingSlipRequestPayload)
 
@@ -129,12 +126,12 @@ export const usePaymentInformation = (emit?: (event: 'paymentAdjusted') => void)
   }
 
   function cancelEditPayment() {
-    routingSlip.value = routingSlipBeforeEdit.value
+    store.routingSlip = store.routingSlipBeforeEdit as RoutingSlip
     adjustRoutingSlipStatus()
   }
 
   function editPayment() {
-    routingSlipBeforeEdit.value = JSON.parse(JSON.stringify(routingSlip.value))
+    store.routingSlipBeforeEdit = JSON.parse(JSON.stringify(store.routingSlip))
     adjustRoutingSlipStatus()
   }
 
@@ -153,11 +150,11 @@ export const usePaymentInformation = (emit?: (event: 'paymentAdjusted') => void)
   }
 
   return {
-    routingSlip,
+    routingSlip: computed(() => store.routingSlip),
     isExpanded,
     isEditable,
     isPaymentCheque,
-    linkedRoutingSlips,
+    linkedRoutingSlips: computed(() => store.linkedRoutingSlips),
     isRoutingSlipAChild,
     isRoutingSlipLinked,
     isRoutingSlipChildPaidInUsd,

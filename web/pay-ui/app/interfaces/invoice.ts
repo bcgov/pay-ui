@@ -38,24 +38,6 @@ export interface Invoice {
   details?: Detail[]
 }
 
-export interface InvoiceList {
-  consInvNumber?: string
-  invoiceNumber: string
-  invoices: Invoice[]
-  paymentMethod: string
-  paymentSystem: string
-  statusCode: string
-  invoiceAmount: number
-  paidAmount: number
-}
-
-export interface InvoiceListResponse {
-  items: InvoiceList[]
-  limit: number
-  page: number
-  total: number
-}
-
 // For displaying transaction data table
 export interface InvoiceDisplay {
   createdOn?: string
@@ -66,4 +48,20 @@ export interface InvoiceDisplay {
   createdBy?: string
   description?: string[]
   id?: number
+}
+
+export interface LineItem {
+  description: string
+  filingFees: number
+  futureEffectiveFees: number
+  gst: number
+  id?: number
+  priorityFees: number
+  pst: number
+  quantity: number
+  serviceFees: number
+  statusCode?: string
+  total: number
+  waivedBy: string
+  waivedFees: number
 }

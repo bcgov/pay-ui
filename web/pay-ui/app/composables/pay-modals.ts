@@ -81,10 +81,25 @@ export const usePayModals = () => {
     })
   }
 
+  async function openErrorDialog(title: string, description: string) {
+    await baseModal.open({
+      title,
+      description,
+      dismissible: true,
+      buttons: [
+        {
+          label: t('label.ok'),
+          shouldClose: true
+        }
+      ]
+    })
+  }
+
   return {
     openLeaveCreateRoutingSlipModal,
     openPlaceRoutingSlipToNSFModal,
     openVoidRoutingSlipModal,
-    openCancelTransactionModal
+    openCancelTransactionModal,
+    openErrorDialog
   }
 }

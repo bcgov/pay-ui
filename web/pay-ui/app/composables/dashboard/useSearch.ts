@@ -1,28 +1,98 @@
 import type { Invoice } from '~/interfaces/invoice'
+import type { SearchRoutingSlipParams, RoutingSlip } from '~/interfaces/routing-slip'
 import { debounce } from 'es-toolkit'
 import { useLoader } from '@/composables/common/useLoader'
 import { useStatusList } from '@/composables/common/useStatusList'
-import { useRoutingSlip } from '@/composables/useRoutingSlip'
-import { chequeRefundCodes, ChequeRefundStatus } from '@/utils/constants'
+import { chequeRefundCodes, ChequeRefundStatus, PaymentMethods, SearchRoutingSlipTableHeaders } from '@/utils/constants'
+import { SlipStatus } from '~/enums/slip-status'
+import CommonUtils from '@/utils/common-util'
+import { usePayApi } from '@/composables/pay-api'
+
+export interface SearchFilterState {
+  routingSlipNumber: string | null
+  receiptNumber: string | null
+  accountName: string | null
+  createdName: string | null
+  dateFilter: { startDate: string | null, endDate: string | null }
+  status: string | null
+  refundStatus: string | null
+  businessIdentifier: string | null
+  chequeReceiptNumber: string | null
+  remainingAmount: string | null
+}
 
 export async function useSearch() {
-  const {
-    searchRoutingSlipTableHeaders,
-    resetSearchParams,
-    searchParamsExist,
-    searchRoutingSlip,
-    searchRoutingSlipParams,
-    searchRoutingSlipResult,
-    infiniteScrollCallback,
-    defaultParams
-  } = useRoutingSlip()
-
-  // Adding openFromAuth=true queryparams so that we can build breadcrumbs
-  // Eg of a typical breadcrumb flow =
-  // Staff Dashboard -> FAS Dashboard -> View Routing Slip: test -> View Routing Slip: testchild
-
+  const { store } = useRoutingSlipStore()
+  const searchRoutingSlipParams = store.searchRoutingSlipParams
+  const searchRoutingSlipResult = store.searchRoutingSlipResult
+  const defaultParams: SearchRoutingSlipParams = {
+    page: 1,
+    limit: 50,
+    total: Infinity
+  }
   const { statusLabel } = await useStatusList(reactive({ value: '' }), { emit: () => {} })
   const { isLoading, toggleLoading } = useLoader()
+
+  const searchParamsExist = computed<boolean>(() => {
+    const params = searchRoutingSlipParams as Record<string, unknown>
+    for (const key in params) {
+      if (params[key] && params[key] !== '') {
+        return false
+      }
+    }
+    return true
+  })
+
+  const resetSearchParams = (): void => {
+    Object.assign(searchRoutingSlipParams, defaultParams)
+    searchRoutingSlipResult.length = 0
+  }
+
+  const searchRoutingSlip = async (appendToResults = false) => {
+    const params: SearchRoutingSlipParams = { ...searchRoutingSlipParams }
+
+    // filtering and removing all non set values
+    if (!params.dateFilter?.startDate || !params.dateFilter?.endDate) {
+      delete params.dateFilter
+    }
+    const cleanedParams = CommonUtils.cleanObject(
+      params as Record<string, unknown>
+    ) as SearchRoutingSlipParams
+
+    try {
+      // Let Global Error Handler handle this one.
+      const response = await usePayApi().getSearchRoutingSlip(cleanedParams)
+      if (response && response.items) {
+        Object.assign(searchRoutingSlipParams, {
+          ...searchRoutingSlipParams,
+          total: response.total || 0
+        })
+        if (appendToResults) {
+          searchRoutingSlipResult.push(...(response.items || []))
+        } else {
+          searchRoutingSlipResult.length = 0
+          searchRoutingSlipResult.push(...(response.items || []))
+        }
+      }
+    } catch (error) {
+      console.error('error ', error)
+    }
+  }
+
+  async function infiniteScrollCallback(isInitialLoad: boolean): Promise<boolean> {
+    const params = { ...searchRoutingSlipParams }
+    if (params.total !== Infinity && params?.total && params?.limit && params?.total < params?.limit) {
+      return true
+    }
+    Object.assign(searchRoutingSlipParams, {
+      ...searchRoutingSlipParams,
+      page: searchRoutingSlipParams.page && !isInitialLoad
+        ? searchRoutingSlipParams.page + 1
+        : 1
+    })
+    await searchRoutingSlip(true)
+    return false
+  }
 
   const showExpandedFolio = ref<string[]>([])
   const showExpandedCheque = ref<string[]>([])
@@ -30,12 +100,46 @@ export async function useSearch() {
   const searchParamsChanged = ref(false)
   const reachedEnd = ref(false)
 
+  const columnPinning = ref({
+    right: ['actions']
+  })
+
+  const isInitialLoad = ref(true)
+
+  const filterInitialState: SearchFilterState = {
+    routingSlipNumber: null,
+    receiptNumber: null,
+    accountName: null,
+    createdName: null,
+    dateFilter: { startDate: null, endDate: null },
+    status: null,
+    refundStatus: null,
+    businessIdentifier: null,
+    chequeReceiptNumber: null,
+    remainingAmount: null
+  }
+
+  const filters = reactive<SearchFilterState>({
+    routingSlipNumber: null,
+    receiptNumber: null,
+    accountName: null,
+    createdName: null,
+    dateFilter: { startDate: null, endDate: null },
+    status: null,
+    refundStatus: null,
+    businessIdentifier: null,
+    chequeReceiptNumber: null,
+    remainingAmount: null
+  })
+
+  const searchRoutingSlipTableHeaders = ref(SearchRoutingSlipTableHeaders)
+
   function updateSearchFilter(updates: Record<string, string | number | boolean | object | null>) {
-    searchRoutingSlipParams.value = {
-      ...searchRoutingSlipParams.value,
+    Object.assign(searchRoutingSlipParams, {
+      ...searchRoutingSlipParams,
       ...defaultParams,
       ...updates
-    }
+    })
     searchParamsChanged.value = true
     reachedEnd.value = false
   }
@@ -45,6 +149,11 @@ export async function useSearch() {
     await searchRoutingSlip()
     searchParamsChanged.value = false
     toggleLoading(false)
+  }
+
+  const search = async () => {
+    await nextTick()
+    searchNow()
   }
 
   onMounted(() => {
@@ -111,18 +220,76 @@ export async function useSearch() {
     return folios.length ? folios : ['-']
   }
 
-  const getNext = async (isInitialLoad = false) => {
-    if (isLoading.value) {
-      return
-    }
-    reachedEnd.value = await infiniteScrollCallback(isInitialLoad)
-  }
-
   function getRefundStatusText(statusCode: string | null): string | null {
     const refundStatus = ChequeRefundStatus
       .find(item => item.code === statusCode)?.text || chequeRefundCodes.PROCESSING || null
     return refundStatus
   }
+
+  const getNext = async (isInitialLoadParam = false) => {
+    if (isLoading.value) {
+      return
+    }
+    reachedEnd.value = await infiniteScrollCallback(isInitialLoadParam)
+  }
+
+  const routingSlips = computed(() => {
+    if (!searchRoutingSlipResult) {
+      return []
+    }
+    return searchRoutingSlipResult.map((item: RoutingSlip) => {
+      return {
+        routingSlipNumber: item.number ?? '-',
+        receiptNumber: item.paymentAccount
+          && item.paymentAccount.paymentMethod === PaymentMethods.CASH
+          ? (item.payments?.[0]?.chequeReceiptNumber ?? '-')
+          : '-',
+        accountName: item.paymentAccount?.accountName ?? '-',
+        createdName: item.createdName ?? '-',
+        date: CommonUtils.formatDisplayDate(item.routingSlipDate || '', 'MMMM dd, yyyy'),
+        status: item.status || '',
+        refundStatus: item.refundStatus ? getRefundStatusText(item.refundStatus) : '-',
+        businessIdentifier: formatFolioResult(item.invoices || [], filters.businessIdentifier),
+        chequeReceiptNumber: item.paymentAccount && item.paymentAccount.paymentMethod === PaymentMethods.CHEQUE
+          ? (item.payments?.map((p: { chequeReceiptNumber?: string }) => p.chequeReceiptNumber) || ['-'])
+          : ['-'],
+        remainingAmount: item.remainingAmount
+          ? CommonUtils.appendCurrencySymbol(item.remainingAmount.toFixed(2))
+          : '-'
+      }
+    })
+  })
+
+  const columnVisibility = computed<Record<string, boolean>>(() => {
+    const visibility: Record<string, boolean> = {}
+    searchRoutingSlipTableHeaders.value.forEach((item: { accessorKey: string, display: boolean }) => {
+      visibility[item.accessorKey] = item.display
+    })
+    return visibility
+  })
+
+  const resetSearchFilters = async () => {
+    Object.assign(filters, filterInitialState)
+    search()
+  }
+
+  // Watch filters and update search params
+  watch(() => filters.routingSlipNumber, newVal => updateSearchFilter({ routingSlipNumber: newVal }))
+  watch(() => filters.receiptNumber, newVal => updateSearchFilter({ receiptNumber: newVal }))
+  watch(() => filters.accountName, newVal => updateSearchFilter({ accountName: newVal }))
+  watch(() => filters.createdName, newVal => updateSearchFilter({ createdName: newVal }))
+  watch(
+    () => filters.dateFilter,
+    (newVal) => {
+      updateSearchFilter({ dateFilter: newVal })
+    },
+    { deep: true }
+  )
+  watch(() => filters.status, newVal => updateSearchFilter({ status: newVal }))
+  watch(() => filters.refundStatus, newVal => updateSearchFilter({ refundStatus: newVal }))
+  watch(() => filters.businessIdentifier, newVal => updateSearchFilter({ businessIdentifier: newVal }))
+  watch(() => filters.chequeReceiptNumber, newVal => updateSearchFilter({ chequeReceiptNumber: newVal }))
+  watch(() => filters.remainingAmount, newVal => updateSearchFilter({ remainingAmount: newVal }))
 
   function getStatusFromRefundStatus(statusCode: string): SlipStatus {
     if (statusCode === chequeRefundCodes.PROCESSING) {
@@ -149,6 +316,14 @@ export async function useSearch() {
     getRefundStatusText,
     getStatusFromRefundStatus,
     updateSearchFilter,
-    clearFilter
+    clearFilter,
+    filters,
+    routingSlips,
+    columnPinning,
+    isInitialLoad,
+    columnVisibility,
+    resetSearchFilters,
+    search,
+    resetSearchParams
   }
 }

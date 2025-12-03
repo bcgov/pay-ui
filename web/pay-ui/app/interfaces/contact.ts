@@ -9,7 +9,3 @@ export interface Contact {
   postalCode?: string
   region?: string
 }
-
-export interface Contacts {
-  contacts: Contact[]
-}

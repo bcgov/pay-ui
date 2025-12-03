@@ -3,10 +3,3 @@ export interface Code {
   code?: string
   description?: string
 }
-
-export interface PaymentMethod {
-  code: string
-  description: string
-  partialRefund?: boolean
-  refundableStatuses?: string
-}
