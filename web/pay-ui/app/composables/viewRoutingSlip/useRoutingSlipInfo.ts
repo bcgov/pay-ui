@@ -223,7 +223,6 @@ export function useRoutingSlipInfo() {
       const newStatusText = getRefundStatusText(status)
       const comment = `Refund status updated from ${oldStatusText} to ${newStatusText}`
 
-    
       await updateRoutingSlipComments(comment)
 
       if (onCommentsUpdated) {

@@ -10,4 +10,3 @@ config.global.directives = {
   ...config.global.directives,
   can: canDirective
 }
-
