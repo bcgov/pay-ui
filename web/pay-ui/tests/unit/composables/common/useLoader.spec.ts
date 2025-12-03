@@ -64,4 +64,3 @@ describe('useLoader', () => {
     expect(isThereActiveCalls.value).toBe(false)
   })
 })
-

@@ -187,11 +187,11 @@ describe('LinkRoutingSlipSearch', () => {
 
     const buttons = wrapper.findAllComponents({ name: 'UButton' })
     const cancelButton = buttons.find((btn: any) => btn.props('label') === 'label.cancel')
-    
+
     if (cancelButton) {
       await cancelButton.trigger('click')
       await nextTick()
-      
+
       expect(wrapper.emitted('cancel')).toBeTruthy()
       expect(wrapper.emitted('cancel')).toHaveLength(1)
     }
@@ -276,11 +276,11 @@ describe('LinkRoutingSlipSearch', () => {
 
     const autocomplete = wrapper.find('[data-test="autocomplete"]')
     expect(autocomplete.exists()).toBe(true)
-    
+
     const autocompleteComponent = wrapper.findComponent({ name: 'AsyncAutoComplete' })
     if (autocompleteComponent.exists()) {
       const queryFn = autocompleteComponent.props('queryFn')
-      
+
       if (queryFn && typeof queryFn === 'function') {
         await queryFn('123')
         expect(mockPostSearchRoutingSlip).toHaveBeenCalledWith({ routingSlipNumber: '123' })
@@ -322,11 +322,11 @@ describe('LinkRoutingSlipSearch', () => {
 
     const autocomplete = wrapper.find('[data-test="autocomplete"]')
     expect(autocomplete.exists()).toBe(true)
-    
+
     const autocompleteComponent = wrapper.findComponent({ name: 'AsyncAutoComplete' })
     if (autocompleteComponent.exists()) {
       const queryFn = autocompleteComponent.props('queryFn')
-      
+
       if (queryFn && typeof queryFn === 'function') {
         const result = await queryFn('12')
         expect(result).toEqual([])
@@ -337,7 +337,7 @@ describe('LinkRoutingSlipSearch', () => {
 
   it('should call linkRoutingSlip and emit success when link button is clicked with valid selection', async () => {
     mockPostLinkRoutingSlip.mockImplementation(() => Promise.resolve({}))
-    
+
     const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
       props: {
         parentRoutingSlipNumber: '123456789'
@@ -377,7 +377,7 @@ describe('LinkRoutingSlipSearch', () => {
 
     const buttons = wrapper.findAllComponents({ name: 'UButton' })
     const linkButton = buttons.find((btn: any) => btn.props('label') === 'label.link')
-    
+
     if (linkButton) {
       await linkButton.trigger('click')
       await nextTick()
@@ -401,9 +401,9 @@ describe('LinkRoutingSlipSearch', () => {
         }
       }
     } as any
-    
+
     mockPostLinkRoutingSlip.mockImplementation(() => Promise.reject(fetchError))
-    
+
     const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
       props: {
         parentRoutingSlipNumber: '123456789'
@@ -443,7 +443,7 @@ describe('LinkRoutingSlipSearch', () => {
 
     const buttons = wrapper.findAllComponents({ name: 'UButton' })
     const linkButton = buttons.find((btn: any) => btn.props('label') === 'label.link')
-    
+
     if (linkButton) {
       await linkButton.trigger('click')
       await nextTick()
@@ -456,7 +456,7 @@ describe('LinkRoutingSlipSearch', () => {
 
   it('should set error message when linkRoutingSlip fails with non-FetchError', async () => {
     mockPostLinkRoutingSlip.mockImplementation(() => Promise.reject(new Error('Generic error')))
-    
+
     const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
       props: {
         parentRoutingSlipNumber: '123456789'
@@ -496,7 +496,7 @@ describe('LinkRoutingSlipSearch', () => {
 
     const buttons = wrapper.findAllComponents({ name: 'UButton' })
     const linkButton = buttons.find((btn: any) => btn.props('label') === 'label.link')
-    
+
     if (linkButton) {
       await linkButton.trigger('click')
       await nextTick()
@@ -509,7 +509,7 @@ describe('LinkRoutingSlipSearch', () => {
 
   it('should call getRoutingSlip and getLinkedRoutingSlips after successful link', async () => {
     mockPostLinkRoutingSlip.mockImplementation(() => Promise.resolve({}))
-    
+
     const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
       props: {
         parentRoutingSlipNumber: '123456789'
@@ -549,7 +549,7 @@ describe('LinkRoutingSlipSearch', () => {
 
     const buttons = wrapper.findAllComponents({ name: 'UButton' })
     const linkButton = buttons.find((btn: any) => btn.props('label') === 'label.link')
-    
+
     if (linkButton) {
       await linkButton.trigger('click')
       await nextTick()
@@ -560,4 +560,3 @@ describe('LinkRoutingSlipSearch', () => {
     }
   })
 })
-

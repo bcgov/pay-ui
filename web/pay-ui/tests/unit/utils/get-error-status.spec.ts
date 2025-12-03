@@ -1,4 +1,3 @@
-
 describe('getErrorStatus', () => {
   it('should return the status code from response.status error object', () => {
     expect(getErrorStatus({ response: { status: 404, data: 'Not Found' } })).toBe(404)

@@ -42,10 +42,10 @@ describe('useIndicators', () => {
     const { activeCalls, isThereActiveCalls } = useIndicators()
     activeCalls.value = 0
     expect(isThereActiveCalls.value).toBe(false)
-    
+
     activeCalls.value = 5
     expect(isThereActiveCalls.value).toBe(true)
-    
+
     activeCalls.value = 0
     expect(isThereActiveCalls.value).toBe(false)
   })
@@ -54,7 +54,7 @@ describe('useIndicators', () => {
     const { hasCallFailed } = useIndicators()
     hasCallFailed.value = true
     expect(hasCallFailed.value).toBe(true)
-    
+
     hasCallFailed.value = false
     expect(hasCallFailed.value).toBe(false)
   })
@@ -62,10 +62,9 @@ describe('useIndicators', () => {
   it('should share state across multiple instances', () => {
     const instance1 = useIndicators()
     const instance2 = useIndicators()
-    
+
     instance1.activeCalls.value = 3
     expect(instance2.activeCalls.value).toBe(3)
     expect(instance2.isThereActiveCalls.value).toBe(true)
   })
 })
-

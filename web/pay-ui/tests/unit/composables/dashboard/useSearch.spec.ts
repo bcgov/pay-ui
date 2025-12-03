@@ -117,7 +117,7 @@ describe('useSearch', () => {
       items: mockItems,
       total: 2
     }))
-    
+
     const composable = await useSearch()
     await composable.searchNow()
     const { store } = useRoutingSlipStore()
@@ -131,9 +131,9 @@ describe('useSearch', () => {
     store.searchRoutingSlipParams.limit = 100
     store.searchRoutingSlipParams.total = 10
     store.searchRoutingSlipResult.push({} as any)
-    
+
     composable.resetSearchParams()
-    
+
     expect(store.searchRoutingSlipParams.page).toBe(1)
     expect(store.searchRoutingSlipParams.limit).toBe(50)
     expect(store.searchRoutingSlipParams.total).toBe(Infinity)
@@ -143,10 +143,10 @@ describe('useSearch', () => {
   it('should update search filter when updateSearchFilter is called', async () => {
     const composable = await useSearch()
     const { store } = useRoutingSlipStore()
-    
+
     composable.updateSearchFilter({ routingSlipNumber: '123' })
     await nextTick()
-    
+
     expect(store.searchRoutingSlipParams.routingSlipNumber).toBe('123')
   })
 
@@ -155,9 +155,9 @@ describe('useSearch', () => {
     const { store } = useRoutingSlipStore()
     store.searchRoutingSlipParams.routingSlipNumber = '123'
     store.searchRoutingSlipParams.page = 5
-    
+
     await composable.clearFilter()
-    
+
     expect(mockGetSearchRoutingSlip).toHaveBeenCalled()
     expect(store.searchRoutingSlipParams.page).toBe(1)
   })
@@ -166,7 +166,7 @@ describe('useSearch', () => {
     const composable = await useSearch()
     composable.toggleFolio('folio-1')
     expect(composable.showExpandedFolio.value).toContain('folio-1')
-    
+
     composable.toggleFolio('folio-1')
     expect(composable.showExpandedFolio.value).not.toContain('folio-1')
   })
@@ -175,7 +175,7 @@ describe('useSearch', () => {
     const composable = await useSearch()
     composable.toggleCheque('cheque-1')
     expect(composable.showExpandedCheque.value).toContain('cheque-1')
-    
+
     composable.toggleCheque('cheque-1')
     expect(composable.showExpandedCheque.value).not.toContain('cheque-1')
   })
@@ -186,14 +186,14 @@ describe('useSearch', () => {
       { businessIdentifier: 'BI1' },
       { businessIdentifier: 'BI2' }
     ] as any[]
-    
+
     const result = composable.formatFolioResult(invoices, null)
     expect(result).toEqual(['BI1', 'BI2'])
   })
 
   it('should return business identifier if search params not changed and business identifier provided', async () => {
     const composable = await useSearch()
-    
+
     // formatFolioResult returns businessIdentifier when searchParamsChanged is false and businessIdentifier is provided
     const result = composable.formatFolioResult([], 'BI123')
     expect(result).toEqual(['BI123'])
@@ -236,7 +236,7 @@ describe('useSearch', () => {
         payments: []
       }
     ] as any[]
-    
+
     await nextTick()
     expect(composable.routingSlips.value).toBeDefined()
     expect(Array.isArray(composable.routingSlips.value)).toBe(true)
@@ -250,9 +250,9 @@ describe('useSearch', () => {
   it('should not call getNext if isLoading is true', async () => {
     const composable = await useSearch()
     mockIsLoading.value = true
-    
+
     await composable.getNext()
-    
+
     expect(mockGetSearchRoutingSlip).not.toHaveBeenCalled()
   })
 
@@ -263,16 +263,15 @@ describe('useSearch', () => {
     store.searchRoutingSlipParams.page = 1
     store.searchRoutingSlipParams.total = 100
     store.searchRoutingSlipParams.limit = 50
-    
+
     mockGetSearchRoutingSlip.mockImplementation(() => Promise.resolve({
       items: [{ number: '2' }],
       total: 2
     }))
-    
+
     await composable.getNext(false)
     await nextTick()
-    
+
     expect(mockGetSearchRoutingSlip).toHaveBeenCalled()
   })
 })
-

@@ -1,4 +1,3 @@
-
 describe('Create Routing Slip - Payment', () => {
   describe('getRoutingSlipDateSchema', () => {
     const dateSchema = getRoutingSlipDateSchema()

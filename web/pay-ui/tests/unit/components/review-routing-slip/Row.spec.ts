@@ -37,4 +37,3 @@ describe('Row', () => {
     expect(wrapper.text()).toContain('Slot Content')
   })
 })
-

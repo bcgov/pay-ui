@@ -84,7 +84,7 @@ describe('useRoutingSlipTransaction', () => {
   it('should show manual transaction and add row when list is empty', () => {
     const composable = useRoutingSlipTransaction()
     composable.showManualTransaction()
-    
+
     expect(composable.showAddManualTransaction.value).toBe(true)
     expect(composable.manualTransactionsList.value.length).toBe(1)
   })
@@ -93,9 +93,9 @@ describe('useRoutingSlipTransaction', () => {
     const composable = useRoutingSlipTransaction()
     composable.manualTransactionsList.value.push({ key: 1 } as any)
     const initialLength = composable.manualTransactionsList.value.length
-    
+
     composable.showManualTransaction()
-    
+
     expect(composable.showAddManualTransaction.value).toBe(true)
     expect(composable.manualTransactionsList.value.length).toBe(initialLength)
   })
@@ -103,7 +103,7 @@ describe('useRoutingSlipTransaction', () => {
   it('should add manual transaction row', () => {
     const composable = useRoutingSlipTransaction()
     composable.addManualTransactionRow()
-    
+
     expect(composable.manualTransactionsList.value.length).toBe(1)
     expect(composable.manualTransactionsList.value[0]).toHaveProperty('key')
     expect(composable.manualTransactionsList.value[0]?.futureEffective).toBe(false)
@@ -115,9 +115,9 @@ describe('useRoutingSlipTransaction', () => {
     const composable = useRoutingSlipTransaction()
     composable.manualTransactionsList.value.push({ key: 1 } as any)
     composable.manualTransactionsList.value.push({ key: 2 } as any)
-    
+
     composable.removeManualTransactionRow(0)
-    
+
     expect(composable.manualTransactionsList.value.length).toBe(1)
     expect(composable.manualTransactionsList.value[0]?.key).toBe(2)
     expect(composable.status.value).toBe('')
@@ -127,16 +127,16 @@ describe('useRoutingSlipTransaction', () => {
     const composable = useRoutingSlipTransaction()
     composable.manualTransactionsList.value.push({ total: 100 } as any)
     composable.manualTransactionsList.value.push({ total: 200 } as any)
-    
+
     const available = composable.availableAmountForManualTransaction()
-    
+
     expect(available).toBe(700.00) // 1000 - 100 - 200
   })
 
   it('should return full remaining amount when no transactions', () => {
     const composable = useRoutingSlipTransaction()
     const available = composable.availableAmountForManualTransaction()
-    
+
     expect(available).toBe(1000.00)
   })
 
@@ -144,9 +144,9 @@ describe('useRoutingSlipTransaction', () => {
     const composable = useRoutingSlipTransaction()
     composable.manualTransactionsList.value.push({ total: undefined } as any)
     composable.manualTransactionsList.value.push({ total: 100 } as any)
-    
+
     const available = composable.availableAmountForManualTransaction()
-    
+
     expect(available).toBe(900.00) // 1000 - 0 - 100
   })
 
@@ -154,7 +154,7 @@ describe('useRoutingSlipTransaction', () => {
     const composable = useRoutingSlipTransaction()
     composable.manualTransactionsList.value.push({ key: 1 } as any)
     composable.manualTransactionsList.value.push({ key: 2 } as any)
-    
+
     expect(composable.isLastChild(0)).toBe(true)
     expect(composable.isLastChild(1)).toBe(false)
   })
@@ -163,7 +163,7 @@ describe('useRoutingSlipTransaction', () => {
     const composable = useRoutingSlipTransaction()
     composable.showManualTransaction()
     expect(composable.showAddManualTransaction.value).toBe(true)
-    
+
     composable.hideManualTransaction()
     expect(composable.showAddManualTransaction.value).toBe(false)
   })
@@ -179,7 +179,7 @@ describe('useRoutingSlipTransaction', () => {
       checkValidity: vi.fn(() => true)
     } as any
     composable.formRoutingSlipManualTransactions.value = mockForm
-    
+
     expect(composable.isValid()).toBe(true)
     expect(mockForm.checkValidity).toHaveBeenCalled()
   })
@@ -187,9 +187,9 @@ describe('useRoutingSlipTransaction', () => {
   it('should not add transactions when validation function returns false', async () => {
     const composable = useRoutingSlipTransaction()
     const validateFn = vi.fn(() => false)
-    
+
     await composable.addManualTransactions(validateFn)
-    
+
     expect(validateFn).toHaveBeenCalled()
     expect(mockSaveManualTransactions).not.toHaveBeenCalled()
   })
@@ -201,9 +201,9 @@ describe('useRoutingSlipTransaction', () => {
     } as any
     composable.formRoutingSlipManualTransactions.value = mockForm
     composable.manualTransactionsList.value.push({ total: 1500 } as any) // Exceeds 1000
-    
+
     await composable.addManualTransactions()
-    
+
     expect(composable.status.value).toBe('cantAddTransactions')
     expect(mockSaveManualTransactions).not.toHaveBeenCalled()
   })
@@ -216,9 +216,9 @@ describe('useRoutingSlipTransaction', () => {
     composable.formRoutingSlipManualTransactions.value = mockForm
     composable.manualTransactionsList.value.push({ total: 100 } as any)
     composable.manualTransactionsList.value.push({ total: 200 } as any)
-    
+
     await composable.addManualTransactions()
-    
+
     expect(mockSaveManualTransactions).toHaveBeenCalledTimes(2)
     expect(mockGetRoutingSlip).toHaveBeenCalledWith({ routingSlipNumber: '123456789' })
     expect(mockToggleLoading).toHaveBeenCalledWith(true)
@@ -234,9 +234,9 @@ describe('useRoutingSlipTransaction', () => {
     composable.manualTransactionsList.value.push({ total: 100 } as any)
     composable.showAddManualTransaction.value = true
     composable.status.value = 'some-status'
-    
+
     await composable.addManualTransactions()
-    
+
     // resetManualTransaction is called internally, verify the result
     expect(composable.manualTransactionsList.value.length).toBe(0)
     expect(composable.showAddManualTransaction.value).toBe(false)
@@ -252,9 +252,9 @@ describe('useRoutingSlipTransaction', () => {
     composable.manualTransactionsList.value.push({ total: 100 } as any)
     mockSaveManualTransactions.mockImplementation(() => Promise.reject(new Error('Save failed')))
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    
+
     await composable.addManualTransactions()
-    
+
     expect(composable.manualTransactionsList.value.length).toBe(1) // Not reset
     expect(consoleErrorSpy).toHaveBeenCalled()
     consoleErrorSpy.mockRestore()
@@ -267,9 +267,9 @@ describe('useRoutingSlipTransaction', () => {
       reportValidity: vi.fn()
     } as any
     composable.formRoutingSlipManualTransactions.value = mockForm
-    
+
     await composable.addManualTransactions()
-    
+
     expect(mockForm.reportValidity).toHaveBeenCalled()
     expect(mockSaveManualTransactions).not.toHaveBeenCalled()
   })
@@ -282,9 +282,9 @@ describe('useRoutingSlipTransaction', () => {
     composable.formRoutingSlipManualTransactions.value = mockForm
     composable.manualTransactionsList.value.push({ total: 100 } as any)
     mockStore.routingSlip.number = undefined as any
-    
+
     await composable.addManualTransactions()
-    
+
     expect(mockSaveManualTransactions).toHaveBeenCalled()
     expect(mockGetRoutingSlip).not.toHaveBeenCalled()
   })
@@ -298,7 +298,7 @@ describe('useRoutingSlipTransaction', () => {
       priority: false,
       total: 0
     } as any)
-    
+
     const updatedTransaction = {
       filingType: { code: 'NEW' },
       futureEffective: true,
@@ -307,12 +307,12 @@ describe('useRoutingSlipTransaction', () => {
       referenceNumber: 'REF-123',
       total: 100
     }
-    
+
     composable.updateManualTransactionDetails({
       index: 0,
       transaction: updatedTransaction
     })
-    
+
     const transaction = composable.manualTransactionsList.value[0]
     expect(transaction?.filingType).toEqual({ code: 'NEW' })
     expect(transaction?.futureEffective).toBe(true)
@@ -326,12 +326,12 @@ describe('useRoutingSlipTransaction', () => {
   it('should not update when index is out of bounds', () => {
     const composable = useRoutingSlipTransaction()
     composable.manualTransactionsList.value.push({ key: 1 } as any)
-    
+
     composable.updateManualTransactionDetails({
       index: 999,
       transaction: { total: 100 } as any
     })
-    
+
     expect(composable.manualTransactionsList.value[0]?.total).toBeUndefined()
   })
 
@@ -349,12 +349,12 @@ describe('useRoutingSlipTransaction', () => {
       availableAmountForManualTransaction: 1000,
       filingType: { code: 'TYPE2' }
     } as any)
-    
+
     composable.updateManualTransactionDetails({
       index: 0,
       transaction: { total: 200, filingType: { code: 'TYPE1' } } as any
     })
-    
+
     const secondTransaction = composable.manualTransactionsList.value[1]
     expect(secondTransaction?.availableAmountForManualTransaction).toBe(800) // 1000 - 200
   })
@@ -373,12 +373,12 @@ describe('useRoutingSlipTransaction', () => {
       availableAmountForManualTransaction: 1000,
       filingType: { code: 'TYPE2' }
     } as any)
-    
+
     composable.updateManualTransactionDetails({
       index: 0,
       transaction: { total: undefined, filingType: { code: 'TYPE1' } } as any
     })
-    
+
     const secondTransaction = composable.manualTransactionsList.value[1]
     expect(secondTransaction?.availableAmountForManualTransaction).toBe(1000) // Carried over
   })
@@ -392,9 +392,9 @@ describe('useRoutingSlipTransaction', () => {
     composable.manualTransactionsList.value.push({ total: 100 } as any)
     composable.showAddManualTransaction.value = true
     composable.status.value = 'some-status'
-    
+
     await composable.addManualTransactions()
-    
+
     // resetManualTransaction is called internally after successful save
     expect(composable.status.value).toBe('')
     expect(composable.showAddManualTransaction.value).toBe(false)
@@ -405,9 +405,9 @@ describe('useRoutingSlipTransaction', () => {
     const composable = useRoutingSlipTransaction()
     composable.manualTransactionsList.value.push({ key: 1 } as any)
     composable.showAddManualTransaction.value = true
-    
+
     composable.hideManualTransaction()
-    
+
     expect(composable.manualTransactionsList.value.length).toBe(0)
     expect(composable.showAddManualTransaction.value).toBe(false)
   })
@@ -415,7 +415,7 @@ describe('useRoutingSlipTransaction', () => {
   it('should get default row with correct structure when adding row', () => {
     const composable = useRoutingSlipTransaction()
     composable.addManualTransactionRow()
-    
+
     const row = composable.manualTransactionsList.value[0]
     expect(row).toHaveProperty('key')
     expect(row?.futureEffective).toBe(false)
@@ -446,7 +446,7 @@ describe('useRoutingSlipTransaction', () => {
     composable.formRoutingSlipManualTransactions.value = mockForm
     composable.manualTransactionsList.value.push({ total: 100 } as any)
     composable.manualTransactionsList.value.push({ total: 200 } as any)
-    
+
     let callCount = 0
     mockSaveManualTransactions.mockImplementation(() => {
       callCount++
@@ -456,9 +456,9 @@ describe('useRoutingSlipTransaction', () => {
       return Promise.resolve({})
     })
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    
+
     await composable.addManualTransactions()
-    
+
     expect(mockSaveManualTransactions).toHaveBeenCalledTimes(1) // Stops after first error
     expect(consoleErrorSpy).toHaveBeenCalled()
     consoleErrorSpy.mockRestore()
@@ -467,9 +467,9 @@ describe('useRoutingSlipTransaction', () => {
   it('should handle missing remainingAmount in availableAmountForManualTransaction', () => {
     const composable = useRoutingSlipTransaction()
     mockStore.routingSlip.remainingAmount = undefined as any
-    
+
     const available = composable.availableAmountForManualTransaction()
-    
+
     expect(available).toBe(0)
   })
 })

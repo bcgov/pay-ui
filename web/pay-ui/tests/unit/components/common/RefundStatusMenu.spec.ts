@@ -38,7 +38,7 @@ describe('RefundStatusMenu', () => {
 
     const dropdown = wrapper.findComponent({ name: 'UDropdownMenu' })
     const items = dropdown.props('items')
-    
+
     expect(items).toHaveLength(1)
     expect(items[0].label).toBe('Cheque Undeliverable')
   })
@@ -58,7 +58,7 @@ describe('RefundStatusMenu', () => {
 
     const dropdown = wrapper.findComponent({ name: 'UDropdownMenu' })
     const items = dropdown.props('items')
-    
+
     expect(items).toHaveLength(1)
     expect(items[0].label).toBe('Cheque Issued')
   })
@@ -78,9 +78,9 @@ describe('RefundStatusMenu', () => {
 
     const dropdown = wrapper.findComponent({ name: 'UDropdownMenu' })
     const items = dropdown.props('items')
-    
+
     items[0].onSelect()
-    
+
     const emitted = wrapper.emitted('select')
     expect(emitted).toHaveLength(1)
     expect(emitted![0]).toEqual([expect.any(String)])
@@ -103,4 +103,3 @@ describe('RefundStatusMenu', () => {
     expect(button.exists()).toBe(true)
   })
 })
-

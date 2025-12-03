@@ -62,7 +62,7 @@ describe('useViewRoutingSlip', () => {
     await useViewRoutingSlip({ slipId: '123456789' })
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
-    
+
     expect(mockGetRoutingSlip).toHaveBeenCalledWith({ routingSlipNumber: '123456789' })
   })
 
@@ -70,10 +70,10 @@ describe('useViewRoutingSlip', () => {
     const composable = useViewRoutingSlip({ slipId: '123456789' })
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
-    
+
     vi.clearAllMocks()
     await composable.getRoutingSlipAndLinkedRoutingSlips()
-    
+
     expect(mockGetRoutingSlip).toHaveBeenCalledWith({ routingSlipNumber: '123456789' })
   })
 
@@ -81,7 +81,7 @@ describe('useViewRoutingSlip', () => {
     const composable = useViewRoutingSlip({ slipId: '123456789' })
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
-    
+
     expect(mockGetLinkedRoutingSlips).toHaveBeenCalledWith('123456789')
   })
 
@@ -90,7 +90,7 @@ describe('useViewRoutingSlip', () => {
     const composable = useViewRoutingSlip({ slipId: '123456789' })
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
-    
+
     expect(mockGetRoutingSlip).toHaveBeenCalled()
     expect(mockGetLinkedRoutingSlips).not.toHaveBeenCalled()
   })
@@ -99,7 +99,7 @@ describe('useViewRoutingSlip', () => {
     const composable = useViewRoutingSlip({ slipId: '123456789' })
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
-    
+
     expect(mockToggleLoading).toHaveBeenCalledWith(true)
     expect(mockToggleLoading).toHaveBeenCalledWith(false)
   })
@@ -107,11 +107,11 @@ describe('useViewRoutingSlip', () => {
   it('should toggle loading even when getRoutingSlip fails', async () => {
     mockGetRoutingSlip.mockImplementation(() => Promise.reject(new Error('API Error')))
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    
+
     const composable = useViewRoutingSlip({ slipId: '123456789' })
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
-    
+
     expect(mockToggleLoading).toHaveBeenCalledWith(true)
     expect(mockToggleLoading).toHaveBeenCalledWith(false)
     expect(consoleErrorSpy).toHaveBeenCalled()
@@ -121,11 +121,11 @@ describe('useViewRoutingSlip', () => {
   it('should toggle loading even when getLinkedRoutingSlips fails', async () => {
     mockGetLinkedRoutingSlips.mockImplementation(() => Promise.reject(new Error('API Error')))
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    
+
     const composable = useViewRoutingSlip({ slipId: '123456789' })
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
-    
+
     expect(mockToggleLoading).toHaveBeenCalledWith(true)
     expect(mockToggleLoading).toHaveBeenCalledWith(false)
     expect(consoleErrorSpy).toHaveBeenCalled()
@@ -137,14 +137,14 @@ describe('useViewRoutingSlip', () => {
     const composable = useViewRoutingSlip(props)
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 200))
-    
+
     vi.clearAllMocks()
-    
+
     // Change slipId through props
     props.slipId = '987654321'
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 200))
-    
+
     expect(mockGetRoutingSlip).toHaveBeenCalledWith({ routingSlipNumber: '987654321' })
   })
 
@@ -152,14 +152,14 @@ describe('useViewRoutingSlip', () => {
     const composable = useViewRoutingSlip({ slipId: '123456789' })
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
-    
+
     vi.clearAllMocks()
-    
+
     // Set to same value
     composable.slipId.value = '123456789'
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
-    
+
     expect(mockGetRoutingSlip).not.toHaveBeenCalled()
   })
 
@@ -167,18 +167,18 @@ describe('useViewRoutingSlip', () => {
     const composable = useViewRoutingSlip({ slipId: '' })
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
-    
+
     expect(mockGetRoutingSlip).not.toHaveBeenCalled()
   })
 
   it('should handle error and log to console', async () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     mockGetRoutingSlip.mockImplementation(() => Promise.reject(new Error('Test Error')))
-    
+
     const composable = useViewRoutingSlip({ slipId: '123456789' })
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
-    
+
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       'Error getting routing slip and linked routing slips:',
       expect.any(Error)
@@ -191,11 +191,11 @@ describe('useViewRoutingSlip', () => {
       mockStore.routingSlip.number = '999999999'
       return Promise.resolve({})
     })
-    
+
     const composable = useViewRoutingSlip({ slipId: '123456789' })
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
-    
+
     expect(mockGetLinkedRoutingSlips).toHaveBeenCalledWith('999999999')
   })
 
@@ -203,11 +203,11 @@ describe('useViewRoutingSlip', () => {
     const composable = useViewRoutingSlip({ slipId: '123456789' })
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
-    
+
     vi.clearAllMocks()
-    
+
     await composable.getRoutingSlipAndLinkedRoutingSlips()
-    
+
     expect(mockGetRoutingSlip).toHaveBeenCalledWith({ routingSlipNumber: '123456789' })
     expect(mockGetLinkedRoutingSlips).toHaveBeenCalledWith('123456789')
   })

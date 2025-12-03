@@ -81,10 +81,10 @@ describe('useDailyReport', () => {
 
     const { selectedDate, getDailyReport, isDownloading } = useDailyReport()
     selectedDate.value = '2025-09-26'
-    
+
     const downloadPromise = getDailyReport()
     expect(isDownloading.value).toBe(true)
-    
+
     await downloadPromise
     expect(isDownloading.value).toBe(false)
   })
@@ -94,7 +94,7 @@ describe('useDailyReport', () => {
 
     const { selectedDate, getDailyReport, isDownloading } = useDailyReport()
     selectedDate.value = '2025-09-26'
-    
+
     try {
       await getDailyReport()
     } catch (error) {
@@ -121,10 +121,10 @@ describe('useDailyReport', () => {
   it('should toggle calendar when toggleCalendar is called', () => {
     const { showCalendar, toggleCalendar } = useDailyReport()
     expect(showCalendar.value).toBe(false)
-    
+
     toggleCalendar(true)
     expect(showCalendar.value).toBe(true)
-    
+
     toggleCalendar(false)
     expect(showCalendar.value).toBe(false)
   })
@@ -140,4 +140,3 @@ describe('useDailyReport', () => {
     expect(mockFileDownload).not.toHaveBeenCalled()
   })
 })
-

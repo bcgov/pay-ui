@@ -167,7 +167,7 @@ describe('useTransactionDataTable', () => {
     const invoices = ref([] as any)
     const composable = useTransactionDataTable(invoices)
     expect(composable.invoiceDisplay.value).toEqual([])
-    
+
     // Test with undefined value
     invoices.value = undefined as any
     expect(composable.invoiceDisplay.value).toEqual([])
@@ -222,10 +222,10 @@ describe('useTransactionDataTable', () => {
   it('should call openCancelTransactionModal when cancel is called', async () => {
     const invoices = ref([])
     const composable = useTransactionDataTable(invoices)
-    
+
     // Mock modal to not call callback immediately
     mockOpenCancelTransactionModal.mockImplementation(() => Promise.resolve())
-    
+
     await composable.cancel(123)
     expect(mockOpenCancelTransactionModal).toHaveBeenCalled()
     // selectedInvoiceId is set before modal is opened
@@ -235,16 +235,16 @@ describe('useTransactionDataTable', () => {
   it('should call cancelRoutingSlipInvoice and getRoutingSlip when modal is confirmed', async () => {
     const invoices = ref([])
     const composable = useTransactionDataTable(invoices)
-    
+
     // Mock modal to call the callback (simulating user confirmation)
     let modalCallback: (() => Promise<void>) | undefined
     mockOpenCancelTransactionModal.mockImplementation(async (callback: () => Promise<void>) => {
       modalCallback = callback
       await callback()
     })
-    
+
     await composable.cancel(456)
-    
+
     expect(mockOpenCancelTransactionModal).toHaveBeenCalled()
     expect(mockCancelRoutingSlipInvoice).toHaveBeenCalledWith(456)
     expect(mockGetRoutingSlip).toHaveBeenCalledWith({ routingSlipNumber: '123456789' })
@@ -253,17 +253,17 @@ describe('useTransactionDataTable', () => {
   it('should set disableCancelButton and isLoading during cancel operation', async () => {
     const invoices = ref([])
     const composable = useTransactionDataTable(invoices)
-    
+
     // Mock the modal to call the callback immediately
     mockOpenCancelTransactionModal.mockImplementation(async (callback: () => Promise<void>) => {
       await callback()
     })
-    
+
     expect(composable.disableCancelButton.value).toBe(false)
     expect(mockIsLoading.value).toBe(false)
-    
+
     await composable.cancel(789)
-    
+
     // After cancel completes, these should be reset
     expect(composable.disableCancelButton.value).toBe(false)
     expect(mockIsLoading.value).toBe(false)
@@ -273,7 +273,7 @@ describe('useTransactionDataTable', () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const invoices = ref([])
     const composable = useTransactionDataTable(invoices)
-    
+
     mockCancelRoutingSlipInvoice.mockImplementation(() => Promise.reject(new Error('Cancel failed')))
     mockOpenCancelTransactionModal.mockImplementation(async (callback: () => Promise<void>) => {
       try {
@@ -282,10 +282,10 @@ describe('useTransactionDataTable', () => {
         // Error is caught in modalDialogConfirm
       }
     })
-    
+
     composable.selectedInvoiceId.value = 789
     await composable.cancel(789)
-    
+
     // Verify error was logged
     expect(consoleErrorSpy).toHaveBeenCalled()
     consoleErrorSpy.mockRestore()
@@ -295,7 +295,7 @@ describe('useTransactionDataTable', () => {
     const invoices = ref([])
     const composable = useTransactionDataTable(invoices)
     mockStore.routingSlip.number = undefined as any
-    
+
     // Since we can't directly call modalDialogConfirm, we verify the store state
     expect(mockStore.routingSlip.number).toBeUndefined()
   })
@@ -314,9 +314,9 @@ describe('useTransactionDataTable', () => {
       }
     ] as any[])
     const composable = useTransactionDataTable(invoices)
-    
+
     expect(composable.invoiceDisplay.value).toHaveLength(1)
-    
+
     invoices.value.push({
       id: 2,
       createdOn: '2025-09-27',
@@ -327,7 +327,7 @@ describe('useTransactionDataTable', () => {
       createdName: 'User 2',
       createdBy: 'user2'
     } as any)
-    
+
     await nextTick()
     expect(composable.invoiceDisplay.value).toHaveLength(2)
     expect(composable.invoiceCount.value).toBe(2)

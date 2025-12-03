@@ -70,10 +70,10 @@ describe('useLinkRoutingSlip', () => {
   it('should toggle showSearch when toggleSearch is called', () => {
     const composable = useLinkRoutingSlip()
     expect(composable.showSearch.value).toBe(false)
-    
+
     composable.toggleSearch()
     expect(composable.showSearch.value).toBe(true)
-    
+
     composable.toggleSearch()
     expect(composable.showSearch.value).toBe(false)
   })
@@ -87,7 +87,7 @@ describe('useLinkRoutingSlip', () => {
       children,
       parent: undefined
     }
-    
+
     const composable = useLinkRoutingSlip()
     expect(composable.childRoutingSlipDetails.value).toEqual(children)
   })
@@ -95,7 +95,7 @@ describe('useLinkRoutingSlip', () => {
   it('should return empty array when linkedRoutingSlips is undefined', () => {
     const composable = useLinkRoutingSlip()
     mockStore.linkedRoutingSlips = undefined
-    
+
     expect(composable.childRoutingSlipDetails.value).toEqual([])
   })
 
@@ -105,7 +105,7 @@ describe('useLinkRoutingSlip', () => {
       children: undefined,
       parent: undefined
     }
-    
+
     expect(composable.childRoutingSlipDetails.value).toEqual([])
   })
 
@@ -115,7 +115,7 @@ describe('useLinkRoutingSlip', () => {
       children: [],
       parent
     }
-    
+
     const composable = useLinkRoutingSlip()
     expect(composable.parentRoutingSlipDetails.value).toEqual(parent)
   })
@@ -126,14 +126,14 @@ describe('useLinkRoutingSlip', () => {
       children: [],
       parent: undefined
     }
-    
+
     expect(composable.parentRoutingSlipDetails.value).toEqual({})
   })
 
   it('should return empty object when linkedRoutingSlips is undefined', () => {
     const composable = useLinkRoutingSlip()
     mockStore.linkedRoutingSlips = undefined
-    
+
     expect(composable.parentRoutingSlipDetails.value).toEqual({})
   })
 
@@ -148,7 +148,7 @@ describe('useLinkRoutingSlip', () => {
       parent: { number: '999' }
     }
     mockStore.linkedRoutingSlips = linkedSlips
-    
+
     const composable = useLinkRoutingSlip()
     expect(composable.linkedRoutingSlips.value).toEqual(linkedSlips)
   })
@@ -157,7 +157,7 @@ describe('useLinkRoutingSlip', () => {
     const composable = useLinkRoutingSlip()
     mockIsRoutingSlipLinked.value = true
     expect(composable.isRoutingSlipLinked.value).toBe(true)
-    
+
     mockIsRoutingSlipLinked.value = false
     expect(composable.isRoutingSlipLinked.value).toBe(false)
   })
@@ -166,7 +166,7 @@ describe('useLinkRoutingSlip', () => {
     const composable = useLinkRoutingSlip()
     mockIsRoutingSlipAChild.value = true
     expect(composable.isRoutingSlipAChild.value).toBe(true)
-    
+
     mockIsRoutingSlipAChild.value = false
     expect(composable.isRoutingSlipAChild.value).toBe(false)
   })
@@ -175,7 +175,7 @@ describe('useLinkRoutingSlip', () => {
     const composable = useLinkRoutingSlip()
     mockIsRoutingSlipVoid.value = true
     expect(composable.isRoutingSlipVoid.value).toBe(true)
-    
+
     mockIsRoutingSlipVoid.value = false
     expect(composable.isRoutingSlipVoid.value).toBe(false)
   })
@@ -184,7 +184,7 @@ describe('useLinkRoutingSlip', () => {
     const composable = useLinkRoutingSlip()
     mockInvoiceCount.value = 5
     expect(composable.invoiceCount.value).toBe(5)
-    
+
     mockInvoiceCount.value = 0
     expect(composable.invoiceCount.value).toBe(0)
   })
@@ -192,27 +192,27 @@ describe('useLinkRoutingSlip', () => {
   it('should update childRoutingSlipDetails reactively when store changes', () => {
     const composable = useLinkRoutingSlip()
     expect(composable.childRoutingSlipDetails.value).toEqual([])
-    
+
     const newChildren = [{ number: '333', status: 'ACTIVE' }]
     mockStore.linkedRoutingSlips = {
       children: newChildren,
       parent: undefined
     }
-    
+
     expect(composable.childRoutingSlipDetails.value).toEqual(newChildren)
   })
 
   it('should update parentRoutingSlipDetails reactively when store changes', async () => {
     const composable = useLinkRoutingSlip()
     expect(composable.parentRoutingSlipDetails.value).toEqual({})
-    
+
     const newParent = { number: '888', status: 'COMPLETED' }
     mockStore.linkedRoutingSlips = {
       children: [],
       parent: newParent
     }
     await nextTick()
-    
+
     // Computed properties should reflect the store change
     expect(composable.parentRoutingSlipDetails.value).toEqual(newParent)
     expect(composable.parentRoutingSlipDetails.value.number).toBe('888')
@@ -222,7 +222,7 @@ describe('useLinkRoutingSlip', () => {
     const composable = useLinkRoutingSlip()
     expect(composable.routingSlip.value).toBeDefined()
     expect(composable.routingSlip.value.number).toBe('123456789')
-    
+
     // Update store property directly
     mockStore.routingSlip.number = '999999999'
     await nextTick()
@@ -233,10 +233,10 @@ describe('useLinkRoutingSlip', () => {
     const composable = useLinkRoutingSlip()
     composable.showSearch.value = true
     composable.isLoading.value = true
-    
+
     expect(composable.showSearch.value).toBe(true)
     expect(composable.isLoading.value).toBe(true)
-    
+
     composable.isLoading.value = false
     expect(composable.showSearch.value).toBe(true) // Unchanged
     expect(composable.isLoading.value).toBe(false)

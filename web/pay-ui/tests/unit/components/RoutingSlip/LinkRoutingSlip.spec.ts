@@ -76,7 +76,7 @@ describe('LinkRoutingSlip', () => {
     mockIsRoutingSlipLinked.value = false
     mockInvoiceCount.value = 0
     mockIsRoutingSlipVoid.value = false
-    
+
     const wrapper = await mountSuspended(LinkRoutingSlip, {
       props: {
         slipId: '123456789'
@@ -134,18 +134,18 @@ describe('LinkRoutingSlip', () => {
 
     const buttons = wrapper.findAllComponents({ name: 'UButton' })
     const linkButton = buttons.find((btn: any) => btn.props('label') === 'Link Routing Slip')
-    
+
     if (linkButton) {
       await linkButton.trigger('click')
       await nextTick()
-      
+
       expect(mockToggleSearch).toHaveBeenCalled()
     }
   })
 
   it('should display LinkRoutingSlipSearch when showSearch is true', async () => {
     mockShowSearch.value = true
-    
+
     const wrapper = await mountSuspended(LinkRoutingSlip, {
       props: {
         slipId: '123456789'
@@ -174,7 +174,7 @@ describe('LinkRoutingSlip', () => {
 
   it('should pass slipId to LinkRoutingSlipSearch as parentRoutingSlipNumber', async () => {
     mockShowSearch.value = true
-    
+
     const wrapper = await mountSuspended(LinkRoutingSlip, {
       props: {
         slipId: '987654321'
@@ -199,7 +199,7 @@ describe('LinkRoutingSlip', () => {
 
     const searchElement = wrapper.find('[data-test="link-search"]')
     expect(searchElement.exists()).toBe(true)
-    
+
     const searchComponent = wrapper.findComponent({ name: 'LinkRoutingSlipSearch' })
     if (searchComponent.exists()) {
       expect(searchComponent.props('parentRoutingSlipNumber')).toBe('987654321')
@@ -208,7 +208,7 @@ describe('LinkRoutingSlip', () => {
 
   it('should call toggleSearch when LinkRoutingSlipSearch emits cancel', async () => {
     mockShowSearch.value = true
-    
+
     const wrapper = await mountSuspended(LinkRoutingSlip, {
       props: {
         slipId: '123456789'
@@ -233,19 +233,19 @@ describe('LinkRoutingSlip', () => {
 
     const searchElement = wrapper.find('[data-test="link-search"]')
     expect(searchElement.exists()).toBe(true)
-    
+
     const searchComponent = wrapper.findComponent({ name: 'LinkRoutingSlipSearch' })
     if (searchComponent.exists()) {
       searchComponent.vm.$emit('cancel')
       await nextTick()
-      
+
       expect(mockToggleSearch).toHaveBeenCalled()
     }
   })
 
   it('should disable Link Routing Slip button when showSearch is true', async () => {
     mockShowSearch.value = true
-    
+
     const wrapper = await mountSuspended(LinkRoutingSlip, {
       props: {
         slipId: '123456789'
@@ -280,7 +280,7 @@ describe('LinkRoutingSlip', () => {
 
   it('should disable Link Routing Slip button when routing slip is void', async () => {
     mockIsRoutingSlipVoid.value = true
-    
+
     const wrapper = await mountSuspended(LinkRoutingSlip, {
       props: {
         slipId: '123456789'
@@ -320,7 +320,7 @@ describe('LinkRoutingSlip', () => {
       number: '987654321',
       createdOn: '2025-09-26'
     }
-    
+
     const wrapper = await mountSuspended(LinkRoutingSlip, {
       props: {
         slipId: '123456789'
@@ -348,7 +348,7 @@ describe('LinkRoutingSlip', () => {
 
     const linkedDetails = wrapper.findAll('[data-test="linked-details"]')
     expect(linkedDetails.length).toBe(1)
-    
+
     const linkedDetailsComponent = wrapper.findComponent({ name: 'LinkedRoutingSlipDetails' })
     if (linkedDetailsComponent.exists()) {
       expect(linkedDetailsComponent.props('routingSlipNumber')).toBe('987654321')
@@ -362,7 +362,7 @@ describe('LinkRoutingSlip', () => {
       { number: '111111111', createdOn: '2025-09-26' },
       { number: '222222222', createdOn: '2025-09-27' }
     ]
-    
+
     const wrapper = await mountSuspended(LinkRoutingSlip, {
       props: {
         slipId: '123456789'
@@ -390,7 +390,7 @@ describe('LinkRoutingSlip', () => {
 
     const linkedDetails = wrapper.findAll('[data-test="linked-details"]')
     expect(linkedDetails.length).toBe(2)
-    
+
     const linkedDetailsComponents = wrapper.findAllComponents({ name: 'LinkedRoutingSlipDetails' })
     if (linkedDetailsComponents.length >= 2) {
       expect(linkedDetailsComponents[0]?.props('routingSlipNumber')).toBe('111111111')
@@ -401,7 +401,7 @@ describe('LinkRoutingSlip', () => {
   it('should display invoice message when invoices exist', async () => {
     mockInvoiceCount.value = 5
     mockIsRoutingSlipLinked.value = false
-    
+
     const wrapper = await mountSuspended(LinkRoutingSlip, {
       props: {
         slipId: '123456789'
@@ -433,7 +433,7 @@ describe('LinkRoutingSlip', () => {
   it('should display void message when routing slip is void and no invoices', async () => {
     mockIsRoutingSlipVoid.value = true
     mockInvoiceCount.value = 0
-    
+
     const wrapper = await mountSuspended(LinkRoutingSlip, {
       props: {
         slipId: '123456789'
@@ -463,7 +463,7 @@ describe('LinkRoutingSlip', () => {
     mockShowSearch.value = true
     mockIsRoutingSlipVoid.value = false
     mockInvoiceCount.value = 0
-    
+
     const wrapper = await mountSuspended(LinkRoutingSlip, {
       props: {
         slipId: '123456789'
@@ -491,4 +491,3 @@ describe('LinkRoutingSlip', () => {
     expect(wrapper.text()).toContain('no linked routing slips')
   })
 })
-

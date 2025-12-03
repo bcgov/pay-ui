@@ -245,7 +245,6 @@ describe('common-util', () => {
     })
   })
 
-
   describe('isDeepEqual', () => {
     it('should return true for equal objects', () => {
       const obj1 = { name: 'John', age: 30 }
@@ -371,4 +370,3 @@ describe('common-util', () => {
     })
   })
 })
-

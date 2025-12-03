@@ -64,7 +64,7 @@ describe('useRoutingSlipStore', () => {
     store.searchRoutingSlipParams.page = 2
     store.searchRoutingSlipParams.limit = 100
     store.searchRoutingSlipParams.total = 50
-    
+
     expect(store.searchRoutingSlipParams.page).toBe(2)
     expect(store.searchRoutingSlipParams.limit).toBe(100)
     expect(store.searchRoutingSlipParams.total).toBe(50)
@@ -103,9 +103,9 @@ describe('useRoutingSlipStore', () => {
   it('should share state across store instances (Pinia singleton)', () => {
     const { store: store1 } = useRoutingSlipStore()
     const { store: store2 } = useRoutingSlipStore()
-    
+
     store1.routingSlip = { number: '111' } as any
-    
+
     // Pinia stores are singletons, so they share the same state
     expect(store1.routingSlip.number).toBe('111')
     expect(store2.routingSlip.number).toBe('111')
@@ -119,4 +119,3 @@ describe('useRoutingSlipStore', () => {
     expect(store.routingSlip.number).toBe('999')
   })
 })
-

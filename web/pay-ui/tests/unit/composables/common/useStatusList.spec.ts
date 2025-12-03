@@ -115,7 +115,7 @@ describe('useStatusListSelect', () => {
       { code: 'COMPLETED', description: 'Completed' }
     ] as any[]
     await nextTick()
-    
+
     expect(composable.items.value.length).toBeGreaterThan(0)
     expect(composable.items.value[0]).toHaveProperty('label')
     expect(composable.items.value[0]).toHaveProperty('value')
@@ -141,28 +141,27 @@ describe('useStatusListSelect', () => {
   it('should load status list when routingSlipStatusList is empty and column is status', async () => {
     vi.clearAllMocks()
     const composable = useStatusListSelect({ column: 'status' })
-    
+
     // Simulate the loadStatusList behavior
     if (composable.routingSlipStatusList.value.length === 0) {
       composable.routingSlipStatusList.value = await mockGetCodes('routing_slip_statuses')
     }
-    
+
     expect(mockGetCodes).toHaveBeenCalledWith('routing_slip_statuses')
   })
 
   it('should not load status list if already loaded', async () => {
     vi.clearAllMocks()
     const composable = useStatusListSelect({ column: 'status' })
-    
+
     // Set the list to have items already
     composable.routingSlipStatusList.value = [{ code: 'TEST', description: 'Test' }] as any[]
-    
+
     // The loadStatusList function checks if length === 0, so it shouldn't load
     if (composable.routingSlipStatusList.value.length === 0) {
       await mockGetCodes('routing_slip_statuses')
     }
-    
+
     expect(mockGetCodes).not.toHaveBeenCalled()
   })
 })
-

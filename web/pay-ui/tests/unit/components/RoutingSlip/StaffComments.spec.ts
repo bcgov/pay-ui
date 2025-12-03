@@ -183,7 +183,7 @@ describe('StaffComments', () => {
         }
       }
     })
-    
+
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
 
@@ -242,4 +242,3 @@ describe('StaffComments', () => {
     consoleErrorSpy.mockRestore()
   })
 })
-
