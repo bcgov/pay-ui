@@ -1,5 +1,7 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { useRoutingSlipInfo } from '~/composables/viewRoutingSlip/useRoutingSlipInfo'
+import type { Refund } from '~/interfaces/routing-slip'
+import { SlipStatus } from '~/enums/slip-status'
 
 const {
   _mockUpdateRoutingSlipStatus,
@@ -78,11 +80,11 @@ const mockStore = {
     },
     contactName: 'Test Contact',
     mailingAddress: undefined,
-    refunds: [],
+    refunds: [] as Refund[],
     allowedStatuses: ['ACTIVE', 'HOLD'],
-    refundAmount: null,
-    remainingAmount: null,
-    refundStatus: null
+    refundAmount: null as number | null,
+    remainingAmount: null as number | null,
+    refundStatus: null as string | null
   }
 }
 
@@ -168,5 +170,237 @@ describe('useRoutingSlipInfo', () => {
   it('should return allowed statuses', () => {
     const composable = useRoutingSlipInfo()
     expect(composable.allowedStatuses.value).toHaveLength(2)
+  })
+
+  it('should handle status select for REFUNDREQUEST', async () => {
+    const composable = useRoutingSlipInfo()
+    await composable.handleStatusSelect(SlipStatus.REFUNDREQUEST)
+    expect(composable.showRefundForm.value).toBe(true)
+  })
+
+  it('should handle status select for NSF', async () => {
+    const composable = useRoutingSlipInfo()
+    await composable.handleStatusSelect(SlipStatus.NSF)
+    expect(_mockOpenPlaceRoutingSlipToNSFModal).toHaveBeenCalled()
+  })
+
+  it('should handle status select for VOID', async () => {
+    const composable = useRoutingSlipInfo()
+    await composable.handleStatusSelect(SlipStatus.VOID)
+    expect(_mockOpenVoidRoutingSlipModal).toHaveBeenCalled()
+  })
+
+  it('should handle status select for other statuses', async () => {
+    const composable = useRoutingSlipInfo()
+    await composable.handleStatusSelect(SlipStatus.COMPLETE)
+    expect(_mockUpdateRoutingSlipStatus).toHaveBeenCalledWith({ status: SlipStatus.COMPLETE })
+  })
+
+  it('should not handle status select when routing slip number is missing', async () => {
+    mockStore.routingSlip.number = '' as string
+    const composable = useRoutingSlipInfo()
+    await composable.handleStatusSelect(SlipStatus.COMPLETE)
+    expect(_mockUpdateRoutingSlipStatus).not.toHaveBeenCalled()
+  })
+
+  it('should handle refund form submit', async () => {
+    const mockDetails = {
+      name: 'Test Name',
+      mailingAddress: {
+        street: '123 Main St',
+        city: 'Vancouver',
+        region: 'BC',
+        postalCode: 'V1A 1A1',
+        country: 'CA'
+      },
+      chequeAdvice: 'Test advice'
+    }
+    mockUsePayApi.updateRoutingSlipRefund.mockResolvedValue({})
+    _mockGetRoutingSlip.mockResolvedValue({})
+
+    const composable = useRoutingSlipInfo()
+    await composable.handleRefundFormSubmit(mockDetails)
+
+    expect(_mockToggleLoading).toHaveBeenCalledWith(true)
+    expect(_mockToggleLoading).toHaveBeenCalledWith(false)
+    expect(mockUsePayApi.updateRoutingSlipRefund).toHaveBeenCalled()
+    expect(_mockGetRoutingSlip).toHaveBeenCalled()
+    expect(composable.showRefundForm.value).toBe(false)
+  })
+
+  it('should handle error when submitting refund form', async () => {
+    const mockDetails = {
+      name: 'Test Name',
+      mailingAddress: undefined,
+      chequeAdvice: undefined
+    }
+    const mockError = new Error('API Error')
+    mockUsePayApi.updateRoutingSlipRefund.mockRejectedValue(mockError)
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const composable = useRoutingSlipInfo()
+    await composable.handleRefundFormSubmit(mockDetails)
+
+    expect(_mockToggleLoading).toHaveBeenCalledWith(true)
+    expect(_mockToggleLoading).toHaveBeenCalledWith(false)
+    expect(consoleErrorSpy).toHaveBeenCalled()
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('should not submit refund form when routing slip number is missing', async () => {
+    mockStore.routingSlip.number = '' as string
+    const composable = useRoutingSlipInfo()
+    await composable.handleRefundFormSubmit({
+      name: 'Test Name',
+      mailingAddress: undefined,
+      chequeAdvice: undefined
+    })
+    expect(mockUsePayApi.updateRoutingSlipRefund).not.toHaveBeenCalled()
+  })
+
+  it('should handle refund form cancel', () => {
+    const composable = useRoutingSlipInfo()
+    composable.showRefundForm.value = true
+    composable.handleRefundFormCancel()
+    expect(composable.showRefundForm.value).toBe(false)
+  })
+
+  it('should handle refund status select', async () => {
+    mockStore.routingSlip.refundStatus = 'PROCESSED'
+    _mockUpdateRoutingSlipRefundStatus.mockResolvedValue({})
+    _mockUpdateRoutingSlipComments.mockResolvedValue({})
+    _mockGetRoutingSlip.mockResolvedValue({})
+
+    const composable = useRoutingSlipInfo()
+    await composable.handleRefundStatusSelect('AUTHORIZED')
+
+    expect(_mockToggleLoading).toHaveBeenCalledWith(true)
+    expect(_mockToggleLoading).toHaveBeenCalledWith(false)
+    expect(_mockUpdateRoutingSlipRefundStatus).toHaveBeenCalledWith('AUTHORIZED')
+    expect(_mockUpdateRoutingSlipComments).toHaveBeenCalled()
+    expect(_mockGetRoutingSlip).toHaveBeenCalled()
+  })
+
+  it('should handle refund status select with callback', async () => {
+    const mockCallback = vi.fn()
+    _mockUpdateRoutingSlipRefundStatus.mockResolvedValue({})
+    _mockUpdateRoutingSlipComments.mockResolvedValue({})
+    _mockGetRoutingSlip.mockResolvedValue({})
+
+    const composable = useRoutingSlipInfo()
+    await composable.handleRefundStatusSelect('AUTHORIZED', mockCallback)
+
+    expect(mockCallback).toHaveBeenCalled()
+  })
+
+  it('should handle error when updating refund status', async () => {
+    const mockError = new Error('API Error')
+    _mockUpdateRoutingSlipRefundStatus.mockRejectedValue(mockError)
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const composable = useRoutingSlipInfo()
+    await composable.handleRefundStatusSelect('AUTHORIZED')
+
+    expect(_mockToggleLoading).toHaveBeenCalledWith(true)
+    expect(_mockToggleLoading).toHaveBeenCalledWith(false)
+    expect(consoleErrorSpy).toHaveBeenCalled()
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('should not update refund status when routing slip number is missing', async () => {
+    mockStore.routingSlip.number = '' as string
+    const composable = useRoutingSlipInfo()
+    await composable.handleRefundStatusSelect('AUTHORIZED')
+    expect(_mockUpdateRoutingSlipRefundStatus).not.toHaveBeenCalled()
+  })
+
+  it('should return refund form initial data from refund details', () => {
+    mockStore.routingSlip.refunds = [{
+      details: {
+        name: 'Refund Name',
+        mailingAddress: {
+          street: '123 Main St',
+          city: 'Vancouver'
+        },
+        chequeAdvice: 'Test advice'
+      }
+    }] as Refund[]
+
+    const composable = useRoutingSlipInfo()
+    expect(composable.refundFormInitialData.value.name).toBe('Refund Name')
+    expect(composable.refundFormInitialData.value.chequeAdvice).toBe('Test advice')
+  })
+
+  it('should return refund form initial data from contact name when no refund details', () => {
+    mockStore.routingSlip.refunds = []
+    mockStore.routingSlip.contactName = 'Contact Name'
+
+    const composable = useRoutingSlipInfo()
+    expect(composable.refundFormInitialData.value.name).toBe('Contact Name')
+  })
+
+  it('should return refund status text', () => {
+    mockStore.routingSlip.refundStatus = 'PROCESSED'
+    const composable = useRoutingSlipInfo()
+    expect(composable.refundStatus.value).toBeDefined()
+  })
+
+  it('should return cheque advice from refund details', () => {
+    mockStore.routingSlip.refunds = [{
+      details: {
+        chequeAdvice: 'Test advice'
+      }
+    }] as Refund[]
+
+    const composable = useRoutingSlipInfo()
+    expect(composable.chequeAdvice.value).toBe('Test advice')
+  })
+
+  it('should return empty cheque advice when no refund details', () => {
+    mockStore.routingSlip.refunds = []
+    const composable = useRoutingSlipInfo()
+    expect(composable.chequeAdvice.value).toBe('')
+  })
+
+  it('should return true for isRefundRequested when status is REFUNDREQUEST', () => {
+    mockStore.routingSlip.status = SlipStatus.REFUNDREQUEST
+    const composable = useRoutingSlipInfo()
+    expect(composable.isRefundRequested.value).toBe(true)
+  })
+
+  it('should return false for isRefundRequested when status is not REFUNDREQUEST', () => {
+    mockStore.routingSlip.status = SlipStatus.ACTIVE
+    const composable = useRoutingSlipInfo()
+    expect(composable.isRefundRequested.value).toBe(false)
+  })
+
+  it('should return true for shouldShowRefundAmount when conditions are met', () => {
+    mockStore.routingSlip.refundAmount = 100
+    mockStore.routingSlip.status = SlipStatus.COMPLETE
+    const composable = useRoutingSlipInfo()
+    composable.showRefundForm.value = false
+    expect(composable.shouldShowRefundAmount.value).toBe(true)
+  })
+
+  it('should return false for shouldShowRefundAmount when refund form is shown', () => {
+    mockStore.routingSlip.refundAmount = 100
+    mockStore.routingSlip.status = SlipStatus.COMPLETE
+    const composable = useRoutingSlipInfo()
+    composable.showRefundForm.value = true
+    expect(composable.shouldShowRefundAmount.value).toBe(false)
+  })
+
+  it('should return true for shouldShowNameAndAddress when contact name exists', () => {
+    mockStore.routingSlip.contactName = 'Test Contact'
+    const composable = useRoutingSlipInfo()
+    composable.showRefundForm.value = false
+    expect(composable.shouldShowNameAndAddress.value).toBe(true)
+  })
+
+  it('should return false for shouldShowNameAndAddress when refund form is shown', () => {
+    mockStore.routingSlip.contactName = 'Test Contact'
+    const composable = useRoutingSlipInfo()
+    composable.showRefundForm.value = true
+    expect(composable.shouldShowNameAndAddress.value).toBe(false)
   })
 })

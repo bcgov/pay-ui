@@ -1,6 +1,10 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { usePaymentInformation } from '~/composables/usePaymentInformation'
-import { routingSlipMock, linkedRoutingSlipsWithChildren } from '../test-data/mock-routing-slip'
+import {
+  routingSlipMock,
+  linkedRoutingSlipsWithChildren,
+  linkedRoutingSlipsWithChequeChildren
+} from '../test-data/mock-routing-slip'
 import { createPinia, setActivePinia } from 'pinia'
 
 const mockUpdateRoutingSlipChequeNumber = vi.fn()
@@ -164,5 +168,196 @@ describe('usePaymentInformation', () => {
     expect(() => {
       adjustRoutingSlipAmount(1000, false, 0)
     }).not.toThrow()
+  })
+
+  it('should compute totalAmount for non-linked routing slip', () => {
+    mockUseRoutingSlip.isRoutingSlipLinked.value = false
+    mockStore.routingSlip.total = 1500
+    const { totalAmount } = usePaymentInformation()
+    expect(totalAmount.value).toBe('$1500.00')
+  })
+
+  it('should compute totalAmount for child routing slip', () => {
+    mockUseRoutingSlip.isRoutingSlipAChild.value = true
+    mockUseRoutingSlip.isRoutingSlipLinked.value = true
+    mockStore.routingSlip.total = 500
+    const { totalAmount } = usePaymentInformation()
+    expect(totalAmount.value).toBe('$500.00')
+  })
+
+  it('should return $0.00 when total is 0', () => {
+    mockUseRoutingSlip.isRoutingSlipLinked.value = false
+    mockStore.routingSlip.total = 0
+    const { totalAmount } = usePaymentInformation()
+    expect(totalAmount.value).toBe('$0.00')
+  })
+
+  it('should return $0.00 when remainingAmount is undefined', () => {
+    mockStore.routingSlip.remainingAmount = undefined
+    const { remainingAmount } = usePaymentInformation()
+    expect(remainingAmount.value).toBe('$0.00')
+  })
+
+  it('should compute isRoutingSlipPaidInUsd as falsy when totalUsd is 0', () => {
+    mockStore.routingSlip.totalUsd = 0
+    const { isRoutingSlipPaidInUsd } = usePaymentInformation()
+    expect(isRoutingSlipPaidInUsd.value).toBeFalsy()
+    expect(isRoutingSlipPaidInUsd.value).not.toBe(true)
+  })
+
+  it('should compute isRoutingSlipPaidInUsd as falsy when totalUsd is undefined', () => {
+    mockStore.routingSlip.totalUsd = undefined
+    const { isRoutingSlipPaidInUsd } = usePaymentInformation()
+    expect(isRoutingSlipPaidInUsd.value).toBeFalsy()
+    expect(isRoutingSlipPaidInUsd.value).not.toBe(true)
+  })
+
+  it('should compute isRoutingSlipChildPaidInUsd correctly', () => {
+    mockStore.linkedRoutingSlips = { ...linkedRoutingSlipsWithChequeChildren }
+    const { isRoutingSlipChildPaidInUsd } = usePaymentInformation()
+    expect(isRoutingSlipChildPaidInUsd.value).toBe(true)
+  })
+
+  it('should compute isRoutingSlipChildPaidInUsd as false when no children', () => {
+    mockStore.linkedRoutingSlips = { children: [] }
+    const { isRoutingSlipChildPaidInUsd } = usePaymentInformation()
+    expect(isRoutingSlipChildPaidInUsd.value).toBe(false)
+  })
+
+  it('should compute enableEditRoutingSlip for COMPLETE status', () => {
+    mockStore.routingSlip.status = 'COMPLETE'
+    const { enableEditRoutingSlip } = usePaymentInformation()
+    expect(enableEditRoutingSlip.value).toBe(true)
+  })
+
+  it('should compute enableEditRoutingSlip for CORRECTION status', () => {
+    mockStore.routingSlip.status = 'CORRECTION'
+    const { enableEditRoutingSlip } = usePaymentInformation()
+    expect(enableEditRoutingSlip.value).toBe(true)
+  })
+
+  it('should compute enableEditRoutingSlip as false for VOID status', () => {
+    mockStore.routingSlip.status = 'VOID'
+    const { enableEditRoutingSlip } = usePaymentInformation()
+    expect(enableEditRoutingSlip.value).toBe(false)
+  })
+
+  it('should compute hasPaymentChanges as true when changes exist', () => {
+    mockStore.routingSlipBeforeEdit = { ...routingSlipMock, total: 3000 }
+    mockStore.routingSlip.total = 2000
+    const { hasPaymentChanges } = usePaymentInformation()
+    expect(hasPaymentChanges.value).toBe(true)
+  })
+
+  it('should compute hasPaymentChanges as false when no changes', () => {
+    mockStore.routingSlipBeforeEdit = { ...routingSlipMock }
+    const { hasPaymentChanges } = usePaymentInformation()
+    expect(hasPaymentChanges.value).toBe(false)
+  })
+
+  it('should emit paymentAdjusted event when adjustRoutingSlipHandler is called', async () => {
+    const emit = vi.fn()
+    const { adjustRoutingSlipHandler, editPayment } = usePaymentInformation(emit)
+
+    editPayment()
+    await adjustRoutingSlipHandler()
+
+    expect(emit).toHaveBeenCalledWith('paymentAdjusted')
+  })
+
+  it('should not emit when emit is not provided', async () => {
+    const { adjustRoutingSlipHandler, editPayment } = usePaymentInformation()
+
+    editPayment()
+    await adjustRoutingSlipHandler()
+
+    expect(mockAdjustRoutingSlip).toHaveBeenCalled()
+  })
+
+  it('should restore routing slip when cancelEditPayment is called', () => {
+    const originalRoutingSlip = { ...mockStore.routingSlip }
+    mockStore.routingSlipBeforeEdit = { ...originalRoutingSlip }
+    mockStore.routingSlip.total = 9999
+
+    const { cancelEditPayment } = usePaymentInformation()
+    cancelEditPayment()
+
+    expect(mockStore.routingSlip.total).toBe(originalRoutingSlip.total)
+  })
+
+  it('should save routing slip before edit when editPayment is called', () => {
+    const { editPayment } = usePaymentInformation()
+    editPayment()
+
+    expect(Object.keys(mockStore.routingSlipBeforeEdit).length).toBeGreaterThan(0)
+  })
+
+  it('should toggle isEditable when adjustRoutingSlipStatus is called', () => {
+    const { isEditable, adjustRoutingSlipStatus } = usePaymentInformation()
+
+    expect(isEditable.value).toBe(false)
+    adjustRoutingSlipStatus()
+    expect(isEditable.value).toBe(true)
+    adjustRoutingSlipStatus()
+    expect(isEditable.value).toBe(false)
+  })
+
+  it('should toggle isEditable when cancelRoutingSlipAdjust is called', () => {
+    const { isEditable, editPayment, cancelRoutingSlipAdjust } = usePaymentInformation()
+
+    editPayment()
+    expect(isEditable.value).toBe(true)
+    cancelRoutingSlipAdjust()
+    expect(isEditable.value).toBe(false)
+  })
+
+  it('should compute isPaymentCheque as false for cash payment', () => {
+    mockStore.routingSlip.payments = [{ paymentMethod: 'CASH' }]
+    const { isPaymentCheque } = usePaymentInformation()
+    expect(isPaymentCheque.value).toBe(false)
+  })
+
+  it('should compute isPaymentCheque as false when no payments', () => {
+    mockStore.routingSlip.payments = []
+    const { isPaymentCheque } = usePaymentInformation()
+    expect(isPaymentCheque.value).toBe(false)
+  })
+
+  it('should compute isPaymentCheque as false when payments is undefined', () => {
+    mockStore.routingSlip.payments = undefined
+    const { isPaymentCheque } = usePaymentInformation()
+    expect(isPaymentCheque.value).toBeFalsy()
+  })
+
+  it('should call updateRoutingSlipChequeNumber with correct params', () => {
+    const { adjustRoutingSlipChequeNumber } = usePaymentInformation()
+    adjustRoutingSlipChequeNumber('CHQ123', 1)
+
+    expect(mockUpdateRoutingSlipChequeNumber).toHaveBeenCalledWith({
+      chequeNum: 'CHQ123',
+      paymentIndex: 1
+    })
+  })
+
+  it('should call updateRoutingSlipAmount with correct params for USD', () => {
+    const { adjustRoutingSlipAmount } = usePaymentInformation()
+    adjustRoutingSlipAmount(500, true, 2)
+
+    expect(mockUpdateRoutingSlipAmount).toHaveBeenCalledWith({
+      amount: 500,
+      paymentIndex: 2,
+      isRoutingSlipPaidInUsd: true
+    })
+  })
+
+  it('should call updateRoutingSlipAmount with correct params for CAD', () => {
+    const { adjustRoutingSlipAmount } = usePaymentInformation()
+    adjustRoutingSlipAmount(750, false, 0)
+
+    expect(mockUpdateRoutingSlipAmount).toHaveBeenCalledWith({
+      amount: 750,
+      paymentIndex: 0,
+      isRoutingSlipPaidInUsd: false
+    })
   })
 })

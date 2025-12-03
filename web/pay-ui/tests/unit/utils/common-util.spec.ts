@@ -37,8 +37,8 @@ describe('common-util', () => {
     })
 
     it('should return empty string for null/undefined', () => {
-      expect(commonUtil.formatDisplayDate(null as unknown as string | null)).toBe('')
-      expect(commonUtil.formatDisplayDate(undefined as unknown as string | undefined)).toBe('')
+      expect(commonUtil.formatDisplayDate(null as unknown as Date | string)).toBe('')
+      expect(commonUtil.formatDisplayDate(undefined as unknown as Date | string)).toBe('')
     })
   })
 
@@ -297,14 +297,22 @@ describe('common-util', () => {
   describe('requiredFieldRule', () => {
     it('should return validation rule that requires value', () => {
       const rules = commonUtil.requiredFieldRule()
-      expect(rules[0]('test')).toBe(true)
-      expect(rules[0]('')).toBe('This field is required')
-      expect(rules[0](null)).toBe('This field is required')
+      const rule = rules[0]
+      expect(rule).toBeDefined()
+      if (rule) {
+        expect(rule('test')).toBe(true)
+        expect(rule('')).toBe('This field is required')
+        expect(rule(null)).toBe('This field is required')
+      }
     })
 
     it('should use custom error message', () => {
       const rules = commonUtil.requiredFieldRule('Custom error')
-      expect(rules[0]('')).toBe('Custom error')
+      const rule = rules[0]
+      expect(rule).toBeDefined()
+      if (rule) {
+        expect(rule('')).toBe('Custom error')
+      }
     })
   })
 
@@ -315,6 +323,7 @@ describe('common-util', () => {
       const rule2 = rules[1]
       expect(rule1('test@example.com')).toBe(true)
       expect(rule1('')).toBe('Email address is required')
+      expect(rule2).toBeDefined()
       if (rule2) {
         expect(rule2('invalid-email')).toBe('Valid email is required')
       }
@@ -323,6 +332,7 @@ describe('common-util', () => {
     it('should allow empty email when optional', () => {
       const rules = commonUtil.emailRules(true)
       const rule1 = rules[0]
+      expect(rule1).toBeDefined()
       if (rule1) {
         expect(rule1('')).toBe(true)
         expect(rule1('test@example.com')).toBe(true)
@@ -368,6 +378,170 @@ describe('common-util', () => {
 
     it('should return 0 for string with no numbers', () => {
       expect(commonUtil.extractAndConvertStringToNumber('abc')).toBe(0)
+    })
+  })
+
+  describe('fileDownload', () => {
+    let originalURL: typeof URL
+    let mockCreateObjectURL: ReturnType<typeof vi.fn>
+    let mockRevokeObjectURL: ReturnType<typeof vi.fn>
+
+    beforeEach(() => {
+      originalURL = global.URL
+      mockCreateObjectURL = vi.fn(() => 'blob:mock-url')
+      mockRevokeObjectURL = vi.fn()
+
+      global.URL = {
+        createObjectURL: mockCreateObjectURL,
+        revokeObjectURL: mockRevokeObjectURL
+      } as unknown as typeof URL
+
+      vi.spyOn(document, 'createElement').mockReturnValue({
+        style: { display: '' },
+        href: '',
+        setAttribute: vi.fn(),
+        click: vi.fn(),
+        download: undefined
+      } as unknown as HTMLElement)
+
+      vi.spyOn(document.body, 'appendChild').mockImplementation(() => ({} as HTMLElement))
+      vi.spyOn(document.body, 'removeChild').mockImplementation(() => ({} as HTMLElement))
+
+      vi.useFakeTimers()
+    })
+
+    afterEach(() => {
+      global.URL = originalURL
+      vi.useRealTimers()
+      vi.restoreAllMocks()
+    })
+
+    it('should create blob and trigger download', () => {
+      commonUtil.fileDownload('test data', 'test.txt')
+
+      expect(mockCreateObjectURL).toHaveBeenCalled()
+      expect(document.body.appendChild).toHaveBeenCalled()
+    })
+
+    it('should revoke object URL after download', async () => {
+      commonUtil.fileDownload('data', 'file.txt')
+
+      await vi.advanceTimersByTimeAsync(200)
+
+      expect(mockRevokeObjectURL).toHaveBeenCalled()
+    })
+  })
+
+  describe('statusListColor - additional statuses', () => {
+    it('should return success color for REFUNDPROCESSED', () => {
+      expect(commonUtil.statusListColor(SlipStatus.REFUNDPROCESSED)).toBe('text-success')
+      expect(commonUtil.statusListColor(SlipStatus.REFUNDPROCESSED, false)).toBe('success')
+    })
+
+    it('should return success color for WRITEOFFCOMPLETED', () => {
+      expect(commonUtil.statusListColor(SlipStatus.WRITEOFFCOMPLETED)).toBe('text-success')
+    })
+
+    it('should return error color for LINKED', () => {
+      expect(commonUtil.statusListColor(SlipStatus.LINKED)).toBe('text-error')
+    })
+
+    it('should return error color for REFUNDREQUEST', () => {
+      expect(commonUtil.statusListColor(SlipStatus.REFUNDREQUEST)).toBe('text-error')
+    })
+
+    it('should return error color for REFUNDAUTHORIZED', () => {
+      expect(commonUtil.statusListColor(SlipStatus.REFUNDAUTHORIZED)).toBe('text-error')
+    })
+
+    it('should return error color for WRITEOFFAUTHORIZED', () => {
+      expect(commonUtil.statusListColor(SlipStatus.WRITEOFFAUTHORIZED)).toBe('text-error')
+    })
+
+    it('should return error color for WRITEOFFREQUESTED', () => {
+      expect(commonUtil.statusListColor(SlipStatus.WRITEOFFREQUESTED)).toBe('text-error')
+    })
+  })
+
+  describe('isRefundProcessStatus - additional statuses', () => {
+    it('should return true for REFUNDREJECTED', () => {
+      expect(commonUtil.isRefundProcessStatus(SlipStatus.REFUNDREJECTED)).toBe(true)
+    })
+
+    it('should return true for REFUNDUPLOADED', () => {
+      expect(commonUtil.isRefundProcessStatus(SlipStatus.REFUNDUPLOADED)).toBe(true)
+    })
+  })
+
+  describe('isEditEnabledBystatus - additional statuses', () => {
+    it('should return false for REFUNDAUTHORIZED', () => {
+      expect(commonUtil.isEditEnabledBystatus(SlipStatus.REFUNDAUTHORIZED)).toBe(false)
+    })
+
+    it('should return false for LINKED', () => {
+      expect(commonUtil.isEditEnabledBystatus(SlipStatus.LINKED)).toBe(false)
+    })
+
+    it('should return true for COMPLETE', () => {
+      expect(commonUtil.isEditEnabledBystatus(SlipStatus.COMPLETE)).toBe(true)
+    })
+
+    it('should return true for VOID', () => {
+      expect(commonUtil.isEditEnabledBystatus(SlipStatus.VOID)).toBe(true)
+    })
+  })
+
+  describe('isDeepEqual - edge cases', () => {
+    it('should handle null values', () => {
+      const obj1 = { name: null }
+      const obj2 = { name: null }
+      expect(commonUtil.isDeepEqual(obj1, obj2)).toBe(true)
+    })
+
+    it('should handle undefined values', () => {
+      const obj1 = { name: undefined }
+      const obj2 = { name: undefined }
+      expect(commonUtil.isDeepEqual(obj1, obj2)).toBe(true)
+    })
+
+    it('should handle arrays as objects', () => {
+      const obj1 = { items: [1, 2, 3] }
+      const obj2 = { items: [1, 2, 3] }
+      expect(commonUtil.isDeepEqual(obj1, obj2)).toBe(true)
+    })
+
+    it('should handle different null vs undefined', () => {
+      const obj1 = { name: null }
+      const obj2 = { name: undefined }
+      expect(commonUtil.isDeepEqual(obj1, obj2)).toBe(false)
+    })
+  })
+
+  describe('formatAmount - edge cases', () => {
+    it('should handle negative amounts', () => {
+      expect(commonUtil.formatAmount(-1234.56)).toBe('-$1,234.56')
+    })
+
+    it('should handle very large amounts', () => {
+      expect(commonUtil.formatAmount(999999999.99)).toBe('$999,999,999.99')
+    })
+
+    it('should handle decimal precision', () => {
+      expect(commonUtil.formatAmount(123.456)).toBe('$123.46')
+    })
+  })
+
+  describe('formatToTwoDecimals - edge cases', () => {
+    it('should handle negative numbers', () => {
+      expect(commonUtil.formatToTwoDecimals(-1234.5)).toBe('-1,234.50')
+    })
+
+    it('should handle zero', () => {
+      expect(commonUtil.formatToTwoDecimals(0)).toBe('0.00')
+    })
+
+    it('should handle very small numbers', () => {
+      expect(commonUtil.formatToTwoDecimals(0.1)).toBe('0.10')
     })
   })
 })

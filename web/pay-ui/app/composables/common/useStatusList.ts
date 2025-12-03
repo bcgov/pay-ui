@@ -24,7 +24,7 @@ async function loadRoutingSlipStatusList() {
 
 export async function useStatusList(props: StatusListProps, { emit }: StatusListEmit) {
   const routingSlipStatusList = ref<Code[]>(await loadRoutingSlipStatusList())
-  const { value = ref('') } = toRefs(props)
+  const value = toRef(props, 'value')
 
   const currentStatus = computed({
     get: () => value.value || '',
@@ -57,6 +57,12 @@ export function useStatusListSelect(props: UseStatusListSelectProps) {
   const isStatusColumn = props.column === 'status'
   const routingSlipStatusList = shallowRef<Code[]>([])
 
+  async function loadStatusList() {
+    if (isStatusColumn && routingSlipStatusList.value.length === 0) {
+      routingSlipStatusList.value = await loadRoutingSlipStatusList()
+    }
+  }
+
   const items = computed<SelectItem[]>(() => {
     const options = isStatusColumn ? routingSlipStatusList.value : ChequeRefundStatus
 
@@ -71,13 +77,7 @@ export function useStatusListSelect(props: UseStatusListSelectProps) {
     ? t('label.status')
     : t('label.refundStatus')
 
-  async function loadStatusList() {
-    if (isStatusColumn && routingSlipStatusList.value.length === 0) {
-      routingSlipStatusList.value = await loadRoutingSlipStatusList()
-    }
-  }
-
-  onMounted(() => {
+  nextTick(() => {
     loadStatusList()
   })
 

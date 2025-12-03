@@ -83,4 +83,75 @@ describe('Date Utils', () => {
       expect(end.toString()).toBe('2025-08-31')
     })
   })
+
+  describe('luxonToCalendarDate - edge cases', () => {
+    it('should handle leap year dates', () => {
+      const leapYearDate = DateTime.fromISO('2024-02-29')
+      const calendarDate = luxonToCalendarDate(leapYearDate)
+
+      expect(calendarDate.year).toBe(2024)
+      expect(calendarDate.month).toBe(2)
+      expect(calendarDate.day).toBe(29)
+    })
+
+    it('should handle year boundary dates', () => {
+      const yearEndDate = DateTime.fromISO('2025-12-31')
+      const calendarDate = luxonToCalendarDate(yearEndDate)
+
+      expect(calendarDate.year).toBe(2025)
+      expect(calendarDate.month).toBe(12)
+      expect(calendarDate.day).toBe(31)
+    })
+
+    it('should handle year start dates', () => {
+      const yearStartDate = DateTime.fromISO('2025-01-01')
+      const calendarDate = luxonToCalendarDate(yearStartDate)
+
+      expect(calendarDate.year).toBe(2025)
+      expect(calendarDate.month).toBe(1)
+      expect(calendarDate.day).toBe(1)
+    })
+  })
+
+  describe('getToday - edge cases', () => {
+    it('should handle different timezones', () => {
+      const utcToday = getToday('UTC')
+      expect(utcToday.zone.name).toBe('UTC')
+
+      const vancouverToday = getToday('America/Vancouver')
+      expect(vancouverToday.zone.name).toBe('America/Vancouver')
+    })
+
+    it('should throw error for invalid timezone with reason', () => {
+      expect(() => getToday('Invalid/Zone')).toThrow(/Invalid timezone/)
+    })
+  })
+
+  describe('getLastWeekRange - edge cases', () => {
+    it('should return valid date range for previous week', () => {
+      const { start, end } = getLastWeekRange()
+
+      expect(start).toBeInstanceOf(CalendarDate)
+      expect(end).toBeInstanceOf(CalendarDate)
+      expect(start.toString() < end.toString() || start.toString() === end.toString()).toBe(true)
+    })
+  })
+
+  describe('getLastMonthRange - edge cases', () => {
+    it('should handle months with different day counts', () => {
+      vi.setSystemTime(new Date('2025-03-15T10:00:00.000Z'))
+      const { start, end } = getLastMonthRange()
+
+      expect(start.toString()).toBe('2025-02-01')
+      expect(end.toString()).toBe('2025-02-28')
+    })
+
+    it('should handle January correctly (previous month is December)', () => {
+      vi.setSystemTime(new Date('2025-01-15T10:00:00.000Z'))
+      const { start, end } = getLastMonthRange()
+
+      expect(start.toString()).toBe('2024-12-01')
+      expect(end.toString()).toBe('2024-12-31')
+    })
+  })
 })

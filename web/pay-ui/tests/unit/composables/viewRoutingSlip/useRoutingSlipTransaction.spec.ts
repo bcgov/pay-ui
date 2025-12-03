@@ -178,7 +178,7 @@ describe('useRoutingSlipTransaction', () => {
     const mockForm = {
       checkValidity: vi.fn(() => true)
 
-    } as Partial<HTMLFormElement> & { checkValidity: () => boolean, reportValidity?: () => void }
+    } as unknown as HTMLFormElement
     composable.formRoutingSlipManualTransactions.value = mockForm
 
     expect(composable.isValid()).toBe(true)
@@ -200,7 +200,7 @@ describe('useRoutingSlipTransaction', () => {
     const mockForm = {
       checkValidity: vi.fn(() => true)
 
-    } as Partial<HTMLFormElement> & { checkValidity: () => boolean, reportValidity?: () => void }
+    } as unknown as HTMLFormElement
     composable.formRoutingSlipManualTransactions.value = mockForm
     composable.manualTransactionsList.value.push({ total: 1500 } as Partial<ManualTransactionDetails>) // Exceeds 1000
 
@@ -215,7 +215,7 @@ describe('useRoutingSlipTransaction', () => {
     const mockForm = {
       checkValidity: vi.fn(() => true)
 
-    } as Partial<HTMLFormElement> & { checkValidity: () => boolean, reportValidity?: () => void }
+    } as unknown as HTMLFormElement
     composable.formRoutingSlipManualTransactions.value = mockForm
     composable.manualTransactionsList.value.push({ total: 100 } as Partial<ManualTransactionDetails>)
     composable.manualTransactionsList.value.push({ total: 200 } as Partial<ManualTransactionDetails>)
@@ -233,7 +233,7 @@ describe('useRoutingSlipTransaction', () => {
     const mockForm = {
       checkValidity: vi.fn(() => true)
 
-    } as Partial<HTMLFormElement> & { checkValidity: () => boolean, reportValidity?: () => void }
+    } as unknown as HTMLFormElement
     composable.formRoutingSlipManualTransactions.value = mockForm
     composable.manualTransactionsList.value.push({ total: 100 } as Partial<ManualTransactionDetails>)
     composable.showAddManualTransaction.value = true
@@ -252,7 +252,7 @@ describe('useRoutingSlipTransaction', () => {
     const mockForm = {
       checkValidity: vi.fn(() => true)
 
-    } as Partial<HTMLFormElement> & { checkValidity: () => boolean, reportValidity?: () => void }
+    } as unknown as HTMLFormElement
     composable.formRoutingSlipManualTransactions.value = mockForm
     composable.manualTransactionsList.value.push({ total: 100 } as Partial<ManualTransactionDetails>)
     mockSaveManualTransactions.mockImplementation(() => Promise.reject(new Error('Save failed')))
@@ -271,7 +271,7 @@ describe('useRoutingSlipTransaction', () => {
       checkValidity: vi.fn(() => false),
       reportValidity: vi.fn()
 
-    } as Partial<HTMLFormElement> & { checkValidity: () => boolean, reportValidity?: () => void }
+    } as unknown as HTMLFormElement
     composable.formRoutingSlipManualTransactions.value = mockForm
 
     await composable.addManualTransactions()
@@ -285,7 +285,7 @@ describe('useRoutingSlipTransaction', () => {
     const mockForm = {
       checkValidity: vi.fn(() => true)
 
-    } as Partial<HTMLFormElement> & { checkValidity: () => boolean, reportValidity?: () => void }
+    } as unknown as HTMLFormElement
     composable.formRoutingSlipManualTransactions.value = mockForm
     composable.manualTransactionsList.value.push({ total: 100 } as Partial<ManualTransactionDetails>)
     mockStore.routingSlip.number = undefined as unknown as string
@@ -307,7 +307,7 @@ describe('useRoutingSlipTransaction', () => {
     } as Partial<ManualTransactionDetails>)
 
     const updatedTransaction = {
-      filingType: { code: 'NEW' },
+      filingType: { code: 'NEW', description: 'New Filing' } as Partial<ManualTransactionDetails['filingType']>,
       futureEffective: true,
       priority: true,
       quantity: 5,
@@ -321,7 +321,12 @@ describe('useRoutingSlipTransaction', () => {
     })
 
     const transaction = composable.manualTransactionsList.value[0]
-    expect(transaction?.filingType).toEqual({ code: 'NEW' })
+    expect(transaction?.filingType).toBeDefined()
+    const filingType = transaction?.filingType as { code?: string, description?: string } | undefined
+    if (filingType) {
+      expect(filingType.code).toBe('NEW')
+      expect(filingType.description).toBe('New Filing')
+    }
     expect(transaction?.futureEffective).toBe(true)
     expect(transaction?.priority).toBe(true)
     expect(transaction?.quantity).toBe(5)
@@ -397,7 +402,7 @@ describe('useRoutingSlipTransaction', () => {
     const mockForm = {
       checkValidity: vi.fn(() => true)
 
-    } as Partial<HTMLFormElement> & { checkValidity: () => boolean, reportValidity?: () => void }
+    } as unknown as HTMLFormElement
     composable.formRoutingSlipManualTransactions.value = mockForm
     composable.manualTransactionsList.value.push({ total: 100 } as Partial<ManualTransactionDetails>)
     composable.showAddManualTransaction.value = true
@@ -453,7 +458,7 @@ describe('useRoutingSlipTransaction', () => {
     const mockForm = {
       checkValidity: vi.fn(() => true)
 
-    } as Partial<HTMLFormElement> & { checkValidity: () => boolean, reportValidity?: () => void }
+    } as unknown as HTMLFormElement
     composable.formRoutingSlipManualTransactions.value = mockForm
     composable.manualTransactionsList.value.push({ total: 100 } as Partial<ManualTransactionDetails>)
     composable.manualTransactionsList.value.push({ total: 200 } as Partial<ManualTransactionDetails>)
@@ -482,5 +487,120 @@ describe('useRoutingSlipTransaction', () => {
     const available = composable.availableAmountForManualTransaction()
 
     expect(available).toBe(0)
+  })
+
+  it('should handle zero remainingAmount', () => {
+    const composable = useRoutingSlipTransaction()
+    mockStore.routingSlip.remainingAmount = 0
+    composable.manualTransactionsList.value.push({ total: 50 } as Partial<ManualTransactionDetails>)
+
+    const available = composable.availableAmountForManualTransaction()
+
+    expect(available).toBe(-50)
+  })
+
+  it('should handle negative available amount when transactions exceed remaining', () => {
+    const composable = useRoutingSlipTransaction()
+    mockStore.routingSlip.remainingAmount = 100
+    composable.manualTransactionsList.value.push({ total: 150 } as Partial<ManualTransactionDetails>)
+
+    const available = composable.availableAmountForManualTransaction()
+
+    expect(available).toBe(-50)
+  })
+
+  it('should update available amount correctly for multiple transactions', () => {
+    const composable = useRoutingSlipTransaction()
+    mockStore.routingSlip.remainingAmount = 1000
+    composable.manualTransactionsList.value.push({
+      key: 1,
+      total: 200,
+      availableAmountForManualTransaction: 1000
+    } as Partial<ManualTransactionDetails>)
+    composable.manualTransactionsList.value.push({
+      key: 2,
+      total: undefined,
+      availableAmountForManualTransaction: 1000
+    } as Partial<ManualTransactionDetails>)
+    composable.manualTransactionsList.value.push({
+      key: 3,
+      total: undefined,
+      availableAmountForManualTransaction: 1000
+    } as Partial<ManualTransactionDetails>)
+
+    composable.updateManualTransactionDetails({
+      index: 1,
+      transaction: { total: 300, filingType: { code: 'TYPE2' } } as Partial<ManualTransactionDetails>
+    })
+
+    const thirdTransaction = composable.manualTransactionsList.value[2]
+    expect(thirdTransaction?.availableAmountForManualTransaction).toBe(700) // 1000 - 200 - 100 (second transaction total is undefined, so it carries over 800, then subtracts 100)
+  })
+
+  it('should handle empty manualTransactionsList in availableAmountForManualTransaction', () => {
+    const composable = useRoutingSlipTransaction()
+    mockStore.routingSlip.remainingAmount = 500
+
+    const available = composable.availableAmountForManualTransaction()
+
+    expect(available).toBe(500)
+  })
+
+  it('should reset status when adding manual transaction row', () => {
+    const composable = useRoutingSlipTransaction()
+    composable.status.value = 'error-status'
+
+    composable.addManualTransactionRow()
+
+    expect(composable.status.value).toBe('')
+  })
+
+  it('should reset status when removing manual transaction row', () => {
+    const composable = useRoutingSlipTransaction()
+    composable.manualTransactionsList.value.push({ key: 1 } as Partial<ManualTransactionDetails>)
+    composable.status.value = 'error-status'
+
+    composable.removeManualTransactionRow(0)
+
+    expect(composable.status.value).toBe('')
+  })
+
+  it('should handle updateManualTransactionDetails with filingType', () => {
+    const composable = useRoutingSlipTransaction()
+    composable.manualTransactionsList.value.push({
+      key: 1,
+      filingType: { code: 'OLD' }
+    } as Partial<ManualTransactionDetails>)
+
+    const newFilingType = { code: 'NEW', description: 'New Filing Type' }
+    composable.updateManualTransactionDetails({
+      index: 0,
+      transaction: {
+        filingType: newFilingType as ManualTransactionDetails['filingType'],
+        total: 100
+      } as Partial<ManualTransactionDetails>
+    })
+
+    const transaction = composable.manualTransactionsList.value[0]
+    expect(transaction?.filingType).toBeDefined()
+    expect(transaction?.total).toBe(100)
+  })
+
+  it('should not update available amount when transaction index is out of bounds', () => {
+    const composable = useRoutingSlipTransaction()
+    mockStore.routingSlip.remainingAmount = 1000
+    composable.manualTransactionsList.value.push({
+      key: 1,
+      total: undefined,
+      availableAmountForManualTransaction: 1000
+    } as Partial<ManualTransactionDetails>)
+
+    composable.updateManualTransactionDetails({
+      index: 999,
+      transaction: { total: 500 } as Partial<ManualTransactionDetails>
+    })
+
+    const transaction = composable.manualTransactionsList.value[0]
+    expect(transaction?.availableAmountForManualTransaction).toBe(1000)
   })
 })

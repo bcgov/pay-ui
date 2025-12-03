@@ -59,4 +59,36 @@ describe('createDedupedRequest', () => {
     expect(result1).toBe('first')
     expect(result2).toBe('second')
   })
+
+  it('should handle promise rejection and still dedupe', async () => {
+    const dedupeRequest = createDedupedRequest()
+    const mockApiCall = vi.fn(() => Promise.reject(new Error('API Error')))
+
+    const promise1 = dedupeRequest.run('key-1', mockApiCall)
+    const promise2 = dedupeRequest.run('key-1', mockApiCall)
+
+    await expect(promise1).rejects.toThrow('API Error')
+    await expect(promise2).rejects.toThrow('API Error')
+
+    expect(mockApiCall).toHaveBeenCalledOnce()
+  })
+
+  it('should remove promise from map after completion', async () => {
+    const dedupeRequest = createDedupedRequest()
+    const mockApiCall = vi.fn(() => Promise.resolve('Response'))
+
+    await dedupeRequest.run('key-1', mockApiCall)
+    await dedupeRequest.run('key-1', mockApiCall)
+
+    expect(mockApiCall).toHaveBeenCalledTimes(2)
+  })
+
+  it('should handle different data types in responses', async () => {
+    const dedupeRequest = createDedupedRequest()
+    const mockApiCall = vi.fn(() => Promise.resolve({ data: 'test', count: 123 }))
+
+    const result = await dedupeRequest.run('key-1', mockApiCall)
+
+    expect(result).toEqual({ data: 'test', count: 123 })
+  })
 })
