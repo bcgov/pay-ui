@@ -554,10 +554,10 @@ describe('RoutingSlipInformation', () => {
     })
 
     await nextTick()
-    
+
     const refundFormElement = wrapper.find('[data-test="refund-form"]')
     expect(refundFormElement.exists()).toBe(true)
-    
+
     const refundForm = wrapper.findComponent({ name: 'RefundRequestForm' })
     if (refundForm.exists()) {
       const submitData = {
@@ -570,7 +570,7 @@ describe('RoutingSlipInformation', () => {
           country: 'CA'
         }
       }
-      
+
       await refundForm.vm.$emit('submit', submitData)
       await nextTick()
 
@@ -603,7 +603,7 @@ describe('RoutingSlipInformation', () => {
     })
 
     await nextTick()
-    
+
     const refundFormElement = wrapper.find('[data-test="refund-form"]')
     expect(refundFormElement.exists()).toBe(true)
 
