@@ -7,7 +7,7 @@ const { createRoutingSlip } = useRoutingSlip()
 definePageMeta({
   layout: 'connect-auth',
   hideBreadcrumbs: true,
-  middleware: ['mock-connect-auth', 'pay-auth'],
+  middleware: ['pay-auth'],
   allowedRoles: [Role.FAS_CREATE]
 })
 

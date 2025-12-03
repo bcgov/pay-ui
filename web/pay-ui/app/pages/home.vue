@@ -6,7 +6,7 @@ const { t } = useI18n()
 
 definePageMeta({
   layout: 'connect-auth',
-  middleware: ['mock-connect-auth', 'connect-auth'],
+  middleware: ['connect-auth'],
   hideBreadcrumbs: true
 })
 
