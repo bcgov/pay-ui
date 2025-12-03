@@ -9,7 +9,6 @@ import { useRoutingSlip } from '~/composables/useRoutingSlip'
 import { useLoader } from '~/composables/common/useLoader'
 
 const route = useRoute()
-const localePath = useLocalePath()
 const { t } = useI18n()
 
 definePageMeta({
@@ -27,7 +26,7 @@ const slipId = route.params.slipId as string
 setBreadcrumbs([
   {
     label: t('label.fasDashboard'),
-    to: localePath('/home')
+    to: '/home'
   },
   {
     label: t('page.viewRoutingSlip.h1', { id: slipId })

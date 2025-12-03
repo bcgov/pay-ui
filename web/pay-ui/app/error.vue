@@ -2,7 +2,6 @@
 import type { NuxtError } from '#app'
 
 const { t, te } = useI18n()
-const localePath = useLocalePath()
 // cant use definePageMeta in error.vue
 useRoute().meta.hideBreadcrumbs = true
 
@@ -58,7 +57,7 @@ onMounted(() => {
             :label="$t('connect.label.goHome')"
             icon="i-mdi-home"
             size="xl"
-            :to="localePath('/home')"
+            to="/home"
           />
           <UButton
             v-if="content.isForbidden"

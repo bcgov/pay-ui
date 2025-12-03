@@ -2,7 +2,6 @@
 import { useSearch } from '~/composables/dashboard/useSearch'
 import { useInfiniteScroll } from '@vueuse/core'
 
-const localePath = useLocalePath()
 const { t } = useI18n()
 
 const {
@@ -301,7 +300,7 @@ useInfiniteScroll(
             <div class="text-right">
               <UButton
                 label="Open"
-                @click="navigateTo(localePath(`/view-routing-slip/${row.original.routingSlipNumber}`))"
+                @click="navigateTo(`/view-routing-slip/${row.original.routingSlipNumber}`)"
               />
             </div>
           </template>

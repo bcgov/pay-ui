@@ -1,7 +1,6 @@
 export const usePayModals = () => {
   const { baseModal } = useConnectModal()
   const t = useNuxtApp().$i18n.t
-  const localePath = useLocalePath()
 
   async function openLeaveCreateRoutingSlipModal() {
     await baseModal.open({
@@ -9,7 +8,7 @@ export const usePayModals = () => {
       description: t('modal.leaveCreateRoutingSlip.description'),
       dismissible: true,
       buttons: [
-        { label: t('label.leave'), to: localePath('/home'), shouldClose: true },
+        { label: t('label.leave'), to: '/home', shouldClose: true },
         { label: t('label.cancel'), shouldClose: true, variant: 'outline' }
       ]
     })

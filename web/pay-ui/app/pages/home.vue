@@ -3,7 +3,6 @@ import Search from '~/components/Dashboard/Search.vue'
 import DailyReport from '~/components/Dashboard/DailyReport.vue'
 
 const { t } = useI18n()
-const localePath = useLocalePath()
 
 definePageMeta({
   layout: 'connect-auth',
@@ -32,7 +31,7 @@ useHead({
         size="lg"
         leading-icon="i-mdi-plus"
         class="rounded-lg shadow-md font-semibold text-white"
-        @click="navigateTo(localePath('/create-routing-slip'))"
+        @click="navigateTo('/create-routing-slip')"
       >
         Add New Routing Slip
       </UButton>

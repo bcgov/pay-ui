@@ -15,14 +15,10 @@ const props = withDefaults(
   }
 )
 
-const localePath = useLocalePath()
-
 function goTo() {
-  const path = props.parentRoutingSlipNumber
+  return props.parentRoutingSlipNumber
     ? `/view-routing-slip/${props.parentRoutingSlipNumber}/${props.routingSlipNumber}`
     : `/view-routing-slip/${props.routingSlipNumber}`
-
-  return localePath(path)
 }
 
 const formatDisplayDate = commonUtil.formatDisplayDate
@@ -34,12 +30,12 @@ const formatDisplayDate = commonUtil.formatDisplayDate
       {{ props.siNumber }}.
     </span>
 
-    <router-link
+    <NuxtLink
       :to="goTo()"
       class="font-bold"
     >
       {{ props.routingSlipNumber }}
-    </router-link>
+    </NuxtLink>
     <span>
       - Routing slip created date:
       <span data-test="text-created-date" class="font-bold">
