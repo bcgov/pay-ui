@@ -1,7 +1,6 @@
 export enum SlipStatus {
   ACTIVE = 'ACTIVE',
   COMPLETE = 'COMPLETE',
-  BOUNCED = 'BOUNCED',
   NSF = 'NSF',
   REFUND = 'REFUND',
   LAST = 'LAST',

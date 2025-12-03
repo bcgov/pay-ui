@@ -9,9 +9,9 @@ function formatDisplayDate(
     return ''
   }
 
-  const dateTime = DateTime.fromJSDate(
-    typeof date === 'string' ? new Date(date) : date
-  )
+  const dateTime = typeof date === 'string'
+    ? DateTime.fromISO(date)
+    : DateTime.fromJSDate(date)
 
   return dateTime.isValid ? dateTime.toFormat(format) : ''
 }
@@ -64,7 +64,6 @@ function statusListColor(status: string, textColor: boolean = true) {
     case SlipStatus.WRITEOFFCOMPLETED:
       color = 'success'
       break
-    case SlipStatus.BOUNCED:
     case SlipStatus.NSF:
     case SlipStatus.LINKED:
     case SlipStatus.REFUNDREQUEST:
