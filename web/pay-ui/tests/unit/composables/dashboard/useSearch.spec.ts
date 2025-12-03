@@ -1,5 +1,6 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { useSearch } from '~/composables/dashboard/useSearch'
+import { chequeRefundCodes } from '~/utils/constants'
 import { createPinia, setActivePinia } from 'pinia'
 import { nextTick } from 'vue'
 
@@ -213,13 +214,13 @@ describe('useSearch', () => {
 
   it('should get refund status text', async () => {
     const composable = await useSearch()
-    const text = composable.getRefundStatusText('PROCESSED')
+    const text = composable.getRefundStatusText(chequeRefundCodes.PROCESSED)
     expect(text).toBeDefined()
   })
 
   it('should get status from refund status', async () => {
     const composable = await useSearch()
-    const status = composable.getStatusFromRefundStatus('PROCESSING')
+    const status = composable.getStatusFromRefundStatus(chequeRefundCodes.PROCESSING)
     expect(status).toBeDefined()
   })
 
