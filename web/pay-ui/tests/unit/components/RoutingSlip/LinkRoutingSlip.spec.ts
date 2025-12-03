@@ -9,9 +9,9 @@ const mockToggleSearch = vi.fn(() => {
 const mockIsRoutingSlipLinked = ref(false)
 const mockIsRoutingSlipAChild = ref(false)
 const mockIsRoutingSlipVoid = ref(false)
-const mockChildRoutingSlipDetails = ref([])
-const mockParentRoutingSlipDetails = ref({})
-const mockRoutingSlip = ref({ number: '123456789' })
+const mockChildRoutingSlipDetails = ref<any[]>([])
+const mockParentRoutingSlipDetails = ref<any>({})
+const mockRoutingSlip = ref<any>({ number: '123456789' })
 const mockInvoiceCount = ref(0)
 
 const mockUseLinkRoutingSlip = {
