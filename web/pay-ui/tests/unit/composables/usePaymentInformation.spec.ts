@@ -1,30 +1,50 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { usePaymentInformation } from '~/composables/usePaymentInformation'
 import { routingSlipMock, linkedRoutingSlipsWithChildren } from '../test-data/mock-routing-slip'
+import { createPinia, setActivePinia } from 'pinia'
 
-vi.mock('~/composables/useRoutingSlip', () => ({
-  useRoutingSlip: () => ({
-    routingSlip: ref(routingSlipMock),
-    linkedRoutingSlips: ref(linkedRoutingSlipsWithChildren),
-    isRoutingSlipAChild: ref(false),
-    isRoutingSlipLinked: ref(true),
-    updateRoutingSlipChequeNumber: vi.fn(),
-    updateRoutingSlipAmount: vi.fn(),
-    adjustRoutingSlip: vi.fn().mockResolvedValue(routingSlipMock),
-    getRoutingSlip: vi.fn().mockResolvedValue(routingSlipMock)
-  })
+const mockUpdateRoutingSlipChequeNumber = vi.fn()
+const mockUpdateRoutingSlipAmount = vi.fn()
+const mockAdjustRoutingSlip = vi.fn().mockResolvedValue(routingSlipMock)
+const mockGetRoutingSlip = vi.fn().mockResolvedValue(routingSlipMock)
+
+const mockUseRoutingSlip = {
+  adjustRoutingSlip: mockAdjustRoutingSlip,
+  getRoutingSlip: mockGetRoutingSlip,
+  isRoutingSlipAChild: ref(false),
+  isRoutingSlipLinked: ref(true),
+  updateRoutingSlipAmount: mockUpdateRoutingSlipAmount,
+  updateRoutingSlipChequeNumber: mockUpdateRoutingSlipChequeNumber
+}
+
+const mockStore = reactive({
+  routingSlip: { ...routingSlipMock },
+  linkedRoutingSlips: { ...linkedRoutingSlipsWithChildren },
+  routingSlipBeforeEdit: {}
+})
+
+mockNuxtImport('useRoutingSlip', () => () => mockUseRoutingSlip)
+mockNuxtImport('useRoutingSlipStore', () => () => ({
+  store: mockStore
 }))
 
-vi.mock('#app', () => ({
-  useRoute: () => ({
-    params: { slipId: '123456789' },
-    query: {}
-  })
+mockNuxtImport('useRoute', () => () => ({
+  params: { slipId: '123456789' },
+  query: {}
 }))
 
 describe('usePaymentInformation', () => {
   beforeEach(() => {
+    setActivePinia(createPinia())
     vi.clearAllMocks()
+    // Reset store to initial state
+    mockStore.routingSlip = { ...routingSlipMock }
+    mockStore.linkedRoutingSlips = { ...linkedRoutingSlipsWithChildren }
+    mockStore.routingSlipBeforeEdit = {}
+    mockUseRoutingSlip.isRoutingSlipAChild.value = false
+    mockUseRoutingSlip.isRoutingSlipLinked.value = true
+    mockAdjustRoutingSlip.mockResolvedValue(routingSlipMock)
+    mockGetRoutingSlip.mockResolvedValue(routingSlipMock)
   })
 
   it('initializes with correct default values', () => {
