@@ -50,13 +50,13 @@ export default function useAddManualTransactionDetails(
             futureEffective: manualTransactionDetails.value.futureEffective
           }
         }
+        // Global exception handler will handle this one.
         manualTransactionDetails.value.total = await getFeeByCorpTypeAndFilingType(getFeeRequestParams)
       } else {
         manualTransactionDetails.value.total = null
       }
     } catch (error: unknown) {
       manualTransactionDetails.value.total = null
-      // TODO : Business errors (400s) need to be handled
       console.error('error ', error?.response?.data)
     } finally {
       emitManualTransactionDetails()
