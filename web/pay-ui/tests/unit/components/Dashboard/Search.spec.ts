@@ -8,24 +8,25 @@ mockNuxtImport('useI18n', () => () => ({
 
 const {
   mockSearchRoutingSlipTableHeaders,
-  mockDebouncedSearch,
-  mockGetStatusLabel,
+  _mockDebouncedSearch,
+  _mockGetStatusLabel,
   mockSearchParamsExist,
   mockShowExpandedFolio,
   mockShowExpandedCheque,
-  mockToggleFolio,
-  mockToggleCheque,
+  _mockToggleFolio,
+  _mockToggleCheque,
   mockIsLoading,
-  mockGetNext,
-  mockFilters,
+  _mockGetNext,
+  _mockFilters,
   mockRoutingSlips,
-  mockColumnPinning,
+  _mockColumnPinning,
   mockIsInitialLoad,
-  mockColumnVisibility,
-  mockResetSearchFilters,
-  mockSearch,
+  _mockColumnVisibility,
+  _mockResetSearchFilters,
+  _mockSearch,
   mockUseSearch
 } = vi.hoisted(() => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { ref, reactive, computed } = require('vue')
   const mockSearchRoutingSlipTableHeaders = ref([
     { accessorKey: 'routingSlipNumber', header: 'Routing Slip Number', display: true },
@@ -85,22 +86,22 @@ const {
 
   return {
     mockSearchRoutingSlipTableHeaders,
-    mockDebouncedSearch,
-    mockGetStatusLabel,
+    _mockDebouncedSearch: mockDebouncedSearch,
+    _mockGetStatusLabel: mockGetStatusLabel,
     mockSearchParamsExist,
     mockShowExpandedFolio,
     mockShowExpandedCheque,
-    mockToggleFolio,
-    mockToggleCheque,
+    _mockToggleFolio: mockToggleFolio,
+    _mockToggleCheque: mockToggleCheque,
     mockIsLoading,
-    mockGetNext,
-    mockFilters,
+    _mockGetNext: mockGetNext,
+    _mockFilters: mockFilters,
     mockRoutingSlips,
-    mockColumnPinning,
+    _mockColumnPinning: mockColumnPinning,
     mockIsInitialLoad,
-    mockColumnVisibility,
-    mockResetSearchFilters,
-    mockSearch,
+    _mockColumnVisibility: mockColumnVisibility,
+    _mockResetSearchFilters: mockResetSearchFilters,
+    _mockSearch: mockSearch,
     mockUseSearch
   }
 })

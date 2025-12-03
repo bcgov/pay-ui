@@ -1,6 +1,8 @@
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import LinkRoutingSlip from '~/components/RoutingSlip/LinkRoutingSlip.vue'
 import { nextTick } from 'vue'
+import type { RoutingSlip, RoutingSlipDetails } from '~/interfaces/routing-slip'
+import type { VueWrapper } from '@vue/test-utils'
 
 const mockShowSearch = ref(false)
 const mockToggleSearch = vi.fn(() => {
@@ -9,9 +11,9 @@ const mockToggleSearch = vi.fn(() => {
 const mockIsRoutingSlipLinked = ref(false)
 const mockIsRoutingSlipAChild = ref(false)
 const mockIsRoutingSlipVoid = ref(false)
-const mockChildRoutingSlipDetails = ref<any[]>([])
-const mockParentRoutingSlipDetails = ref<any>({})
-const mockRoutingSlip = ref<any>({ number: '123456789' })
+const mockChildRoutingSlipDetails = ref<RoutingSlipDetails[]>([])
+const mockParentRoutingSlipDetails = ref<Partial<RoutingSlipDetails>>({})
+const mockRoutingSlip = ref<Partial<RoutingSlip>>({ number: '123456789' })
 const mockInvoiceCount = ref(0)
 
 const mockUseLinkRoutingSlip = {
@@ -94,7 +96,8 @@ describe('LinkRoutingSlip', () => {
           },
           LinkedRoutingSlipDetails: true,
           UButton: {
-            template: '<button data-test="button" :label="label" :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
+            template: `<button data-test="button" :label="label" :disabled="disabled"
+            @click="$emit('click')"><slot /></button>`,
             props: ['label', 'disabled', 'size', 'class']
           },
           UIcon: true
@@ -133,7 +136,7 @@ describe('LinkRoutingSlip', () => {
     })
 
     const buttons = wrapper.findAllComponents({ name: 'UButton' })
-    const linkButton = buttons.find((btn: any) => btn.props('label') === 'Link Routing Slip')
+    const linkButton = buttons.find(btn => btn.props('label') === 'Link Routing Slip')
 
     if (linkButton) {
       await linkButton.trigger('click')
@@ -263,7 +266,8 @@ describe('LinkRoutingSlip', () => {
           },
           LinkedRoutingSlipDetails: true,
           UButton: {
-            template: '<button data-test="button" :label="label" :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
+            template: `<button data-test="button" :label="label"
+            :disabled="disabled" @click="$emit('click')"><slot /></button>`,
             props: ['label', 'disabled', 'size', 'class']
           },
           UIcon: true
@@ -272,7 +276,7 @@ describe('LinkRoutingSlip', () => {
     })
 
     const buttonComponents = wrapper.findAllComponents({ name: 'UButton' })
-    const linkButton = buttonComponents.find((btn: any) => btn.props('label') === 'Link Routing Slip')
+    const linkButton = buttonComponents.find((btn: VueWrapper) => btn.props('label') === 'Link Routing Slip')
     if (linkButton) {
       expect(linkButton.props('disabled')).toBe(true)
     }
@@ -298,7 +302,8 @@ describe('LinkRoutingSlip', () => {
           },
           LinkedRoutingSlipDetails: true,
           UButton: {
-            template: '<button data-test="button" :label="label" :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
+            template: '<button data-test="button" :label="label" :disabled="disabled" '
+              + '@click="$emit(\'click\')"><slot /></button>',
             props: ['label', 'disabled', 'size', 'class']
           },
           UIcon: true
@@ -307,7 +312,7 @@ describe('LinkRoutingSlip', () => {
     })
 
     const buttonComponents = wrapper.findAllComponents({ name: 'UButton' })
-    const linkButton = buttonComponents.find((btn: any) => btn.props('label') === 'Link Routing Slip')
+    const linkButton = buttonComponents.find((btn: VueWrapper) => btn.props('label') === 'Link Routing Slip')
     if (linkButton) {
       expect(linkButton.props('disabled')).toBe(true)
     }

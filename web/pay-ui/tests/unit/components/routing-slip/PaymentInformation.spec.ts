@@ -3,7 +3,7 @@ import PaymentInformation from '~/components/RoutingSlip/PaymentInformation.vue'
 import {
   linkedRoutingSlipsWithChildren,
   routingSlipMock } from '../../test-data/mock-routing-slip'
-import { ref, computed, reactive } from 'vue'
+import { ref, reactive } from 'vue'
 
 const mockUpdateRoutingSlipChequeNumber = vi.fn()
 const mockUpdateRoutingSlipAmount = vi.fn()

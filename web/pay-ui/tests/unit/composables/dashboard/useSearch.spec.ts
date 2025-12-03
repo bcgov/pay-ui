@@ -3,6 +3,8 @@ import { useSearch } from '~/composables/dashboard/useSearch'
 import { chequeRefundCodes } from '~/utils/constants'
 import { createPinia, setActivePinia } from 'pinia'
 import { nextTick } from 'vue'
+import type { RoutingSlipDetails } from '~/interfaces/routing-slip'
+import type { Invoice } from '~/interfaces/invoice'
 
 const mockGetSearchRoutingSlip = vi.fn()
 const mockGetCodes = vi.fn()
@@ -81,7 +83,7 @@ describe('useSearch', () => {
   })
 
   it('should initialize with default search params', async () => {
-    const composable = await useSearch()
+    const _composable = await useSearch()
     const { store } = useRoutingSlipStore()
     expect(store.searchRoutingSlipParams.page).toBe(1)
     expect(store.searchRoutingSlipParams.limit).toBe(50)
@@ -131,7 +133,7 @@ describe('useSearch', () => {
     store.searchRoutingSlipParams.page = 5
     store.searchRoutingSlipParams.limit = 100
     store.searchRoutingSlipParams.total = 10
-    store.searchRoutingSlipResult.push({} as any)
+    store.searchRoutingSlipResult.push({} as Partial<RoutingSlipDetails>)
 
     composable.resetSearchParams()
 
@@ -186,7 +188,7 @@ describe('useSearch', () => {
     const invoices = [
       { businessIdentifier: 'BI1' },
       { businessIdentifier: 'BI2' }
-    ] as any[]
+    ] as Partial<Invoice>[]
 
     const result = composable.formatFolioResult(invoices, null)
     expect(result).toEqual(['BI1', 'BI2'])
@@ -208,7 +210,7 @@ describe('useSearch', () => {
 
   it('should get status label', async () => {
     const composable = await useSearch()
-    const label = composable.getStatusLabel('ACTIVE')
+    const _label = composable.getStatusLabel('ACTIVE')
     expect(mockStatusLabel).toHaveBeenCalledWith('ACTIVE')
   })
 
@@ -236,7 +238,7 @@ describe('useSearch', () => {
         paymentAccount: null,
         payments: []
       }
-    ] as any[]
+    ] as Partial<Invoice>[]
 
     await nextTick()
     expect(composable.routingSlips.value).toBeDefined()
@@ -260,7 +262,7 @@ describe('useSearch', () => {
   it('should append results when getNext is called', async () => {
     const composable = await useSearch()
     const { store } = useRoutingSlipStore()
-    store.searchRoutingSlipResult = [{ number: '1' }] as any[]
+    store.searchRoutingSlipResult = [{ number: '1' }] as RoutingSlipDetails[]
     store.searchRoutingSlipParams.page = 1
     store.searchRoutingSlipParams.total = 100
     store.searchRoutingSlipParams.limit = 50

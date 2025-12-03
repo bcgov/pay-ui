@@ -154,6 +154,7 @@ describe('RefundRequestForm', () => {
 
     await nextTick()
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const component = wrapper.vm as any
     expect(component.formState.name).toBe('John Doe')
     expect(component.formState.address.street).toBe('123 Main St')
@@ -179,6 +180,7 @@ describe('RefundRequestForm', () => {
 
     await nextTick()
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const component = wrapper.vm as any
     component.formState.name = 'Test Name'
     component.formState.address.street = '123 Main St'
@@ -228,6 +230,7 @@ describe('RefundRequestForm', () => {
 
     await nextTick()
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const component = wrapper.vm as any
     await component.onCancel()
     await nextTick()
@@ -268,6 +271,7 @@ describe('RefundRequestForm', () => {
 
     await nextTick()
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const component = wrapper.vm as any
     expect(component.formState.name).toBe('Initial Name')
     expect(component.formState.address.street).toBe('Initial Street')
@@ -310,6 +314,7 @@ describe('RefundRequestForm', () => {
 
     await nextTick()
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const component = wrapper.vm as any
     expect(component.formState.name).toBe('')
     expect(component.formState.address.street).toBe('')
@@ -337,6 +342,7 @@ describe('RefundRequestForm', () => {
 
     await nextTick()
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const component = wrapper.vm as any
     expect(component.formattedRefundAmount).toBe('$1234.56')
   })
@@ -362,6 +368,7 @@ describe('RefundRequestForm', () => {
 
     await nextTick()
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const component = wrapper.vm as any
     component.formState.chequeAdvice = 'Test advice'
     await nextTick()

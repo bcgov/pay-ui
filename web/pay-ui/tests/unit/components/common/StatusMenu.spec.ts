@@ -1,11 +1,16 @@
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { StatusMenu } from '#components'
 import { SlipStatus } from '~/enums/slip-status'
+import { SlipStatusDropdown } from '~/utils/constants'
 
 mockNuxtImport('useI18n', () => () => ({
   t: (key: string) => {
-    if (key === 'enum.SlipStatusDropdown.ACTIVE') { return 'Place routing slip to active' }
-    if (key === 'enum.SlipStatusDropdown.HOLD') { return 'Place routing slip on hold' }
+    if (key === 'enum.SlipStatusDropdown.ACTIVE') {
+      return 'Place routing slip to active'
+    }
+    if (key === 'enum.SlipStatusDropdown.HOLD') {
+      return 'Place routing slip on hold'
+    }
     return key
   },
   te: (key: string) => {
@@ -22,8 +27,8 @@ describe('StatusMenu', () => {
     const wrapper = await mountSuspended(StatusMenu, {
       props: {
         allowedStatusList: [
-          SlipStatus.ACTIVE,
-          SlipStatus.HOLD,
+          SlipStatusDropdown.ACTIVE,
+          SlipStatusDropdown.HOLD,
           // @ts-expect-error - undefined not valid prop value
           undefined
         ]
@@ -44,7 +49,7 @@ describe('StatusMenu', () => {
   it('should emit a SlipStatus when an item is selected', async () => {
     const wrapper = await mountSuspended(StatusMenu, {
       props: {
-        allowedStatusList: [SlipStatus.ACTIVE, SlipStatus.HOLD]
+        allowedStatusList: [SlipStatusDropdown.ACTIVE, SlipStatusDropdown.HOLD]
       },
       global: {
         stubs: {

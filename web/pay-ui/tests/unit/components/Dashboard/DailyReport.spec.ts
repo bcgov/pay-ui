@@ -120,7 +120,8 @@ describe('DailyReport', () => {
             emits: ['update:open']
           },
           UButton: {
-            template: '<button v-bind="$attrs" :disabled="disabled" :class="{ loading: loading }"><slot>{{ label }}</slot></button>',
+            template: '<button v-bind="$attrs" :disabled="disabled" '
+              + ':class="{ loading: loading }"><slot>{{ label }}</slot></button>',
             props: ['label', 'disabled', 'loading'],
             inheritAttrs: false
           },
@@ -158,7 +159,8 @@ describe('DailyReport', () => {
             emits: ['update:open']
           },
           UButton: {
-            template: '<button v-bind="$attrs" :disabled="disabled" :class="{ loading: loading }"><slot>{{ label }}</slot></button>',
+            template: '<button v-bind="$attrs" :disabled="disabled" '
+              + ':class="{ loading: loading }"><slot>{{ label }}</slot></button>',
             props: ['label', 'disabled', 'loading'],
             inheritAttrs: false
           },
@@ -197,7 +199,8 @@ describe('DailyReport', () => {
             emits: ['update:open']
           },
           UButton: {
-            template: '<button v-bind="$attrs" :disabled="disabled" :class="{ loading: loading }"><slot>{{ label }}</slot></button>',
+            template: '<button v-bind="$attrs" :disabled="disabled" '
+              + ':class="{ loading: loading }"><slot>{{ label }}</slot></button>',
             props: ['label', 'disabled', 'loading'],
             inheritAttrs: false
           },
@@ -235,7 +238,8 @@ describe('DailyReport', () => {
             emits: ['update:open']
           },
           UButton: {
-            template: '<button v-bind="$attrs" :disabled="disabled" @click="$emit(\'click\')"><slot>{{ label }}</slot></button>',
+            template: '<button v-bind="$attrs" :disabled="disabled" '
+              + '@click="$emit(\'click\')"><slot>{{ label }}</slot></button>',
             props: ['label', 'disabled', 'loading'],
             emits: ['click'],
             inheritAttrs: false
@@ -276,7 +280,8 @@ describe('DailyReport', () => {
             emits: ['update:open']
           },
           UButton: {
-            template: '<button v-bind="$attrs" :disabled="disabled" @click="$emit(\'click\')"><slot>{{ label }}</slot></button>',
+            template: '<button v-bind="$attrs" :disabled="disabled" '
+              + '@click="$emit(\'click\')"><slot>{{ label }}</slot></button>',
             props: ['label', 'disabled', 'loading'],
             emits: ['click'],
             inheritAttrs: false
@@ -318,7 +323,8 @@ describe('DailyReport', () => {
             emits: ['update:open']
           },
           UButton: {
-            template: '<button v-bind="$attrs" :disabled="disabled" @click="$emit(\'click\')"><slot>{{ label }}</slot></button>',
+            template: '<button v-bind="$attrs" :disabled="disabled" '
+              + '@click="$emit(\'click\')"><slot>{{ label }}</slot></button>',
             props: ['label', 'disabled', 'loading'],
             emits: ['click'],
             inheritAttrs: false

@@ -1,15 +1,29 @@
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import AddManualTransactionDetails from '~/components/RoutingSlip/AddManualTransactionDetails.vue'
 import type { ManualTransactionDetails } from '~/interfaces/routing-slip'
+import type { ComponentPublicInstance } from 'vue'
 
-const { mockGetFeeByCorpTypeAndFilingType, mockUseRoutingSlip, mockRequiredFieldRule, mockManualTransactionDetails, mockEmit, mockErrors, mockRemoveManualTransactionRowEventHandler, mockCalculateTotal, mockDelayedCalculateTotal, mockEmitManualTransactionDetails, mockValidate } = vi.hoisted(() => {
+const {
+  mockGetFeeByCorpTypeAndFilingType,
+  mockUseRoutingSlip,
+  mockRequiredFieldRule,
+  mockManualTransactionDetails,
+  mockEmit,
+  mockErrors,
+  mockRemoveManualTransactionRowEventHandler,
+  mockCalculateTotal,
+  mockDelayedCalculateTotal,
+  mockEmitManualTransactionDetails,
+  mockValidate
+} = vi.hoisted(() => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { ref, reactive } = require('vue')
   const mockGetFeeByCorpTypeAndFilingType = vi.fn()
   const mockUseRoutingSlip = {
     getFeeByCorpTypeAndFilingType: mockGetFeeByCorpTypeAndFilingType
   }
   const mockRequiredFieldRule = vi.fn()
-  const mockManualTransactionDetails = ref({
+  const mockManualTransactionDetails = ref<ManualTransactionDetails>({
     key: Math.random(),
     futureEffective: false,
     priority: false,
@@ -51,6 +65,7 @@ vi.mock('~/utils/common-util', () => ({
 }))
 
 vi.mock('~/composables/viewRoutingSlip/useAddManualTransactionDetails', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { computed } = require('vue')
   return {
     default: () => ({
@@ -319,7 +334,7 @@ describe('AddManualTransactionDetails', () => {
           ConnectInput: true,
           UCheckbox: true,
           UButton: {
-            template: '<button @click="$emit(\'click\')" data-test="remove-button"></button>',
+            template: "<button @click=\"$emit('click')\" data-test=\"remove-button\"></button>",
             props: ['icon', 'variant', 'size']
           },
           UIcon: true
@@ -329,7 +344,7 @@ describe('AddManualTransactionDetails', () => {
 
     await nextTick()
 
-    const component = wrapper.vm as any
+    const component = wrapper.vm as InstanceType<typeof AddManualTransactionDetails>
     mockRemoveManualTransactionRowEventHandler.mockImplementation(() => {
       wrapper.vm.$emit('removeManualTransactionRow', 1)
     })
@@ -353,7 +368,8 @@ describe('AddManualTransactionDetails', () => {
         stubs: {
           FilingTypeAutoComplete: true,
           ConnectInput: {
-            template: '<input data-test="input" :data-id="id" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+            template: '<input data-test="input" :data-id="id" :value="modelValue" '
+              + "@input=\"$emit('update:modelValue', $event.target.value)\" />",
             props: ['id', 'modelValue', 'label', 'type', 'required', 'readonly'],
             emits: ['update:modelValue']
           },
@@ -417,7 +433,7 @@ describe('AddManualTransactionDetails', () => {
 
     await nextTick()
 
-    const component = wrapper.vm as any
+    const component = wrapper.vm as InstanceType<typeof AddManualTransactionDetails>
     component.errors.filingType = 'This field is required'
     component.errors.quantity = 'This field is required'
     await nextTick()
@@ -445,7 +461,7 @@ describe('AddManualTransactionDetails', () => {
 
     await nextTick()
 
-    const component = wrapper.vm as any
+    const component = wrapper.vm as InstanceType<typeof AddManualTransactionDetails>
     component.manualTransactionDetails.value.quantity = 2
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 50))
@@ -472,7 +488,7 @@ describe('AddManualTransactionDetails', () => {
 
     await nextTick()
 
-    const component = wrapper.vm as any
+    const component = wrapper.vm as InstanceType<typeof AddManualTransactionDetails>
     component.manualTransactionDetails.value.quantity = 1
     await nextTick()
 
@@ -518,7 +534,7 @@ describe('AddManualTransactionDetails', () => {
 
     await nextTick()
 
-    const component = wrapper.vm as any
+    const component = wrapper.vm as InstanceType<typeof AddManualTransactionDetails>
     expect(component.manualTransactionDetails.value.priority).toBe(true)
     expect(component.manualTransactionDetails.value.futureEffective).toBe(true)
     expect(component.manualTransactionDetails.value.referenceNumber).toBe('REF123')
@@ -540,7 +556,7 @@ describe('AddManualTransactionDetails', () => {
 
     await nextTick()
 
-    const component = wrapper.vm as any
+    const component = wrapper.vm as InstanceType<typeof AddManualTransactionDetails>
     expect(typeof component.validate).toBe('function')
   })
 
@@ -551,7 +567,7 @@ describe('AddManualTransactionDetails', () => {
           FilingTypeAutoComplete: true,
           ConnectInput: true,
           UCheckbox: {
-            template: '<input type="checkbox" @change="$emit(\'change\')" />',
+            template: "<input type=\"checkbox\" @change=\"$emit('change')\" />",
             props: ['modelValue', 'label'],
             emits: ['change', 'update:modelValue']
           },
@@ -569,7 +585,7 @@ describe('AddManualTransactionDetails', () => {
       await nextTick()
     }
 
-    const component = wrapper.vm as any
+    const component = wrapper.vm as InstanceType<typeof AddManualTransactionDetails>
     expect(typeof component.calculateTotal).toBe('function')
   })
 
@@ -580,7 +596,7 @@ describe('AddManualTransactionDetails', () => {
           FilingTypeAutoComplete: true,
           ConnectInput: true,
           UCheckbox: {
-            template: '<input type="checkbox" @change="$emit(\'change\')" />',
+            template: "<input type=\"checkbox\" @change=\"$emit('change')\" />",
             props: ['modelValue', 'label'],
             emits: ['change', 'update:modelValue']
           },
@@ -598,7 +614,7 @@ describe('AddManualTransactionDetails', () => {
       await nextTick()
     }
 
-    const component = wrapper.vm as any
+    const component = wrapper.vm as InstanceType<typeof AddManualTransactionDetails>
     expect(typeof component.calculateTotal).toBe('function')
   })
 
@@ -624,7 +640,7 @@ describe('AddManualTransactionDetails', () => {
 
     await nextTick()
 
-    const component = wrapper.vm as any
+    const component = wrapper.vm as InstanceType<typeof AddManualTransactionDetails>
     component.manualTransactionDetails.value.quantity = 5
     await nextTick()
 
@@ -658,8 +674,8 @@ describe('AddManualTransactionDetails', () => {
       await filingType.vm.$emit('input')
       await nextTick()
 
-      const component = wrapper.vm as any
-      expect(component.errors.filingType).toBe('')
+      const component = wrapper.vm as ComponentPublicInstance & { errors?: { filingType?: string, quantity?: string } }
+      expect(component.errors?.filingType).toBe('')
     }
   })
 })

@@ -410,7 +410,8 @@ describe('useAddManualTransactionDetails', () => {
     const composable = useAddManualTransactionDetails(props)
 
     expect(composable.referenceNumberRules.length).toBe(1)
-    expect(composable.referenceNumberRules[0]?.('a'.repeat(21))).toBe('Incorporation/Reference Number should not be more than 20 characters')
+    expect(composable.referenceNumberRules[0]?.('a'.repeat(21)))
+      .toBe('Incorporation/Reference Number should not be more than 20 characters')
     expect(composable.referenceNumberRules[0]?.('valid')).toBe(true)
   })
 

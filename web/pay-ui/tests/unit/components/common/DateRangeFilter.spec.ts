@@ -1,18 +1,35 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { nextTick } from 'vue'
 import { DateRangeFilter } from '#components'
+import type { ComponentPublicInstance } from 'vue'
+import type { CalendarDate } from '@internationalized/date'
 
 mockNuxtImport('useI18n', () => () => ({
   t: (key: string) => {
-    if (key === 'label.date') { return 'Date' }
-    if (key === 'label.apply') { return 'Apply' }
-    if (key === 'label.cancel') { return 'Cancel' }
-    if (key.includes('DATEFILTER_CODES.TODAY')) { return 'Today' }
-    if (key.includes('DATEFILTER_CODES.YESTERDAY')) { return 'Yesterday' }
-    if (key.includes('DATEFILTER_CODES.LASTWEEK')) { return 'Last Week' }
-    if (key.includes('DATEFILTER_CODES.LASTMONTH')) { return 'Last Month' }
-    if (key.includes('DATEFILTER_CODES.CUSTOMRANGE')) { return 'Custom Range' }
+    if (key === 'label.date') {
+      return 'Date'
+    }
+    if (key === 'label.apply') {
+      return 'Apply'
+    }
+    if (key === 'label.cancel') {
+      return 'Cancel'
+    }
+    if (key.includes('DATEFILTER_CODES.TODAY')) {
+      return 'Today'
+    }
+    if (key.includes('DATEFILTER_CODES.YESTERDAY')) {
+      return 'Yesterday'
+    }
+    if (key.includes('DATEFILTER_CODES.LASTWEEK')) {
+      return 'Last Week'
+    }
+    if (key.includes('DATEFILTER_CODES.LASTMONTH')) {
+      return 'Last Month'
+    }
+    if (key.includes('DATEFILTER_CODES.CUSTOMRANGE')) {
+      return 'Custom Range'
+    }
     return key
   }
 }))
@@ -69,7 +86,11 @@ describe('DateRangeFilter', () => {
     await nextTick()
     vi.advanceTimersByTime(100)
 
-    const vm = wrapper.vm as any
+    const vm = wrapper.vm as ComponentPublicInstance & {
+      popoverRangeDisplay?: string
+      triggerButtonLabel?: string
+      localModel?: { value: { start?: CalendarDate, end?: CalendarDate } }
+    }
     expect(vm.popoverRangeDisplay).toBe('2025-09-26 - 2025-09-26')
   })
 
@@ -107,7 +128,11 @@ describe('DateRangeFilter', () => {
       const expectedPayload = { startDate: '2025-09-15', endDate: '2025-09-21' }
       expect(emitted[0]).toEqual([expectedPayload])
 
-      const vm = wrapper.vm as any
+      const vm = wrapper.vm as ComponentPublicInstance & {
+        popoverRangeDisplay?: string
+        triggerButtonLabel?: string
+        localModel?: { value: { start?: CalendarDate, end?: CalendarDate } }
+      }
       expect(vm.triggerButtonLabel).toBe('2025-09-15 - 2025-09-21')
     }
   })
@@ -123,9 +148,13 @@ describe('DateRangeFilter', () => {
     await nextTick()
     vi.advanceTimersByTime(100)
 
-    const vm = wrapper.vm as any
+    const vm = wrapper.vm as ComponentPublicInstance & {
+      popoverRangeDisplay?: string
+      triggerButtonLabel?: string
+      localModel?: { value: { start?: CalendarDate, end?: CalendarDate } }
+    }
 
-    expect(vm.localModel.value.start.toString()).toBe('2025-09-01')
+    expect(vm.localModel?.value.start?.toString()).toBe('2025-09-01')
 
     const popover = document.querySelector('[role="dialog"]')
     expect(popover).not.toBeNull()
@@ -139,7 +168,7 @@ describe('DateRangeFilter', () => {
     await nextTick()
     vi.advanceTimersByTime(100)
 
-    expect(vm.localModel.value.start.toString()).toBe('2025-09-26')
+    expect(vm.localModel?.value.start?.toString()).toBe('2025-09-26')
 
     const cancelButton = popoverButtons.find(btn => btn.textContent?.includes('Cancel'))
     expect(cancelButton).toBeDefined()
@@ -151,6 +180,6 @@ describe('DateRangeFilter', () => {
     await nextTick()
     vi.advanceTimersByTime(100)
 
-    expect(vm.localModel.value.start.toString()).toBe('2025-09-01')
+    expect(vm.localModel?.value.start?.toString()).toBe('2025-09-01')
   })
 })

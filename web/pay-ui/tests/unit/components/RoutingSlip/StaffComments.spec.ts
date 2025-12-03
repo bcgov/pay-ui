@@ -187,6 +187,7 @@ describe('StaffComments', () => {
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const exposed = wrapper.vm as any
     expect(exposed.fetchStaffComments).toBeDefined()
     expect(typeof exposed.fetchStaffComments).toBe('function')

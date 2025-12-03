@@ -3,7 +3,9 @@ import LinkedRoutingSlipDetails from '~/components/RoutingSlip/LinkedRoutingSlip
 
 const { mockFormatDisplayDate } = vi.hoisted(() => {
   const mockFormatDisplayDate = vi.fn((date: Date | string) => {
-    if (!date) { return '' }
+    if (!date) {
+      return ''
+    }
     return new Date(date).toLocaleDateString()
   })
   return { mockFormatDisplayDate }

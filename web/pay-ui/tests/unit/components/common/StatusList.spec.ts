@@ -12,8 +12,12 @@ mockNuxtImport('usePayApi', () => {
 
 mockNuxtImport('useI18n', () => () => ({
   t: (key: string) => {
-    if (key === 'label.status') { return 'Status' }
-    if (key === 'label.refundStatus') { return 'Refund Status' }
+    if (key === 'label.status') {
+      return 'Status'
+    }
+    if (key === 'label.refundStatus') {
+      return 'Refund Status'
+    }
     return key
   }
 }))

@@ -2,6 +2,8 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import useTransactionDataTable from '~/composables/viewRoutingSlip/useTransactionDataTable'
 import { InvoiceStatus } from '~/utils/constants'
 import { createPinia, setActivePinia } from 'pinia'
+import type { Invoice, InvoiceDisplay } from '~/interfaces/invoice'
+import type { TableColumn } from '@nuxt/ui'
 
 const mockGetRoutingSlip = vi.fn()
 const mockUseRoutingSlip = {
@@ -73,9 +75,9 @@ describe('useTransactionDataTable', () => {
   })
 
   it('should compute invoiceCount correctly', () => {
-    const invoices = ref([
-      { id: 1 } as any,
-      { id: 2 } as any
+    const invoices = ref<Invoice[]>([
+      { id: 1 },
+      { id: 2 }
     ])
     const composable = useTransactionDataTable(invoices)
     expect(composable.invoiceCount.value).toBe(2)
@@ -102,7 +104,7 @@ describe('useTransactionDataTable', () => {
         createdName: 'Test User',
         createdBy: 'user1'
       }
-    ] as any[])
+    ] as Invoice[])
     const composable = useTransactionDataTable(invoices)
     expect(composable.invoiceDisplay.value).toHaveLength(1)
     expect(composable.invoiceDisplay.value[0]?.description).toEqual(['Item 1', 'Item 2'])
@@ -124,7 +126,7 @@ describe('useTransactionDataTable', () => {
         createdName: 'Test User 2',
         createdBy: 'user2'
       }
-    ] as any[])
+    ] as Invoice[])
     const composable = useTransactionDataTable(invoices)
     expect(composable.invoiceDisplay.value).toHaveLength(1)
     expect(composable.invoiceDisplay.value[0]?.description).toEqual(['Type: Payment', 'Method: Cheque'])
@@ -141,7 +143,7 @@ describe('useTransactionDataTable', () => {
         createdName: 'Test User 3',
         createdBy: 'user3'
       }
-    ] as any[])
+    ] as Invoice[])
     const composable = useTransactionDataTable(invoices)
     expect(composable.invoiceDisplay.value[0]?.description).toEqual(['N/A'])
   })
@@ -157,19 +159,19 @@ describe('useTransactionDataTable', () => {
         createdName: 'Test User 4',
         createdBy: 'user4'
       }
-    ] as any[])
+    ] as Invoice[])
     const composable = useTransactionDataTable(invoices)
     expect(composable.invoiceDisplay.value[0]?.invoiceNumber).toBeUndefined()
   })
 
   it('should return empty array when invoices is not an array', () => {
     // Use empty array instead of null since invoiceCount accesses .length
-    const invoices = ref([] as any)
+    const invoices = ref<Invoice[]>([])
     const composable = useTransactionDataTable(invoices)
     expect(composable.invoiceDisplay.value).toEqual([])
 
     // Test with undefined value
-    invoices.value = undefined as any
+    invoices.value = undefined as unknown as Invoice[]
     expect(composable.invoiceDisplay.value).toEqual([])
   })
 
@@ -185,7 +187,8 @@ describe('useTransactionDataTable', () => {
     expect(headers[4]).toBeDefined()
     expect(headers[5]).toBeDefined()
     // Check that headers have the expected structure
-    expect((headers[0] as any)?.accessorKey || (headers[0] as any)?.key).toBeDefined()
+    const firstHeader = headers[0] as TableColumn<InvoiceDisplay> | undefined
+    expect(firstHeader?.accessorKey || (firstHeader as { key?: string })?.key).toBeDefined()
   })
 
   it('should return true for isAlreadyCancelled when statusCode is REFUNDED', () => {
@@ -237,9 +240,9 @@ describe('useTransactionDataTable', () => {
     const composable = useTransactionDataTable(invoices)
 
     // Mock modal to call the callback (simulating user confirmation)
-    let modalCallback: (() => Promise<void>) | undefined
+    let _modalCallback: (() => Promise<void>) | undefined
     mockOpenCancelTransactionModal.mockImplementation(async (callback: () => Promise<void>) => {
-      modalCallback = callback
+      _modalCallback = callback
       await callback()
     })
 
@@ -278,7 +281,7 @@ describe('useTransactionDataTable', () => {
     mockOpenCancelTransactionModal.mockImplementation(async (callback: () => Promise<void>) => {
       try {
         await callback()
-      } catch (error) {
+      } catch {
         // Error is caught in modalDialogConfirm
       }
     })
@@ -293,8 +296,8 @@ describe('useTransactionDataTable', () => {
 
   it('should not call getRoutingSlip when routingSlipNumber is missing', async () => {
     const invoices = ref([])
-    const composable = useTransactionDataTable(invoices)
-    mockStore.routingSlip.number = undefined as any
+    const _composable = useTransactionDataTable(invoices)
+    mockStore.routingSlip.number = undefined as unknown as string
 
     // Since we can't directly call modalDialogConfirm, we verify the store state
     expect(mockStore.routingSlip.number).toBeUndefined()
@@ -312,7 +315,7 @@ describe('useTransactionDataTable', () => {
         createdName: 'User 1',
         createdBy: 'user1'
       }
-    ] as any[])
+    ] as Invoice[])
     const composable = useTransactionDataTable(invoices)
 
     expect(composable.invoiceDisplay.value).toHaveLength(1)
@@ -326,7 +329,8 @@ describe('useTransactionDataTable', () => {
       total: 200.00,
       createdName: 'User 2',
       createdBy: 'user2'
-    } as any)
+
+    } as Partial<Invoice>)
 
     await nextTick()
     expect(composable.invoiceDisplay.value).toHaveLength(2)
@@ -348,7 +352,7 @@ describe('useTransactionDataTable', () => {
         createdName: 'User',
         createdBy: 'user'
       }
-    ] as any[])
+    ] as Invoice[])
     const composable = useTransactionDataTable(invoices)
     expect(composable.invoiceDisplay.value[0]?.invoiceNumber).toBe('INV-001')
   })
@@ -368,7 +372,7 @@ describe('useTransactionDataTable', () => {
         createdName: 'User',
         createdBy: 'user'
       }
-    ] as any[])
+    ] as Invoice[])
     const composable = useTransactionDataTable(invoices)
     expect(composable.invoiceDisplay.value[0]?.invoiceNumber).toBe('INV-002')
   })

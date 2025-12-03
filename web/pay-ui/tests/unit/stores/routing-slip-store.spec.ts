@@ -1,5 +1,6 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { useRoutingSlipStore } from '~/stores/routing-slip-store'
+import type { RoutingSlip, LinkedRoutingSlips, Payment } from '~/interfaces/routing-slip'
 
 describe('useRoutingSlipStore', () => {
   beforeEach(() => {
@@ -36,14 +37,14 @@ describe('useRoutingSlipStore', () => {
 
   it('should allow updating routingSlip', () => {
     const { store } = useRoutingSlipStore()
-    const newRoutingSlip = { number: '123456789', status: 'ACTIVE' } as any
+    const newRoutingSlip = { number: '123456789', status: 'ACTIVE' } as Partial<RoutingSlip>
     store.routingSlip = newRoutingSlip
     expect(store.routingSlip).toEqual(newRoutingSlip)
   })
 
   it('should allow updating linkedRoutingSlips', () => {
     const { store } = useRoutingSlipStore()
-    const linkedSlips = { parent: { number: '123' }, children: [] } as any
+    const linkedSlips = { parent: { number: '123' }, children: [] } as Partial<LinkedRoutingSlips>
     store.linkedRoutingSlips = linkedSlips
     expect(store.linkedRoutingSlips).toEqual(linkedSlips)
   })
@@ -53,7 +54,7 @@ describe('useRoutingSlipStore', () => {
     const results = [
       { number: '123', status: 'ACTIVE' },
       { number: '456', status: 'COMPLETED' }
-    ] as any[]
+    ] as Partial<RoutingSlip>[]
     store.searchRoutingSlipResult = results
     expect(store.searchRoutingSlipResult).toEqual(results)
     expect(store.searchRoutingSlipResult.length).toBe(2)
@@ -87,7 +88,7 @@ describe('useRoutingSlipStore', () => {
     const payments = [
       { id: '1', amount: 100 },
       { id: '2', amount: 200 }
-    ] as any[]
+    ] as Partial<Payment>[]
     store.chequePayment = payments
     expect(store.chequePayment).toEqual(payments)
     expect(store.chequePayment.length).toBe(2)
@@ -95,7 +96,7 @@ describe('useRoutingSlipStore', () => {
 
   it('should allow updating cashPayment', () => {
     const { store } = useRoutingSlipStore()
-    const payment = { id: '1', amount: 100 } as any
+    const payment = { id: '1', amount: 100 } as Partial<Payment>
     store.cashPayment = payment
     expect(store.cashPayment).toEqual(payment)
   })
@@ -104,7 +105,7 @@ describe('useRoutingSlipStore', () => {
     const { store: store1 } = useRoutingSlipStore()
     const { store: store2 } = useRoutingSlipStore()
 
-    store1.routingSlip = { number: '111' } as any
+    store1.routingSlip = { number: '111' } as Partial<RoutingSlip>
 
     // Pinia stores are singletons, so they share the same state
     expect(store1.routingSlip.number).toBe('111')
@@ -114,7 +115,7 @@ describe('useRoutingSlipStore', () => {
   it('should be reactive', () => {
     const { store } = useRoutingSlipStore()
     const initialValue = store.routingSlip
-    store.routingSlip = { number: '999' } as any
+    store.routingSlip = { number: '999' } as Partial<RoutingSlip>
     expect(store.routingSlip).not.toEqual(initialValue)
     expect(store.routingSlip.number).toBe('999')
   })

@@ -97,7 +97,7 @@ describe('useDailyReport', () => {
 
     try {
       await getDailyReport()
-    } catch (error) {
+    } catch {
       // Error is expected, but isDownloading should still be false
     }
     expect(isDownloading.value).toBe(false)

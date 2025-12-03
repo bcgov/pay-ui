@@ -2,40 +2,40 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { useRoutingSlipInfo } from '~/composables/viewRoutingSlip/useRoutingSlipInfo'
 
 const {
-  mockUpdateRoutingSlipStatus,
-  mockUpdateRoutingSlipRefundStatus,
-  mockGetRoutingSlip,
-  mockUpdateRoutingSlipComments,
+  _mockUpdateRoutingSlipStatus,
+  _mockUpdateRoutingSlipRefundStatus,
+  _mockGetRoutingSlip,
+  _mockUpdateRoutingSlipComments,
   mockUseRoutingSlip,
-  mockToggleLoading,
+  _mockToggleLoading,
   mockUseLoader,
-  mockOpenPlaceRoutingSlipToNSFModal,
-  mockOpenVoidRoutingSlipModal,
+  _mockOpenPlaceRoutingSlipToNSFModal,
+  _mockOpenVoidRoutingSlipModal,
   mockUsePayModals,
   mockUsePayApi
 } = vi.hoisted(() => {
-  const mockUpdateRoutingSlipStatus = vi.fn()
-  const mockUpdateRoutingSlipRefundStatus = vi.fn()
-  const mockGetRoutingSlip = vi.fn()
-  const mockUpdateRoutingSlipComments = vi.fn()
+  const _mockUpdateRoutingSlipStatus = vi.fn()
+  const _mockUpdateRoutingSlipRefundStatus = vi.fn()
+  const _mockGetRoutingSlip = vi.fn()
+  const _mockUpdateRoutingSlipComments = vi.fn()
 
   const mockUseRoutingSlip = {
-    updateRoutingSlipStatus: mockUpdateRoutingSlipStatus,
-    updateRoutingSlipRefundStatus: mockUpdateRoutingSlipRefundStatus,
-    getRoutingSlip: mockGetRoutingSlip,
-    updateRoutingSlipComments: mockUpdateRoutingSlipComments
+    updateRoutingSlipStatus: _mockUpdateRoutingSlipStatus,
+    updateRoutingSlipRefundStatus: _mockUpdateRoutingSlipRefundStatus,
+    getRoutingSlip: _mockGetRoutingSlip,
+    updateRoutingSlipComments: _mockUpdateRoutingSlipComments
   }
 
-  const mockToggleLoading = vi.fn()
+  const _mockToggleLoading = vi.fn()
   const mockUseLoader = {
-    toggleLoading: mockToggleLoading
+    toggleLoading: _mockToggleLoading
   }
 
-  const mockOpenPlaceRoutingSlipToNSFModal = vi.fn()
-  const mockOpenVoidRoutingSlipModal = vi.fn()
+  const _mockOpenPlaceRoutingSlipToNSFModal = vi.fn()
+  const _mockOpenVoidRoutingSlipModal = vi.fn()
   const mockUsePayModals = {
-    openPlaceRoutingSlipToNSFModal: mockOpenPlaceRoutingSlipToNSFModal,
-    openVoidRoutingSlipModal: mockOpenVoidRoutingSlipModal
+    openPlaceRoutingSlipToNSFModal: _mockOpenPlaceRoutingSlipToNSFModal,
+    openVoidRoutingSlipModal: _mockOpenVoidRoutingSlipModal
   }
 
   const mockUsePayApi = {
@@ -43,15 +43,15 @@ const {
   }
 
   return {
-    mockUpdateRoutingSlipStatus,
-    mockUpdateRoutingSlipRefundStatus,
-    mockGetRoutingSlip,
-    mockUpdateRoutingSlipComments,
+    _mockUpdateRoutingSlipStatus,
+    _mockUpdateRoutingSlipRefundStatus,
+    _mockGetRoutingSlip,
+    _mockUpdateRoutingSlipComments,
     mockUseRoutingSlip,
-    mockToggleLoading,
+    _mockToggleLoading,
     mockUseLoader,
-    mockOpenPlaceRoutingSlipToNSFModal,
-    mockOpenVoidRoutingSlipModal,
+    _mockOpenPlaceRoutingSlipToNSFModal,
+    _mockOpenVoidRoutingSlipModal,
     mockUsePayModals,
     mockUsePayApi
   }

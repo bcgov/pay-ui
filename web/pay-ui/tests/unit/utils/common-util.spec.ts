@@ -1,5 +1,6 @@
 import commonUtil from '~/utils/common-util'
 import { SlipStatus } from '~/enums/slip-status'
+import type { Address } from '~/interfaces/address'
 
 describe('common-util', () => {
   beforeEach(() => {
@@ -36,8 +37,8 @@ describe('common-util', () => {
     })
 
     it('should return empty string for null/undefined', () => {
-      expect(commonUtil.formatDisplayDate(null as any)).toBe('')
-      expect(commonUtil.formatDisplayDate(undefined as any)).toBe('')
+      expect(commonUtil.formatDisplayDate(null as unknown as string | null)).toBe('')
+      expect(commonUtil.formatDisplayDate(undefined as unknown as string | undefined)).toBe('')
     })
   })
 
@@ -172,7 +173,7 @@ describe('common-util', () => {
       const address = {
         city: 'Vancouver'
       }
-      const result = commonUtil.convertAddressForComponent(address as any)
+      const result = commonUtil.convertAddressForComponent(address as Partial<Address>)
       expect(result.addressCity).toBe('Vancouver')
       expect(result.addressCountry).toBe('')
     })

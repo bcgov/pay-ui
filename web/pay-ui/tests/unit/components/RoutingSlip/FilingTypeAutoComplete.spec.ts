@@ -1,6 +1,7 @@
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import FilingTypeAutoComplete from '~/components/RoutingSlip/FilingTypeAutoComplete.vue'
 import type { FilingType } from '~/interfaces/routing-slip'
+import type { InstanceType } from 'vue'
 
 const { mockGetSearchFilingType } = vi.hoisted(() => {
   return {
@@ -73,7 +74,8 @@ describe('FilingTypeAutoComplete', () => {
       global: {
         stubs: {
           AsyncAutoComplete: {
-            template: '<div data-test="input-filing-type" :id="id" :data-label="label" :data-model-value="JSON.stringify(modelValue)"></div>',
+            template: '<div data-test="input-filing-type" :id="id" '
+              + ':data-label="label" :data-model-value="JSON.stringify(modelValue)"></div>',
             props: ['id', 'label', 'modelValue', 'queryFn'],
             emits: ['update:modelValue', 'input', 'blur', 'focus']
           }
@@ -85,7 +87,9 @@ describe('FilingTypeAutoComplete', () => {
     expect(autocompleteElement.exists()).toBe(true)
     expect(autocompleteElement.attributes('id')).toBe('test-filing-type')
     expect(autocompleteElement.attributes('data-label')).toBe('Filing Type Name')
-    const queryFn = (wrapper.vm as any).searchFilingTypes
+    const component = wrapper.vm as InstanceType<typeof FilingTypeAutoComplete> & {
+      searchFilingTypes?: (searchTerm: string | undefined) => Promise<Array<FilingType & { label: string }>> }
+    const queryFn = component.searchFilingTypes
     expect(typeof queryFn).toBe('function')
   })
 
@@ -158,7 +162,9 @@ describe('FilingTypeAutoComplete', () => {
       }
     })
 
-    const queryFn = (wrapper.vm as any).searchFilingTypes
+    const component = wrapper.vm as InstanceType<typeof FilingTypeAutoComplete> & {
+      searchFilingTypes?: (searchTerm: string | undefined) => Promise<Array<FilingType & { label: string }>> }
+    const queryFn = component.searchFilingTypes
     expect(queryFn).toBeTruthy()
     expect(typeof queryFn).toBe('function')
     const result = await queryFn(undefined)
@@ -179,10 +185,13 @@ describe('FilingTypeAutoComplete', () => {
       }
     })
 
-    const queryFn = (wrapper.vm as any).searchFilingTypes
+    const component = wrapper.vm as InstanceType<typeof FilingTypeAutoComplete> & {
+      searchFilingTypes?: (searchTerm: string | undefined) => Promise<Array<FilingType & { label: string }>>
+    }
+    const queryFn = component.searchFilingTypes
     expect(queryFn).toBeTruthy()
     expect(typeof queryFn).toBe('function')
-    const result = await queryFn(null as any)
+    const result = await queryFn?.(undefined)
     expect(result).toEqual([])
     expect(mockGetSearchFilingType).not.toHaveBeenCalled()
   })
@@ -200,7 +209,10 @@ describe('FilingTypeAutoComplete', () => {
       }
     })
 
-    const queryFn = (wrapper.vm as any).searchFilingTypes
+    const component = wrapper.vm as InstanceType<typeof FilingTypeAutoComplete> & {
+      searchFilingTypes?: (searchTerm: string | undefined) => Promise<Array<FilingType & { label: string }>>
+    }
+    const queryFn = component.searchFilingTypes
     expect(queryFn).toBeTruthy()
     expect(typeof queryFn).toBe('function')
 
@@ -227,7 +239,10 @@ describe('FilingTypeAutoComplete', () => {
       }
     })
 
-    const queryFn = (wrapper.vm as any).searchFilingTypes
+    const component = wrapper.vm as InstanceType<typeof FilingTypeAutoComplete> & {
+      searchFilingTypes?: (searchTerm: string | undefined) => Promise<Array<FilingType & { label: string }>>
+    }
+    const queryFn = component.searchFilingTypes
     expect(queryFn).toBeTruthy()
     expect(typeof queryFn).toBe('function')
 
@@ -270,7 +285,10 @@ describe('FilingTypeAutoComplete', () => {
       }
     })
 
-    const queryFn = (wrapper.vm as any).searchFilingTypes
+    const component = wrapper.vm as InstanceType<typeof FilingTypeAutoComplete> & {
+      searchFilingTypes?: (searchTerm: string | undefined) => Promise<Array<FilingType & { label: string }>>
+    }
+    const queryFn = component.searchFilingTypes
     expect(queryFn).toBeTruthy()
     expect(typeof queryFn).toBe('function')
 
@@ -321,7 +339,10 @@ describe('FilingTypeAutoComplete', () => {
       }
     })
 
-    const queryFn = (wrapper.vm as any).searchFilingTypes
+    const component = wrapper.vm as InstanceType<typeof FilingTypeAutoComplete> & {
+      searchFilingTypes?: (searchTerm: string | undefined) => Promise<Array<FilingType & { label: string }>>
+    }
+    const queryFn = component.searchFilingTypes
     expect(queryFn).toBeTruthy()
     expect(typeof queryFn).toBe('function')
 
@@ -370,7 +391,10 @@ describe('FilingTypeAutoComplete', () => {
       }
     })
 
-    const queryFn = (wrapper.vm as any).searchFilingTypes
+    const component = wrapper.vm as InstanceType<typeof FilingTypeAutoComplete> & {
+      searchFilingTypes?: (searchTerm: string | undefined) => Promise<Array<FilingType & { label: string }>>
+    }
+    const queryFn = component.searchFilingTypes
     expect(queryFn).toBeTruthy()
     expect(typeof queryFn).toBe('function')
 
@@ -410,7 +434,10 @@ describe('FilingTypeAutoComplete', () => {
       }
     })
 
-    const queryFn = (wrapper.vm as any).searchFilingTypes
+    const component = wrapper.vm as InstanceType<typeof FilingTypeAutoComplete> & {
+      searchFilingTypes?: (searchTerm: string | undefined) => Promise<Array<FilingType & { label: string }>>
+    }
+    const queryFn = component.searchFilingTypes
     expect(queryFn).toBeTruthy()
     expect(typeof queryFn).toBe('function')
 
@@ -435,7 +462,10 @@ describe('FilingTypeAutoComplete', () => {
       }
     })
 
-    const queryFn = (wrapper.vm as any).searchFilingTypes
+    const component = wrapper.vm as InstanceType<typeof FilingTypeAutoComplete> & {
+      searchFilingTypes?: (searchTerm: string | undefined) => Promise<Array<FilingType & { label: string }>>
+    }
+    const queryFn = component.searchFilingTypes
     expect(queryFn).toBeTruthy()
     expect(typeof queryFn).toBe('function')
 

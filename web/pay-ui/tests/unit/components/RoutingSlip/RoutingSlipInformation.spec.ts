@@ -90,7 +90,8 @@ vi.mock('~/composables/viewRoutingSlip/useRoutingSlipInfo', () => ({
       return status ? status.toUpperCase() : undefined
     }),
     chequeAdvice: computed(() => mockStore.routingSlip.refunds?.[0]?.details?.chequeAdvice || ''),
-    isRefundStatusUndeliverable: computed(() => mockStore.routingSlip.refundStatus === chequeRefundCodes.CHEQUE_UNDELIVERABLE),
+    isRefundStatusUndeliverable: computed(() =>
+      mockStore.routingSlip.refundStatus === chequeRefundCodes.CHEQUE_UNDELIVERABLE),
     canUpdateRefundStatus: computed(() => {
       const status = mockStore.routingSlip.refundStatus
       return status === chequeRefundCodes.PROCESSED || status === chequeRefundCodes.CHEQUE_UNDELIVERABLE
@@ -318,6 +319,7 @@ describe('RoutingSlipInformation', () => {
     const refundStatusMenuElement = wrapper.find('[data-test="refund-status-menu"]')
     expect(refundStatusMenuElement.exists()).toBe(true)
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const component = wrapper.vm as any
     await component.handleRefundStatusSelectWithComments(chequeRefundCodes.PROCESSED)
     await nextTick()

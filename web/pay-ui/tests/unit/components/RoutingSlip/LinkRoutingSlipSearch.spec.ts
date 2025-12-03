@@ -138,7 +138,8 @@ describe('LinkRoutingSlipSearch', () => {
             emits: ['update:modelValue', 'blur', 'focus']
           },
           UButton: {
-            template: '<button data-test="button" :label="label" :loading="loading" :disabled="disabled"><slot /></button>',
+            template: '<button data-test="button" :label="label" '
+              + ':loading="loading" :disabled="disabled"><slot /></button>',
             props: ['label', 'loading', 'disabled', 'class']
           },
           ConnectI18nHelper: true
@@ -186,7 +187,8 @@ describe('LinkRoutingSlipSearch', () => {
     })
 
     const buttons = wrapper.findAllComponents({ name: 'UButton' })
-    const cancelButton = buttons.find((btn: any) => btn.props('label') === 'label.cancel')
+
+    const cancelButton = buttons.find(btn => btn.props('label') === 'label.cancel')
 
     if (cancelButton) {
       await cancelButton.trigger('click')
@@ -288,7 +290,7 @@ describe('LinkRoutingSlipSearch', () => {
     }
   })
 
-  it('should return empty array when searchRoutingSlipForLinking is called with input less than 3 characters', async () => {
+  it('should return empty array searchRoutingSlipForLinking is called with input less than 3 characters', async () => {
     const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
       props: {
         parentRoutingSlipNumber: '123456789'
@@ -372,11 +374,12 @@ describe('LinkRoutingSlipSearch', () => {
       }
     })
 
-    ;(wrapper.vm as any).selected = '987654321'
+    const component = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & { selected?: string }
+    component.selected = '987654321'
     await nextTick()
 
     const buttons = wrapper.findAllComponents({ name: 'UButton' })
-    const linkButton = buttons.find((btn: any) => btn.props('label') === 'label.link')
+    const linkButton = buttons.find(btn => btn.props('label') === 'label.link')
 
     if (linkButton) {
       await linkButton.trigger('click')
@@ -394,13 +397,15 @@ describe('LinkRoutingSlipSearch', () => {
 
   it('should set error message when linkRoutingSlip fails with FetchError', async () => {
     const fetchError = new FetchError('Error')
-    fetchError.response = {
-      _data: {
-        rootCause: {
-          detail: 'Custom error message'
+    Object.assign(fetchError, {
+      response: {
+        _data: {
+          rootCause: {
+            detail: 'Custom error message'
+          }
         }
       }
-    } as any
+    } as Partial<FetchError>)
 
     mockPostLinkRoutingSlip.mockImplementation(() => Promise.reject(fetchError))
 
@@ -438,11 +443,12 @@ describe('LinkRoutingSlipSearch', () => {
       }
     })
 
-    ;(wrapper.vm as any).selected = '987654321'
+    const component = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & { selected?: string }
+    component.selected = '987654321'
     await nextTick()
 
     const buttons = wrapper.findAllComponents({ name: 'UButton' })
-    const linkButton = buttons.find((btn: any) => btn.props('label') === 'label.link')
+    const linkButton = buttons.find(btn => btn.props('label') === 'label.link')
 
     if (linkButton) {
       await linkButton.trigger('click')
@@ -491,11 +497,12 @@ describe('LinkRoutingSlipSearch', () => {
       }
     })
 
-    ;(wrapper.vm as any).selected = '987654321'
+    const component = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & { selected?: string }
+    component.selected = '987654321'
     await nextTick()
 
     const buttons = wrapper.findAllComponents({ name: 'UButton' })
-    const linkButton = buttons.find((btn: any) => btn.props('label') === 'label.link')
+    const linkButton = buttons.find(btn => btn.props('label') === 'label.link')
 
     if (linkButton) {
       await linkButton.trigger('click')
@@ -544,11 +551,12 @@ describe('LinkRoutingSlipSearch', () => {
       }
     })
 
-    ;(wrapper.vm as any).selected = '987654321'
+    const component = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & { selected?: string }
+    component.selected = '987654321'
     await nextTick()
 
     const buttons = wrapper.findAllComponents({ name: 'UButton' })
-    const linkButton = buttons.find((btn: any) => btn.props('label') === 'label.link')
+    const linkButton = buttons.find(btn => btn.props('label') === 'label.link')
 
     if (linkButton) {
       await linkButton.trigger('click')

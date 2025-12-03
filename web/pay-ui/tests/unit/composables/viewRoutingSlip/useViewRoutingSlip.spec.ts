@@ -1,7 +1,7 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import useViewRoutingSlip from '~/composables/viewRoutingSlip/useViewRoutingSlip'
 import { createPinia, setActivePinia } from 'pinia'
-import { nextTick } from 'vue'
+import { nextTick, reactive, ref } from 'vue'
 
 const mockGetRoutingSlip = vi.fn()
 const mockGetLinkedRoutingSlips = vi.fn()
@@ -78,7 +78,7 @@ describe('useViewRoutingSlip', () => {
   })
 
   it('should call getLinkedRoutingSlips when routingSlip has a number', async () => {
-    const composable = useViewRoutingSlip({ slipId: '123456789' })
+    await useViewRoutingSlip({ slipId: '123456789' })
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
 
@@ -86,8 +86,8 @@ describe('useViewRoutingSlip', () => {
   })
 
   it('should not call getLinkedRoutingSlips when routingSlip number is missing', async () => {
-    mockStore.routingSlip.number = undefined as any
-    const composable = useViewRoutingSlip({ slipId: '123456789' })
+    mockStore.routingSlip.number = undefined as unknown as string
+    await useViewRoutingSlip({ slipId: '123456789' })
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
 
@@ -96,7 +96,7 @@ describe('useViewRoutingSlip', () => {
   })
 
   it('should toggle loading to true before and false after operation', async () => {
-    const composable = useViewRoutingSlip({ slipId: '123456789' })
+    await useViewRoutingSlip({ slipId: '123456789' })
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
 
@@ -108,7 +108,7 @@ describe('useViewRoutingSlip', () => {
     mockGetRoutingSlip.mockImplementation(() => Promise.reject(new Error('API Error')))
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-    const composable = useViewRoutingSlip({ slipId: '123456789' })
+    await useViewRoutingSlip({ slipId: '123456789' })
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
 
@@ -122,7 +122,7 @@ describe('useViewRoutingSlip', () => {
     mockGetLinkedRoutingSlips.mockImplementation(() => Promise.reject(new Error('API Error')))
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-    const composable = useViewRoutingSlip({ slipId: '123456789' })
+    await useViewRoutingSlip({ slipId: '123456789' })
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
 
@@ -134,7 +134,7 @@ describe('useViewRoutingSlip', () => {
 
   it('should watch for slipId changes and call getRoutingSlipAndLinkedRoutingSlips', async () => {
     const props = reactive({ slipId: '123456789' })
-    const composable = useViewRoutingSlip(props)
+    await useViewRoutingSlip(props)
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 200))
 
@@ -164,7 +164,7 @@ describe('useViewRoutingSlip', () => {
   })
 
   it('should not call getRoutingSlipAndLinkedRoutingSlips when slipId is empty', async () => {
-    const composable = useViewRoutingSlip({ slipId: '' })
+    await useViewRoutingSlip({ slipId: '' })
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
 
@@ -175,7 +175,7 @@ describe('useViewRoutingSlip', () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     mockGetRoutingSlip.mockImplementation(() => Promise.reject(new Error('Test Error')))
 
-    const composable = useViewRoutingSlip({ slipId: '123456789' })
+    await useViewRoutingSlip({ slipId: '123456789' })
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
 
@@ -192,7 +192,7 @@ describe('useViewRoutingSlip', () => {
       return Promise.resolve({})
     })
 
-    const composable = useViewRoutingSlip({ slipId: '123456789' })
+    await useViewRoutingSlip({ slipId: '123456789' })
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
 

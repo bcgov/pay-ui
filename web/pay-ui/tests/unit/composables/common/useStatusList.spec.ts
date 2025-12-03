@@ -1,6 +1,6 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { useStatusList, useStatusListSelect } from '~/composables/common/useStatusList'
-import { ChequeRefundStatus } from '~/utils/constants'
+import type { Code } from '~/interfaces/code'
 
 const mockGetCodes = vi.fn()
 const mockPayApi = {
@@ -54,7 +54,7 @@ describe('useStatusList', () => {
   it('should emit update:modelValue when currentStatus is set', async () => {
     const emit = vi.fn()
     const composable = await useStatusList({ value: '' }, { emit })
-    composable.currentStatus.value = { code: 'ACTIVE', description: 'Active' } as any
+    composable.currentStatus.value = { code: 'ACTIVE', description: 'Active' } as Code
     expect(emit).toHaveBeenCalledWith('update:modelValue', 'ACTIVE')
   })
 
@@ -113,7 +113,7 @@ describe('useStatusListSelect', () => {
     composable.routingSlipStatusList.value = [
       { code: 'ACTIVE', description: 'Active' },
       { code: 'COMPLETED', description: 'Completed' }
-    ] as any[]
+    ] as Code[]
     await nextTick()
 
     expect(composable.items.value.length).toBeGreaterThan(0)
@@ -155,7 +155,7 @@ describe('useStatusListSelect', () => {
     const composable = useStatusListSelect({ column: 'status' })
 
     // Set the list to have items already
-    composable.routingSlipStatusList.value = [{ code: 'TEST', description: 'Test' }] as any[]
+    composable.routingSlipStatusList.value = [{ code: 'TEST', description: 'Test' }] as Code[]
 
     // The loadStatusList function checks if length === 0, so it shouldn't load
     if (composable.routingSlipStatusList.value.length === 0) {

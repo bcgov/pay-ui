@@ -1,6 +1,7 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import useLinkRoutingSlip from '~/composables/viewRoutingSlip/useLinkRoutingSlip'
 import { createPinia, setActivePinia } from 'pinia'
+import type { LinkedRoutingSlips } from '~/interfaces/routing-slip'
 
 const mockInvoiceCount = ref(0)
 const mockIsRoutingSlipAChild = ref(false)
@@ -18,7 +19,7 @@ const mockStore = reactive({
     number: '123456789',
     status: 'ACTIVE'
   },
-  linkedRoutingSlips: undefined as any
+  linkedRoutingSlips: undefined as unknown as LinkedRoutingSlips | undefined
 })
 
 mockNuxtImport('useRoutingSlip', () => () => mockUseRoutingSlip)

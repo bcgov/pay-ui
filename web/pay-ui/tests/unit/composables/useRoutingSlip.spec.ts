@@ -26,18 +26,18 @@ const mockStore = {
   }
 }
 
-const mockGetRoutingSlip = vi.fn()
-const mockUpdateRoutingSlipStatus = vi.fn()
-const mockUpdateRoutingSlipRefundStatus = vi.fn()
-const mockUpdateRoutingSlipComments = vi.fn()
-const mockAdjustRoutingSlip = vi.fn()
-const mockSaveLinkRoutingSlip = vi.fn()
-const mockGetLinkedRoutingSlips = vi.fn()
-const mockGetDailyReportByDate = vi.fn()
-const mockGetAutoCompleteRoutingSlips = vi.fn()
-const mockGetFeeByCorpTypeAndFilingType = vi.fn()
-const mockSaveManualTransactions = vi.fn()
-const mockCancelRoutingSlipInvoice = vi.fn()
+const _mockGetRoutingSlip = vi.fn()
+const _mockUpdateRoutingSlipStatus = vi.fn()
+const _mockUpdateRoutingSlipRefundStatus = vi.fn()
+const _mockUpdateRoutingSlipComments = vi.fn()
+const _mockAdjustRoutingSlip = vi.fn()
+const _mockSaveLinkRoutingSlip = vi.fn()
+const _mockGetLinkedRoutingSlips = vi.fn()
+const _mockGetDailyReportByDate = vi.fn()
+const _mockGetAutoCompleteRoutingSlips = vi.fn()
+const _mockGetFeeByCorpTypeAndFilingType = vi.fn()
+const _mockSaveManualTransactions = vi.fn()
+const _mockCancelRoutingSlipInvoice = vi.fn()
 
 const mockUsePayApi = {
   getRoutingSlip: vi.fn(),
@@ -60,13 +60,13 @@ const {
   mockToggleLoading,
   mockUseLoader,
   mockUseCreateRoutingSlipStore,
-  mockNavigateTo,
+  _mockNavigateTo,
   mockUseToast,
   mockGetErrorStatus
 } = vi.hoisted(() => {
-  const mockToggleLoading = vi.fn()
+  const _mockToggleLoading = vi.fn()
   const mockUseLoader = {
-    toggleLoading: mockToggleLoading
+    toggleLoading: _mockToggleLoading
   }
 
   const mockUseCreateRoutingSlipStore = () => ({
@@ -82,7 +82,7 @@ const {
   const mockGetErrorStatus = vi.fn()
 
   return {
-    mockToggleLoading,
+    mockToggleLoading: _mockToggleLoading,
     mockUseLoader,
     mockUseCreateRoutingSlipStore,
     mockNavigateTo,
@@ -174,7 +174,7 @@ describe('useRoutingSlip', () => {
   })
 
   it('should return true for isRoutingSlipAChild when parentNumber exists', () => {
-    mockStore.routingSlip.parentNumber = '123' as any
+    mockStore.routingSlip.parentNumber = '123' as string | null
     const composable = useRoutingSlip()
     expect(composable.isRoutingSlipAChild.value).toBe(true)
   })

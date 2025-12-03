@@ -1,6 +1,5 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import RoutingSlipTransaction from '~/components/RoutingSlip/RoutingSlipTransaction.vue'
-import { nextTick } from 'vue'
 
 const {
   mockShowAddManualTransaction,
@@ -10,14 +9,15 @@ const {
   mockIsLoading,
   mockStatus,
   mockShowManualTransaction,
-  mockAddManualTransactionRow,
-  mockAddManualTransactions,
-  mockIsLastChild,
-  mockRemoveManualTransactionRow,
-  mockUpdateManualTransactionDetails,
-  mockHideManualTransaction,
+  _mockAddManualTransactionRow,
+  _mockAddManualTransactions,
+  _mockIsLastChild,
+  _mockRemoveManualTransactionRow,
+  _mockUpdateManualTransactionDetails,
+  _mockHideManualTransaction,
   mockUseRoutingSlipTransaction
 } = vi.hoisted(() => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { ref } = require('vue')
   const mockShowAddManualTransaction = ref(false)
   const mockManualTransactionsList = ref([])
@@ -26,12 +26,12 @@ const {
   const mockIsLoading = ref(false)
   const mockStatus = ref('')
   const mockShowManualTransaction = vi.fn()
-  const mockAddManualTransactionRow = vi.fn()
-  const mockAddManualTransactions = vi.fn()
-  const mockIsLastChild = vi.fn(() => false)
-  const mockRemoveManualTransactionRow = vi.fn()
-  const mockUpdateManualTransactionDetails = vi.fn()
-  const mockHideManualTransaction = vi.fn()
+  const _mockAddManualTransactionRow = vi.fn()
+  const _mockAddManualTransactions = vi.fn()
+  const _mockIsLastChild = vi.fn(() => false)
+  const _mockRemoveManualTransactionRow = vi.fn()
+  const _mockUpdateManualTransactionDetails = vi.fn()
+  const _mockHideManualTransaction = vi.fn()
 
   const mockUseRoutingSlipTransaction = vi.fn(() => ({
     formRoutingSlipManualTransactions: ref(null),
@@ -41,12 +41,12 @@ const {
     isRoutingSlipVoid: mockIsRoutingSlipVoid,
     isLoading: mockIsLoading,
     showManualTransaction: mockShowManualTransaction,
-    addManualTransactionRow: mockAddManualTransactionRow,
-    addManualTransactions: mockAddManualTransactions,
-    isLastChild: mockIsLastChild,
-    removeManualTransactionRow: mockRemoveManualTransactionRow,
-    updateManualTransactionDetails: mockUpdateManualTransactionDetails,
-    hideManualTransaction: mockHideManualTransaction,
+    addManualTransactionRow: _mockAddManualTransactionRow,
+    addManualTransactions: _mockAddManualTransactions,
+    isLastChild: _mockIsLastChild,
+    removeManualTransactionRow: _mockRemoveManualTransactionRow,
+    updateManualTransactionDetails: _mockUpdateManualTransactionDetails,
+    hideManualTransaction: _mockHideManualTransaction,
     status: mockStatus
   }))
 
@@ -58,12 +58,12 @@ const {
     mockIsLoading,
     mockStatus,
     mockShowManualTransaction,
-    mockAddManualTransactionRow,
-    mockAddManualTransactions,
-    mockIsLastChild,
-    mockRemoveManualTransactionRow,
-    mockUpdateManualTransactionDetails,
-    mockHideManualTransaction,
+    _mockAddManualTransactionRow,
+    _mockAddManualTransactions,
+    _mockIsLastChild,
+    _mockRemoveManualTransactionRow,
+    _mockUpdateManualTransactionDetails,
+    _mockHideManualTransaction,
     mockUseRoutingSlipTransaction
   }
 })
