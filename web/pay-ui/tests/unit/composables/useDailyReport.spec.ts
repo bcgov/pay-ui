@@ -130,6 +130,7 @@ describe('useDailyReport', () => {
   })
 
   it('should handle null response from getDailyReportByDate', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     mockGetDailyReportByDate.mockResolvedValue(null)
 
     const { selectedDate, getDailyReport } = useDailyReport()
@@ -138,5 +139,7 @@ describe('useDailyReport', () => {
 
     expect(mockGetDailyReportByDate).toHaveBeenCalled()
     expect(mockFileDownload).not.toHaveBeenCalled()
+    expect(consoleErrorSpy).toHaveBeenCalledWith(null)
+    consoleErrorSpy.mockRestore()
   })
 })
