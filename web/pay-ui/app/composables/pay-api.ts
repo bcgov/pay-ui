@@ -16,11 +16,10 @@ export const usePayApi = () => {
     return $payApi(`/fas/routing-slips/${routingNumber}`)
   }
 
-  async function postRoutingSlip(payload: CreateRoutingSlipPayload, showErrorToast = false): Promise<RoutingSlip> {
-    return $payApi('/fas/routing-slips', {
+  async function postRoutingSlip(payload: CreateRoutingSlipPayload): Promise<RoutingSlip> {
+    return nuxtApp.$payApi('/fas/routing-slips', {
       method: 'POST',
-      body: payload,
-      showErrorToast
+      body: payload
     })
   }
 
