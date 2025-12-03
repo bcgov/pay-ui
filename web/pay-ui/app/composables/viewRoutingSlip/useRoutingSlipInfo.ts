@@ -173,12 +173,12 @@ export function useRoutingSlipInfo() {
         status: SlipStatus.REFUNDREQUEST
       }
       const detailsString = JSON.stringify(payload)
+      toggleLoading(true)
+      // Global Exception handler will handle this one.
       await usePayApi().updateRoutingSlipRefund(detailsString, store.routingSlip.number)
       const routingSlipNumber = store.routingSlip.number
-      if (routingSlipNumber) {
-        toggleLoading(true)
-        await getRoutingSlip({ routingSlipNumber })
-      }
+      await getRoutingSlip({ routingSlipNumber })
+      toggleLoading(false)
       showRefundForm.value = false
     } catch (error) {
       console.error('Error submitting refund request:', error)
@@ -196,13 +196,12 @@ export function useRoutingSlipInfo() {
     }
 
     try {
+      toggleLoading(true)
+      // Global Exception handler will handle this one.
       await updateRoutingSlipStatus({ status })
       const routingSlipNumber = store.routingSlip.number
-      if (routingSlipNumber) {
-        toggleLoading(true)
-        await getRoutingSlip({ routingSlipNumber })
-        toggleLoading(false)
-      }
+      await getRoutingSlip({ routingSlipNumber })
+      toggleLoading(false)
     } catch (error) {
       console.error('Error updating routing slip status:', error)
       toggleLoading(false)
@@ -215,13 +214,16 @@ export function useRoutingSlipInfo() {
     }
 
     try {
+      toggleLoading(true)
       const currentRefundStatus = store.routingSlip.refundStatus || null
+      // Global Exception handler will handle this one.
       await updateRoutingSlipRefundStatus(status)
 
       const oldStatusText = getRefundStatusText(currentRefundStatus)
       const newStatusText = getRefundStatusText(status)
       const comment = `Refund status updated from ${oldStatusText} to ${newStatusText}`
 
+    
       await updateRoutingSlipComments(comment)
 
       if (onCommentsUpdated) {
@@ -229,11 +231,8 @@ export function useRoutingSlipInfo() {
       }
 
       const routingSlipNumber = store.routingSlip.number
-      if (routingSlipNumber) {
-        toggleLoading(true)
-        await getRoutingSlip({ routingSlipNumber })
-        toggleLoading(false)
-      }
+      await getRoutingSlip({ routingSlipNumber })
+      toggleLoading(false)
     } catch (error) {
       console.error('Error updating refund status:', error)
       toggleLoading(false)
