@@ -156,13 +156,6 @@ export async function useSearch() {
     searchNow()
   }
 
-  onMounted(() => {
-    // To be triggered when coming back to FAS home page from a breadcrumb and if there are any search params present
-    if (!searchParamsExist.value) {
-      searchNow()
-    }
-  })
-
   const debouncedSearch = debounce(() => {
     searchNow()
   }, 500)

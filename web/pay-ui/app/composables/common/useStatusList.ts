@@ -33,10 +33,6 @@ export async function useStatusList(props: StatusListProps, { emit }: StatusList
     }
   })
 
-  onMounted(() => {
-    loadRoutingSlipStatusList()
-  })
-
   function statusLabel(code: string) {
     const statusObject = selectedStatusObject(code)
     return statusObject?.description || ''
