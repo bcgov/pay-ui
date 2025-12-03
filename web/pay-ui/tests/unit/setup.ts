@@ -1,5 +1,6 @@
 import { config } from '@vue/test-utils'
 import type { Directive } from 'vue'
+import { createTestingPinia } from '@pinia/testing'
 
 const canDirective: Directive = {
   mounted: () => {},
@@ -10,6 +11,13 @@ config.global.directives = {
   ...config.global.directives,
   can: canDirective
 }
+
+config.global.plugins = [
+  ...(config.global.plugins || []),
+  createTestingPinia({
+    createSpy: vi.fn
+  })
+]
 
 vi.mock('keycloak-js', () => {
   return {

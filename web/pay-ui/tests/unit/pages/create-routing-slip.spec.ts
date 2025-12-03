@@ -12,7 +12,41 @@ const {
   const _mockT = vi.fn()
   const _mockCrsStore = {
     loading: false,
-    reviewMode: false
+    reviewMode: false,
+    isCheque: true,
+    totalCAD: '0.00',
+    state: {
+      details: {
+        id: '123',
+        date: '2025-10-07T10:00:00.000Z',
+        entity: 'BC123'
+      },
+      payment: {
+        paymentType: 'CHEQUE' as const,
+        paymentItems: {
+          '1': {
+            uuid: '1',
+            date: '2025-10-05T10:00:00.000Z',
+            amountCAD: '150.75',
+            amountUSD: '110.25',
+            identifier: '1234'
+          }
+        },
+        isUSD: false
+      },
+      address: {
+        name: 'Test Org',
+        address: {
+          street: '123 Main St',
+          streetAdditional: '',
+          city: '',
+          region: '',
+          postalCode: '',
+          country: '',
+          locationDescription: ''
+        }
+      }
+    }
   }
   const _mockModal = {
     openLeaveCreateRoutingSlipModal: vi.fn()
@@ -35,7 +69,7 @@ mockNuxtImport('useRoutingSlip', () => () => ({
   createRoutingSlip: mockCreateRoutingSlip
 }))
 
-vi.mock('~/components/RoutingSlip/CreateRoutingSlip.vue', () => ({
+vi.mock('~/components/CreateRoutingSlip/index.vue', () => ({
   default: {
     name: 'CreateRoutingSlip',
     template: '<div data-testid="create-routing-slip">Create Routing Slip Component</div>',
@@ -43,7 +77,7 @@ vi.mock('~/components/RoutingSlip/CreateRoutingSlip.vue', () => ({
   }
 }))
 
-vi.mock('~/components/RoutingSlip/ReviewRoutingSlip.vue', () => ({
+vi.mock('~/components/ReviewRoutingSlip/index.vue', () => ({
   default: {
     name: 'ReviewRoutingSlip',
     template: '<div data-testid="review-routing-slip">Review Routing Slip Component</div>',
@@ -71,7 +105,7 @@ describe('CreateRoutingSlip Page', () => {
     const wrapper = await mountSuspended(CreateRoutingSlip)
     const backButton = wrapper.find('button')
     expect(backButton.exists()).toBe(true)
-    expect(backButton.text()).toContain('label.backToDashboard')
+    expect(backButton.text()).toBe('Back to Dashboard')
   })
 
   it('should call openLeaveCreateRoutingSlipModal when back button is clicked', async () => {
@@ -94,7 +128,7 @@ describe('CreateRoutingSlip Page', () => {
     const wrapper = await mountSuspended(CreateRoutingSlip)
     const heading = wrapper.find('h1')
     expect(heading.exists()).toBe(true)
-    expect(heading.text()).toContain('page.createRoutingSlip.h1')
+    expect(heading.text()).toBe('Add Routing Slip')
   })
 
   it('should render CreateRoutingSlip component when not in review mode', async () => {
@@ -167,7 +201,7 @@ describe('CreateRoutingSlip Page', () => {
     const wrapper = await mountSuspended(CreateRoutingSlip)
     const heading = wrapper.find('h1')
 
-    expect(heading.text()).toContain('page.createRoutingSlip.h1')
+    expect(heading.text()).toBe('Add Routing Slip')
   })
 
   it('should show correct heading label in create mode', async () => {
@@ -175,6 +209,6 @@ describe('CreateRoutingSlip Page', () => {
     const wrapper = await mountSuspended(CreateRoutingSlip)
     const heading = wrapper.find('h1')
 
-    expect(heading.text()).toContain('page.createRoutingSlip.h1')
+    expect(heading.text()).toBe('Add Routing Slip')
   })
 })

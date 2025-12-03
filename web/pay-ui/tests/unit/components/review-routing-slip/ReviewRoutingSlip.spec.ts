@@ -43,7 +43,8 @@ describe('ReviewRoutingSlip', () => {
         plugins: [createTestingPinia({
           initialState: {
             'create-routing-slip-store': { state: baseChequeState }
-          }
+          },
+          createSpy: vi.fn
         })],
         stubs: {
           ConnectInput: true,
@@ -76,7 +77,8 @@ describe('ReviewRoutingSlip', () => {
     const wrapper = await mountSuspended(ReviewRoutingSlip, {
       global: {
         plugins: [createTestingPinia({
-          initialState: { 'create-routing-slip-store': { state: baseChequeState } }
+          initialState: { 'create-routing-slip-store': { state: baseChequeState } },
+          createSpy: vi.fn
         })],
         stubs: {
           ConnectInput: true
@@ -98,7 +100,8 @@ describe('ReviewRoutingSlip', () => {
     const wrapper = await mountSuspended(ReviewRoutingSlip, {
       global: {
         plugins: [createTestingPinia({
-          initialState: { 'create-routing-slip-store': { state: baseCashState } }
+          initialState: { 'create-routing-slip-store': { state: baseCashState } },
+          createSpy: vi.fn
         })],
         stubs: {
           ConnectInput: true
@@ -130,7 +133,8 @@ describe('ReviewRoutingSlip', () => {
                 }
               }
             }
-          }
+          },
+          createSpy: vi.fn
         })],
         stubs: {
           ConnectInput: true
@@ -146,7 +150,8 @@ describe('ReviewRoutingSlip', () => {
     const wrapper = await mountSuspended(ReviewRoutingSlip, {
       global: {
         plugins: [createTestingPinia({
-          initialState: { 'create-routing-slip-store': { state: baseChequeState } }
+          initialState: { 'create-routing-slip-store': { state: baseChequeState } },
+          createSpy: vi.fn
         })],
         stubs: {
           ConnectInput: true
@@ -162,7 +167,8 @@ describe('ReviewRoutingSlip', () => {
     const wrapper = await mountSuspended(ReviewRoutingSlip, {
       global: {
         plugins: [createTestingPinia({
-          initialState: { 'create-routing-slip-store': { state: baseCashState } }
+          initialState: { 'create-routing-slip-store': { state: baseCashState } },
+          createSpy: vi.fn
         })]
       }
     })
@@ -180,7 +186,8 @@ describe('ReviewRoutingSlip', () => {
               state: baseCashState,
               reviewMode: true
             }
-          }
+          },
+          createSpy: vi.fn
         })]
       }
     })
@@ -193,7 +200,11 @@ describe('ReviewRoutingSlip', () => {
   })
 
   it('should emit a `create` event when the `Create` button is clicked', async () => {
-    const wrapper = await mountSuspended(ReviewRoutingSlip)
+    const wrapper = await mountSuspended(ReviewRoutingSlip, {
+      global: {
+        plugins: [createTestingPinia({ createSpy: vi.fn })]
+      }
+    })
     const allButtons = wrapper.findAllComponents({ name: 'UButton' })
     const createButton = allButtons.find(btn => btn.text() === 'Create')!
     await createButton.vm.$emit('click')
@@ -202,7 +213,11 @@ describe('ReviewRoutingSlip', () => {
   })
 
   it('should emit a `cancel` event when the `Cancel` button is clicked', async () => {
-    const wrapper = await mountSuspended(ReviewRoutingSlip)
+    const wrapper = await mountSuspended(ReviewRoutingSlip, {
+      global: {
+        plugins: [createTestingPinia({ createSpy: vi.fn })]
+      }
+    })
     const allButtons = wrapper.findAllComponents({ name: 'UButton' })
     const cancelButton = allButtons.find(btn => btn.text() === 'Cancel')!
     await cancelButton.vm.$emit('click')

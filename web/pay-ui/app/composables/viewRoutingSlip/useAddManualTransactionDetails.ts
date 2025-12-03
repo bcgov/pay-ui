@@ -1,6 +1,7 @@
 import CommonUtils from '@/utils/common-util'
 import { useRoutingSlip } from '../useRoutingSlip'
 import { debounce } from 'es-toolkit'
+import { nextTick, toRef } from 'vue'
 
 interface UseAddManualTransactionDetailsProps {
   index?: number
@@ -17,7 +18,8 @@ export default function useAddManualTransactionDetails(
   emit?: UseAddManualTransactionDetailsEmit
 ) {
   const { getFeeByCorpTypeAndFilingType } = useRoutingSlip()
-  const { manualTransaction, index } = toRefs(props)
+  const manualTransaction = toRef(props, 'manualTransaction')
+  const index = toRef(props, 'index')
 
   const manualTransactionDetails = ref<ManualTransactionDetails | undefined>(undefined)
 
@@ -100,7 +102,7 @@ export default function useAddManualTransactionDetails(
     }, { deep: true })
   }
 
-  onMounted(() => {
+  nextTick(() => {
     if (manualTransaction?.value) {
       manualTransactionDetails.value = JSON.parse(JSON.stringify(manualTransaction.value))
     }

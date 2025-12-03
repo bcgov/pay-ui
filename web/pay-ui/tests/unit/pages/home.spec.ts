@@ -52,14 +52,14 @@ describe('Home Page', () => {
     const wrapper = await mountSuspended(Home)
     const heading = wrapper.find('h1')
     expect(heading.exists()).toBe(true)
-    expect(heading.text()).toContain('page.dashboard.h1')
+    expect(heading.text()).toBe('FAS Staff Dashboard')
   })
 
   it('should render the subtitle', async () => {
     const wrapper = await mountSuspended(Home)
     const subtitle = wrapper.find('.dashboard-subtitle')
     expect(subtitle.exists()).toBe(true)
-    expect(subtitle.text()).toContain('page.dashboard.h1Info')
+    expect(subtitle.text()).toBe('Search, add and manage routing slips')
   })
 
   it('should render the Add New Routing Slip button', async () => {
