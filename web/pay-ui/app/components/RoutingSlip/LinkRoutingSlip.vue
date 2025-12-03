@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import useLinkRoutingSlip from '@/composables/viewRoutingSlip/useLinkRoutingSlip'
-import RoutingSlipLinkSearch from './LinkRoutingSlipSearch.vue'
+import LinkRoutingSlipSearch from './LinkRoutingSlipSearch.vue'
 import LinkedRoutingSlipDetails from '@/components/RoutingSlip/LinkedRoutingSlipDetails.vue'
 
 const { slipId } = defineProps<{
@@ -28,7 +28,7 @@ const {
           <span class="font-bold">
             {{ $t('text.linkRoutingSlipSearchTitleChild') }}
           </span>
-          <linked-routing-slip-details
+          <LinkedRoutingSlipDetails
             :created-date="parentRoutingSlipDetails.createdOn || ''"
             :routing-slip-number="parentRoutingSlipDetails.number || ''"
           />
@@ -44,7 +44,7 @@ const {
           <span class="font-bold">
             {{ $t('text.linkRoutingSlipSearchTitleParent') }}
           </span>
-          <linked-routing-slip-details
+          <LinkedRoutingSlipDetails
             v-for="(routinSlip, i) in childRoutingSlipDetails"
             :key="routinSlip.number"
             :si-number="i + 1"
@@ -101,7 +101,7 @@ const {
           </div>
         </div>
         <div v-if="showSearch" class="mb-4">
-          <RoutingSlipLinkSearch
+          <LinkRoutingSlipSearch
             :parent-routing-slip-number="slipId"
             @cancel="toggleSearch()"
           />
