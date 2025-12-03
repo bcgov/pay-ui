@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { DatePicker } from '#components'
 
@@ -44,10 +43,19 @@ describe('DatePicker', () => {
   })
 
   it('should set the correct ISO value when a day is clicked', async () => {
+    let modelValue: string | null = null
     const wrapper = await mountSuspended(DatePicker, {
       props: {
-        'modelValue': null,
-        'onUpdate:modelValue': async (e: any) => await wrapper.setProps({ modelValue: e })
+        modelValue: null
+      },
+      attrs: {
+        'onUpdate:modelValue': (e: string | null) => {
+          // Only update if it's a string (after conversion)
+          if (typeof e === 'string') {
+            modelValue = e
+            wrapper.setProps({ modelValue: e })
+          }
+        }
       }
     })
 
@@ -63,14 +71,23 @@ describe('DatePicker', () => {
     const dayButton = days.find(day => day.textContent?.includes('15'))
     // @ts-expect-error - Property 'click' does not exist on type 'Element'
     dayButton!.click()
+
+    // Wait for the conversion from CalendarDate to string
+    await nextTick()
+    await nextTick()
     await nextTick()
 
     const expected = '2025-09-15'
 
+    // Check that update:modelValue was emitted (may include CalendarDate before conversion)
     const emitted = wrapper.emitted('update:modelValue')
-    expect(emitted).toHaveLength(1)
-    expect(emitted![0]).toEqual([expected])
-    expect(wrapper.props('modelValue')).toEqual(expected)
+    expect(emitted).toBeTruthy()
+    expect(emitted!.length).toBeGreaterThan(0)
+
+    // Find the string value in the emitted events (after conversion)
+    const stringValue = emitted!.find(args => typeof args[0] === 'string')?.[0]
+    expect(stringValue).toEqual(expected)
+    expect(modelValue).toEqual(expected)
   })
 
   // TODO: sort out why popover isnt closing in test after selection

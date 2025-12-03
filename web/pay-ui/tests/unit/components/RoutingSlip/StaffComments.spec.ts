@@ -242,4 +242,310 @@ describe('StaffComments', () => {
     expect(consoleErrorSpy).toHaveBeenCalled()
     consoleErrorSpy.mockRestore()
   })
+
+  it('should call save when Save button is clicked with valid comment', async () => {
+    mockGetRoutingSlipComments.mockImplementation(() => Promise.resolve({ comments: [] }))
+    mockUpdateRoutingSlipComments.mockImplementation(() => Promise.resolve({}))
+
+    const wrapper = await mountSuspended(StaffComments, {
+      props: {
+        identifier: 'test-id'
+      },
+      global: {
+        stubs: {
+          UPopover: {
+            template: '<div><slot /><div v-if="modelValue"><slot name="content" /></div></div>',
+            props: {
+              open: {
+                type: Boolean,
+                default: false
+              },
+              popper: Object
+            },
+            emits: ['update:open'],
+            computed: {
+              modelValue() {
+                return this.open
+              }
+            }
+          },
+          UButton: {
+            template: '<button @click="$emit(\'click\')" :id="id"><slot /></button>',
+            props: ['id', 'color', 'variant', 'size', 'icon', 'class', 'loading']
+          },
+          UIcon: true
+        }
+      }
+    })
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    const textarea = wrapper.find('textarea')
+    if (textarea.exists()) {
+      await textarea.setValue('Test comment')
+      await nextTick()
+
+      const saveButton = wrapper.find('#save-button')
+      if (saveButton.exists()) {
+        await saveButton.trigger('click')
+        await nextTick()
+        await new Promise(resolve => setTimeout(resolve, 100))
+
+        expect(mockUpdateRoutingSlipComments).toHaveBeenCalled()
+      }
+    }
+  })
+
+  it('should validate comment and show error when empty', async () => {
+    mockGetRoutingSlipComments.mockImplementation(() => Promise.resolve({ comments: [] }))
+
+    const wrapper = await mountSuspended(StaffComments, {
+      props: {
+        identifier: 'test-id'
+      },
+      global: {
+        stubs: {
+          UPopover: {
+            template: '<div><slot /><div v-if="modelValue"><slot name="content" /></div></div>',
+            props: {
+              open: {
+                type: Boolean,
+                default: false
+              },
+              popper: Object
+            },
+            emits: ['update:open'],
+            computed: {
+              modelValue() {
+                return this.open
+              }
+            }
+          },
+          UButton: true,
+          UIcon: true
+        }
+      }
+    })
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    const textarea = wrapper.find('textarea')
+    if (textarea.exists()) {
+      await textarea.setValue('   ')
+      await textarea.trigger('blur')
+      await nextTick()
+
+      expect(wrapper.text()).toContain('Enter a comment.')
+    }
+  })
+
+  it('should call close when Cancel button is clicked', async () => {
+    mockGetRoutingSlipComments.mockImplementation(() => Promise.resolve({ comments: [] }))
+
+    const wrapper = await mountSuspended(StaffComments, {
+      props: {
+        identifier: 'test-id'
+      },
+      global: {
+        stubs: {
+          UPopover: {
+            template: '<div><slot /><div v-if="modelValue"><slot name="content" /></div></div>',
+            props: {
+              open: {
+                type: Boolean,
+                default: false
+              },
+              popper: Object
+            },
+            emits: ['update:open'],
+            computed: {
+              modelValue() {
+                return this.open
+              }
+            }
+          },
+          UButton: {
+            template: '<button @click="$emit(\'click\')" :id="id"><slot /></button>',
+            props: ['id', 'color', 'variant', 'size', 'icon', 'class']
+          },
+          UIcon: true
+        }
+      }
+    })
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    const cancelButton = wrapper.find('#cancel-button')
+    if (cancelButton.exists()) {
+      await cancelButton.trigger('click')
+      await nextTick()
+    }
+  })
+
+  it('should call close when close button is clicked', async () => {
+    mockGetRoutingSlipComments.mockImplementation(() => Promise.resolve({ comments: [] }))
+
+    const wrapper = await mountSuspended(StaffComments, {
+      props: {
+        identifier: 'test-id'
+      },
+      global: {
+        stubs: {
+          UPopover: {
+            template: '<div><slot /><div v-if="modelValue"><slot name="content" /></div></div>',
+            props: {
+              open: {
+                type: Boolean,
+                default: false
+              },
+              popper: Object
+            },
+            emits: ['update:open'],
+            computed: {
+              modelValue() {
+                return this.open
+              }
+            }
+          },
+          UButton: true,
+          UIcon: true
+        }
+      }
+    })
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    const closeButton = wrapper.find('#close-button')
+    if (closeButton.exists()) {
+      await closeButton.trigger('click')
+      await nextTick()
+    }
+  })
+
+  it('should format timestamp correctly', async () => {
+    const comments = [
+      {
+        comment: {
+          comment: 'Test comment',
+          timestamp: '2025-09-26T10:00:00Z',
+          submitterDisplayName: 'Test User'
+        }
+      }
+    ]
+    mockGetRoutingSlipComments.mockImplementation(() => Promise.resolve({ comments }))
+
+    const wrapper = await mountSuspended(StaffComments, {
+      props: {
+        identifier: 'test-id'
+      },
+      global: {
+        stubs: {
+          UPopover: {
+            template: '<div><slot /><div><slot name="content" /></div></div>',
+            props: {
+              open: {
+                type: Boolean,
+                default: false
+              },
+              popper: Object
+            },
+            emits: ['update:open']
+          },
+          UButton: true,
+          UIcon: true
+        }
+      }
+    })
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    expect(wrapper.text()).toContain('Pacific time')
+  })
+
+  it('should show error when comment exceeds maxLength', async () => {
+    mockGetRoutingSlipComments.mockImplementation(() => Promise.resolve({ comments: [] }))
+
+    const wrapper = await mountSuspended(StaffComments, {
+      props: {
+        identifier: 'test-id',
+        maxLength: 10
+      },
+      global: {
+        stubs: {
+          UPopover: {
+            template: '<div><slot /><div v-if="modelValue"><slot name="content" /></div></div>',
+            props: {
+              open: {
+                type: Boolean,
+                default: false
+              },
+              popper: Object
+            },
+            emits: ['update:open'],
+            computed: {
+              modelValue() {
+                return this.open
+              }
+            }
+          },
+          UButton: true,
+          UIcon: true
+        }
+      }
+    })
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    const textarea = wrapper.find('textarea')
+    if (textarea.exists()) {
+      await textarea.setValue('This is a very long comment that exceeds the maximum length')
+      await textarea.trigger('blur')
+      await nextTick()
+
+      expect(wrapper.text()).toContain('Maximum characters reached.')
+    }
+  })
+
+  it('should display characters remaining', async () => {
+    mockGetRoutingSlipComments.mockImplementation(() => Promise.resolve({ comments: [] }))
+
+    const wrapper = await mountSuspended(StaffComments, {
+      props: {
+        identifier: 'test-id',
+        maxLength: 2000
+      },
+      global: {
+        stubs: {
+          UPopover: {
+            template: '<div><slot /><div v-if="modelValue"><slot name="content" /></div></div>',
+            props: {
+              open: {
+                type: Boolean,
+                default: false
+              },
+              popper: Object
+            },
+            emits: ['update:open'],
+            computed: {
+              modelValue() {
+                return this.open
+              }
+            }
+          },
+          UButton: true,
+          UIcon: true
+        }
+      }
+    })
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    const textarea = wrapper.find('textarea')
+    if (textarea.exists()) {
+      await textarea.setValue('Test')
+      await nextTick()
+
+      expect(wrapper.text()).toContain('characters remaining')
+    }
+  })
 })

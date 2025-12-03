@@ -1,6 +1,7 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { ReviewRoutingSlip } from '#components'
 import { createTestingPinia } from '@pinia/testing'
+import { PaymentTypes } from '~/enums'
 
 const baseChequeState = {
   details: { id: '123', date: '2025-10-07T10:00:00.000Z', entity: 'BC123' },
@@ -44,7 +45,9 @@ describe('ReviewRoutingSlip', () => {
           initialState: {
             'create-routing-slip-store': { state: baseChequeState }
           },
-          createSpy: vi.fn
+          createSpy: vi.fn,
+          stubActions: false,
+          fakeApp: false
         })],
         stubs: {
           ConnectInput: true,
@@ -78,7 +81,9 @@ describe('ReviewRoutingSlip', () => {
       global: {
         plugins: [createTestingPinia({
           initialState: { 'create-routing-slip-store': { state: baseChequeState } },
-          createSpy: vi.fn
+          createSpy: vi.fn,
+          stubActions: false,
+          fakeApp: false
         })],
         stubs: {
           ConnectInput: true
@@ -101,7 +106,9 @@ describe('ReviewRoutingSlip', () => {
       global: {
         plugins: [createTestingPinia({
           initialState: { 'create-routing-slip-store': { state: baseCashState } },
-          createSpy: vi.fn
+          createSpy: vi.fn,
+          stubActions: false,
+          fakeApp: false
         })],
         stubs: {
           ConnectInput: true
@@ -134,7 +141,9 @@ describe('ReviewRoutingSlip', () => {
               }
             }
           },
-          createSpy: vi.fn
+          createSpy: vi.fn,
+          stubActions: false,
+          fakeApp: false
         })],
         stubs: {
           ConnectInput: true
@@ -151,7 +160,9 @@ describe('ReviewRoutingSlip', () => {
       global: {
         plugins: [createTestingPinia({
           initialState: { 'create-routing-slip-store': { state: baseChequeState } },
-          createSpy: vi.fn
+          createSpy: vi.fn,
+          stubActions: false,
+          fakeApp: false
         })],
         stubs: {
           ConnectInput: true
@@ -168,7 +179,9 @@ describe('ReviewRoutingSlip', () => {
       global: {
         plugins: [createTestingPinia({
           initialState: { 'create-routing-slip-store': { state: baseCashState } },
-          createSpy: vi.fn
+          createSpy: vi.fn,
+          stubActions: false,
+          fakeApp: false
         })]
       }
     })
@@ -187,7 +200,9 @@ describe('ReviewRoutingSlip', () => {
               reviewMode: true
             }
           },
-          createSpy: vi.fn
+          createSpy: vi.fn,
+          stubActions: false,
+          fakeApp: false
         })]
       }
     })
@@ -202,7 +217,7 @@ describe('ReviewRoutingSlip', () => {
   it('should emit a `create` event when the `Create` button is clicked', async () => {
     const wrapper = await mountSuspended(ReviewRoutingSlip, {
       global: {
-        plugins: [createTestingPinia({ createSpy: vi.fn })]
+        plugins: [createTestingPinia({ createSpy: vi.fn, stubActions: false, fakeApp: false })]
       }
     })
     const allButtons = wrapper.findAllComponents({ name: 'UButton' })
@@ -215,7 +230,7 @@ describe('ReviewRoutingSlip', () => {
   it('should emit a `cancel` event when the `Cancel` button is clicked', async () => {
     const wrapper = await mountSuspended(ReviewRoutingSlip, {
       global: {
-        plugins: [createTestingPinia({ createSpy: vi.fn })]
+        plugins: [createTestingPinia({ createSpy: vi.fn, stubActions: false, fakeApp: false })]
       }
     })
     const allButtons = wrapper.findAllComponents({ name: 'UButton' })

@@ -1,6 +1,7 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import AsyncAutoComplete from '~/components/common/AsyncAutoComplete.vue'
-import { nextTick } from 'vue'
+import { nextTick, h } from 'vue'
+import type { InputMenuItem } from '@nuxt/ui'
 
 const mockQueryFn = vi.fn()
 
@@ -248,14 +249,20 @@ describe('AsyncAutoComplete', () => {
         modelValue: null
       },
       slots: {
-        item: '<template #item="{ item }"><div class="custom-item">{{ item.label }}</div></template>'
+        item: ({ item }: { item: InputMenuItem }) => {
+          const label = typeof item === 'object' && item !== null && 'label' in item ? item.label : String(item)
+          return h('div', { class: 'custom-item' }, label)
+        }
       },
       global: {
         stubs: {
           UInputMenu: {
             template: '<div><slot name="item" :item="{ id: 1, label: \'Item 1\' }" /></div>',
             props: ['open', 'items', 'searchTerm', 'modelValue'],
-            emits: ['update:open', 'update:searchTerm', 'update:modelValue', 'blur', 'focus']
+            emits: ['update:open', 'update:searchTerm', 'update:modelValue', 'blur', 'focus'],
+            slots: {
+              item: (props: { item: InputMenuItem }) => props
+            }
           },
           UIcon: true
         }

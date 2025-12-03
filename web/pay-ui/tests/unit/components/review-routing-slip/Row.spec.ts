@@ -29,7 +29,7 @@ describe('Row', () => {
         label: 'Test Label'
       },
       slots: {
-        default: 'Slot Content'
+        default: () => 'Slot Content'
       }
     })
 

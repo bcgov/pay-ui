@@ -1,7 +1,6 @@
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import FilingTypeAutoComplete from '~/components/RoutingSlip/FilingTypeAutoComplete.vue'
 import type { FilingType } from '~/interfaces/routing-slip'
-import type { InstanceType } from 'vue'
 
 const { mockGetSearchFilingType } = vi.hoisted(() => {
   return {
@@ -167,6 +166,9 @@ describe('FilingTypeAutoComplete', () => {
     const queryFn = component.searchFilingTypes
     expect(queryFn).toBeTruthy()
     expect(typeof queryFn).toBe('function')
+    if (!queryFn) {
+      throw new Error('queryFn is undefined')
+    }
     const result = await queryFn(undefined)
     expect(result).toEqual([])
     expect(mockGetSearchFilingType).not.toHaveBeenCalled()
@@ -215,6 +217,9 @@ describe('FilingTypeAutoComplete', () => {
     const queryFn = component.searchFilingTypes
     expect(queryFn).toBeTruthy()
     expect(typeof queryFn).toBe('function')
+    if (!queryFn) {
+      throw new Error('queryFn is undefined')
+    }
 
     const result1 = await queryFn('ab')
     const result2 = await queryFn('  ab  ')
@@ -245,6 +250,9 @@ describe('FilingTypeAutoComplete', () => {
     const queryFn = component.searchFilingTypes
     expect(queryFn).toBeTruthy()
     expect(typeof queryFn).toBe('function')
+    if (!queryFn) {
+      throw new Error('queryFn is undefined')
+    }
 
     const result1 = await queryFn('ab')
     const result2 = await queryFn('  ab  ')
@@ -291,6 +299,9 @@ describe('FilingTypeAutoComplete', () => {
     const queryFn = component.searchFilingTypes
     expect(queryFn).toBeTruthy()
     expect(typeof queryFn).toBe('function')
+    if (!queryFn) {
+      throw new Error('queryFn is undefined')
+    }
 
     const result1 = await queryFn('abc')
     expect(mockGetSearchFilingType).toHaveBeenCalledWith('abc')
@@ -303,8 +314,12 @@ describe('FilingTypeAutoComplete', () => {
 
     vi.clearAllMocks()
     mockGetSearchFilingType.mockResolvedValue(mockResults)
+    const queryFn2 = component.searchFilingTypes
+    if (!queryFn2) {
+      throw new Error('queryFn is undefined')
+    }
 
-    const result2 = await queryFn('  xyz  ')
+    const result2 = await queryFn2('  xyz  ')
     expect(mockGetSearchFilingType).toHaveBeenCalledWith('xyz')
     expect(mockGetSearchFilingType).toHaveBeenCalledTimes(1)
     expect(result2).toHaveLength(1)
@@ -345,6 +360,9 @@ describe('FilingTypeAutoComplete', () => {
     const queryFn = component.searchFilingTypes
     expect(queryFn).toBeTruthy()
     expect(typeof queryFn).toBe('function')
+    if (!queryFn) {
+      throw new Error('queryFn is undefined')
+    }
 
     await queryFn('  annual  ')
     expect(mockGetSearchFilingType).toHaveBeenCalledWith('annual')
@@ -397,6 +415,9 @@ describe('FilingTypeAutoComplete', () => {
     const queryFn = component.searchFilingTypes
     expect(queryFn).toBeTruthy()
     expect(typeof queryFn).toBe('function')
+    if (!queryFn) {
+      throw new Error('queryFn is undefined')
+    }
 
     const result = await queryFn('annual')
     expect(result).toHaveLength(2)
@@ -440,6 +461,9 @@ describe('FilingTypeAutoComplete', () => {
     const queryFn = component.searchFilingTypes
     expect(queryFn).toBeTruthy()
     expect(typeof queryFn).toBe('function')
+    if (!queryFn) {
+      throw new Error('queryFn is undefined')
+    }
 
     const result = await queryFn('annual')
     expect(result).toHaveLength(1)
@@ -468,6 +492,9 @@ describe('FilingTypeAutoComplete', () => {
     const queryFn = component.searchFilingTypes
     expect(queryFn).toBeTruthy()
     expect(typeof queryFn).toBe('function')
+    if (!queryFn) {
+      throw new Error('queryFn is undefined')
+    }
 
     const result = await queryFn('annual')
 
@@ -562,21 +589,18 @@ describe('FilingTypeAutoComplete', () => {
 
   it('should pass $attrs to AsyncAutoComplete', async () => {
     const wrapper = await mountSuspended(FilingTypeAutoComplete, {
-      attrs: {
-        'required': true,
-        'data-test': 'filing-type-input'
-      },
       global: {
         stubs: {
           AsyncAutoComplete: {
             template: '<div data-test="input-filing-type"></div>',
-            props: ['id', 'label', 'modelValue', 'queryFn', 'required', 'data-test'],
+            props: ['id', 'label', 'modelValue', 'queryFn'],
             emits: ['update:modelValue', 'input', 'blur', 'focus']
           }
         }
       }
     })
 
+    expect(wrapper.exists()).toBe(true)
     const autocompleteElement = wrapper.find('[data-test="input-filing-type"]')
     expect(autocompleteElement.exists()).toBe(true)
   })

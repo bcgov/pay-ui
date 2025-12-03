@@ -24,7 +24,7 @@ const {
       payment: {
         paymentType: 'CHEQUE' as const,
         paymentItems: {
-          '1': {
+          1: {
             uuid: '1',
             date: '2025-10-05T10:00:00.000Z',
             amountCAD: '150.75',

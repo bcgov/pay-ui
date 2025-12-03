@@ -23,7 +23,17 @@ describe('LinkedRoutingSlipDetails', () => {
   })
 
   it('should render', async () => {
-    const wrapper = await mountSuspended(LinkedRoutingSlipDetails)
+    const wrapper = await mountSuspended(LinkedRoutingSlipDetails, {
+      global: {
+        stubs: {
+          NuxtLink: {
+            template: '<a><slot /></a>',
+            props: ['to'],
+            name: 'NuxtLink'
+          }
+        }
+      }
+    })
     expect(wrapper.exists()).toBe(true)
   })
 
@@ -32,6 +42,15 @@ describe('LinkedRoutingSlipDetails', () => {
       props: {
         routingSlipNumber: '123456',
         createdDate: '2025-01-01'
+      },
+      global: {
+        stubs: {
+          NuxtLink: {
+            template: '<a><slot /></a>',
+            props: ['to'],
+            name: 'NuxtLink'
+          }
+        }
       }
     })
     expect(wrapper.text()).toContain('123456')
@@ -42,6 +61,15 @@ describe('LinkedRoutingSlipDetails', () => {
       props: {
         routingSlipNumber: '123456',
         createdDate: '2025-01-01'
+      },
+      global: {
+        stubs: {
+          NuxtLink: {
+            template: '<a><slot /></a>',
+            props: ['to'],
+            name: 'NuxtLink'
+          }
+        }
       }
     })
     expect(mockFormatDisplayDate).toHaveBeenCalledWith('2025-01-01')
@@ -54,6 +82,15 @@ describe('LinkedRoutingSlipDetails', () => {
         siNumber: 1,
         routingSlipNumber: '123456',
         createdDate: '2025-01-01'
+      },
+      global: {
+        stubs: {
+          NuxtLink: {
+            template: '<a><slot /></a>',
+            props: ['to'],
+            name: 'NuxtLink'
+          }
+        }
       }
     })
     expect(wrapper.text()).toContain('1.')
@@ -64,6 +101,15 @@ describe('LinkedRoutingSlipDetails', () => {
       props: {
         routingSlipNumber: '123456',
         createdDate: '2025-01-01'
+      },
+      global: {
+        stubs: {
+          NuxtLink: {
+            template: '<a><slot /></a>',
+            props: ['to'],
+            name: 'NuxtLink'
+          }
+        }
       }
     })
     expect(wrapper.text()).not.toContain('.')
@@ -75,6 +121,15 @@ describe('LinkedRoutingSlipDetails', () => {
         routingSlipNumber: '123456',
         parentRoutingSlipNumber: '789012',
         createdDate: '2025-01-01'
+      },
+      global: {
+        stubs: {
+          NuxtLink: {
+            template: '<a><slot /></a>',
+            props: ['to'],
+            name: 'NuxtLink'
+          }
+        }
       }
     })
     const link = wrapper.findComponent({ name: 'NuxtLink' })
@@ -87,6 +142,15 @@ describe('LinkedRoutingSlipDetails', () => {
       props: {
         routingSlipNumber: '123456',
         createdDate: '2025-01-01'
+      },
+      global: {
+        stubs: {
+          NuxtLink: {
+            template: '<a><slot /></a>',
+            props: ['to'],
+            name: 'NuxtLink'
+          }
+        }
       }
     })
     const link = wrapper.findComponent({ name: 'NuxtLink' })
@@ -95,7 +159,17 @@ describe('LinkedRoutingSlipDetails', () => {
   })
 
   it('should use default props when not provided', async () => {
-    const wrapper = await mountSuspended(LinkedRoutingSlipDetails)
+    const wrapper = await mountSuspended(LinkedRoutingSlipDetails, {
+      global: {
+        stubs: {
+          NuxtLink: {
+            template: '<a><slot /></a>',
+            props: ['to'],
+            name: 'NuxtLink'
+          }
+        }
+      }
+    })
     expect(wrapper.exists()).toBe(true)
   })
 })

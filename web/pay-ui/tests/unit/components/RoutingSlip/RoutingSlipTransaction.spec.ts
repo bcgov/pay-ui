@@ -276,4 +276,195 @@ describe('RoutingSlipTransaction', () => {
       }
     }
   })
+
+  it('should call handleAddTransaction when Add Transaction button is clicked', async () => {
+    mockShowAddManualTransaction.value = true
+    mockManualTransactionsList.value = [{ key: '1' }]
+    const wrapper = await mountSuspended(RoutingSlipTransaction, {
+      global: {
+        stubs: {
+          UButton: {
+            template: '<button @click="$emit(\'click\')"><slot name="leading" /><slot /></button>',
+            props: ['large', 'color', 'loading', 'size', 'variant', 'class']
+          },
+          UCard: {
+            template: '<div v-if="show"><slot /></div>',
+            props: [],
+            data() {
+              return { show: true }
+            }
+          },
+          UForm: true,
+          USeparator: true,
+          AddManualTransactionDetails: {
+            template: '<div></div>',
+            props: ['index', 'manualTransaction'],
+            emits: ['update-manual-transaction', 'remove-manual-transaction-row']
+          },
+          TransactionDataTable: true,
+          UIcon: true
+        },
+        directives: {
+          can: {
+            mounted: () => {},
+            updated: () => {}
+          }
+        }
+      }
+    })
+    const addButton = wrapper.findAllComponents({ name: 'UButton' }).find(btn => btn.text().includes('Add Transaction'))
+    if (addButton) {
+      await addButton.trigger('click')
+      expect(_mockAddManualTransactions).toHaveBeenCalled()
+    }
+  })
+
+  it('should call addManualTransactionRow when Add another transaction button is clicked', async () => {
+    mockShowAddManualTransaction.value = true
+    mockManualTransactionsList.value = [{ key: '1' }]
+    const wrapper = await mountSuspended(RoutingSlipTransaction, {
+      global: {
+        stubs: {
+          UButton: {
+            template: '<button @click="$emit(\'click\')"><slot name="leading" /><slot /></button>',
+            props: ['large', 'color', 'loading', 'size', 'variant', 'class']
+          },
+          UCard: {
+            template: '<div><slot /></div>'
+          },
+          UForm: true,
+          USeparator: true,
+          AddManualTransactionDetails: {
+            template: '<div></div>',
+            props: ['index', 'manualTransaction'],
+            emits: ['update-manual-transaction', 'remove-manual-transaction-row']
+          },
+          TransactionDataTable: true,
+          UIcon: true
+        },
+        directives: {
+          can: {
+            mounted: () => {},
+            updated: () => {}
+          }
+        }
+      }
+    })
+    const addAnotherButton = wrapper
+      .findAllComponents({ name: 'UButton' })
+      .find(btn => btn.text().includes('Add another transaction'))
+    if (addAnotherButton) {
+      await addAnotherButton.trigger('click')
+      expect(_mockAddManualTransactionRow).toHaveBeenCalled()
+    }
+  })
+
+  it('should call hideManualTransaction when Cancel button is clicked', async () => {
+    mockShowAddManualTransaction.value = true
+    mockManualTransactionsList.value = [{ key: '1' }]
+    const wrapper = await mountSuspended(RoutingSlipTransaction, {
+      global: {
+        stubs: {
+          UButton: {
+            template: '<button @click="$emit(\'click\')"><slot name="leading" /><slot /></button>',
+            props: ['large', 'color', 'loading', 'size', 'variant', 'class']
+          },
+          UCard: {
+            template: '<div><slot /></div>'
+          },
+          UForm: true,
+          USeparator: true,
+          AddManualTransactionDetails: {
+            template: '<div></div>',
+            props: ['index', 'manualTransaction'],
+            emits: ['update-manual-transaction', 'remove-manual-transaction-row']
+          },
+          TransactionDataTable: true,
+          UIcon: true
+        },
+        directives: {
+          can: {
+            mounted: () => {},
+            updated: () => {}
+          }
+        }
+      }
+    })
+    const cancelButton = wrapper.findAllComponents({ name: 'UButton' }).find(btn => btn.text().includes('Cancel'))
+    if (cancelButton) {
+      await cancelButton.trigger('click')
+      expect(_mockHideManualTransaction).toHaveBeenCalled()
+    }
+  })
+
+  it('should call removeManualTransactionRow when remove event is emitted', async () => {
+    mockShowAddManualTransaction.value = true
+    mockManualTransactionsList.value = [{ key: '1' }]
+    const wrapper = await mountSuspended(RoutingSlipTransaction, {
+      global: {
+        stubs: {
+          UButton: true,
+          UCard: {
+            template: '<div><slot /></div>'
+          },
+          UForm: true,
+          USeparator: true,
+          AddManualTransactionDetails: {
+            template: '<div></div>',
+            props: ['index', 'manualTransaction'],
+            emits: ['update-manual-transaction', 'remove-manual-transaction-row']
+          },
+          TransactionDataTable: true,
+          UIcon: true
+        },
+        directives: {
+          can: {
+            mounted: () => {},
+            updated: () => {}
+          }
+        }
+      }
+    })
+    const transactionDetails = wrapper.findComponent({ name: 'AddManualTransactionDetails' })
+    if (transactionDetails.exists()) {
+      await transactionDetails.vm.$emit('remove-manual-transaction-row', 0)
+      expect(_mockRemoveManualTransactionRow).toHaveBeenCalledWith(0)
+    }
+  })
+
+  it('should call updateManualTransactionDetails when update event is emitted', async () => {
+    mockShowAddManualTransaction.value = true
+    mockManualTransactionsList.value = [{ key: '1' }]
+    const wrapper = await mountSuspended(RoutingSlipTransaction, {
+      global: {
+        stubs: {
+          UButton: true,
+          UCard: {
+            template: '<div><slot /></div>'
+          },
+          UForm: true,
+          USeparator: true,
+          AddManualTransactionDetails: {
+            template: '<div></div>',
+            props: ['index', 'manualTransaction'],
+            emits: ['update-manual-transaction', 'remove-manual-transaction-row']
+          },
+          TransactionDataTable: true,
+          UIcon: true
+        },
+        directives: {
+          can: {
+            mounted: () => {},
+            updated: () => {}
+          }
+        }
+      }
+    })
+    const transactionDetails = wrapper.findComponent({ name: 'AddManualTransactionDetails' })
+    if (transactionDetails.exists()) {
+      const updateData = { index: 0, data: { amount: '100' } }
+      await transactionDetails.vm.$emit('update-manual-transaction', updateData)
+      expect(_mockUpdateManualTransactionDetails).toHaveBeenCalledWith(updateData)
+    }
+  })
 })

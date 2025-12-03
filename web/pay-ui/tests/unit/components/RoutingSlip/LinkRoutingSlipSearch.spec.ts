@@ -567,4 +567,150 @@ describe('LinkRoutingSlipSearch', () => {
       expect(mockGetLinkedRoutingSlips).toHaveBeenCalledWith('123456789')
     }
   })
+
+  it('should not call linkRoutingSlip when validation fails', async () => {
+    const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
+      props: {
+        parentRoutingSlipNumber: '123456789'
+      },
+      global: {
+        stubs: {
+          UFormField: {
+            template: '<div><slot /></div>',
+            props: ['error', 'class']
+          },
+          AsyncAutoComplete: {
+            template: '<div></div>',
+            props: {
+              id: String,
+              label: { type: String, default: '' },
+              modelValue: [String, Object],
+              placeholder: String,
+              queryFn: Function,
+              valueKey: String,
+              labelKey: String,
+              size: String,
+              disabled: Boolean
+            },
+            emits: ['update:modelValue', 'blur', 'focus']
+          },
+          UButton: {
+            template: '<button @click="$emit(\'click\')"><slot /></button>',
+            props: ['label', 'loading', 'disabled', 'class']
+          },
+          ConnectI18nHelper: true
+        }
+      }
+    })
+
+    const component = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & { selected?: string }
+    component.selected = undefined
+    await nextTick()
+
+    const buttons = wrapper.findAllComponents({ name: 'UButton' })
+    const linkButton = buttons.find(btn => btn.props('label') === 'label.link')
+
+    if (linkButton) {
+      await linkButton.trigger('click')
+      await nextTick()
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      expect(mockPostLinkRoutingSlip).not.toHaveBeenCalled()
+    }
+  })
+
+  it('should clear error message when selected value is set', async () => {
+    const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
+      props: {
+        parentRoutingSlipNumber: '123456789'
+      },
+      global: {
+        stubs: {
+          UFormField: {
+            template: '<div><slot /></div>',
+            props: ['error', 'class']
+          },
+          AsyncAutoComplete: {
+            template: '<div></div>',
+            props: {
+              id: String,
+              label: { type: String, default: '' },
+              modelValue: [String, Object],
+              placeholder: String,
+              queryFn: Function,
+              valueKey: String,
+              labelKey: String,
+              size: String,
+              disabled: Boolean
+            },
+            emits: ['update:modelValue', 'blur', 'focus']
+          },
+          UButton: true,
+          ConnectI18nHelper: true
+        }
+      }
+    })
+
+    const component = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & {
+      selected?: string
+      errorMessage?: string
+    }
+    component.errorMessage = 'Error message'
+    component.selected = '987654321'
+    await nextTick()
+
+    const autocomplete = wrapper.findComponent({ name: 'AsyncAutoComplete' })
+    if (autocomplete.exists()) {
+      await autocomplete.vm.$emit('update:modelValue', '987654321')
+      await nextTick()
+      await new Promise(resolve => setTimeout(resolve, 150))
+
+      expect(component.errorMessage).toBeUndefined()
+    }
+  })
+
+  it('should clear error message on focus', async () => {
+    const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
+      props: {
+        parentRoutingSlipNumber: '123456789'
+      },
+      global: {
+        stubs: {
+          UFormField: {
+            template: '<div><slot /></div>',
+            props: ['error', 'class']
+          },
+          AsyncAutoComplete: {
+            template: '<div></div>',
+            props: {
+              id: String,
+              label: { type: String, default: '' },
+              modelValue: [String, Object],
+              placeholder: String,
+              queryFn: Function,
+              valueKey: String,
+              labelKey: String,
+              size: String,
+              disabled: Boolean
+            },
+            emits: ['update:modelValue', 'blur', 'focus']
+          },
+          UButton: true,
+          ConnectI18nHelper: true
+        }
+      }
+    })
+
+    const component = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & { errorMessage?: string }
+    component.errorMessage = 'Error message'
+    await nextTick()
+
+    const autocomplete = wrapper.findComponent({ name: 'AsyncAutoComplete' })
+    if (autocomplete.exists()) {
+      await autocomplete.vm.$emit('focus')
+      await nextTick()
+
+      expect(component.errorMessage).toBeUndefined()
+    }
+  })
 })

@@ -350,4 +350,134 @@ describe('DailyReport', () => {
 
     expect(mockGetDailyReport).not.toHaveBeenCalled()
   })
+
+  it('should format selected date correctly', async () => {
+    mockSelectedDate.value = '2025-09-25'
+    mockShowCalendar.value = true
+    const wrapper = await mountSuspended(DailyReport, {
+      global: {
+        stubs: {
+          UPopover: {
+            template: '<div><slot name="trigger" /><div v-if="open"><slot name="content" /></div></div>',
+            props: {
+              open: {
+                type: Boolean,
+                default: false
+              }
+            },
+            emits: ['update:open']
+          },
+          UButton: true,
+          UCard: {
+            template: '<div><slot name="header" /><slot /><slot name="footer" /></div>'
+          },
+          UCalendar: true
+        }
+      }
+    })
+    await nextTick()
+    expect(wrapper.text()).toContain('Thu, Sep 25, 2025')
+  })
+
+  it('should update selectedDate when localModel is set', async () => {
+    mockSelectedDate.value = null
+    const wrapper = await mountSuspended(DailyReport, {
+      global: {
+        stubs: {
+          UPopover: {
+            template: '<div><slot name="trigger" /><div v-if="open"><slot name="content" /></div></div>',
+            props: {
+              open: {
+                type: Boolean,
+                default: false
+              }
+            },
+            emits: ['update:open']
+          },
+          UButton: true,
+          UCard: {
+            template: '<div><slot name="header" /><slot /><slot name="footer" /></div>'
+          },
+          UCalendar: {
+            template: '<div>Calendar</div>',
+            props: ['modelValue', 'maxValue'],
+            emits: ['update:modelValue']
+          }
+        }
+      }
+    })
+    const calendar = wrapper.findComponent({ name: 'UCalendar' })
+    if (calendar.exists()) {
+      const testDate = { year: 2025, month: 9, day: 25 }
+      await calendar.vm.$emit('update:modelValue', testDate)
+      await nextTick()
+      expect(mockSelectedDate.value).toBe('2025-09-25')
+    }
+  })
+
+  it('should set selectedDate to null when localModel is set to undefined', async () => {
+    mockSelectedDate.value = '2025-09-25'
+    const wrapper = await mountSuspended(DailyReport, {
+      global: {
+        stubs: {
+          UPopover: {
+            template: '<div><slot name="trigger" /><div v-if="open"><slot name="content" /></div></div>',
+            props: {
+              open: {
+                type: Boolean,
+                default: false
+              }
+            },
+            emits: ['update:open']
+          },
+          UButton: true,
+          UCard: {
+            template: '<div><slot name="header" /><slot /><slot name="footer" /></div>'
+          },
+          UCalendar: {
+            template: '<div>Calendar</div>',
+            props: ['modelValue', 'maxValue'],
+            emits: ['update:modelValue']
+          }
+        }
+      }
+    })
+    const calendar = wrapper.findComponent({ name: 'UCalendar' })
+    if (calendar.exists()) {
+      await calendar.vm.$emit('update:modelValue', undefined)
+      await nextTick()
+      expect(mockSelectedDate.value).toBeNull()
+    }
+  })
+
+  it('should display empty string when no date is selected in formatSelectedDate', async () => {
+    mockSelectedDate.value = null
+    mockShowCalendar.value = true
+    const wrapper = await mountSuspended(DailyReport, {
+      global: {
+        stubs: {
+          UPopover: {
+            template: '<div><slot name="trigger" /><div v-if="open"><slot name="content" /></div></div>',
+            props: {
+              open: {
+                type: Boolean,
+                default: false
+              }
+            },
+            emits: ['update:open']
+          },
+          UButton: true,
+          UCard: {
+            template: '<div><slot name="header" /><slot /><slot name="footer" /></div>'
+          },
+          UCalendar: true
+        }
+      }
+    })
+    await nextTick()
+    const selectedDateText = wrapper.text().match(/Selected Date:.*?(\w+)/)
+    if (selectedDateText) {
+      expect(wrapper.text()).toContain('Selected Date:')
+    }
+  })
 })

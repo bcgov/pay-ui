@@ -1,3 +1,4 @@
+// The intent of this is to get rid of the /en-ca routing errors that show up on initial load.
 export default defineNuxtPlugin(() => {
   if (import.meta.server) {
     return

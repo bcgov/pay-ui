@@ -1,6 +1,5 @@
 import { config } from '@vue/test-utils'
 import type { Directive } from 'vue'
-import { createTestingPinia } from '@pinia/testing'
 
 const canDirective: Directive = {
   mounted: () => {},
@@ -12,12 +11,13 @@ config.global.directives = {
   can: canDirective
 }
 
-config.global.plugins = [
-  ...(config.global.plugins || []),
-  createTestingPinia({
-    createSpy: vi.fn
-  })
-]
+const originalWarn = console.warn
+console.warn = (...args: unknown[]) => {
+  if (typeof args[0] === 'string' && args[0].includes('App already provides property with key "Symbol(pinia)"')) {
+    return
+  }
+  originalWarn(...args)
+}
 
 vi.mock('keycloak-js', () => {
   return {

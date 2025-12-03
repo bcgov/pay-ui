@@ -22,7 +22,7 @@ describe('CreateRoutingSlip', () => {
   it('renders', async () => {
     const wrapper = await mountSuspended(CreateRoutingSlip, {
       global: {
-        plugins: [createTestingPinia()],
+        plugins: [createTestingPinia({ fakeApp: false })],
         stubs: {
           CreateRoutingSlipDetails: true,
           CreateRoutingSlipPayment: true,
@@ -83,7 +83,10 @@ describe('CreateRoutingSlip', () => {
     const mockClear = vi.fn()
     vm.formRef.clear = mockClear
 
-    crsStore.state.payment.paymentItems = { 'uuid-1': {}, 'uuid-2': {} } as any
+    crsStore.state.payment.paymentItems = {
+      'uuid-1': { uuid: 'uuid-1', identifier: '', date: '', amountCAD: '', amountUSD: '' },
+      'uuid-2': { uuid: 'uuid-2', identifier: '', date: '', amountCAD: '', amountUSD: '' }
+    } as any
 
     const payment = wrapper.findComponent({ name: 'CreateRoutingSlipPayment' })
     await payment.vm.$emit('change:usd')
