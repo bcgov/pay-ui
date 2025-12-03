@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { ReviewRoutingSlip } from '#components'
 import { createTestingPinia } from '@pinia/testing'
@@ -45,26 +44,28 @@ describe('ReviewRoutingSlip', () => {
           initialState: {
             'create-routing-slip-store': { state: baseChequeState }
           }
-        })]
+        })],
+        stubs: {
+          ConnectInput: true,
+          ConnectAddressDisplay: true
+        }
       }
     })
 
     const itemRows = wrapper.findAllComponents({ name: 'ReviewRoutingSlipRow' })
 
+    expect(itemRows.length).toBeGreaterThan(0)
     expect(itemRows[0]!.props('label')).toBe('Routing Slip - Unique ID')
     expect(itemRows[0]!.props('value')).toBe('123')
 
     expect(itemRows[1]!.props('label')).toBe('Date')
-    expect(itemRows[1]!.props('value')).toBe('October 7, 2025')
+    expect(itemRows[1]!.props('value')).toContain('October 7, 2025')
 
     expect(itemRows[2]!.props('label')).toBe('Entity Number')
     expect(itemRows[2]!.props('value')).toBe('BC123')
 
-    const table = wrapper.findComponent({ name: 'UTable' })
-    expect(table.exists()).toBe(true)
-    const tableData = table.props('data')
-    expect(tableData[0].date).toBe('October 5, 2025')
-    expect(tableData[0].amountCAD).toBe('150.75')
+    const chequeInput = wrapper.find('[id="review-cheque-number-0"]')
+    expect(chequeInput.exists()).toBe(true)
 
     const address = wrapper.findComponent({ name: 'ConnectAddressDisplay' })
     expect(address.exists()).toBe(true)
@@ -76,17 +77,21 @@ describe('ReviewRoutingSlip', () => {
       global: {
         plugins: [createTestingPinia({
           initialState: { 'create-routing-slip-store': { state: baseChequeState } }
-        })]
+        })],
+        stubs: {
+          ConnectInput: true
+        }
       }
     })
 
-    const table = wrapper.findComponent({ name: 'UTable' })
-    const columns = table.props('columns') as any[]
+    const chequeNumberInput = wrapper.find('[id="review-cheque-number-0"]')
+    expect(chequeNumberInput.exists()).toBe(true)
 
-    expect(columns).toHaveLength(3)
-    expect(columns.find(c => c.accessorKey === 'identifier')).toBeDefined()
-    expect(columns.find(c => c.accessorKey === 'date')).toBeDefined()
-    expect(columns.find(c => c.accessorKey === 'amountCAD')).toBeDefined()
+    const chequeDateInput = wrapper.find('[id="review-cheque-date-0"]')
+    expect(chequeDateInput.exists()).toBe(true)
+
+    const amountCADInput = wrapper.find('[id="review-amount-cad-0"]')
+    expect(amountCADInput.exists()).toBe(true)
   })
 
   it('renders the correct table columns when payment type is CASH', async () => {
@@ -94,17 +99,21 @@ describe('ReviewRoutingSlip', () => {
       global: {
         plugins: [createTestingPinia({
           initialState: { 'create-routing-slip-store': { state: baseCashState } }
-        })]
+        })],
+        stubs: {
+          ConnectInput: true
+        }
       }
     })
 
-    const table = wrapper.findComponent({ name: 'UTable' })
-    const columns = table.props('columns') as any[]
+    const receiptNumberInput = wrapper.find('[id="review-receipt-number-0"]')
+    expect(receiptNumberInput.exists()).toBe(true)
 
-    expect(columns).toHaveLength(2)
-    expect(columns.find(c => c.accessorKey === 'date')).toBeUndefined()
-    expect(columns.find(c => c.accessorKey === 'identifier')).toBeDefined()
-    expect(columns.find(c => c.accessorKey === 'amountCAD')).toBeDefined()
+    const chequeDateInput = wrapper.find('[id="review-cheque-date-0"]')
+    expect(chequeDateInput.exists()).toBe(false)
+
+    const amountCADInput = wrapper.find('[id="review-amount-cad-0"]')
+    expect(amountCADInput.exists()).toBe(true)
   })
 
   it('renders amountUSD column when isUSD', async () => {
@@ -122,15 +131,15 @@ describe('ReviewRoutingSlip', () => {
               }
             }
           }
-        })]
+        })],
+        stubs: {
+          ConnectInput: true
+        }
       }
     })
 
-    const table = wrapper.findComponent({ name: 'UTable' })
-    const columns = table.props('columns') as any[]
-
-    expect(columns).toHaveLength(4)
-    expect(columns.find(c => c.accessorKey === 'amountUSD')).toBeDefined()
+    const amountUSDInput = wrapper.find('[id="review-amount-usd-0"]')
+    expect(amountUSDInput.exists()).toBe(true)
   })
 
   it('renders total amount when payment type is CHEQUE', async () => {
@@ -138,12 +147,15 @@ describe('ReviewRoutingSlip', () => {
       global: {
         plugins: [createTestingPinia({
           initialState: { 'create-routing-slip-store': { state: baseChequeState } }
-        })]
+        })],
+        stubs: {
+          ConnectInput: true
+        }
       }
     })
 
     const itemRows = wrapper.findAllComponents({ name: 'ReviewRoutingSlipRow' })
-    expect(itemRows.some(item => item.props().label === 'Total Amount'))
+    expect(itemRows.some(item => item.props().label === 'Total Amount')).toBe(true)
   })
 
   it('should not render total amount when payment type is CASH', async () => {

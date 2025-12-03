@@ -64,6 +64,11 @@ describe('TransactionDataTable', () => {
     const wrapper = await mountSuspended(TransactionDataTable, {
       props: {
         invoices: [] as Invoice[]
+      },
+      global: {
+        directives: {
+          can: { mounted: () => {}, updated: () => {} }
+        }
       }
     })
 
@@ -76,6 +81,11 @@ describe('TransactionDataTable', () => {
     const wrapper = await mountSuspended(TransactionDataTable, {
       props: {
         invoices: [] as Invoice[]
+      },
+      global: {
+        directives: {
+          can: { mounted: () => {}, updated: () => {} }
+        }
       }
     })
 
@@ -87,6 +97,11 @@ describe('TransactionDataTable', () => {
     const wrapper = await mountSuspended(TransactionDataTable, {
       props: {
         invoices: [] as Invoice[]
+      },
+      global: {
+        directives: {
+          can: { mounted: () => {}, updated: () => {} }
+        }
       }
     })
 
@@ -97,10 +112,21 @@ describe('TransactionDataTable', () => {
     const wrapper = await mountSuspended(TransactionDataTable, {
       props: {
         invoices: [] as Invoice[]
+      },
+      global: {
+        directives: {
+          can: { mounted: () => {}, updated: () => {} }
+        },
+        stubs: {
+          UButton: {
+            template: '<button @click="$emit(\'click\')" :data-test="dataTest"><slot /></button>',
+            props: ['label', 'variant', 'color', 'disabled', 'dataTest']
+          }
+        }
       }
     })
 
-    const button = wrapper.find('button[data-test="btn-invoice-cancel-0"]')
+    const button = wrapper.find('[data-test="btn-invoice-cancel-0"]')
     expect(button.exists()).toBe(true)
     await button.trigger('click')
 

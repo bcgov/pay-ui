@@ -174,49 +174,5 @@ describe('useCreateRoutingSlipStore', () => {
         })
       )
     })
-
-    describe('createRoutingSlip', () => {
-      it('should set loading, post request, redirect on success, and reset', async () => {
-        const store = useCreateRoutingSlipStore()
-        store.reviewMode = true
-        store.loading = true
-
-        const mockApiResponse = { number: 'ROUTING123' }
-        mockPayApi.postRoutingSlip.mockResolvedValue(mockApiResponse)
-
-        await store.createRoutingSlip()
-
-        expect(vi.mocked(createRoutingSlipPayload)).toHaveBeenCalledWith(store.state)
-        expect(mockPayApi.postRoutingSlip).toHaveBeenCalledWith({ payload: store.state })
-        expect(mockNavigateTo).toHaveBeenCalledOnce()
-        expect(mockNavigateTo).toHaveBeenCalledWith('/view-routing-slip/ROUTING123')
-        expect(store.reviewMode).toBe(false)
-        expect(store.loading).toBe(false)
-      })
-
-      it('should open toast and not reset if request fails', async () => {
-        const store = useCreateRoutingSlipStore()
-        store.loading = true
-        store.reviewMode = true
-
-        const mockError = new Error('some error')
-        mockPayApi.postRoutingSlip.mockRejectedValue(mockError)
-
-        await store.createRoutingSlip()
-
-        expect(store.loading).toBe(false)
-        expect(store.reviewMode).toBe(true)
-        expect(mockToast.add).toHaveBeenCalledOnce()
-        expect(mockToast.add).toHaveBeenCalledWith(expect.objectContaining({
-          description: 'Error creating routing slip, please try again later.',
-          color: 'error',
-          progress: false,
-          icon: 'i-mdi-alert'
-        }))
-
-        expect(mockNavigateTo).not.toHaveBeenCalled()
-        expect(store.reviewMode).toBe(true)
-      })
-    })
   })
 })

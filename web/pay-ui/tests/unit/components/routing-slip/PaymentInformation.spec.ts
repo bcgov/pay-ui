@@ -1,20 +1,37 @@
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import PaymentInformation from '~/components/RoutingSlip/PaymentInformation.vue'
 import {
   linkedRoutingSlipsWithChildren,
   routingSlipMock } from '../../test-data/mock-routing-slip'
+import { ref, computed, reactive } from 'vue'
 
-vi.mock('~/composables/useRoutingSlip', () => ({
-  useRoutingSlip: () => ({
-    routingSlip: ref(routingSlipMock),
-    linkedRoutingSlips: ref(linkedRoutingSlipsWithChildren),
-    isRoutingSlipAChild: ref(false),
-    isRoutingSlipLinked: ref(true),
-    updateRoutingSlipChequeNumber: vi.fn(),
-    updateRoutingSlipAmount: vi.fn(),
-    adjustRoutingSlip: vi.fn(),
-    getRoutingSlip: vi.fn()
-  })
+const mockUpdateRoutingSlipChequeNumber = vi.fn()
+const mockUpdateRoutingSlipAmount = vi.fn()
+const mockAdjustRoutingSlip = vi.fn().mockResolvedValue(routingSlipMock)
+const mockGetRoutingSlip = vi.fn().mockResolvedValue(routingSlipMock)
+
+const mockUseRoutingSlip = {
+  adjustRoutingSlip: mockAdjustRoutingSlip,
+  getRoutingSlip: mockGetRoutingSlip,
+  isRoutingSlipAChild: ref(false),
+  isRoutingSlipLinked: ref(true),
+  updateRoutingSlipAmount: mockUpdateRoutingSlipAmount,
+  updateRoutingSlipChequeNumber: mockUpdateRoutingSlipChequeNumber
+}
+
+const mockStore = reactive({
+  routingSlip: { ...routingSlipMock },
+  linkedRoutingSlips: { ...linkedRoutingSlipsWithChildren },
+  routingSlipBeforeEdit: {}
+})
+
+mockNuxtImport('useRoutingSlip', () => () => mockUseRoutingSlip)
+mockNuxtImport('useRoutingSlipStore', () => () => ({
+  store: mockStore
+}))
+mockNuxtImport('useRoute', () => () => ({
+  params: { slipId: '123456789' },
+  query: {}
 }))
 
 describe('PaymentInformation', () => {

@@ -1,5 +1,17 @@
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { StatusMenu } from '#components'
+import { SlipStatus } from '~/enums/slip-status'
+
+mockNuxtImport('useI18n', () => () => ({
+  t: (key: string) => {
+    if (key === 'enum.SlipStatusDropdown.ACTIVE') { return 'Place routing slip to active' }
+    if (key === 'enum.SlipStatusDropdown.HOLD') { return 'Place routing slip on hold' }
+    return key
+  },
+  te: (key: string) => {
+    return key === 'enum.SlipStatusDropdown.ACTIVE' || key === 'enum.SlipStatusDropdown.HOLD'
+  }
+}))
 
 describe('StatusMenu', () => {
   beforeEach(() => {

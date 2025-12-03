@@ -1,5 +1,7 @@
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { StatusList } from '#components'
+import { nextTick } from 'vue'
+import { ChequeRefundStatus } from '~/utils/constants'
 
 const mockGetCodes = vi.fn()
 mockNuxtImport('usePayApi', () => {
@@ -7,6 +9,14 @@ mockNuxtImport('usePayApi', () => {
     getCodes: mockGetCodes
   })
 })
+
+mockNuxtImport('useI18n', () => () => ({
+  t: (key: string) => {
+    if (key === 'label.status') { return 'Status' }
+    if (key === 'label.refundStatus') { return 'Refund Status' }
+    return key
+  }
+}))
 
 describe('StatusList', () => {
   beforeEach(() => {
