@@ -114,7 +114,6 @@ async function save(): Promise<void> {
   }
 
   try {
-    // Global Exception handler will handle this one.
     await payApi.updateRoutingSlipComments(data, props.identifier)
     state.comment = ''
     state.errorMessage = ''

@@ -211,4 +211,83 @@ describe('useViewRoutingSlip', () => {
     expect(mockGetRoutingSlip).toHaveBeenCalledWith({ routingSlipNumber: '123456789' })
     expect(mockGetLinkedRoutingSlips).toHaveBeenCalledWith('123456789')
   })
+
+  it('should handle error when getLinkedRoutingSlips fails after successful getRoutingSlip', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    mockGetRoutingSlip.mockResolvedValue({})
+    mockGetLinkedRoutingSlips.mockRejectedValue(new Error('Linked slips error'))
+
+    useViewRoutingSlip({ slipId: '123456789' })
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    expect(mockToggleLoading).toHaveBeenCalledWith(true)
+    expect(mockToggleLoading).toHaveBeenCalledWith(false)
+    expect(consoleErrorSpy).toHaveBeenCalled()
+    consoleErrorSpy.mockRestore()
+  })
+
+  it('should handle case when routingSlip number is empty string', async () => {
+    mockStore.routingSlip.number = ''
+    await useViewRoutingSlip({ slipId: '123456789' })
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    expect(mockGetRoutingSlip).toHaveBeenCalled()
+    expect(mockGetLinkedRoutingSlips).not.toHaveBeenCalled()
+  })
+
+  it('should handle case when routingSlip number is null', async () => {
+    mockStore.routingSlip.number = null as unknown as string
+    await useViewRoutingSlip({ slipId: '123456789' })
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    expect(mockGetRoutingSlip).toHaveBeenCalled()
+    expect(mockGetLinkedRoutingSlips).not.toHaveBeenCalled()
+  })
+
+  it('should handle watch when slipId changes from empty to valid', async () => {
+    const props = reactive({ slipId: '' })
+    await useViewRoutingSlip(props)
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    vi.clearAllMocks()
+
+    props.slipId = '123456789'
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 200))
+
+    expect(mockGetRoutingSlip).toHaveBeenCalledWith({ routingSlipNumber: '123456789' })
+  })
+
+  it('should handle watch when slipId changes from valid to empty', async () => {
+    const props = reactive({ slipId: '123456789' })
+    await useViewRoutingSlip(props)
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 200))
+
+    vi.clearAllMocks()
+
+    props.slipId = ''
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    expect(mockGetRoutingSlip).not.toHaveBeenCalled()
+  })
+
+  it('should handle multiple sequential calls to getRoutingSlipAndLinkedRoutingSlips', async () => {
+    const composable = useViewRoutingSlip({ slipId: '123456789' })
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    vi.clearAllMocks()
+
+    await composable.getRoutingSlipAndLinkedRoutingSlips()
+    await composable.getRoutingSlipAndLinkedRoutingSlips()
+
+    expect(mockGetRoutingSlip).toHaveBeenCalledTimes(2)
+    expect(mockGetLinkedRoutingSlips).toHaveBeenCalledTimes(2)
+  })
 })

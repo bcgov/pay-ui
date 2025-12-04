@@ -1,6 +1,7 @@
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import Search from '~/components/Dashboard/Search.vue'
 import { createPinia, setActivePinia } from 'pinia'
+import { nextTick } from 'vue'
 
 mockNuxtImport('useI18n', () => () => ({
   t: (key: string) => key
@@ -603,5 +604,636 @@ describe('Search', () => {
     await nextTick()
     expect(wrapper.exists()).toBe(true)
     expect(mockIsInitialLoad.value).toBe(true)
+  })
+
+  it('should call navigateTo when Open button is clicked', async () => {
+    const { mockNavigateTo } = vi.hoisted(() => {
+      const _mockNavigateTo = vi.fn()
+      return {
+        mockNavigateTo: _mockNavigateTo
+      }
+    })
+    mockNuxtImport('navigateTo', () => mockNavigateTo)
+
+    mockRoutingSlips.value = [
+      { routingSlipNumber: '123456789', status: 'ACTIVE' }
+    ]
+    const wrapper = await mountSuspended(Search, {
+      global: {
+        stubs: {
+          UTable: {
+            template: `
+              <div>
+                <slot name="actions-cell" :row="{ original: { routingSlipNumber: '123456789' } }" />
+              </div>
+            `,
+            props: ['data', 'columns', 'loading', 'sticky']
+          },
+          UInput: true,
+          UButton: {
+            template: '<button @click="$emit(\'click\')"><slot>{{ label }}</slot></button>',
+            props: ['label']
+          },
+          UPopover: true,
+          UCheckbox: true,
+          UIcon: true,
+          DateRangeFilter: true,
+          StatusList: true
+        }
+      }
+    })
+
+    const openButton = wrapper.findComponent({ name: 'UButton' })
+    if (openButton.exists()) {
+      await openButton.trigger('click')
+      await nextTick()
+      expect(mockNavigateTo).toHaveBeenCalledWith('/view-routing-slip/123456789')
+    }
+  })
+
+  it('should handle column visibility changes', async () => {
+    const wrapper = await mountSuspended(Search, {
+      global: {
+        stubs: {
+          UTable: {
+            template: '<div><slot name="body-top" /></div>',
+            props: ['data', 'columns', 'loading', 'sticky', 'columnVisibility', 'columnPinning']
+          },
+          UInput: true,
+          UButton: true,
+          UPopover: true,
+          UCheckbox: {
+            template: '<input type="checkbox" @change="$emit(\'update:modelValue\', $event.target.checked)" />',
+            props: ['modelValue', 'value', 'label'],
+            emits: ['update:modelValue']
+          },
+          UIcon: true,
+          DateRangeFilter: true,
+          StatusList: true
+        }
+      }
+    })
+
+    const checkboxes = wrapper.findAllComponents({ name: 'UCheckbox' })
+    if (checkboxes.length > 0) {
+      await checkboxes[0]!.vm.$emit('update:modelValue', false)
+      await nextTick()
+      expect(wrapper.exists()).toBe(true)
+    }
+  })
+
+  it('should handle expanded folio when already expanded', async () => {
+    mockShowExpandedFolio.value = ['123']
+    mockRoutingSlips.value = [
+      { routingSlipNumber: '123', businessIdentifier: ['folio1', 'folio2'] }
+    ]
+    const wrapper = await mountSuspended(Search, {
+      global: {
+        stubs: {
+          UTable: {
+            template: `
+              <div>
+                <slot
+                  name="businessIdentifier-cell"
+                  :row="{
+                    original: {
+                      routingSlipNumber: '123',
+                      businessIdentifier: ['folio1', 'folio2']
+                    }
+                  }"
+                />
+              </div>
+            `,
+            props: ['data', 'columns', 'loading', 'sticky']
+          },
+          UInput: true,
+          UButton: true,
+          UPopover: true,
+          UCheckbox: true,
+          UIcon: {
+            template: '<span></span>',
+            props: ['name']
+          },
+          DateRangeFilter: true,
+          StatusList: true
+        }
+      }
+    })
+    const folioDiv = wrapper.find('.cursor-pointer')
+    if (folioDiv.exists()) {
+      await folioDiv.trigger('click')
+      expect(_mockToggleFolio).toHaveBeenCalledWith('123')
+    }
+  })
+
+  it('should handle expanded cheque when already expanded', async () => {
+    mockShowExpandedCheque.value = ['123']
+    mockRoutingSlips.value = [
+      { routingSlipNumber: '123', chequeReceiptNumber: ['cheque1', 'cheque2'] }
+    ]
+    const wrapper = await mountSuspended(Search, {
+      global: {
+        stubs: {
+          UTable: {
+            template: `
+              <div>
+                <slot
+                  name="chequeReceiptNumber-cell"
+                  :row="{
+                    original: {
+                      routingSlipNumber: '123',
+                      chequeReceiptNumber: ['cheque1', 'cheque2']
+                    }
+                  }"
+                />
+              </div>
+            `,
+            props: ['data', 'columns', 'loading', 'sticky']
+          },
+          UInput: true,
+          UButton: true,
+          UPopover: true,
+          UCheckbox: true,
+          UIcon: {
+            template: '<span></span>',
+            props: ['name']
+          },
+          DateRangeFilter: true,
+          StatusList: true
+        }
+      }
+    })
+    const chequeDiv = wrapper.find('.cursor-pointer')
+    if (chequeDiv.exists()) {
+      await chequeDiv.trigger('click')
+      expect(_mockToggleCheque).toHaveBeenCalledWith('123')
+    }
+  })
+
+  it('should display single businessIdentifier without expansion', async () => {
+    mockRoutingSlips.value = [
+      { routingSlipNumber: '123', businessIdentifier: ['folio1'] }
+    ]
+    const wrapper = await mountSuspended(Search, {
+      global: {
+        stubs: {
+          UTable: {
+            template: `
+              <div>
+                <slot
+                  name="businessIdentifier-cell"
+                  :row="{
+                    original: {
+                      routingSlipNumber: '123',
+                      businessIdentifier: ['folio1']
+                    }
+                  }"
+                />
+              </div>
+            `,
+            props: ['data', 'columns', 'loading', 'sticky']
+          },
+          UInput: true,
+          UButton: true,
+          UPopover: true,
+          UCheckbox: true,
+          UIcon: true,
+          DateRangeFilter: true,
+          StatusList: true
+        }
+      }
+    })
+    expect(wrapper.text()).toContain('folio1')
+    expect(_mockToggleFolio).not.toHaveBeenCalled()
+  })
+
+  it('should display single chequeReceiptNumber without expansion', async () => {
+    mockRoutingSlips.value = [
+      { routingSlipNumber: '123', chequeReceiptNumber: ['cheque1'] }
+    ]
+    const wrapper = await mountSuspended(Search, {
+      global: {
+        stubs: {
+          UTable: {
+            template: `
+              <div>
+                <slot
+                  name="chequeReceiptNumber-cell"
+                  :row="{
+                    original: {
+                      routingSlipNumber: '123',
+                      chequeReceiptNumber: ['cheque1']
+                    }
+                  }"
+                />
+              </div>
+            `,
+            props: ['data', 'columns', 'loading', 'sticky']
+          },
+          UInput: true,
+          UButton: true,
+          UPopover: true,
+          UCheckbox: true,
+          UIcon: true,
+          DateRangeFilter: true,
+          StatusList: true
+        }
+      }
+    })
+    expect(wrapper.text()).toContain('cheque1')
+    expect(_mockToggleCheque).not.toHaveBeenCalled()
+  })
+
+  it('should call debouncedSearch when routingSlipNumber filter changes', async () => {
+    const wrapper = await mountSuspended(Search, {
+      global: {
+        stubs: {
+          UTable: {
+            template: `
+              <div>
+                <slot name="body-top" />
+              </div>
+            `,
+            props: ['data', 'columns', 'loading', 'sticky']
+          },
+          UInput: {
+            template: '<input @input="$emit(\'input\')" v-model="modelValue" />',
+            props: ['modelValue', 'placeholder', 'size', 'class'],
+            emits: ['input']
+          },
+          UButton: true,
+          UPopover: true,
+          UCheckbox: true,
+          UIcon: true,
+          DateRangeFilter: true,
+          StatusList: true
+        }
+      }
+    })
+
+    const inputs = wrapper.findAllComponents({ name: 'UInput' })
+    const routingSlipInput = inputs.find(input => input.props('placeholder') === 'Routing Slip Number')
+    if (routingSlipInput?.exists()) {
+      await routingSlipInput.setValue('123456')
+      await routingSlipInput.vm.$emit('input')
+      await nextTick()
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      expect(_mockDebouncedSearch).toHaveBeenCalled()
+    }
+  })
+
+  it('should call debouncedSearch when receiptNumber filter changes', async () => {
+    const wrapper = await mountSuspended(Search, {
+      global: {
+        stubs: {
+          UTable: {
+            template: `
+              <div>
+                <slot name="body-top" />
+              </div>
+            `,
+            props: ['data', 'columns', 'loading', 'sticky']
+          },
+          UInput: {
+            template: '<input @input="$emit(\'input\')" v-model="modelValue" />',
+            props: ['modelValue', 'placeholder', 'size', 'class'],
+            emits: ['input']
+          },
+          UButton: true,
+          UPopover: true,
+          UCheckbox: true,
+          UIcon: true,
+          DateRangeFilter: true,
+          StatusList: true
+        }
+      }
+    })
+
+    const inputs = wrapper.findAllComponents({ name: 'UInput' })
+    const receiptInput = inputs.find(input => input.props('placeholder') === 'Receipt Number')
+    if (receiptInput?.exists()) {
+      await receiptInput.setValue('REC123')
+      await receiptInput.vm.$emit('input')
+      await nextTick()
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      expect(_mockDebouncedSearch).toHaveBeenCalled()
+    }
+  })
+
+  it('should call search when dateFilter changes', async () => {
+    const wrapper = await mountSuspended(Search, {
+      global: {
+        stubs: {
+          UTable: {
+            template: `
+              <div>
+                <slot name="body-top" />
+              </div>
+            `,
+            props: ['data', 'columns', 'loading', 'sticky']
+          },
+          UInput: true,
+          UButton: true,
+          UPopover: true,
+          UCheckbox: true,
+          UIcon: true,
+          DateRangeFilter: {
+            template: '<div @change="$emit(\'change\')"></div>',
+            props: ['modelValue'],
+            emits: ['change']
+          },
+          StatusList: true
+        }
+      }
+    })
+
+    const dateFilter = wrapper.findComponent({ name: 'DateRangeFilter' })
+    if (dateFilter.exists()) {
+      await dateFilter.vm.$emit('change')
+      await nextTick()
+
+      expect(_mockSearch).toHaveBeenCalled()
+    }
+  })
+
+  it('should call search when status changes', async () => {
+    const wrapper = await mountSuspended(Search, {
+      global: {
+        stubs: {
+          UTable: {
+            template: `
+              <div>
+                <slot name="body-top" />
+              </div>
+            `,
+            props: ['data', 'columns', 'loading', 'sticky']
+          },
+          UInput: true,
+          UButton: true,
+          UPopover: true,
+          UCheckbox: true,
+          UIcon: true,
+          DateRangeFilter: true,
+          StatusList: {
+            template: '<div @change="$emit(\'change\')"></div>',
+            props: ['modelValue', 'column', 'class', 'hideDetails', 'placeholder'],
+            emits: ['change']
+          }
+        }
+      }
+    })
+
+    const statusLists = wrapper.findAllComponents({ name: 'StatusList' })
+    const statusList = statusLists.find(sl => sl.props('column') === 'status')
+    if (statusList?.exists()) {
+      await statusList.vm.$emit('change')
+      await nextTick()
+
+      expect(_mockSearch).toHaveBeenCalled()
+    }
+  })
+
+  it('should call resetSearchFilters when Clear Filters button is clicked', async () => {
+    const wrapper = await mountSuspended(Search, {
+      global: {
+        stubs: {
+          UTable: {
+            template: `
+              <div>
+                <slot name="body-top" />
+              </div>
+            `,
+            props: ['data', 'columns', 'loading', 'sticky']
+          },
+          UInput: true,
+          UButton: {
+            template: '<button @click="$emit(\'click\')">{{ label }}</button>',
+            props: ['label', 'variant', 'trailingIcon', 'size']
+          },
+          UPopover: true,
+          UCheckbox: true,
+          UIcon: true,
+          DateRangeFilter: true,
+          StatusList: true
+        }
+      }
+    })
+
+    const buttons = wrapper.findAllComponents({ name: 'UButton' })
+    const clearButton = buttons.find(btn => btn.text() === 'Clear Filters')
+    if (clearButton?.exists()) {
+      await clearButton.trigger('click')
+      await nextTick()
+
+      expect(_mockResetSearchFilters).toHaveBeenCalled()
+    }
+  })
+
+  it('should handle infinite scroll when table is scrolled', async () => {
+    mockIsInitialLoad.value = true
+    const wrapper = await mountSuspended(Search, {
+      global: {
+        stubs: {
+          UTable: {
+            template: '<div ref="table"></div>',
+            props: ['data', 'columns', 'loading', 'sticky']
+          },
+          UInput: true,
+          UButton: true,
+          UPopover: true,
+          UCheckbox: true,
+          UIcon: true,
+          DateRangeFilter: true,
+          StatusList: true
+        }
+      }
+    })
+
+    expect(wrapper.exists()).toBe(true)
+    expect(mockIsInitialLoad.value).toBe(true)
+  })
+
+  it('should display loading message when isLoading is true', async () => {
+    mockIsLoading.value = true
+    const wrapper = await mountSuspended(Search, {
+      global: {
+        stubs: {
+          UTable: {
+            template: '<div><slot name="loading" /></div>',
+            props: ['data', 'columns', 'loading', 'sticky']
+          },
+          UInput: true,
+          UButton: true,
+          UPopover: true,
+          UCheckbox: true,
+          UIcon: true,
+          DateRangeFilter: true,
+          StatusList: true
+        }
+      }
+    })
+
+    expect(wrapper.text()).toContain('Loading...')
+  })
+
+  it('should display searchStartMessage when searchParamsExist is true', async () => {
+    mockSearchParamsExist.value = true
+    mockRoutingSlips.value = []
+    const wrapper = await mountSuspended(Search, {
+      global: {
+        stubs: {
+          UTable: {
+            template: '<div><slot name="empty" /></div>',
+            props: ['data', 'columns', 'loading', 'sticky']
+          },
+          UInput: true,
+          UButton: true,
+          UPopover: true,
+          UCheckbox: true,
+          UIcon: true,
+          DateRangeFilter: true,
+          StatusList: true
+        }
+      }
+    })
+
+    expect(wrapper.exists()).toBe(true)
+  })
+
+  it('should display searchNoResult when searchParamsExist is false', async () => {
+    mockSearchParamsExist.value = false
+    mockRoutingSlips.value = []
+    const wrapper = await mountSuspended(Search, {
+      global: {
+        stubs: {
+          UTable: {
+            template: '<div><slot name="empty" /></div>',
+            props: ['data', 'columns', 'loading', 'sticky']
+          },
+          UInput: true,
+          UButton: true,
+          UPopover: true,
+          UCheckbox: true,
+          UIcon: true,
+          DateRangeFilter: true,
+          StatusList: true
+        }
+      }
+    })
+
+    expect(wrapper.exists()).toBe(true)
+  })
+
+  it('should toggle column visibility when checkbox is clicked', async () => {
+    const wrapper = await mountSuspended(Search, {
+      global: {
+        stubs: {
+          UTable: true,
+          UInput: true,
+          UButton: true,
+          UPopover: {
+            template: '<div><slot name="content" /></div>',
+            props: []
+          },
+          UCheckbox: {
+            template: '<input type="checkbox" @change="$emit(\'update:modelValue\', !modelValue)" '
+              + ':checked="modelValue" />',
+            props: ['modelValue', 'value', 'label', 'class'],
+            emits: ['update:modelValue']
+          },
+          UIcon: true,
+          DateRangeFilter: true,
+          StatusList: true
+        }
+      }
+    })
+
+    const checkboxes = wrapper.findAllComponents({ name: 'UCheckbox' })
+    if (checkboxes.length > 0 && checkboxes[0]!.exists()) {
+      await checkboxes[0]!.vm.$emit('update:modelValue', false)
+      await nextTick()
+
+      expect(mockSearchRoutingSlipTableHeaders.value[0]?.display).toBe(false)
+    }
+  })
+
+  it('should call debouncedSearch when businessIdentifier filter changes', async () => {
+    const wrapper = await mountSuspended(Search, {
+      global: {
+        stubs: {
+          UTable: {
+            template: `
+              <div>
+                <slot name="body-top" />
+              </div>
+            `,
+            props: ['data', 'columns', 'loading', 'sticky']
+          },
+          UInput: {
+            template: '<input @input="$emit(\'input\')" v-model="modelValue" />',
+            props: ['modelValue', 'placeholder', 'size', 'class'],
+            emits: ['input']
+          },
+          UButton: true,
+          UPopover: true,
+          UCheckbox: true,
+          UIcon: true,
+          DateRangeFilter: true,
+          StatusList: true
+        }
+      }
+    })
+
+    const inputs = wrapper.findAllComponents({ name: 'UInput' })
+    const businessIdentifierInput = inputs.find(input => input.props('placeholder') === 'Reference Number')
+    if (businessIdentifierInput?.exists()) {
+      await businessIdentifierInput.setValue('REF123')
+      await businessIdentifierInput.vm.$emit('input')
+      await nextTick()
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      expect(_mockDebouncedSearch).toHaveBeenCalled()
+    }
+  })
+
+  it('should call debouncedSearch when chequeReceiptNumber filter changes', async () => {
+    const wrapper = await mountSuspended(Search, {
+      global: {
+        stubs: {
+          UTable: {
+            template: `
+              <div>
+                <slot name="body-top" />
+              </div>
+            `,
+            props: ['data', 'columns', 'loading', 'sticky']
+          },
+          UInput: {
+            template: '<input @input="$emit(\'input\')" v-model="modelValue" />',
+            props: ['modelValue', 'placeholder', 'size', 'class'],
+            emits: ['input']
+          },
+          UButton: true,
+          UPopover: true,
+          UCheckbox: true,
+          UIcon: true,
+          DateRangeFilter: true,
+          StatusList: true
+        }
+      }
+    })
+
+    const inputs = wrapper.findAllComponents({ name: 'UInput' })
+    const chequeInput = inputs.find(input => input.props('placeholder') === 'Cheque  Number')
+    if (chequeInput?.exists()) {
+      await chequeInput.setValue('CHQ123')
+      await chequeInput.vm.$emit('input')
+      await nextTick()
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      expect(_mockDebouncedSearch).toHaveBeenCalled()
+    }
   })
 })

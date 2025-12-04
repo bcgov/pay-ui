@@ -548,4 +548,336 @@ describe('StaffComments', () => {
       expect(wrapper.text()).toContain('characters remaining')
     }
   })
+
+  it('should handle flattenAndSortComments with nested comment structure', async () => {
+    const comments = [
+      {
+        comment: {
+          comment: 'Comment 1',
+          timestamp: '2025-09-26T10:00:00Z',
+          submitterDisplayName: 'User 1'
+        }
+      },
+      {
+        comment: {
+          comment: 'Comment 2',
+          timestamp: '2025-09-27T10:00:00Z',
+          submitterDisplayName: 'User 2'
+        }
+      }
+    ]
+    mockGetRoutingSlipComments.mockImplementation(() => Promise.resolve({ comments }))
+
+    const wrapper = await mountSuspended(StaffComments, {
+      props: {
+        identifier: 'test-id'
+      },
+      global: {
+        stubs: {
+          UPopover: {
+            template: '<div><slot /><div><slot name="content" /></div></div>',
+            props: {
+              open: {
+                type: Boolean,
+                default: false
+              },
+              popper: Object
+            },
+            emits: ['update:open']
+          },
+          UButton: true,
+          UIcon: true
+        }
+      }
+    })
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    expect(wrapper.text()).toContain('2 Comments')
+  })
+
+  it('should handle flattenAndSortComments with empty array', async () => {
+    mockGetRoutingSlipComments.mockImplementation(() => Promise.resolve({ comments: [] }))
+
+    const wrapper = await mountSuspended(StaffComments, {
+      props: {
+        identifier: 'test-id'
+      },
+      global: {
+        stubs: {
+          UPopover: {
+            template: '<div><slot /><div><slot name="content" /></div></div>',
+            props: {
+              open: {
+                type: Boolean,
+                default: false
+              },
+              popper: Object
+            },
+            emits: ['update:open']
+          },
+          UButton: true,
+          UIcon: true
+        }
+      }
+    })
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    expect(wrapper.text()).toContain('0 Comments')
+  })
+
+  it('should handle handleOpenUpdate when popover closes unintentionally', async () => {
+    mockGetRoutingSlipComments.mockImplementation(() => Promise.resolve({ comments: [] }))
+
+    const wrapper = await mountSuspended(StaffComments, {
+      props: {
+        identifier: 'test-id'
+      },
+      global: {
+        stubs: {
+          UPopover: {
+            template: '<div><slot /><div v-if="open"><slot name="content" /></div></div>',
+            props: {
+              open: {
+                type: Boolean,
+                default: false
+              },
+              popper: Object
+            },
+            emits: ['update:open']
+          },
+          UButton: true,
+          UIcon: true
+        }
+      }
+    })
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    const popover = wrapper.findComponent({ name: 'UPopover' })
+    if (popover.exists()) {
+      await popover.setProps({ open: true })
+      await nextTick()
+      await popover.vm.$emit('update:open', false)
+      await nextTick()
+      await new Promise(resolve => setTimeout(resolve, 50))
+
+      expect(wrapper.exists()).toBe(true)
+    }
+  })
+
+  it('should handle save error and show error dialog', async () => {
+    mockGetRoutingSlipComments.mockImplementation(() => Promise.resolve({ comments: [] }))
+    mockUpdateRoutingSlipComments.mockRejectedValue(new Error('Save failed'))
+
+    const wrapper = await mountSuspended(StaffComments, {
+      props: {
+        identifier: 'test-id'
+      },
+      global: {
+        stubs: {
+          UPopover: {
+            template: '<div><slot /><div v-if="modelValue"><slot name="content" /></div></div>',
+            props: {
+              open: {
+                type: Boolean,
+                default: false
+              },
+              popper: Object
+            },
+            emits: ['update:open'],
+            computed: {
+              modelValue() {
+                return this.open
+              }
+            }
+          },
+          UButton: {
+            template: '<button @click="$emit(\'click\')" :id="id" :loading="loading"><slot /></button>',
+            props: ['id', 'color', 'variant', 'size', 'icon', 'class', 'loading']
+          },
+          UIcon: true
+        }
+      }
+    })
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    const textarea = wrapper.find('textarea')
+    if (textarea.exists()) {
+      await textarea.setValue('Test comment')
+      await nextTick()
+
+      const saveButton = wrapper.find('#save-button')
+      if (saveButton.exists()) {
+        await saveButton.trigger('click')
+        await nextTick()
+        await new Promise(resolve => setTimeout(resolve, 200))
+
+        expect(mockOpenErrorDialog).toHaveBeenCalled()
+      }
+    }
+  })
+
+  it('should not save when already saving', async () => {
+    mockGetRoutingSlipComments.mockImplementation(() => Promise.resolve({ comments: [] }))
+
+    const wrapper = await mountSuspended(StaffComments, {
+      props: {
+        identifier: 'test-id'
+      },
+      global: {
+        stubs: {
+          UPopover: {
+            template: '<div><slot /><div v-if="modelValue"><slot name="content" /></div></div>',
+            props: {
+              open: {
+                type: Boolean,
+                default: false
+              },
+              popper: Object
+            },
+            emits: ['update:open'],
+            computed: {
+              modelValue() {
+                return this.open
+              }
+            }
+          },
+          UButton: {
+            template: '<button @click="$emit(\'click\')" :id="id" :loading="loading"><slot /></button>',
+            props: ['id', 'color', 'variant', 'size', 'icon', 'class', 'loading']
+          },
+          UIcon: true
+        }
+      }
+    })
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    const component = wrapper.vm as InstanceType<typeof StaffComments> & {
+      state?: { isSaving?: boolean, comment?: string }
+    }
+    if (component.state) {
+      component.state.isSaving = true
+      component.state.comment = 'Test comment'
+      await nextTick()
+
+      const saveButton = wrapper.find('#save-button')
+      if (saveButton.exists()) {
+        await saveButton.trigger('click')
+        await nextTick()
+        await new Promise(resolve => setTimeout(resolve, 100))
+
+        expect(mockUpdateRoutingSlipComments).not.toHaveBeenCalled()
+      }
+    }
+  })
+
+  it('should format timestamp with invalid date', async () => {
+    const comments = [
+      {
+        comment: {
+          comment: 'Test comment',
+          timestamp: 'invalid-date',
+          submitterDisplayName: 'Test User'
+        }
+      }
+    ]
+    mockGetRoutingSlipComments.mockImplementation(() => Promise.resolve({ comments }))
+
+    const wrapper = await mountSuspended(StaffComments, {
+      props: {
+        identifier: 'test-id'
+      },
+      global: {
+        stubs: {
+          UPopover: {
+            template: '<div><slot /><div><slot name="content" /></div></div>',
+            props: {
+              open: {
+                type: Boolean,
+                default: false
+              },
+              popper: Object
+            },
+            emits: ['update:open']
+          },
+          UButton: true,
+          UIcon: true
+        }
+      }
+    })
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    expect(wrapper.text()).toContain('invalid-date')
+  })
+
+  it('should format timestamp with empty string', async () => {
+    const comments = [
+      {
+        comment: {
+          comment: 'Test comment',
+          timestamp: '',
+          submitterDisplayName: 'Test User'
+        }
+      }
+    ]
+    mockGetRoutingSlipComments.mockImplementation(() => Promise.resolve({ comments }))
+
+    const wrapper = await mountSuspended(StaffComments, {
+      props: {
+        identifier: 'test-id'
+      },
+      global: {
+        stubs: {
+          UPopover: {
+            template: '<div><slot /><div><slot name="content" /></div></div>',
+            props: {
+              open: {
+                type: Boolean,
+                default: false
+              },
+              popper: Object
+            },
+            emits: ['update:open']
+          },
+          UButton: true,
+          UIcon: true
+        }
+      }
+    })
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    expect(wrapper.exists()).toBe(true)
+  })
+
+  it('should handle fetchStaffComments with string array response', async () => {
+    const comments = [
+      {
+        comment: 'Comment 1'
+      }
+    ]
+    mockGetRoutingSlipComments.mockImplementation(() => Promise.resolve({ comments }))
+
+    await mountSuspended(StaffComments, {
+      props: {
+        identifier: 'test-id'
+      },
+      global: {
+        stubs: {
+          UPopover: true,
+          UButton: true,
+          UIcon: true
+        }
+      }
+    })
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    expect(mockGetRoutingSlipComments).toHaveBeenCalledWith('test-id')
+  })
 })

@@ -17,7 +17,6 @@ interface StatusDetails {
 
 export const useRoutingSlip = () => {
   const { store } = useRoutingSlipStore()
-
   const invoiceCount = computed<number | undefined>(() => {
     return store.routingSlip?.invoices?.length
   })
@@ -63,7 +62,6 @@ export const useRoutingSlip = () => {
   async function createRoutingSlip() {
     const crsStore = useCreateRoutingSlipStore()
     const payApi = usePayApi()
-    const localePath = useLocalePath()
     const t = useNuxtApp().$i18n.t
     const toast = useToast()
     const { toggleLoading } = useLoader()
@@ -71,8 +69,8 @@ export const useRoutingSlip = () => {
     try {
       toggleLoading(true)
       const payload = createRoutingSlipPayload(crsStore.state)
-      const res = await payApi.postRoutingSlip(payload, false)
-      await navigateTo(localePath(`/view-routing-slip/${res.number}`))
+      const res = await payApi.postRoutingSlip(payload)
+      await navigateTo(`/view-routing-slip/${res.number}`)
       crsStore.$reset()
     } catch (e) {
       const status = getErrorStatus(e)
@@ -91,13 +89,9 @@ export const useRoutingSlip = () => {
     try {
       const routingNumber = store.routingSlipDetails?.number ?? ''
       const response = await usePayApi().getRoutingSlip(routingNumber)
-      // if routing number exists, we get a response object
-      // if it doesn't exist, we get undefined or throw error
       if (response) {
-        // routing slip exists
         return CreateRoutingSlipStatus.EXISTS
       }
-      // routing slip doesn't exist
       return CreateRoutingSlipStatus.VALID
     } catch (error) {
       const errorResponse = error as { response?: { status?: number, data?: { type?: string } } }
@@ -116,6 +110,7 @@ export const useRoutingSlip = () => {
   const getRoutingSlip = async (getRoutingSlipRequestPayload: GetRoutingSlipRequestPayload) => {
     try {
       store.routingSlip = {} as RoutingSlip
+      // Global Exception handler will handle this one.
       const response = await usePayApi().getRoutingSlip(
         getRoutingSlipRequestPayload.routingSlipNumber
       )
@@ -134,6 +129,7 @@ export const useRoutingSlip = () => {
     // update status
     try {
       let response
+      // Global Exception handler will handle this one.
       if (CommonUtils.isRefundProcessStatus((statusDetails as StatusDetails)?.status as SlipStatus)) {
         response = await usePayApi().updateRoutingSlipRefund(
           statusDetails as string,
@@ -163,6 +159,7 @@ export const useRoutingSlip = () => {
   const updateRoutingSlipRefundStatus = async (status: string) => {
     const slipNumber = store.routingSlip.number
     try {
+      // Global Exception handler will handle this one.
       const responseData = await usePayApi().updateRoutingSlipRefundStatus(status, slipNumber ?? '')
       return responseData
     } catch (error) {
@@ -192,6 +189,7 @@ export const useRoutingSlip = () => {
     // build the RoutingSlip Request JSON object that needs to be sent.
     const slipNumber = store.routingSlip.number
     try {
+      // TODO: Update error handling for REST call
       const response = await usePayApi().adjustRoutingSlip(
         payments,
         slipNumber
@@ -220,7 +218,7 @@ export const useRoutingSlip = () => {
     const linkParams = { childRoutingSlipNumber, parentRoutingSlipNumber }
 
     try {
-      // handle error condtions here
+      // TODO: Update error handling for REST call
       await usePayApi().saveLinkRoutingSlip(linkParams)
       return {
         error: false
@@ -253,6 +251,7 @@ export const useRoutingSlip = () => {
       'yyyy-MM-dd'
     )
     try {
+      // Global Exception handler will handle this one.
       return await usePayApi().getDailyReport(formatedDate, type)
     } catch (error) {
       console.error('error ', error) // 500 errors may not return data
@@ -263,6 +262,7 @@ export const useRoutingSlip = () => {
   const getAutoCompleteRoutingSlips = async (
     routingSlipNumber: string
   ): Promise<RoutingSlipDetails[]> => {
+  // Global Exception handler will handle this one.
     const response = await usePayApi().getSearchRoutingSlip({
       routingSlipNumber
     })
@@ -278,6 +278,7 @@ export const useRoutingSlip = () => {
   ): Promise<number | null> => {
     // Currently, in FAS we only need total from the result that is the source of truth.
     // Other properties such as tax breakdown and priority fees can be ignored here.
+    // Global Exception handler will handle this one.
     const response = await usePayApi().getFeeByCorpTypeAndFilingType(
       getFeeRequestParams
     )

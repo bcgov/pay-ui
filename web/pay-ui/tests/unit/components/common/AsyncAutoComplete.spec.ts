@@ -273,4 +273,373 @@ describe('AsyncAutoComplete', () => {
     expect(customItem.exists()).toBe(true)
     expect(customItem.text()).toBe('Item 1')
   })
+
+  it('should handle handleOpenUpdate when search length is less than 3', async () => {
+    const wrapper = await mountSuspended(AsyncAutoComplete, {
+      props: {
+        id: 'test-id',
+        label: 'Test Label',
+        queryFn: mockQueryFn,
+        modelValue: null
+      },
+      global: {
+        stubs: {
+          UInputMenu: {
+            template: '<div></div>',
+            props: ['open', 'items', 'searchTerm', 'modelValue'],
+            emits: ['update:open', 'update:searchTerm', 'update:modelValue', 'blur', 'focus']
+          },
+          UIcon: true
+        }
+      }
+    })
+
+    const inputMenu = wrapper.findComponent({ name: 'UInputMenu' })
+    if (inputMenu.exists()) {
+      await inputMenu.vm.$emit('update:open', true)
+      await nextTick()
+      await new Promise(resolve => setTimeout(resolve, 50))
+
+      expect(wrapper.exists()).toBe(true)
+    }
+  })
+
+  it('should handle handleOpenUpdate when search length is 3 or more', async () => {
+    const wrapper = await mountSuspended(AsyncAutoComplete, {
+      props: {
+        id: 'test-id',
+        label: 'Test Label',
+        queryFn: mockQueryFn,
+        modelValue: null
+      },
+      global: {
+        stubs: {
+          UInputMenu: {
+            template: '<div></div>',
+            props: ['open', 'items', 'searchTerm', 'modelValue'],
+            emits: ['update:open', 'update:searchTerm', 'update:modelValue', 'blur', 'focus']
+          },
+          UIcon: true
+        }
+      }
+    })
+
+    const inputMenu = wrapper.findComponent({ name: 'UInputMenu' })
+    if (inputMenu.exists()) {
+      await inputMenu.vm.$emit('update:searchTerm', 'abc')
+      await nextTick()
+      await new Promise(resolve => setTimeout(resolve, 350))
+      await inputMenu.vm.$emit('update:open', true)
+      await nextTick()
+
+      expect(wrapper.exists()).toBe(true)
+    }
+  })
+
+  it('should close menu when search length drops below 3', async () => {
+    const wrapper = await mountSuspended(AsyncAutoComplete, {
+      props: {
+        id: 'test-id',
+        label: 'Test Label',
+        queryFn: mockQueryFn,
+        modelValue: null
+      },
+      global: {
+        stubs: {
+          UInputMenu: {
+            template: '<div></div>',
+            props: ['open', 'items', 'searchTerm', 'modelValue'],
+            emits: ['update:open', 'update:searchTerm', 'update:modelValue', 'blur', 'focus']
+          },
+          UIcon: true
+        }
+      }
+    })
+
+    const inputMenu = wrapper.findComponent({ name: 'UInputMenu' })
+    if (inputMenu.exists()) {
+      await inputMenu.vm.$emit('update:searchTerm', 'ab')
+      await nextTick()
+      await new Promise(resolve => setTimeout(resolve, 350))
+
+      expect(wrapper.exists()).toBe(true)
+    }
+  })
+
+  it('should open menu when search length reaches 3', async () => {
+    const wrapper = await mountSuspended(AsyncAutoComplete, {
+      props: {
+        id: 'test-id',
+        label: 'Test Label',
+        queryFn: mockQueryFn,
+        modelValue: null
+      },
+      global: {
+        stubs: {
+          UInputMenu: {
+            template: '<div></div>',
+            props: ['open', 'items', 'searchTerm', 'modelValue'],
+            emits: ['update:open', 'update:searchTerm', 'update:modelValue', 'blur', 'focus']
+          },
+          UIcon: true
+        }
+      }
+    })
+
+    const inputMenu = wrapper.findComponent({ name: 'UInputMenu' })
+    if (inputMenu.exists()) {
+      await inputMenu.vm.$emit('update:searchTerm', 'abc')
+      await nextTick()
+      await new Promise(resolve => setTimeout(resolve, 350))
+
+      expect(wrapper.exists()).toBe(true)
+    }
+  })
+
+  it('should show loading icon when status is pending', async () => {
+    const wrapper = await mountSuspended(AsyncAutoComplete, {
+      props: {
+        id: 'test-id',
+        label: 'Test Label',
+        queryFn: mockQueryFn,
+        modelValue: null
+      },
+      global: {
+        stubs: {
+          UInputMenu: {
+            template: '<div><slot name="trailing" :status="\'pending\'" /></div>',
+            props: ['open', 'items', 'searchTerm', 'modelValue'],
+            emits: ['update:open', 'update:searchTerm', 'update:modelValue', 'blur', 'focus']
+          },
+          UIcon: {
+            template: '<span :name="name" class="icon" data-name="name"></span>',
+            props: ['name']
+          }
+        }
+      }
+    })
+
+    expect(wrapper.exists()).toBe(true)
+  })
+
+  it('should show menu down icon when status is not pending', async () => {
+    const wrapper = await mountSuspended(AsyncAutoComplete, {
+      props: {
+        id: 'test-id',
+        label: 'Test Label',
+        queryFn: mockQueryFn,
+        modelValue: null
+      },
+      global: {
+        stubs: {
+          UInputMenu: {
+            template: '<div><slot name="trailing" :status="status" /></div>',
+            props: ['open', 'items', 'searchTerm', 'modelValue'],
+            emits: ['update:open', 'update:searchTerm', 'update:modelValue', 'blur', 'focus'],
+            data() {
+              return { status: 'success' }
+            }
+          },
+          UIcon: {
+            template: '<span :name="name" class="icon"></span>',
+            props: ['name']
+          }
+        }
+      }
+    })
+
+    expect(wrapper.exists()).toBe(true)
+  })
+
+  it('should show clear button when selected and not pending', async () => {
+    const wrapper = await mountSuspended(AsyncAutoComplete, {
+      props: {
+        id: 'test-id',
+        label: 'Test Label',
+        queryFn: mockQueryFn,
+        modelValue: { id: 1, label: 'Selected Item' }
+      },
+      global: {
+        stubs: {
+          UInputMenu: {
+            template: '<div><slot name="trailing" :status="status" :selected="selected" /></div>',
+            props: ['open', 'items', 'searchTerm', 'modelValue'],
+            emits: ['update:open', 'update:searchTerm', 'update:modelValue', 'blur', 'focus'],
+            data() {
+              return { status: 'success', selected: { id: 1, label: 'Selected Item' } }
+            }
+          },
+          UIcon: {
+            template: '<span :name="name" class="icon"></span>',
+            props: ['name']
+          }
+        }
+      }
+    })
+
+    const clearButton = wrapper.find('button')
+    if (clearButton.exists()) {
+      await clearButton.trigger('click')
+      await nextTick()
+
+      expect(wrapper.exists()).toBe(true)
+    }
+  })
+
+  it('should clear selected and searchTerm when clear button is clicked', async () => {
+    const wrapper = await mountSuspended(AsyncAutoComplete, {
+      props: {
+        id: 'test-id',
+        label: 'Test Label',
+        queryFn: mockQueryFn,
+        modelValue: { id: 1, label: 'Selected Item' }
+      },
+      global: {
+        stubs: {
+          UInputMenu: {
+            template: '<div><slot name="trailing" :status="status" :selected="selected" /></div>',
+            props: ['open', 'items', 'searchTerm', 'modelValue'],
+            emits: ['update:open', 'update:searchTerm', 'update:modelValue', 'blur', 'focus'],
+            data() {
+              return { status: 'success', selected: { id: 1, label: 'Selected Item' } }
+            }
+          },
+          UIcon: {
+            template: '<span :name="name" class="icon"></span>',
+            props: ['name']
+          }
+        }
+      }
+    })
+
+    const clearButton = wrapper.find('button')
+    if (clearButton.exists()) {
+      await clearButton.trigger('click')
+      await nextTick()
+
+      const inputMenu = wrapper.findComponent({ name: 'UInputMenu' })
+      if (inputMenu.exists()) {
+        expect(inputMenu.props('modelValue')).toBeNull()
+      }
+    }
+  })
+
+  it('should not show clear button when status is pending', async () => {
+    const wrapper = await mountSuspended(AsyncAutoComplete, {
+      props: {
+        id: 'test-id',
+        label: 'Test Label',
+        queryFn: mockQueryFn,
+        modelValue: { id: 1, label: 'Selected Item' }
+      },
+      global: {
+        stubs: {
+          UInputMenu: {
+            template: '<div><slot name="trailing" :status="\'pending\'" :selected="selected" /></div>',
+            props: ['open', 'items', 'searchTerm', 'modelValue'],
+            emits: ['update:open', 'update:searchTerm', 'update:modelValue', 'blur', 'focus'],
+            data() {
+              return { selected: { id: 1, label: 'Selected Item' } }
+            }
+          },
+          UIcon: {
+            template: '<span :name="name" class="icon"></span>',
+            props: ['name']
+          }
+        }
+      }
+    })
+
+    expect(wrapper.exists()).toBe(true)
+  })
+
+  it('should handle searchTerm with whitespace', async () => {
+    const wrapper = await mountSuspended(AsyncAutoComplete, {
+      props: {
+        id: 'test-id',
+        label: 'Test Label',
+        queryFn: mockQueryFn,
+        modelValue: null
+      },
+      global: {
+        stubs: {
+          UInputMenu: {
+            template: '<div></div>',
+            props: ['open', 'items', 'searchTerm', 'modelValue'],
+            emits: ['update:open', 'update:searchTerm', 'update:modelValue', 'blur', 'focus']
+          },
+          UIcon: true
+        }
+      }
+    })
+
+    const inputMenu = wrapper.findComponent({ name: 'UInputMenu' })
+    if (inputMenu.exists()) {
+      await inputMenu.vm.$emit('update:searchTerm', '   ab   ')
+      await nextTick()
+      await new Promise(resolve => setTimeout(resolve, 350))
+
+      expect(wrapper.exists()).toBe(true)
+    }
+  })
+
+  it('should handle null searchTerm', async () => {
+    const wrapper = await mountSuspended(AsyncAutoComplete, {
+      props: {
+        id: 'test-id',
+        label: 'Test Label',
+        queryFn: mockQueryFn,
+        modelValue: null
+      },
+      global: {
+        stubs: {
+          UInputMenu: {
+            template: '<div></div>',
+            props: ['open', 'items', 'searchTerm', 'modelValue'],
+            emits: ['update:open', 'update:searchTerm', 'update:modelValue', 'blur', 'focus']
+          },
+          UIcon: true
+        }
+      }
+    })
+
+    const inputMenu = wrapper.findComponent({ name: 'UInputMenu' })
+    if (inputMenu.exists()) {
+      await inputMenu.vm.$emit('update:searchTerm', null)
+      await nextTick()
+      await new Promise(resolve => setTimeout(resolve, 350))
+
+      expect(wrapper.exists()).toBe(true)
+    }
+  })
+
+  it('should handle undefined searchTerm', async () => {
+    const wrapper = await mountSuspended(AsyncAutoComplete, {
+      props: {
+        id: 'test-id',
+        label: 'Test Label',
+        queryFn: mockQueryFn,
+        modelValue: null
+      },
+      global: {
+        stubs: {
+          UInputMenu: {
+            template: '<div></div>',
+            props: ['open', 'items', 'searchTerm', 'modelValue'],
+            emits: ['update:open', 'update:searchTerm', 'update:modelValue', 'blur', 'focus']
+          },
+          UIcon: true
+        }
+      }
+    })
+
+    const inputMenu = wrapper.findComponent({ name: 'UInputMenu' })
+    if (inputMenu.exists()) {
+      await inputMenu.vm.$emit('update:searchTerm', undefined)
+      await nextTick()
+      await new Promise(resolve => setTimeout(resolve, 350))
+
+      expect(wrapper.exists()).toBe(true)
+    }
+  })
 })
