@@ -1,0 +1,52 @@
+{
+  "name": "pay-ui",
+  "version": "2.0.0-beta.1",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "build-check": "nuxt build",
+    "build": "nuxt generate",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint --fix .",
+    "lint:check": "eslint .",
+    "test": "vitest --dir tests/unit",
+    "test:unit": "vitest --dir tests/unit",
+    "test:unit:cov": "vitest --dir tests/unit --coverage",
+    "build:test": "pnpm generate && npx serve .output/public"
+  },
+  "dependencies": {
+    "@iconify-json/mdi": "^1.2.3",
+    "@nuxt/test-utils": "^3.19.2",
+    "@sbc-connect/nuxt-forms": "^0.1.23",
+    "@sbc-connect/nuxt-pay": "^0.1.23",
+    "es-toolkit": "^1.39.10",
+    "luxon": "^3.7.2",
+    "nuxt": "4.0.3",
+    "vue": "^3.5.21",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "@nuxt/eslint-config": "1.5.2",
+    "@pinia/testing": "^1.0.2",
+    "@playwright/test": "^1.55.0",
+    "@types/luxon": "^3.7.1",
+    "@types/node": "^24.5.2",
+    "@vitest/coverage-v8": "^3.2.4",
+    "@vue/test-utils": "^2.4.6",
+    "baseline-browser-mapping": "^2.9.0",
+    "dotenv": "^17.2.2",
+    "eslint": "9.36.0",
+    "happy-dom": "^17.6.3",
+    "sass": "^1.93.2",
+    "sass-embedded": "^1.93.2",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.3",
+    "vue-tsc": "^3.0.4"
+  },
+  "packageManager": "pnpm@10.17.1+sha512.17c560fca4867ae9473a3899ad84a88334914f379be46d455cbf92e5cf4b39d34985d452d2583baf19967fa76cb5c17bc9e245529d0b98745721aa7200ecaf7a"
+}

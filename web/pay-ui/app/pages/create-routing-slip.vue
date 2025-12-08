@@ -1,0 +1,51 @@
+<script setup lang="ts">
+const { t } = useI18n()
+const crsStore = useCreateRoutingSlipStore()
+const modal = usePayModals()
+const { createRoutingSlip } = useRoutingSlip()
+
+definePageMeta({
+  layout: 'connect-auth',
+  hideBreadcrumbs: true,
+  middleware: ['pay-auth'],
+  allowedRoles: [Role.FAS_CREATE]
+})
+
+useHead({
+  title: t('page.createRoutingSlip.title')
+})
+</script>
+
+<template>
+  <UContainer>
+    <UButton
+      :label="$t('label.backToDashboard')"
+      leading-icon="i-mdi-arrow-left"
+      variant="ghost"
+      class="w-min pl-0"
+      :disabled="crsStore.loading"
+      @click="modal.openLeaveCreateRoutingSlipModal"
+    />
+    <h1>
+      {{ $t('page.createRoutingSlip.h1') }}
+    </h1>
+    <ConnectPageSection
+      ui-body="p-4 sm:p-8 space-y-6"
+      :heading="{
+        label: crsStore.reviewMode ? $t('label.reviewNewRoutingSlip') : $t('label.addNewRoutingSlip'),
+        icon: 'i-mdi-clipboard-text'
+      }"
+    >
+      <CreateRoutingSlip
+        v-if="!crsStore.reviewMode"
+        @submit="crsStore.reviewMode = true"
+        @cancel="modal.openLeaveCreateRoutingSlipModal"
+      />
+      <ReviewRoutingSlip
+        v-else
+        @cancel="modal.openLeaveCreateRoutingSlipModal"
+        @create="createRoutingSlip()"
+      />
+    </ConnectPageSection>
+  </UContainer>
+</template>

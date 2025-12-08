@@ -1,0 +1,132 @@
+<script setup lang="ts">
+import { DateTime } from 'luxon'
+
+const crsStore = useCreateRoutingSlipStore()
+
+defineEmits<{
+  cancel: []
+  create: []
+}>()
+
+const payData = computed<RoutingSlipPaymentItem[]>(() => {
+  const items: RoutingSlipPaymentItem[] = []
+
+  for (const uuid in crsStore.state.payment.paymentItems) {
+    const item = crsStore.state.payment.paymentItems[uuid]!
+    const date = DateTime.fromISO(item.date)
+
+    items.push({
+      ...item,
+      date: date.isValid ? date.toFormat('DDD') : '',
+      amountCAD: Number(item.amountCAD).toFixed(2),
+      amountUSD: Number(item.amountUSD).toFixed(2)
+    })
+  }
+
+  return items
+})
+</script>
+
+<template>
+  <div class="flex flex-col gap-10">
+    <div class="flex flex-col gap-4">
+      <ReviewRoutingSlipRow
+        :label="$t('label.routingSlipUniqueID')"
+        :value="crsStore.state.details.id"
+      />
+      <ReviewRoutingSlipRow
+        :label="$t('label.date')"
+        :value="DateTime.fromISO(crsStore.state.details.date).toFormat('DDD')"
+      />
+      <ReviewRoutingSlipRow
+        :label="$t('label.entityNumber')"
+        :value="crsStore.state.details.entity"
+      />
+    </div>
+    <div class="flex flex-col gap-4">
+      <ReviewRoutingSlipRow
+        :label="$t('label.paymentInformation')"
+        :value="crsStore.isCheque ? $t('enum.PaymentTypes.CHEQUE') : $t('enum.PaymentTypes.CASH')"
+      />
+      <div class="space-y-6">
+        <div
+          v-for="(item, index) in payData"
+          :key="index"
+          class="flex flex-col gap-2 sm:gap-4 sm:flex-row"
+        >
+          <ConnectInput
+            :id="`review-${crsStore.isCheque ? 'cheque' : 'receipt'}-number-${index}`"
+            :model-value="item.identifier"
+            :label="crsStore.isCheque ? $t('label.chequeNumber') : $t('label.receiptNumber')"
+            disabled
+            class="flex-1"
+          />
+          <ConnectInput
+            v-if="crsStore.isCheque"
+            :id="`review-cheque-date-${index}`"
+            :model-value="item.date"
+            :label="$t('label.chequeDate')"
+            disabled
+            class="flex-1"
+          />
+          <ConnectInput
+            :id="`review-amount-cad-${index}`"
+            :model-value="item.amountCAD"
+            :label="$t('label.amountCAD')"
+            disabled
+            class="flex-1"
+          />
+          <ConnectInput
+            v-if="crsStore.state.payment.isUSD"
+            :id="`review-amount-usd-${index}`"
+            :model-value="item.amountUSD"
+            :label="$t('label.amountUSD')"
+            disabled
+            class="flex-1"
+          />
+        </div>
+      </div>
+      <ReviewRoutingSlipRow
+        v-if="crsStore.isCheque"
+        :label="$t('label.totalAmount')"
+        :value="`$${crsStore.totalCAD}`"
+      />
+    </div>
+    <ReviewRoutingSlipRow :label="$t('label.nameOfPersonOrOrgAndAddress')">
+      <div class="flex flex-col gap-4">
+        <span>{{ crsStore.state.address.name }}</span>
+        <ConnectAddressDisplay
+          :key="JSON.stringify(crsStore.state.address.address)"
+          :address="crsStore.state.address.address"
+          text-decor
+        />
+      </div>
+    </ReviewRoutingSlipRow>
+
+    <div class="flex justify-between border-t border-line-muted sm:pt-10 pt-6">
+      <UButton
+        :label="$t('label.backToEdit')"
+        variant="outline"
+        leading-icon="i-mdi-chevron-left"
+        size="xl"
+        :disabled="crsStore.loading"
+        @click="crsStore.reviewMode = false"
+      />
+      <div class="flex gap-4">
+        <UButton
+          :label="$t('label.create')"
+          size="xl"
+          :loading="crsStore.loading"
+          @click="$emit('create')"
+        />
+        <UButton
+          :label="$t('label.cancel')"
+          variant="outline"
+          size="xl"
+          :disabled="crsStore.loading"
+          @click="$emit('cancel')"
+        />
+      </div>
+    </div>
+  </div>
+</template>

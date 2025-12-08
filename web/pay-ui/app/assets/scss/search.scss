@@ -1,0 +1,65 @@
+.fas-search {
+  // colum width
+	.header {
+	  &-routing-slip {
+		  min-width: 185px;
+	  }
+	  &-receipt-number {
+		  min-width: 147px;
+	  }
+	  &-date {
+		  min-width: 170px;
+	  }
+	  &-status {
+		  min-width: 135px;
+	  }
+	  &-business-identifier {
+		  min-width: 170px;
+	  }
+	  &-account-name {
+		  min-width: 171px;
+	  }
+	  &-total {
+		  min-width: 130px;
+	  }
+	  &-cheque-receipt-number {
+		  min-width: 185px;
+	  }
+	  &-refund-status {
+		  min-width: 140px;
+	  }
+    &-action {
+		  min-width: 160px;
+      text-align: right;
+	  }
+	}
+
+  .sticky {
+    background-color: white;
+  }
+
+  .header-row-2 {
+    th > div {
+      width: 100%;
+    }
+    .date button{
+      padding: 6px 10px !important;
+      overflow: hidden;
+      white-space: nowrap;
+      width: 170px;
+      background-color: #f1f3f5 !important;
+    }
+    .placeholder {
+      font-weight: 400;
+      color: #919191;
+    }
+    .input-text {
+      font-weight: 400;
+      color: #212529;
+    }
+  }
+}
+
+.wide-dropdown {
+  width: 200px !important;
+}

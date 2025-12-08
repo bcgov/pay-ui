@@ -1,0 +1,60 @@
+steps:
+  - name: gcr.io/cloud-builders/gcloud
+    args:
+      - '-c'
+      - cp .env.example .env
+    dir: web/pay-ui
+    entrypoint: bash
+  - name: 'node:24'
+    env:
+      - NUXT_PUBLIC_LD_CLIENT_ID=$_NUXT_PUBLIC_LD_CLIENT_ID
+      - NUXT_PUBLIC_X_API_KEY=$_NUXT_PUBLIC_X_API_KEY
+      - NUXT_PUBLIC_ADDRESS_COMPLETE_KEY=$_NUXT_PUBLIC_ADDRESS_COMPLETE_KEY
+    script: |
+      #!/usr/bin/env bash
+      npm install --global pnpm
+      BUILD_FOLDER=web/pay-ui
+      pnpm --filter "./$BUILD_FOLDER" install
+      pnpm --filter "./$BUILD_FOLDER" build
+      mv $BUILD_FOLDER/dist ./dist
+      mv $BUILD_FOLDER/firebase.json .
+      ls
+  - name: us-docker.pkg.dev/firebase-cli/us/firebase
+    args:
+      - '-c'
+      - >-
+        firebase hosting:channel:deploy --project=yfthig-dev PR-$_PR_NUMBER >
+        /workspace/firebase-deploy.txt
+    entrypoint: bash
+  - name: gcr.io/cloud-builders/curl
+    args:
+      - '-c'
+      - >
+        # Read from "/workspace"
+
+        url=`cat /workspace/firebase-deploy.txt| grep 'Channel URL' | grep -Eo
+        "https://[a-zA-Z0-9./?=_%:-]*"`
+
+        echo "this is the body:"
+
+        echo '{"body": "Temporary Url for review:'"$url"'"}'
+
+        curl -X POST \
+
+        https://api.github.com/repos/bcgov/pay-ui/issues/$_PR_NUMBER/comments \
+
+        --header "Authorization: Token $$TOKEN" \
+
+        --header "Accept: application/vnd.github.v3+json" \
+
+        --data-binary '{"body": "Temporary Url for review: '"$url"'"}'
+    id: Update the PR
+    entrypoint: bash
+    secretEnv:
+      - TOKEN
+options:
+  dynamicSubstitutions: true
+availableSecrets:
+  secretManager:
+    - versionName: projects/$PROJECT_ID/secrets/token-pr-review/versions/latest
+      env: TOKEN

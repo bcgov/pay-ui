@@ -3,22 +3,14 @@
 # PAY-UI 
 ## About
 
-TBD.
+This UI interfaces with PAY-API and provides functionality including: Fee Account System (FAS), EFT (Electronic Funds Transfer) and Refund UI.
 
 ## Usage
 
 ### Local Development
 
-1. make sure you have the `.env` file, required contents can be found in `.env.production`
+1. make sure you have the `.env` file, required contents can be found in `.env.example`
 2. run docker
-
-## Deployment (OpenShift)
-
-TBD
-
-## Getting Help or Reporting an Issue
-
-To report bugs/issues/feature requests, please file an [issue](https://github.com/bcgov/bcrs-entities-create-ui/issues/).
 
 ## How to Contribute
 
@@ -26,10 +18,6 @@ If you would like to contribute, please see our [CONTRIBUTING](CONTRIBUTING.md) 
 
 Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). 
 By participating in this project you agree to abide by its terms.
-
-## Issues/Suggestions
-Make Suggestions/Issues [here!](https://github.com/bcgov/bcrs-entities-create-ui/issues/new)
-Issues are [markdown supported](https://guides.github.com/features/mastering-markdown/).
 
 ## License
 

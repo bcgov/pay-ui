@@ -1,5 +1,0 @@
-export { default as CreateRoutingSlip } from './CreateRoutingSlip.vue'
-export { default as CreateRoutingSlipDetails } from './CreateRoutingSlipDetails.vue'
-export { default as CreateRoutingSlipPayment } from './CreateRoutingSlipPayment.vue'
-export { default as CreateRoutingSlipChequePayment } from './CreateRoutingSlipChequePayment.vue'
-export { default as CreateRoutingSlipCashPayment } from './CreateRoutingSlipCashPayment.vue'
