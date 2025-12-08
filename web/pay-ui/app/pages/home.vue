@@ -7,6 +7,7 @@ const { t } = useI18n()
 definePageMeta({
   layout: 'connect-auth',
   middleware: ['connect-auth'],
+  allowedRoles: [Role.FAS_VIEW],
   hideBreadcrumbs: true
 })
 
