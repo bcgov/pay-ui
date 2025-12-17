@@ -14,7 +14,7 @@ exports[`RefundRequestForm.vue > matches snapshot 1`] = `
             <v-row-stub data-v-865fb562="" tag="div">
               <v-col-stub data-v-865fb562="" tag="div" class="col-6 col-sm-3 font-weight-bold"> Refund Type </v-col-stub>
               <v-col-stub data-v-865fb562="" tag="div" class="col-6 col-sm-9">
-                <v-radio-group-stub data-v-865fb562="" valuecomparator="[Function]" activeclass="v-item--active" tag="div" errorcount="1" errormessages="" messages="" rules="[Function]" successmessages="" backgroundcolor="" height="auto" hint="Partial Refunds not supported for payment method undefined invoices" persistenthint="true" column="true" class="ma-0">
+                <v-radio-group-stub data-v-865fb562="" valuecomparator="[Function]" activeclass="v-item--active" tag="div" errorcount="1" errormessages="" messages="" rules="[Function]" successmessages="" backgroundcolor="" height="auto" hint="Partial Refunds not supported for payment method undefined invoices or is not paid." persistenthint="true" column="true" class="ma-0">
                   <v-radio-stub data-v-865fb562="" ripple="true" label="Full Refund" officon="$radioOff" onicon="$radioOn" value="Full Refund"></v-radio-stub>
                   <v-radio-stub data-v-865fb562="" ripple="true" disabled="true" label="Partial Refund" officon="$radioOff" onicon="$radioOn" value="Partial Refund"></v-radio-stub>
                 </v-radio-group-stub>
