@@ -41,7 +41,7 @@
       noDataText="No refund request pending"
       :setItems="items"
       :setHeaders="headers"
-      :setTableDataOptions="options"
+      :setTableDataOptions="tableDataOptions"
       :totalItems="total"
       :filters="filters"
       :updateFilter="updateFilter"
@@ -111,19 +111,18 @@
 </template>
 <script lang="ts">
 import {
-  RefundStatus, RouteNames,
-  SessionStorageKeys
+  RefundStatus, RouteNames
 } from '@/util/constants'
 import { defineComponent, onMounted, reactive, ref, toRefs, watch } from '@vue/composition-api'
 import { BaseVDataTable, DatePicker } from '../datatable'
 import CommonUtils from '@/util/common-util'
-import ConfigHelper from '@/util/config-helper'
 import { DEFAULT_DATA_OPTIONS } from '../datatable/resources/index'
 import _ from 'lodash'
 import { useRefundRequestTable } from '@/composables/refund/refund-request-table-factory'
 import { RefundRequestState } from '@/models/refund-request'
 import { getPaymentTypeDisplayName, PaymentMethodSelectItems } from '@/util/payment-type-display'
 import moment from 'moment-timezone'
+import { DataOptions } from 'vuetify'
 
 export default defineComponent({
   name: 'RefundRequestsTable',
@@ -147,7 +146,7 @@ export default defineComponent({
       },
       loading: false,
       actionDropdown: [],
-      options: _.cloneDeep(DEFAULT_DATA_OPTIONS),
+      tableDataOptions: _.cloneDeep(DEFAULT_DATA_OPTIONS),
       clearFiltersTrigger: 0,
       dateRangeReset: 0,
       showDatePicker: false,
@@ -301,9 +300,15 @@ export default defineComponent({
       await loadData()
     })
 
-    watch(() => state.filters, (filters: any) => {
-      ConfigHelper.addToSession(SessionStorageKeys.LinkedShortNamesFilter, JSON.stringify(filters.filterPayload))
-    }, { deep: true })
+    watch(() => state.tableDataOptions, (val: DataOptions) => {
+      const newPage = val?.page || DEFAULT_DATA_OPTIONS.page
+      const newLimit = val?.itemsPerPage || DEFAULT_DATA_OPTIONS.itemsPerPage
+      if (state.filters.pageNumber !== newPage || state.filters.pageLimit !== newLimit) {
+        state.filters.pageNumber = val?.page || DEFAULT_DATA_OPTIONS.page
+        state.filters.pageLimit = val?.itemsPerPage || DEFAULT_DATA_OPTIONS.itemsPerPage
+        loadTableData()
+      }
+    })
 
     return {
       ...toRefs(state),
