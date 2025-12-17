@@ -177,22 +177,6 @@ export default class CommonUtils {
     return KeyCloakService.verifyRoles(validRoles, [])
   }
 
-  static hasProductRefundViewer () {
-    const validRoles:any = [Role.ProductRefundViewer, Role]
-    return KeyCloakService.verifyRoles(validRoles, [])
-  }
-
-  static hasProductRefundRequester () {
-    const validRoles:any = [Role.ProductRefundRequester, Role]
-    return KeyCloakService.verifyRoles(validRoles, [])
-  }
-
-  static hasProductRefundApprover () {
-    const validRoles:any = [Role.ProductRefundApprover, Role]
-    const hasRoles = KeyCloakService.verifyRoles(validRoles, [])
-    return hasRoles
-  }
-
   static getProductsFromRolePattern (rolePattern: string): string[] {
     const roles = KeyCloakService.getUserInfo()?.roles || []
     const products = roles.filter(role => role.endsWith(rolePattern))
