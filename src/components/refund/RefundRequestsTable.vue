@@ -175,12 +175,20 @@ export default defineComponent({
 
     const headers = [
       createHeader(
+        'invoiceId',
+        'Transaction ID',
+        'text',
+        'Transaction ID',
+        true,
+        '180px'
+      ),
+      createHeader(
         'requestedBy',
         'Requested By',
         'text',
         'Requested By',
         true,
-        '180px'
+        '120px'
       ),
       createHeader(
         'requestedDate',
