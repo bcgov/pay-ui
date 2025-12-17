@@ -26,11 +26,25 @@
       ></ErrorAlertComponent>
 
     </div>
+    <!-- Global Snackbar -->
+    <v-snackbar
+      id="global-snackbar"
+      v-model="appStore.snackbar.show"
+      :timeout="appStore.snackbar.timeout"
+      :color="appStore.snackbar.color"
+      :bottom="true"
+      transition="fade"
+      class="mb-lg-16"
+    >
+      {{ appStore.snackbar.text }}
+    </v-snackbar>
     <!-- body content -->
     <div class="app-body">
       <!-- using v-show instead of v-if to persist state -->
       <LoaderComponent v-show="isThereActiveCalls"></LoaderComponent>
-      <router-view v-show="!isThereActiveCalls" />
+      <keep-alive :include="['TransactionTableView']">
+        <router-view v-show="!isThereActiveCalls" />
+      </keep-alive>
     </div>
     <SbcFooter :aboutText="aboutText" />
   </v-app>

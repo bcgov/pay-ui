@@ -1,7 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils'
 import Vuetify from 'vuetify'
 
-import PaymentDetails from '@/components/TransactionRefund/PaymentDetails.vue'
+import PaymentDetails from '@/components/TransactionView/PaymentDetails.vue'
 import CommonUtils from '@/util/common-util'
 import { PaymentData } from '@/models/transaction-refund'
 

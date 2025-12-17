@@ -375,8 +375,8 @@ export default defineComponent({
       state.showDatePicker = false
       state.dateRangeSelected = !!(endDate && startDate)
       if (!state.dateRangeSelected) { endDate = ''; startDate = '' }
-      const startDateString = getTimezoneDateString(startDate, 'start')
-      const endDateString = getTimezoneDateString(endDate, 'end')
+      const startDateString = CommonUtils.getTimezoneDateString(startDate, 'start')
+      const endDateString = CommonUtils.getTimezoneDateString(endDate, 'end')
       state.dateRangeText = state.dateRangeSelected ? setDateRangeText(startDateString, endDateString) : ''
       state.filters.filterPayload.paymentReceivedStartDate = startDateString
       state.filters.filterPayload.paymentReceivedEndDate = endDateString
@@ -386,17 +386,6 @@ export default defineComponent({
 
     async function clickDatePicker () {
       state.showDatePicker = true
-    }
-
-    function getTimezoneDateString (dateString: string, type: string): string {
-      const clientTimezone = moment.tz.guess()
-      if (type === 'start') {
-        return moment.tz(dateString, clientTimezone).startOf('day').toISOString()
-      } else if (type === 'end') {
-        return moment.tz(dateString, clientTimezone).endOf('day').toISOString()
-      } else {
-        return ''
-      }
     }
 
     async function clearFilters () {

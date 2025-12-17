@@ -3,7 +3,7 @@
  */
 
 import { Address, BaseAddressModel } from '@/models/Address'
-import { Role, SlipStatus } from '@/util/constants'
+import { Role, RolePattern, SlipStatus } from '@/util/constants'
 
 import KeyCloakService from 'sbc-common-components/src/services/keycloak.services'
 import moment from 'moment'
@@ -167,6 +167,23 @@ export default class CommonUtils {
     return KeyCloakService.verifyRoles(eftRefundRole, [])
   }
 
+  static canInitiateProductRefund (productRole: string) {
+    const validRoles:any = [Role.ProductRefundRequester, productRole]
+    return KeyCloakService.verifyRoles(validRoles, [])
+  }
+
+  static canApproveDeclineProductRefund (productRole: string) {
+    const validRoles:any = [Role.ProductRefundApprover, productRole]
+    return KeyCloakService.verifyRoles(validRoles, [])
+  }
+
+  static getProductsFromRolePattern (rolePattern: string): string[] {
+    const roles = KeyCloakService.getUserInfo()?.roles || []
+    const products = roles.filter(role => role.endsWith(rolePattern))
+      .map(role => role.slice(0, -rolePattern.length).toUpperCase())
+    return products.length > 0 ? products : []
+  }
+
   static getUserInfo () {
     return KeyCloakService.getUserInfo()
   }
@@ -277,11 +294,18 @@ export default class CommonUtils {
     return `${item?.accountId} ${item?.accountName}`
   }
 
-  static getRefundMethodText (refundMethods, refundMethodvalue: string) {
-    return refundMethods.find(m => m.value === refundMethodvalue)?.text
-  }
-
   static extractAndConvertStringToNumber (str: string) {
     return Number(str.replace(/\D/g, ''))
+  }
+
+  static getTimezoneDateString (dateString: string, type: string): string {
+    const clientTimezone = moment.tz.guess()
+    if (type === 'start') {
+      return moment.tz(dateString, clientTimezone).startOf('day').toISOString()
+    } else if (type === 'end') {
+      return moment.tz(dateString, clientTimezone).endOf('day').toISOString()
+    } else {
+      return ''
+    }
   }
 }

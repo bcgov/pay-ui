@@ -6,6 +6,7 @@ import { BaseTableHeaderI } from '@/components/datatable/interfaces'
 import CommonUtils from '@/util/common-util'
 import { Transaction } from '@/models/transaction'
 import moment from 'moment'
+import { PaymentMethodSelectItems } from '@/util/payment-type-display'
 
 export const TransactionTableHeaders: BaseTableHeaderI[] = [
   {
@@ -171,17 +172,7 @@ export const TransactionTableHeaders: BaseTableHeaderI[] = [
     col: 'paymentMethod',
     customFilter: {
       clearable: true,
-      items: [
-        { text: paymentTypeDisplay[PaymentTypes.BCOL], value: PaymentTypes.BCOL },
-        { text: paymentTypeDisplay[PaymentTypes.CREDIT_CARD], value: PaymentTypes.CREDIT_CARD },
-        { text: paymentTypeDisplay[PaymentTypes.DIRECT_PAY], value: PaymentTypes.DIRECT_PAY },
-        { text: paymentTypeDisplay[PaymentTypes.EJV], value: PaymentTypes.EJV },
-        { text: paymentTypeDisplay[PaymentTypes.ONLINE_BANKING], value: PaymentTypes.ONLINE_BANKING },
-        { text: paymentTypeDisplay[PaymentTypes.PAD], value: PaymentTypes.PAD },
-        { text: paymentTypeDisplay[PaymentTypes.CREDIT], value: PaymentTypes.CREDIT },
-        { text: paymentTypeDisplay[PaymentTypes.INTERNAL], value: PaymentTypes.INTERNAL },
-        { text: paymentTypeDisplay[PaymentTypes.NO_FEE], value: PaymentTypes.NO_FEE }
-      ],
+      items: PaymentMethodSelectItems,
       label: 'Payment Method',
       type: 'select',
       value: ''
@@ -248,8 +239,10 @@ export const TransactionTableHeaders: BaseTableHeaderI[] = [
     col: 'actions',
     hasFilter: false,
     minWidth: '200px',
-    value: '',
-    width: '200px'
+    value: 'Actions',
+    width: '200px',
+    class: 'fixed-action-column',
+    itemClass: 'fixed-action-column'
   },
   {
     col: 'downloads',

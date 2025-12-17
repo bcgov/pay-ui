@@ -50,6 +50,9 @@ export interface Invoice {
   statusCode?: string
   total?: number,
   details?: Detail[]
+  latestRefundId?: number
+  latestRefundStatus?: string
+  product?: string
 }
 
 export interface InvoiceList {

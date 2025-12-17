@@ -178,6 +178,24 @@
               v-if="item.updatedOn"
               v-html="displayDate(item.updatedOn)"
             />
+            <v-chip
+              v-if="item.latestRefundStatus === RefundStatus.PENDING_APPROVAL"
+              small
+              label
+              text-color="white"
+              class="primary pl-2 pr-2"
+            >
+              REFUND REQUEST
+            </v-chip>
+            <v-chip
+              v-if="item.latestRefundStatus === RefundStatus.DECLINED"
+              small
+              label
+              text-color="white"
+              class="primary pl-2 pr-2"
+            >
+              REFUND DECLINED
+            </v-chip>
           </v-col>
           <v-col
             class="pl-1"
@@ -210,34 +228,55 @@
           </span>
         </div>
       </template>
-      <!-- Item Actions -->
-      <template #item-slot-actions="{ item }">
-        <div class="actions">
-          <span class="open-action">
-            <v-btn
-              color="primary"
-              class="open-action-btn rounded-r-0"
-              @click="goToPage(item)"
-            >
-              {{ item.statusCode === InvoiceStatus.COMPLETED ? 'Initiate Refund' : 'View Detail' }}
-            </v-btn>
-          </span>
-          <!-- More Actions Menu -->
-          <span>
+
+      <template #item-slot-actions="{ item, index }">
+        <div
+          :id="`action-menu-${index}`"
+          class="new-actions mx-auto"
+        >
+          <v-btn
+            small
+            color="primary"
+            min-width="5rem"
+            min-height="2rem"
+            class="open-action-btn"
+            :class="isRefundable(item) ? 'open-action-btn' : 'single-action-btn'"
+            @click="viewDetails(index)"
+          >
+            View Details
+          </v-btn>
+          <span class="more-actions"
+            v-if="isRefundable(item)"
+          >
             <v-menu
-              v-model="dropdown[item.id]"
+              v-model="actionDropdown[index]"
+              :attach="`#action-menu-${index}`"
               offset-y
-              nudge-left="158"
+              nudge-left="110"
+              @input="handleMenuToggle(index, $event)"
             >
               <template #activator="{ on }">
                 <v-btn
+                  small
                   color="primary"
-                  class="more-actions-btn rounded-l-0"
+                  min-height="2rem"
+                  class="more-actions-btn"
                   v-on="on"
                 >
-                  <v-icon>mdi-menu-down</v-icon>
+                  <v-icon>{{ actionDropdown[index] ? 'mdi-menu-up' : 'mdi-menu-down' }}</v-icon>
                 </v-btn>
               </template>
+              <v-list>
+                <v-list-item
+                  class="actions-dropdown_item"
+                >
+                  <v-list-item-subtitle
+                    @click="initiateRefund(item)"
+                  >
+                    <span class="pl-1 cursor-pointer">Initiate Refund</span>
+                  </v-list-item-subtitle>
+                </v-list-item>
+              </v-list>
             </v-menu>
           </span>
         </div>
@@ -355,8 +394,15 @@
 <script lang="ts">
 import { BaseVDataTable, DatePicker } from '@/components/datatable'
 import IconTooltip from '@/components/common/IconTooltip.vue'
-import { InvoiceStatus, PaymentTypes, SessionStorageKeys } from '@/util/constants'
-import { Ref, computed, defineComponent, nextTick, reactive, ref, toRefs, watch } from '@vue/composition-api'
+import {
+  InvoiceStatus,
+  PaymentTypes,
+  RefundStatus,
+  RolePattern,
+  RouteNames,
+  SessionStorageKeys
+} from '@/util/constants'
+import { Ref, computed, defineComponent, onActivated, nextTick, reactive, ref, toRefs, watch } from '@vue/composition-api'
 import { paymentTypeDisplay } from '@/resources/display-mappers/payment-type-display'
 import { invoiceStatusDisplay } from '@/resources/display-mappers/invoice-status-display'
 import { BaseTableHeaderI } from '@/components/datatable/interfaces'
@@ -382,7 +428,7 @@ export default defineComponent({
     // refs
     const state = reactive({
       expandedRows: [] as number[],
-      dropdown: [] as Array<boolean>
+      actionDropdown: []
     })
     const datePicker = ref<any>(null)
     // composables
@@ -390,6 +436,13 @@ export default defineComponent({
     setViewAll(props.extended)
 
     const getHeaders = computed(() => props.headers)
+
+    onActivated(() => {
+      // Check if we need to refresh data
+      if (transactions.filters.isActive) {
+        loadTransactionList()
+      }
+    })
 
     const isColumnVisible = (columnName: string): boolean => {
       return props.headers.some(header => header.col === columnName)
@@ -493,6 +546,14 @@ export default defineComponent({
         return item.partialRefunds.some(refund => refund.isCredit)
       }
       return item.statusCode === InvoiceStatus.CREDITED
+    }
+
+    const isRefundable = (item: Transaction) => {
+      if (!item.latestRefundStatus || RefundStatus.DECLINED === item.latestRefundStatus) {
+        return (item.partialRefundable || item.fullRefundable) && item.total > 0 &&
+          CommonUtils.canInitiateProductRefund(item.product?.toLowerCase() + RolePattern.ProductRefundRequester)
+      }
+      return false
     }
 
     const getAppliedCreditsItems = (item: Transaction) => {
@@ -679,8 +740,38 @@ export default defineComponent({
       return ''
     })
 
-    const goToPage = (item: Transaction) => {
-      root.$router.push('/transaction-refund/' + item.id)
+    function viewDetails (index) {
+      root.$router?.push({
+        name: RouteNames.TRANSACTION_VIEW,
+        params: {
+          invoiceId: transactions.results[index].id?.toString(),
+          mode: 'view'
+        }
+      })
+    }
+
+    function initiateRefund (item) {
+      root.$router?.push({
+        name: RouteNames.TRANSACTION_VIEW,
+        params: {
+          invoiceId: item.id?.toString(),
+          mode: 'initiateRefund'
+        }
+      })
+    }
+
+    const handleMenuToggle = (index: number, isOpen: boolean) => {
+      const menuContainer = document.getElementById(`action-menu-${index}`)
+      if (menuContainer) {
+        const tableRow = menuContainer.closest('tr')
+        if (tableRow) {
+          if (isOpen) {
+            tableRow.classList.add('menu-active-row')
+          } else {
+            tableRow.classList.remove('menu-active-row')
+          }
+        }
+      }
     }
 
     return {
@@ -716,13 +807,20 @@ export default defineComponent({
       getInvoiceStatus,
       datePickerValue,
       downloadReceipt,
-      goToPage
+      viewDetails,
+      initiateRefund,
+      handleMenuToggle,
+      RefundStatus,
+      isRefundable
     }
   }
 })
 </script>
 
 <style lang="scss" scoped>
+@import '$assets/scss/theme.scss';
+@import '$assets/scss/actions.scss';
+
 .receipt {
   cursor: pointer;
   color: var(--v-primary-base);
@@ -739,6 +837,11 @@ export default defineComponent({
 ::v-deep .transaction-list .v-data-table > .v-data-table__wrapper > table {
   table-layout: fixed;
   width: 100%;
+
+}
+
+::v-deep .v-data-table > .v-data-table__wrapper>table {
+  min-height: 215px;
 }
 
 ::v-deep .transaction-list .base-table__header__title,
@@ -826,9 +929,36 @@ export default defineComponent({
 }
 .open-action-btn {
   margin-right: 2px;
+  height: 44px !important;
 }
-.more-actions-btn {
-  width: 40px;
-  min-width: 40px !important;
+
+.single-action-btn {
+  border-radius: 4px !important;
 }
+
+.new-actions {
+  position: relative;
+  z-index: 10;
+  .more-actions-btn {
+    height: 44px !important
+  }
+}
+
+.actions-dropdown_item {
+  color: $app-blue !important;
+  &:hover {
+    background-color: $gray1 !important;
+  }
+}
+
+.v-menu__content {
+  max-width: 100%;
+  width: 160px;
+}
+
+::v-deep .menu-active-row {
+  z-index: 10 !important;
+  position: relative;
+}
+
 </style>

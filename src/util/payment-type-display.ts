@@ -18,3 +18,16 @@ export const paymentTypeDisplay = {
 export const getPaymentTypeDisplayName = (paymentType: string): string => {
   return paymentTypeDisplay[paymentType as PaymentTypes] || paymentType
 }
+
+export const PaymentMethodSelectItems = [
+  { text: paymentTypeDisplay[PaymentTypes.BCOL], value: PaymentTypes.BCOL },
+  { text: paymentTypeDisplay[PaymentTypes.CREDIT_CARD], value: PaymentTypes.CREDIT_CARD },
+  { text: paymentTypeDisplay[PaymentTypes.DIRECT_PAY], value: PaymentTypes.DIRECT_PAY },
+  { text: paymentTypeDisplay[PaymentTypes.EFT], value: PaymentTypes.EFT },
+  { text: paymentTypeDisplay[PaymentTypes.EJV], value: PaymentTypes.EJV },
+  { text: paymentTypeDisplay[PaymentTypes.ONLINE_BANKING], value: PaymentTypes.ONLINE_BANKING },
+  { text: paymentTypeDisplay[PaymentTypes.PAD], value: PaymentTypes.PAD },
+  { text: paymentTypeDisplay[PaymentTypes.CREDIT], value: PaymentTypes.CREDIT },
+  { text: paymentTypeDisplay[PaymentTypes.INTERNAL], value: PaymentTypes.INTERNAL },
+  { text: paymentTypeDisplay[PaymentTypes.NO_FEE], value: PaymentTypes.NO_FEE }
+]

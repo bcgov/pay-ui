@@ -46,6 +46,10 @@ export interface Transaction {
   refundDate?: string
   appliedCredits?: AppliedCredit[]
   partialRefunds?: PartialRefund[]
+  partialRefundable?: boolean
+  fullRefundable?: boolean
+  latestRefundId?: number
+  latestRefundStatus?: string
 }
 
 export interface TransactionFilter {

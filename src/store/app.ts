@@ -23,8 +23,21 @@ export const useAppStore = defineStore('app', () => {
   const state = reactive({
     errorMessage: '',
     refreshKey: 0,
-    loading: true
+    loading: true,
+    snackbar: {
+      show: false,
+      text: '',
+      color: undefined,
+      timeout: 4000
+    }
   })
+
+  const showSnackbar = (text: string, color?: string, timeout?: number) => {
+    state.snackbar.text = text
+    state.snackbar.color = color
+    state.snackbar.timeout = timeout || 4000
+    state.snackbar.show = true
+  }
 
   function dismissError () {
     state.errorMessage = ''
@@ -43,6 +56,7 @@ export const useAppStore = defineStore('app', () => {
     updateHeader,
     loadComplete,
     ...toRefs(state),
-    dismissError
+    dismissError,
+    showSnackbar
   }
 })
