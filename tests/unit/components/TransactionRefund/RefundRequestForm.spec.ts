@@ -1,7 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils'
 import Vuetify from 'vuetify'
 
-import RefundRequestForm from '@/components/TransactionRefund/RefundRequestForm.vue'
+import RefundRequestForm from '@/components/TransactionView/RefundRequestForm.vue'
 import CommonUtils from '@/util/common-util'
 import { RefundType } from '@/models/transaction-refund'
 
@@ -45,7 +45,6 @@ describe('RefundRequestForm.vue', () => {
       propsData: {
         totalTransactionAmount: 2000,
         refundLineItems: [],
-        refundMethods: [{ text: 'Credit Card', value: 'credit-card' }],
         previousRefundedAmount: 0,
         isPartialRefundAllowed: true
       },
@@ -54,7 +53,7 @@ describe('RefundRequestForm.vue', () => {
 
     wrapper.vm.refundFormData.refundType = RefundType.FULL_REFUND
     await wrapper.vm.onRefundTypeChange()
-    wrapper.vm.refundFormData.refundMethod = 'credit-card'
+    wrapper.vm.refundFormData.refundMethod = 'Refund back to Credit Card'
     wrapper.vm.refundFormData.notificationEmail = 'test@example.com'
     wrapper.vm.refundFormData.reasonsForRefund = 'Reason'
     wrapper.vm.refundFormData.staffComment = 'Comment'
@@ -74,7 +73,6 @@ describe('RefundRequestForm.vue', () => {
       propsData: {
         totalTransactionAmount: 2000,
         refundLineItems: [],
-        refundMethods: [{ text: 'Credit Card', value: 'credit-card' }],
         previousRefundedAmount: 0,
         isPartialRefundAllowed: true
       },
@@ -82,7 +80,7 @@ describe('RefundRequestForm.vue', () => {
     })
 
     wrapper.vm.refundFormData.refundType = RefundType.FULL_REFUND
-    wrapper.vm.refundFormData.refundMethod = 'credit-card'
+    wrapper.vm.refundFormData.refundMethod = 'Refund back to Credit Card'
     wrapper.vm.refundFormData.notificationEmail = 'test@example.com'
     wrapper.vm.refundFormData.reasonsForRefund = 'Reason'
     wrapper.vm.refundFormData.staffComment = 'Comment'

@@ -1,18 +1,21 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils'
 import Vuetify from 'vuetify'
 import VueCompositionAPI from '@vue/composition-api'
-import TransactionRefundView from '@/views/TransactionRefundView.vue'
+import TransactionView from '@/views/TransactionView.vue'
 import { RefundRequestStage, RefundType } from '@/models/transaction-refund'
 import type { Invoice } from '@/models/Invoice'
 import CommonUtils from '@/util/common-util'
+import flushPromises from 'flush-promises'
 
 // Mocks for store methods so we can assert calls and control returns
 const getInvoiceMock = vi.fn()
+const getInvoiceRefundHistoryMock = vi.fn()
 const refundInvoiceMock = vi.fn()
 
 vi.mock('@/store/org', () => ({
   useOrgStore: () => ({
-    getInvoice: getInvoiceMock,
+    getInvoiceComposite: getInvoiceMock,
+    getInvoiceRefundHistory: getInvoiceRefundHistoryMock,
     refundInvoice: refundInvoiceMock
   })
 }))
@@ -25,7 +28,7 @@ describe('TransactionRefundView.vue', () => {
   const mockInvoice: Invoice = {
     id: 9876,
     createdOn: '2025-08-20T10:00:00Z',
-    createdBy: 'idir\nJane',
+    createdBy: 'idir\\Jane',
     paymentAccount: { accountName: 'Acme Corp' },
     folioNumber: 'FOL-123',
     paymentMethod: 'DIRECT_PAY',
@@ -49,31 +52,62 @@ describe('TransactionRefundView.vue', () => {
     ]
   }
 
+  const mockRefundHistory = {
+    items: [
+      {
+        decisionBy: 'decliner',
+        decisionDate: '2025-12-16T16:39:02.605956',
+        declineReason: 'declined',
+        invoiceId: 52305,
+        notificationEmail: 'user@example.com',
+        partialRefundLines: [],
+        paymentMethod: 'DIRECT_PAY',
+        refundAmount: 31.5,
+        refundId: 1,
+        refundMethod: 'Refund back to Credit Card',
+        refundReason: 'reason',
+        refundStatus: 'DECLINED',
+        refundType: 'INVOICE',
+        requestedBy: 'requester',
+        requestedDate: '2025-12-16T16:24:40.932171',
+        staffComment: 'comment',
+        transactionAmount: 31.5
+      }
+    ]
+  }
+
   beforeEach(() => {
     vi.resetModules()
     vi.clearAllMocks()
     getInvoiceMock.mockResolvedValue(mockInvoice)
+    getInvoiceRefundHistoryMock.mockResolvedValue(mockRefundHistory)
     refundInvoiceMock.mockResolvedValue({ refundAmount: 250 })
   })
 
   it('renders and loads invoice on mount', async () => {
-    const wrapper: any = shallowMount(TransactionRefundView, {
+    const invoiceId = 'INV-001'
+    const wrapper: any = shallowMount(TransactionView, {
       localVue,
       vuetify,
-      propsData: { invoiceId: 'INV-001' },
+      propsData: { invoiceId: invoiceId, mode: 'view' },
       directives: { can () {} }
     })
 
     await wrapper.vm.$nextTick()
-    await Promise.resolve()
+    await flushPromises()
 
     expect(getInvoiceMock).toHaveBeenCalled()
-    expect(getInvoiceMock).toHaveBeenCalledWith({ invoiceId: 'INV-001' })
-    expect(wrapper.text()).toContain('Transaction Refund')
+    expect(getInvoiceMock).toHaveBeenCalledWith(invoiceId)
+    expect(getInvoiceRefundHistoryMock).toHaveBeenCalled()
+    expect(getInvoiceRefundHistoryMock).toHaveBeenCalledWith(invoiceId)
+    expect(wrapper.text()).toContain('Transaction Information')
+    expect(wrapper.findComponent({ name: 'PaymentDetails' }).exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'TransactionDetails' }).exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'InvoiceRefundHistory' }).exists()).toBe(true)
   })
 
   it('moves to review stage when onProceedToReview is called', async () => {
-    const wrapper: any = shallowMount(TransactionRefundView, {
+    const wrapper: any = shallowMount(TransactionView, {
       localVue,
       vuetify,
       propsData: { invoiceId: 'INV-001' },
@@ -103,7 +137,7 @@ describe('TransactionRefundView.vue', () => {
   })
 
   it('builds refund payload for partial refunds (ignores service fees)', async () => {
-    const wrapper: any = shallowMount(TransactionRefundView, {
+    const wrapper: any = shallowMount(TransactionView, {
       localVue,
       vuetify,
       propsData: { invoiceId: 'INV-001' }
@@ -143,7 +177,7 @@ describe('TransactionRefundView.vue', () => {
   })
 
   it('calls refund endpoint', async () => {
-    const wrapper: any = shallowMount(TransactionRefundView, {
+    const wrapper: any = shallowMount(TransactionView, {
       localVue,
       vuetify,
       propsData: { invoiceId: 'INV-001' }

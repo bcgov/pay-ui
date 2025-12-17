@@ -16,6 +16,26 @@ export const useOrgStore = defineStore('org', () => {
     return response?.data || {}
   }
 
+  async function getInvoiceComposite (invoiceId) {
+    const response = await PaymentService.getInvoiceComposite(invoiceId)
+    return response?.data || {}
+  }
+
+  async function getInvoiceRefundHistory (invoiceId) {
+    const response = await PaymentService.getInvoiceRefundHistory(invoiceId)
+    return response?.data || {}
+  }
+
+  async function getRefundRequest (refundId) {
+    const response = await PaymentService.getRefundRequest(refundId)
+    return response?.data || {}
+  }
+
+  async function patchRefundRequest (invoiceId, refundId, refundPayload: any) {
+    const response = await PaymentService.patchRefundRequest(invoiceId, refundId, refundPayload)
+    return response?.data || {}
+  }
+
   async function refundInvoice (invoiceId, refundPayload: RefundRequest) {
     const response = await PaymentService.refundInvoice(invoiceId, refundPayload)
     return response?.data || {}
@@ -45,6 +65,10 @@ export const useOrgStore = defineStore('org', () => {
   return {
     ...toRefs(state),
     getInvoice,
+    getInvoiceComposite,
+    getInvoiceRefundHistory,
+    getRefundRequest,
+    patchRefundRequest,
     refundInvoice,
     getStatementsList,
     getStatementsSummary,

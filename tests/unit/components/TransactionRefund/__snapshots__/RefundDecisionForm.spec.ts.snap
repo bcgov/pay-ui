@@ -1,0 +1,68 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`RefundDecisionForm.vue > matches snapshot 1`] = `
+"<div data-v-6dc8a4d8="">
+  <v-card-stub data-v-6dc8a4d8="" loaderheight="4" tag="div" flat="true">
+    <v-card-title-stub data-v-6dc8a4d8="" tag="div" class="card-title">
+      <v-icon-stub data-v-6dc8a4d8="" color="link" class="pr-3"> mdi-file-document </v-icon-stub> Refund Request
+    </v-card-title-stub>
+    <v-card-text-stub data-v-6dc8a4d8="" tag="div" class="mt-5">
+      <v-row-stub data-v-6dc8a4d8="" tag="div" nogutters="true">
+        <v-col-stub data-v-6dc8a4d8="" tag="div" class="col-12 col-sm-12 ">
+          <v-row-stub data-v-6dc8a4d8="" tag="div">
+            <v-col-stub data-v-6dc8a4d8="" tag="div" class="col-6 col-sm-3 font-weight-bold"> Request Date </v-col-stub>
+            <v-col-stub data-v-6dc8a4d8="" tag="div" class="col-6 col-sm-9"> December 16, 2025 03:58 PM </v-col-stub>
+          </v-row-stub>
+          <v-row-stub data-v-6dc8a4d8="" tag="div">
+            <v-col-stub data-v-6dc8a4d8="" tag="div" class="col-6 col-sm-3 font-weight-bold"> Refund Type </v-col-stub>
+            <v-col-stub data-v-6dc8a4d8="" tag="div" class="col-6 col-sm-9"> Full Refund </v-col-stub>
+          </v-row-stub>
+          <!---->
+          <v-row-stub data-v-6dc8a4d8="" tag="div">
+            <v-col-stub data-v-6dc8a4d8="" tag="div" class="col-6 col-sm-3 font-weight-bold"> Total Refund Amount </v-col-stub>
+            <v-col-stub data-v-6dc8a4d8="" tag="div" class="col-6 col-sm-9"> $31.50 </v-col-stub>
+          </v-row-stub>
+          <v-row-stub data-v-6dc8a4d8="" tag="div">
+            <v-col-stub data-v-6dc8a4d8="" tag="div" class="col-6 col-sm-3 font-weight-bold"> Refund Method </v-col-stub>
+            <v-col-stub data-v-6dc8a4d8="" tag="div" class="col-6 col-sm-9"> Refund back to Credit Card </v-col-stub>
+          </v-row-stub>
+          <v-divider-stub data-v-6dc8a4d8="" class="my-6"></v-divider-stub>
+          <v-row-stub data-v-6dc8a4d8="" tag="div">
+            <v-col-stub data-v-6dc8a4d8="" tag="div" class="col-6 col-sm-3 font-weight-bold"> Notification Email </v-col-stub>
+            <v-col-stub data-v-6dc8a4d8="" tag="div" class="col-6 col-sm-9"> test@example.com </v-col-stub>
+          </v-row-stub>
+          <v-row-stub data-v-6dc8a4d8="" tag="div">
+            <v-col-stub data-v-6dc8a4d8="" tag="div" class="col-6 col-sm-3 font-weight-bold"> Reason for Refund </v-col-stub>
+            <v-col-stub data-v-6dc8a4d8="" tag="div" class="col-6 col-sm-9"> test reason </v-col-stub>
+          </v-row-stub>
+          <v-row-stub data-v-6dc8a4d8="" tag="div">
+            <v-col-stub data-v-6dc8a4d8="" tag="div" class="col-6 col-sm-3 font-weight-bold"> Staff Comment </v-col-stub>
+            <v-col-stub data-v-6dc8a4d8="" tag="div" class="col-6 col-sm-9"> staff comment </v-col-stub>
+          </v-row-stub>
+          <v-row-stub data-v-6dc8a4d8="" tag="div">
+            <v-col-stub data-v-6dc8a4d8="" tag="div" class="col-6 col-sm-3 font-weight-bold"> Requested By </v-col-stub>
+            <v-col-stub data-v-6dc8a4d8="" tag="div" class="col-6 col-sm-9"> requester, December 16, 2025 3:58 PM Pacific Time </v-col-stub>
+          </v-row-stub>
+          <!---->
+          <!---->
+          <v-row-stub data-v-6dc8a4d8="" tag="div">
+            <v-col-stub data-v-6dc8a4d8="" tag="div" class="col-6 col-sm-3 font-weight-bold"> Refund Status </v-col-stub>
+            <v-col-stub data-v-6dc8a4d8="" tag="div" class="col-6 col-sm-9">
+              <v-chip-stub data-v-6dc8a4d8="" small="true" activeclass="" tag="span" active="true" closeicon="$delete" closelabel="$vuetify.close" filtericon="$complete" label="true" textcolor="white" class="primary pl-2 pr-2 font-weight-bold"> PENDING APPROVAL </v-chip-stub>
+            </v-col-stub>
+          </v-row-stub>
+        </v-col-stub>
+      </v-row-stub>
+      <!---->
+    </v-card-text-stub>
+  </v-card-stub>
+  <modaldialog-stub data-v-6dc8a4d8="" title="Decline Refund Request?" text="" showactions="true" dialogclass="decline-dialog" maxwidth="720" showcloseicon="true" icon="mdi-check" iconcolor="primary">
+    <p data-v-6dc8a4d8="" class="pt-4"> By declining the request, an email will be sent to the requestor including the reason entered below: </p>
+    <v-text-field-stub data-v-6dc8a4d8="" errorcount="1" errormessages="" messages="" rules="[Function]" successmessages="" value="" backgroundcolor="" label="Reasons for declining" persistenthint="true" loaderheight="2" clearicon="$clear" filled="true" type="text" required=""></v-text-field-stub>
+    <div data-v-6dc8a4d8="" class="d-flex align-center justify-center w-100 h-100 ga-3">
+      <v-btn-stub data-v-6dc8a4d8="" color="primary" outlined="true" tag="button" activeclass="" large="true" depressed="true" type="button" data-test="btn-cancel-decline-dialog" class="mr-3"> Cancel </v-btn-stub>
+      <v-btn-stub data-v-6dc8a4d8="" color="primary" tag="button" activeclass="" disabled="true" large="true" depressed="true" type="button" data-test="btn-confirm-decline-dialog" class="font-weight-bold btn-dialog"> Decline </v-btn-stub>
+    </div>
+  </modaldialog-stub>
+</div>"
+`;

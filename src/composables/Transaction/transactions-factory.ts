@@ -32,7 +32,8 @@ export const useTransactions = () => {
   const setViewAll = (val: boolean) => {
     if (val) {
       // check authorized
-      if (!currentUser.roles.includes(Role.ViewAllTransactions)) {
+      if (!currentUser.roles.includes(Role.ViewAllTransactions) &&
+        !currentUser.roles.includes(Role.ProductRefundViewer)) {
         // eslint-disable-next-line no-console
         console.error('User is not authorized to view all transactions.')
         return

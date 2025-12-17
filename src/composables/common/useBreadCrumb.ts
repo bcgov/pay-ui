@@ -34,8 +34,27 @@ export function useBreadCrumb (_, context) {
         return generateBreadcrumbForShortNameDetails(route)
       case RouteNames.SHORTNAME_REFUND:
         return generateBreadcrumbForShortNameRefund(route)
+      case RouteNames.TRANSACTION_VIEW:
+        return generateBreadcrumbForTransactionView(route)
       // We can add breadcrumbs for future components here
     }
+  }
+
+  function generateBreadcrumbForTransactionView (route: any): BreadcrumbItem[] {
+    const mode = route.params.mode
+    const invoiceId = route.params.invoiceId
+    return [
+      {
+        text: 'Transaction Records',
+        disabled: false,
+        to: '/transactions'
+      } as BreadcrumbItem,
+      {
+        text: ['initiateRefund', 'refund-request'].includes(mode) ? 'Transaction Refund' : 'Transaction Information',
+        disabled: true,
+        to: appendQueryParamsIfNeeded(`/transaction-view/${invoiceId}`, route)
+      } as BreadcrumbItem
+    ]
   }
 
   function generateBreadcrumbForHome (route: any): BreadcrumbItem[] {

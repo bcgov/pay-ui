@@ -33,7 +33,9 @@ export enum RouteNames {
   MANAGE_SHORTNAMES = 'manage-shortnames',
   SHORTNAME_DETAILS = 'shortnamedetails',
   SHORTNAME_REFUND = 'shortnamerefund',
-  SHORTNAME_REFUND_SELECTION= 'shortnamerefundselection'
+  SHORTNAME_REFUND_SELECTION = 'shortnamerefundselection',
+  TRANSACTION_VIEW = 'transaction-view',
+  TRANSACTION_LIST = 'transactions'
 }
 
 export enum DateFilterCodes {
@@ -105,7 +107,16 @@ export enum Role {
   EftRefundApprover = 'eft_refund_approver',
   CreateCredits = 'create_credits',
   FasRefund = 'fas_refund',
-  ViewAllTransactions = 'view_all_transactions'
+  ViewAllTransactions = 'view_all_transactions',
+  ProductRefundViewer = 'product_refund_viewer',
+  ProductRefundRequester = 'product_refund_requester',
+  ProductRefundApprover = 'product_refund_approver'
+}
+
+export enum RolePattern {
+  ProductViewTransaction = '_view_transactions',
+  ProductRefundRequester = '_refund_requester',
+  ProductRefundApprover = '_refund_approver'
 }
 
 export enum InvoiceStatus {
@@ -253,6 +264,23 @@ export enum ShortNameReversePaymentErrors {
   UNPAID_STATEMENT = 'EFT_PAYMENT_ACTION_UNPAID_STATEMENT',
   UNPAID_STATEMENT_INVOICE = 'EFT_PAYMENT_INVOICE_REVERSE_UNEXPECTED_STATUS',
   EXCEEDS_SIXTY_DAYS = 'EFT_PAYMENT_ACTION_REVERSAL_EXCEEDS_SIXTY_DAYS'
+}
+
+export enum RefundStatus {
+  APPROVED = 'APPROVED',
+  PENDING_APPROVAL = 'PENDING_APPROVAL',
+  DECLINED = 'DECLINED',
+  APPROVAL_NOT_REQUIRED = 'APPROVAL_NOT_REQUIRED'
+}
+
+export enum PaymentTypeToRefundMethodMap {
+  DRAWDOWN = 'Refund back to BCOL Account',
+  DIRECT_PAY = 'Refund back to Credit Card',
+  EFT = 'Refund back to Short Name',
+  INTERNAL = 'Refund back to Routing Slip',
+  ONLINE_BANKING = 'Refund as Account Credits',
+  PAD = 'Refund as Account Credits',
+  EJV = 'EJV Refund'
 }
 
 export enum EFTRefundStatus {

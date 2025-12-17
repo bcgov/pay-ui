@@ -142,19 +142,8 @@
                 <v-col class="col-6 col-sm-3 font-weight-bold">
                   Refund Method
                 </v-col>
-                <v-col v-if="refundMethods?.length == 1" class="col-6 col-sm-9">
-                  {{ getRefundMethodText(refundMethods, refundFormData.refundMethod) }}
-                </v-col>
-                <v-col v-else class="col-6 col-sm-9">
-                  <v-select
-                    :items="refundMethods"
-                    filled
-                    required
-                    v-model="refundFormData.refundMethod"
-                    :rules="formRules.refundMethod"
-                    :disabled="formDisabled"
-                    placeholder="Select a Refund Method"
-                  ></v-select>
+                <v-col class="col-6 col-sm-9">
+                  {{ refundFormData.refundMethod }}
                 </v-col>
               </v-row>
               <v-row>
@@ -243,6 +232,7 @@ import { defineComponent, reactive, toRefs, watch, PropType, nextTick, computed 
 import CommonUtils from '@/util/common-util'
 import { RefundFormData, RefundType, RefundLineItem } from '@/models/transaction-refund'
 import moment from 'moment'
+import { PaymentTypeToRefundMethodMap } from '@/util/constants'
 
 export default defineComponent({
   name: 'RefundRequestForm',
@@ -253,11 +243,6 @@ export default defineComponent({
     },
     refundLineItems: {
       type: Array as PropType<RefundLineItem[]>,
-      required: true,
-      default: () => []
-    },
-    refundMethods: {
-      type: Array as PropType<{ text: string; value: string }[]>,
       required: true,
       default: () => []
     },
@@ -293,9 +278,6 @@ export default defineComponent({
         refundType: [
           (v: any) => !!v || 'Refund Type is required'
         ],
-        refundMethod: [
-          (v: any) => !!v || 'Refund Method is required'
-        ],
         notificationEmail: CommonUtils.emailRules(true),
         reasonsForRefund: [
           (v: any) => !!v || 'Reasons for Refund is required'
@@ -325,9 +307,9 @@ export default defineComponent({
       state.refundFormData.refundLineItems = JSON.parse(JSON.stringify(newData))
     }, { immediate: true, deep: true })
 
-    watch(() => props.refundMethods, (newData) => {
-      if (newData?.length === 1) {
-        state.refundFormData.refundMethod = newData[0].value
+    watch(() => props.invoicePaymentMethod, (newData) => {
+      if (newData) {
+        state.refundFormData.refundMethod = PaymentTypeToRefundMethodMap[props.invoicePaymentMethod]
       }
     }, { immediate: true })
 
@@ -390,8 +372,7 @@ export default defineComponent({
       onCancel,
       calculateTotalRequestedAmount,
       onRefundTypeChange,
-      formatAmount: CommonUtils.formatAmount,
-      getRefundMethodText: CommonUtils.getRefundMethodText
+      formatAmount: CommonUtils.formatAmount
     }
   }
 })

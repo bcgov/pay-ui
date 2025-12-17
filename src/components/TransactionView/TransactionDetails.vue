@@ -104,6 +104,9 @@
                       <th class="text-left">
                         Invoice Reference ID
                       </th>
+                      <th v-if="transactionData.routingSlip" class="text-left">
+                        Routing Slip Number
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -113,6 +116,9 @@
                       </td>
                       <td>
                         {{transactionData.invoiceReferenceId}}
+                      </td>
+                      <td v-if="transactionData.routingSlip" class="text-left">
+                        {{transactionData.routingSlip}}
                       </td>
                     </tr>
                   </tbody>

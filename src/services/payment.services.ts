@@ -12,6 +12,7 @@ import { AxiosPromise } from 'axios'
 import ConfigHelper from '@/util/config-helper'
 import { axios } from '@/util/http-util'
 import { Invoice } from '@/models/Invoice'
+import { RefundRequestFilterParams, RefundRequestListResponse, RefundRequestResult } from '@/models/refund-request'
 
 export default class PaymentService {
   static getTransactions (accountId: number, filterParams: TransactionFilterParams, viewAll = false): AxiosPromise<TransactionListResponse> {
@@ -160,6 +161,23 @@ export default class PaymentService {
     return axios.get(`${ConfigHelper.getPayAPIURL()}/payment-requests/${invoiceId}`, { headers: headers })
   }
 
+  static getInvoiceComposite (invoiceId: string): AxiosPromise<Invoice> {
+    return axios.get(`${ConfigHelper.getPayAPIURL()}/payment-requests/${invoiceId}/composite`)
+  }
+
+  static getInvoiceRefundHistory (invoiceId: string): AxiosPromise<RefundRequestListResponse> {
+    return axios.get(`${ConfigHelper.getPayAPIURL()}/refunds?invoiceId=${invoiceId}`)
+  }
+
+  static getRefundRequest (refundId: string): AxiosPromise<RefundRequestResult> {
+    return axios.get(`${ConfigHelper.getPayAPIURL()}/refunds/${refundId}`)
+  }
+
+  static patchRefundRequest (invoiceId: number, refundId: number, body: any): AxiosPromise<RefundRequestResult> {
+    const url = `${ConfigHelper.getPayAPIURL()}/payment-requests/${invoiceId}/refunds/${refundId}`
+    return axios.patch(url, body)
+  }
+
   static refundInvoice (invoiceId: string, refundPayload: RefundRequest): AxiosPromise<any> {
     const url = `${ConfigHelper.getPayAPIURL()}/payment-requests/${invoiceId}/refunds`
     return axios.post(url, refundPayload)
@@ -204,5 +222,18 @@ export default class PaymentService {
       filingDateTime: invoiceCreatedOn
     }
     return axios.post(url, body, { headers, responseType: 'blob' as 'json' })
+  }
+
+  static getRefundRequests (filterParams: RefundRequestFilterParams): AxiosPromise<any> {
+    const params = new URLSearchParams()
+    if (filterParams.pageNumber) {
+      params.append('page', filterParams.pageNumber.toString())
+    }
+    if (filterParams.pageLimit) {
+      params.append('limit', filterParams.pageLimit.toString())
+    }
+    this.appendFilterPayloadParams(params, filterParams)
+
+    return axios.get(`${ConfigHelper.getPayAPIURL()}/refunds?${params.toString()}`)
   }
 }

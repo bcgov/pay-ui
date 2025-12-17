@@ -7,6 +7,9 @@ export interface RefundRevenueType {
 export interface RefundRequest {
   reason: string
   refundRevenue?: RefundRevenueType[]
+  notificationEmail?: string
+  staffComment?: string
+  refundMethod?: string
 }
 
 export interface EftRefundBaseRequest {

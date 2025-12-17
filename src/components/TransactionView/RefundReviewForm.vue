@@ -17,6 +17,14 @@
           <v-col class="col-12 col-sm-12 ">
             <v-row>
               <v-col class="col-6 col-sm-3 font-weight-bold">
+                Request Date
+              </v-col>
+              <v-col class="col-6 col-sm-9">
+                {{ formatUtcToPacificDate(refundFormData.requestedDate, 'MMMM DD, YYYY hh:mm A') }}
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col class="col-6 col-sm-3 font-weight-bold">
                 Refund Type
               </v-col>
               <v-col class="col-6 col-sm-9">
@@ -67,7 +75,7 @@
                 Refund Method
               </v-col>
               <v-col class="col-6 col-sm-9">
-                {{ getRefundMethodText(refundMethods, refundFormData.refundMethod) }}
+                {{ refundFormData.refundMethod }}
               </v-col>
             </v-row>
             <v-divider class="my-6"></v-divider>
@@ -107,18 +115,6 @@
         </v-row>
       </v-card-text>
     </v-card>
-    <v-alert v-if="message?.show"
-        class="mt-4"
-        border="left"
-        dense
-        outlined
-        prominent
-        shaped
-        text
-        :type="message?.type"
-      >
-        {{ message?.text }}
-    </v-alert>
     <div class="d-flex justify-space-between flex-wrap">
       <v-btn
         large
@@ -131,11 +127,18 @@
       </v-btn>
       <v-btn
         large
+        :disabled="isProcessing"
         @click="onConfirmBtnClick()"
         color="primary"
         class="mt-10"
       >
-        <span>Submit Refund Request</span>
+        <span v-if="!isProcessing">Submit Refund Request</span>
+        <v-progress-circular
+          v-else
+          indeterminate
+          color="white"
+          size="24"
+        />
       </v-btn>
     </div>
   </div>
@@ -146,7 +149,6 @@ import { defineComponent, PropType } from '@vue/composition-api'
 import CommonUtils from '@/util/common-util'
 import { RefundType } from '@/models/transaction-refund'
 import type { RefundFormData } from '@/models/transaction-refund'
-import type { Message } from '@/models/message'
 
 export default defineComponent({
   name: 'RefundConfirmForm',
@@ -160,10 +162,9 @@ export default defineComponent({
       required: true,
       default: () => []
     },
-    message: {
-      type: Object as PropType<Message | null>,
-      required: false,
-      default: null
+    isProcessing: {
+      type: Boolean as PropType<boolean>,
+      required: true
     }
   },
   setup (props, { emit }) {
@@ -180,7 +181,6 @@ export default defineComponent({
       formatUtcToPacificDate: CommonUtils.formatUtcToPacificDate,
       onConfirmBtnClick,
       onBackBtnClick,
-      getRefundMethodText: CommonUtils.getRefundMethodText,
       RefundType
     }
   }

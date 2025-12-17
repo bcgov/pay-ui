@@ -20,6 +20,37 @@ export interface TransactionData {
   applicationType: string | null
   businessIdentifier: string | null
   applicationDetails: Detail[] | null
+  routingSlip: string | null
+  latestRefundId: number | null
+  latestRefundStatus: string | null
+}
+
+export interface PartialRefundLine {
+  paymentLineItemId: number | null
+  statutoryFeeAmount: number | null
+  futureEffectiveFeeAmount: number | null
+  priorityFeeAmount: number | null
+  serviceFeeAmount: number | null
+}
+
+export interface RefundRequest {
+  invoiceId: number | null
+  refundId: number | null
+  refundStatus: string | null
+  refundType: string | null
+  refundMethod: string | null
+  notificationEmail: string | null
+  refundReason: string | null
+  staffComment: string | null
+  requestedBy: string | null
+  requestedDate: string | null
+  declineReason: string | null
+  decisionBy: string | null
+  decisionDate: string | null
+  refundAmount: number | null
+  transactionAmount: number | null
+  paymentMethod: string | null
+  partialRefundLines: PartialRefundLine[] | null
 }
 
 export enum RefundType {
@@ -52,6 +83,8 @@ export interface RefundFormData {
   staffComment: string | null
   requestedBy: string | null
   requestedTime: string | null
+  decisionBy: string | null
+  decisionTime: string | null
 }
 
 export enum RefundRequestStage {

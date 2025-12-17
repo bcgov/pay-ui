@@ -12,8 +12,8 @@ import ShortNameRefundSelection from '@/components/eft/ShortNameRefundSelection.
 import ShortNameDetailsView from '@/components/eft/ShortNameDetailsView.vue'
 import ShortNameRefundView from '@/components/eft/ShortNameRefundView.vue'
 import RefundView from '@/views/pay/RefundView.vue'
-import TransactionRefundView from '@/views/TransactionRefundView.vue'
 import TransactionView from '@/views/TransactionView.vue'
+import TransactionTableView from '@/views/TransactionTableView.vue'
 
 const routes: Array<RouteConfig> = [
   { path: '/', name: 'root', redirect: 'home' },
@@ -141,24 +141,26 @@ const routes: Array<RouteConfig> = [
     }
   },
   {
-    path: '/transaction-refund/:invoiceId?',
-    name: 'transaction-refund',
-    component: TransactionRefundView,
+    path: '/transaction-view/:invoiceId/:mode?/:refundId?',
+    name: 'transaction-view',
+    component: TransactionView,
     props: (route) => ({
-      invoiceId: route.params.invoiceId
+      invoiceId: route.params.invoiceId,
+      mode: route.params.mode,
+      refundId: route.params.refundId
     }),
     meta: {
       requiresAuth: true,
-      allowedRoles: [Role.CreateCredits, Role.FasRefund]
+      allowedRoles: [Role.CreateCredits, Role.FasRefund, Role.ProductRefundViewer]
     }
   },
   {
     path: '/transactions',
     name: 'transactions',
-    component: TransactionView,
+    component: TransactionTableView,
     meta: {
       requiresAuth: true,
-      allowedRoles: [Role.ViewAllTransactions]
+      allowedRoles: [Role.ViewAllTransactions, Role.ProductRefundViewer]
     }
   }
 ]

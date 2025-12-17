@@ -1,45 +1,45 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`PaymentDetails.vue > matches snapshot 1`] = `
-"<v-card-stub data-v-6b5ebe65="" loaderheight="4" tag="div" flat="true">
-  <v-card-title-stub data-v-6b5ebe65="" tag="div" class="card-title">
-    <v-icon-stub data-v-6b5ebe65="" color="link" class="pr-3"> mdi-file-document </v-icon-stub> Payment Details
+"<v-card-stub data-v-401efed0="" loaderheight="4" tag="div" flat="true">
+  <v-card-title-stub data-v-401efed0="" tag="div" class="card-title">
+    <v-icon-stub data-v-401efed0="" color="link" class="pr-3"> mdi-file-document </v-icon-stub> Payment Details
   </v-card-title-stub>
-  <v-card-text-stub data-v-6b5ebe65="" tag="div" class="mt-5">
-    <v-row-stub data-v-6b5ebe65="" tag="div" nogutters="true">
-      <v-col-stub data-v-6b5ebe65="" tag="div" class="col-12 col-sm-12 ">
-        <v-row-stub data-v-6b5ebe65="" tag="div">
-          <v-col-stub data-v-6b5ebe65="" tag="div" class="col-6 col-sm-3 font-weight-bold"> Account Name </v-col-stub>
-          <v-col-stub data-v-6b5ebe65="" tag="div" class="col-6 col-sm-9"> Acme Corp </v-col-stub>
+  <v-card-text-stub data-v-401efed0="" tag="div" class="mt-5">
+    <v-row-stub data-v-401efed0="" tag="div" nogutters="true">
+      <v-col-stub data-v-401efed0="" tag="div" class="col-12 col-sm-12 ">
+        <v-row-stub data-v-401efed0="" tag="div">
+          <v-col-stub data-v-401efed0="" tag="div" class="col-6 col-sm-3 font-weight-bold"> Account Name </v-col-stub>
+          <v-col-stub data-v-401efed0="" tag="div" class="col-6 col-sm-9"> Acme Corp </v-col-stub>
         </v-row-stub>
-        <v-row-stub data-v-6b5ebe65="" tag="div">
-          <v-col-stub data-v-6b5ebe65="" tag="div" class="col-6 col-sm-3 font-weight-bold"> Folio Number </v-col-stub>
-          <v-col-stub data-v-6b5ebe65="" tag="div" class="col-6 col-sm-9"> FOLIO-123 </v-col-stub>
+        <v-row-stub data-v-401efed0="" tag="div">
+          <v-col-stub data-v-401efed0="" tag="div" class="col-6 col-sm-3 font-weight-bold"> Folio Number </v-col-stub>
+          <v-col-stub data-v-401efed0="" tag="div" class="col-6 col-sm-9"> FOLIO-123 </v-col-stub>
         </v-row-stub>
-        <v-row-stub data-v-6b5ebe65="" tag="div">
-          <v-col-stub data-v-6b5ebe65="" tag="div" class="col-6 col-sm-3 font-weight-bold"> Initiated By </v-col-stub>
-          <v-col-stub data-v-6b5ebe65="" tag="div" class="col-6 col-sm-9"> user@idir </v-col-stub>
+        <v-row-stub data-v-401efed0="" tag="div">
+          <v-col-stub data-v-401efed0="" tag="div" class="col-6 col-sm-3 font-weight-bold"> Initiated By </v-col-stub>
+          <v-col-stub data-v-401efed0="" tag="div" class="col-6 col-sm-9"> user@idir </v-col-stub>
         </v-row-stub>
-        <v-divider-stub data-v-6b5ebe65="" class="my-6"></v-divider-stub>
-        <v-row-stub data-v-6b5ebe65="" tag="div">
-          <v-col-stub data-v-6b5ebe65="" tag="div" class="col-6 col-sm-3 font-weight-bold"> Payment Info </v-col-stub>
-          <v-col-stub data-v-6b5ebe65="" tag="div" class="col-6 col-sm-9">
-            <v-row-stub data-v-6b5ebe65="" tag="div" nogutters="true">
-              <v-col-stub data-v-6b5ebe65="" tag="div" class="col-12 col-sm-6">
-                <div data-v-6b5ebe65="" class="font-weight-bold"> Payment Method </div>
-                <div data-v-6b5ebe65="" class="mt-2 mb-3"> Cheque </div>
+        <v-divider-stub data-v-401efed0="" class="my-6"></v-divider-stub>
+        <v-row-stub data-v-401efed0="" tag="div">
+          <v-col-stub data-v-401efed0="" tag="div" class="col-6 col-sm-3 font-weight-bold"> Payment Info </v-col-stub>
+          <v-col-stub data-v-401efed0="" tag="div" class="col-6 col-sm-9">
+            <v-row-stub data-v-401efed0="" tag="div" nogutters="true">
+              <v-col-stub data-v-401efed0="" tag="div" class="col-12 col-sm-6">
+                <div data-v-401efed0="" class="font-weight-bold"> Payment Method </div>
+                <div data-v-401efed0="" class="mt-2 mb-3"> Cheque </div>
               </v-col-stub>
-              <v-col-stub data-v-6b5ebe65="" tag="div" class="col-12 col-sm-6">
-                <div data-v-6b5ebe65="" class="font-weight-bold"> Status </div>
-                <div data-v-6b5ebe65="" class="mt-2 mb-3"> Completed </div>
+              <v-col-stub data-v-401efed0="" tag="div" class="col-12 col-sm-6">
+                <div data-v-401efed0="" class="font-weight-bold"> Status </div>
+                <div data-v-401efed0="" class="mt-2 mb-3"> Completed </div>
               </v-col-stub>
             </v-row-stub>
           </v-col-stub>
         </v-row-stub>
-        <v-divider-stub data-v-6b5ebe65="" class="mt-2 mb-6"></v-divider-stub>
-        <v-row-stub data-v-6b5ebe65="" tag="div">
-          <v-col-stub data-v-6b5ebe65="" tag="div" class="col-6 col-sm-3 font-weight-bold"> Total Amount </v-col-stub>
-          <v-col-stub data-v-6b5ebe65="" tag="div" class="col-6 col-sm-9"> $2,000.00 </v-col-stub>
+        <v-divider-stub data-v-401efed0="" class="mt-2 mb-6"></v-divider-stub>
+        <v-row-stub data-v-401efed0="" tag="div">
+          <v-col-stub data-v-401efed0="" tag="div" class="col-6 col-sm-3 font-weight-bold"> Total Amount </v-col-stub>
+          <v-col-stub data-v-401efed0="" tag="div" class="col-6 col-sm-9"> $2,000.00 </v-col-stub>
         </v-row-stub>
       </v-col-stub>
     </v-row-stub>
