@@ -39,7 +39,7 @@
                   <ol>
                     <li v-for="(lineItem, index) in refundRequestData.partialRefundLines" :key="index" class="pb-4">
                       <div>
-                        {{ lineItem.description }} ({{ formatAmount(lineItem.statutoryFeeAmount + lineItem.serviceFeeAmount + lineItem.priorityFeeAmount + lineItem.futureEffectiveFeeAmount) }})
+                        {{ getLineItemDisplayText(lineItem) }}
                       </div>
                       <div>
                         <div
@@ -327,6 +327,12 @@ export default defineComponent({
       return props.refundRequestData.refundStatus === RefundStatus.PENDING_APPROVAL && !sameUser
     }
 
+    function getLineItemDisplayText (lineItem: any) {
+      const totalAmount = lineItem.statutoryFeeAmount + lineItem.serviceFeeAmount +
+        lineItem.priorityFeeAmount + lineItem.futureEffectiveFeeAmount
+      return `${lineItem.description} (${CommonUtils.formatAmount(totalAmount)})`
+    }
+
     function getRefundStatusText (): string {
       switch (props.refundRequestData.refundStatus) {
         case RefundStatus.APPROVED:
@@ -366,7 +372,8 @@ export default defineComponent({
       showDecisionActions,
       isDeclineReasonValid,
       declineReasonRules,
-      canApproveOrDeclineRefund
+      canApproveOrDeclineRefund,
+      getLineItemDisplayText
     }
   }
 })
