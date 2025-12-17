@@ -52,6 +52,8 @@ export interface Invoice {
   details?: Detail[]
   latestRefundId?: number
   latestRefundStatus?: string
+  partialRefundable?: boolean
+  fullRefundable?: boolean
   product?: string
 }
 
