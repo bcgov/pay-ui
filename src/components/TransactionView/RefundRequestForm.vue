@@ -47,7 +47,7 @@
                     <v-radio
                       label="Full Refund"
                       :value="RefundType.FULL_REFUND"
-                      :disabled="formDisabled"
+                      :disabled="formDisabled || !isFullRefundAllowed"
                       @change="() => onRefundTypeChange()"
                     ></v-radio>
                     <v-radio
@@ -254,6 +254,10 @@ export default defineComponent({
       type: Boolean,
       required: false
     },
+    isFullRefundAllowed: {
+      type: Boolean,
+      required: false
+    },
     invoicePaymentMethod: {
       type: String,
       required: false
@@ -284,12 +288,12 @@ export default defineComponent({
         ]
       },
       formDisabled: computed(() => {
-        return props.previousRefundedAmount > 0
+        return props.previousRefundedAmount > 0 || (!props.isFullRefundAllowed && !props.isPartialRefundAllowed)
       }),
       refundTypeHint: computed(() => {
         return props.isPartialRefundAllowed
           ? ''
-          : `Partial Refunds not supported for payment method ${props.invoicePaymentMethod} invoices`
+          : `Partial Refunds not supported for payment method ${props.invoicePaymentMethod} invoices or is not paid.`
       })
     })
 

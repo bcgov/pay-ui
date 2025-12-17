@@ -23,7 +23,8 @@ describe('RefundRequestForm.vue', () => {
         refundLineItems: [],
         refundMethods: [],
         previousRefundedAmount: 0,
-        isPartialRefundAllowed: true
+        isPartialRefundAllowed: true,
+        isFullRefundAllowed: true
       },
       directives: { can () { } }
     })
@@ -46,7 +47,8 @@ describe('RefundRequestForm.vue', () => {
         totalTransactionAmount: 2000,
         refundLineItems: [],
         previousRefundedAmount: 0,
-        isPartialRefundAllowed: true
+        isPartialRefundAllowed: true,
+        isFullRefundAllowed: true
       },
       directives: { can () { } }
     })
@@ -74,7 +76,8 @@ describe('RefundRequestForm.vue', () => {
         totalTransactionAmount: 2000,
         refundLineItems: [],
         previousRefundedAmount: 0,
-        isPartialRefundAllowed: true
+        isPartialRefundAllowed: true,
+        isFullRefundAllowed: true
       },
       directives: { can () { } }
     })
@@ -99,7 +102,12 @@ describe('RefundRequestForm.vue', () => {
     const wrapper = shallowMount(RefundRequestForm, {
       localVue,
       vuetify,
-      propsData: { totalTransactionAmount: 2000 },
+      propsData: {
+        totalTransactionAmount: 2000,
+        previousRefundedAmount: 0,
+        isPartialRefundAllowed: false,
+        isFullRefundAllowed: true
+      },
       directives: { can () { } }
     })
     expect(wrapper.html()).toMatchSnapshot()

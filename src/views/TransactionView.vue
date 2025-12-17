@@ -28,7 +28,8 @@
                              :refund-line-items="refundLineItems"
                              :refund-methods="refundMethods"
                              :previous-refunded-amount="previousRefundedAmount"
-                             :is-partial-refund-allowed="isPartialRefundAllowed"
+                             :is-partial-refund-allowed="transactionData.partialRefundable"
+                             :is-full-refund-allowed="transactionData.fullRefundable"
                              :invoice-payment-method="invoicePaymentMethod"
                              @onCancel="onCancel"
                              @onProceedToReview="onProceedToReview"
@@ -70,7 +71,7 @@ import { Invoice, LineItem } from '@/models/Invoice'
 import { useOrgStore } from '@/store/org'
 import { getProductDisplayName } from '@/util/product-display'
 import { RefundRequest, RefundRevenueType } from '@/models/refund'
-import { InvoiceStatus, RefundStatus, RouteNames } from '@/util/constants'
+import { RefundStatus, RouteNames } from '@/util/constants'
 import InvoiceRefundHistory from '@/components/TransactionView/InvoiceRefundHistory.vue'
 import { RefundRequestListResponse, RefundRequestResult } from '@/models/refund-request'
 import { useAppStore } from '@/store/app'
@@ -124,7 +125,9 @@ export default defineComponent({
         applicationType: null,
         businessIdentifier: null,
         applicationDetails: null,
-        routingSlip: null
+        routingSlip: null,
+        partialRefundable: false,
+        fullRefundable: false
       } as TransactionData,
       refundHistoryData: [],
       refundRequestData: {
@@ -166,13 +169,6 @@ export default defineComponent({
       invoicePaymentMethod: null as string | null,
       invoiceProduct: null as string | null
     })
-
-    const paymentMethodCodesAllowedPartialRefunds = ['DIRECT_PAY', 'EFT', 'EJV', 'ONLINE_BANKING', 'PAD']
-    const isPartialRefundAllowed = computed(() =>
-      state.transactionData.invoiceStatusCode === InvoiceStatus.COMPLETED &&
-      state.paymentData.paymentMethod &&
-      paymentMethodCodesAllowedPartialRefunds.includes(state.paymentData.paymentMethod)
-    )
 
     const showRefundHistory = computed(() =>
       state.refundHistoryData.length > 0 && props.mode === 'view'
@@ -219,7 +215,7 @@ export default defineComponent({
     function setTransactionData (invoice: Invoice) {
       state.transactionData = {
         invoiceId: invoice.id,
-        transactionDate: invoice.createdOn, // ??is it utc, convert it to pacific, talk to ethan
+        transactionDate: invoice.createdOn,
         invoiceReferenceId: invoice.references?.find(f => f.statusCode === 'COMPLETED')?.invoiceNumber,
         transactionAmount: invoice.total || 0,
         applicationName: getProductDisplayName(invoice.corpTypeCode),
@@ -230,7 +226,9 @@ export default defineComponent({
         invoiceCreatedOn: invoice.createdOn,
         routingSlip: invoice.routingSlip,
         latestRefundId: invoice.latestRefundId,
-        latestRefundStatus: invoice.latestRefundStatus
+        latestRefundStatus: invoice.latestRefundStatus,
+        partialRefundable: invoice.partialRefundable,
+        fullRefundable: invoice.fullRefundable
       }
     }
 
@@ -419,7 +417,6 @@ export default defineComponent({
       getProductDisplayName,
       onDeclineRefund,
       onApproveRefund,
-      isPartialRefundAllowed,
       showRefundRequestForm,
       showRefundDecisionForm,
       showRefundHistory,

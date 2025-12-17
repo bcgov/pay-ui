@@ -345,6 +345,8 @@ export default defineComponent({
           return 'REQUEST DECLINED'
         case RefundStatus.PENDING_APPROVAL:
           return 'PENDING APPROVAL'
+        case RefundStatus.APPROVAL_NOT_REQUIRED:
+          return 'APPROVAL NOT REQUIRED'
       }
     }
 

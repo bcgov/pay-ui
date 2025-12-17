@@ -23,6 +23,8 @@ export interface TransactionData {
   routingSlip: string | null
   latestRefundId: number | null
   latestRefundStatus: string | null
+  partialRefundable: boolean
+  fullRefundable: boolean
 }
 
 export interface PartialRefundLine {

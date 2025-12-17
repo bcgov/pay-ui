@@ -840,8 +840,8 @@ export default defineComponent({
 
 }
 
-::v-deep .v-data-table > .v-data-table__wrapper>table {
-  min-height: 215px;
+::v-deep .transaction-list .v-data-table__wrapper {
+  min-height: 240px;
 }
 
 ::v-deep .transaction-list .base-table__header__title,

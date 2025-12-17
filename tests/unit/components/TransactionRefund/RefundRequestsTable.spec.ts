@@ -15,6 +15,7 @@ const vuetify = new Vuetify({})
 // Selectors
 const { header, headerTitles, itemRow, itemCell } = baseVdataTable
 const headers = [
+  'Transaction ID',
   'Requested By',
   'Request Date',
   'Reason for Refund',
@@ -90,13 +91,14 @@ describe('RefundRequestsTable.vue', () => {
     expect(itemRows.length).toBe(searchResponse.items.length)
     for (let i = 0; i < searchResponse.items.length; i++) {
       const columns = itemRows.at(i).findAll(itemCell)
-      expect(columns.at(0).text()).toBe(searchResponse.items[i].requestedBy)
-      expect(columns.at(1).text()).toBe(
+      expect(columns.at(0).text()).toBe(searchResponse.items[i].invoiceId.toString())
+      expect(columns.at(1).text()).toBe(searchResponse.items[i].requestedBy)
+      expect(columns.at(2).text()).toBe(
         CommonUtils.formatUtcToPacificDate(searchResponse.items[i].requestedDate, 'MMMM DD, YYYY'))
-      expect(columns.at(2).text()).toBe(searchResponse.items[i].refundReason)
-      expect(columns.at(3).text()).toBe(CommonUtils.formatAmount(searchResponse.items[i].transactionAmount))
-      expect(columns.at(4).text()).toBe(CommonUtils.formatAmount(searchResponse.items[i].refundAmount))
-      expect(columns.at(5).text()).toBe(getPaymentTypeDisplayName(searchResponse.items[i].paymentMethod))
+      expect(columns.at(3).text()).toBe(searchResponse.items[i].refundReason)
+      expect(columns.at(4).text()).toBe(CommonUtils.formatAmount(searchResponse.items[i].transactionAmount))
+      expect(columns.at(5).text()).toBe(CommonUtils.formatAmount(searchResponse.items[i].refundAmount))
+      expect(columns.at(6).text()).toBe(getPaymentTypeDisplayName(searchResponse.items[i].paymentMethod))
     }
   })
 })

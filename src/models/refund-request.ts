@@ -59,7 +59,7 @@ export interface RefundRequestState {
   loading: boolean
   filters: RefundRequestFilterParams
   actionDropdown: any[]
-  options: DataOptions
+  tableDataOptions: DataOptions
   clearFiltersTrigger: number
   showDatePicker: boolean
   dateRangeSelected: boolean
