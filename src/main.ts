@@ -57,7 +57,7 @@ async function syncSession () {
 
   // Initialize the token to force login the user
   if (!CommonUtils.isSigningIn() && !CommonUtils.isSigningOut()) {
-    await KeyCloakService.initializeToken(null, true).then(() => {}).catch(err => {
+    await KeyCloakService.initializeToken(true, true).then(() => {}).catch(err => {
       if (err?.message !== 'NOT_AUTHENTICATED') {
         throw err
       }
