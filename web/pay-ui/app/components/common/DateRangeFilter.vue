@@ -2,6 +2,7 @@
 import type { ButtonProps } from '@nuxt/ui'
 import type { CalendarDate } from '@internationalized/date'
 import { DateTime } from 'luxon'
+import CommonUtils from '@/utils/common-util'
 
 const { t } = useI18n()
 
@@ -82,6 +83,12 @@ function cancel() {
   open.value = false
 }
 
+function clearDateRange() {
+  model.value = { startDate: null, endDate: null }
+  localModel.value = resetRange()
+  emit('change', model.value)
+}
+
 function getFilterCodeForRange(range?: { start?: CalendarDate, end?: CalendarDate }): string | undefined {
   if (!range?.start || !range?.end) {
     return DATEFILTER_CODES.CUSTOMRANGE
@@ -125,7 +132,9 @@ const ranges = computed<ButtonProps[]>(() =>
 
 const triggerButtonLabel = computed(() => {
   if (model.value.startDate && model.value.endDate) {
-    return `${model.value.startDate} - ${model.value.endDate}`
+    const startDate = CommonUtils.formatDisplayDate(model.value.startDate, 'yyyy-MM-dd')
+    const endDate = CommonUtils.formatDisplayDate(model.value.endDate, 'yyyy-MM-dd')
+    return `${startDate} - ${endDate}`
   }
   return ''
 })
@@ -155,23 +164,34 @@ watch(model, () => {
     v-model:open="open"
     @update:open="syncLocalStateToVModel"
   >
-    <UButton
-      color="neutral"
-      variant="subtle"
-      trailing-icon="i-mdi-calendar"
-      :class="[
-        'focus:outline-none focus-visible:outline-none ring-transparent focus-visible:ring-none',
-        'focus-visible:shadow-input-focus ring-0 shadow-input rounded-b-none',
-        'date-range-filter-button',
-        open ? 'shadow-input-focus' : ''
-      ]"
-      :ui="{ trailingIcon: open ? 'text-primary' : '' }"
-    >
-      <template #default>
-        <span v-if="triggerButtonLabel">{{ triggerButtonLabel }}</span>
-        <span v-else class="date-range-placeholder">{{ props.placeholder || $t('label.date') }}</span>
-      </template>
-    </UButton>
+    <div class="relative flex items-center w-full">
+      <UButton
+        color="neutral"
+        variant="subtle"
+        trailing-icon="i-mdi-calendar"
+        :class="[
+          'focus:outline-none focus-visible:outline-none ring-transparent focus-visible:ring-none',
+          'focus-visible:shadow-input-focus ring-0 shadow-input rounded-b-none',
+          'date-range-filter-button flex-1',
+          open ? 'shadow-input-focus' : ''
+        ]"
+        :ui="{ trailingIcon: open ? 'text-primary' : '' }"
+      >
+        <template #default>
+          <span v-if="triggerButtonLabel" class="flex-1 text-left pr-8">{{ triggerButtonLabel }}</span>
+          <span v-else class="date-range-placeholder">{{ props.placeholder || $t('label.date') }}</span>
+        </template>
+      </UButton>
+      <button
+        v-if="model.startDate && model.endDate"
+        type="button"
+        class="absolute right-14 z-10 h-10 w-10 min-w-0 p-0 flex items-center justify-center text-primary focus:outline-none cursor-pointer"
+        style="pointer-events: auto;"
+        @click.stop="clearDateRange"
+      >
+        <UIcon name="i-mdi-close" class="h-6 w-6" />
+      </button>
+    </div>
 
     <template #content>
       <div class="flex divide-x-1 divide-gray-400">
