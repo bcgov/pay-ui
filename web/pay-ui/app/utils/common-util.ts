@@ -2,18 +2,28 @@ import type { Address, BaseAddressModel } from '~/interfaces/Address'
 import { DateTime } from 'luxon'
 
 function formatDisplayDate(
-  date: Date | string,
-  format: string = 'MMM dd, yyyy'
+  date: Date | string | null | undefined,
+  format: string | 'start' | 'end' = 'MMM dd, yyyy'
 ): string {
   if (!date) {
     return ''
   }
 
   const dateTime = typeof date === 'string'
-    ? DateTime.fromISO(date)
-    : DateTime.fromJSDate(date)
+    ? DateTime.fromISO(date, { zone: 'America/Vancouver' })
+    : DateTime.fromJSDate(date).setZone('America/Vancouver')
 
-  return dateTime.isValid ? dateTime.toFormat(format) : ''
+  if (!dateTime.isValid) {
+    return ''
+  }
+
+  if (format === 'start') {
+    return dateTime.startOf('day').toISO() || ''
+  } else if (format === 'end') {
+    return dateTime.endOf('day').toISO() || ''
+  } else {
+    return dateTime.toFormat(format)
+  }
 }
 
 // blob convert to downloadable file

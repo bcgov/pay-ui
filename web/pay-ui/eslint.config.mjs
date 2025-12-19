@@ -45,7 +45,8 @@ export default createConfigForNuxt({
     '@stylistic/indent': ['error', 2],
     '@stylistic/quotes': ['error', 'single', { avoidEscape: true }],
     '@stylistic/comma-dangle': ['error', 'never'],
-    '@stylistic/semi': ['error', 'never']
+    '@stylistic/semi': ['error', 'never'],
+    '@stylistic/max-statements-per-line': ['error', { max: 2 }]
   }
 }).prepend({
   ignores: [

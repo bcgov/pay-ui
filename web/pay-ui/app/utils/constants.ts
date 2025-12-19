@@ -1,21 +1,3 @@
-export enum SessionStorageKeys {
-  KeyCloakToken = 'KEYCLOAK_TOKEN',
-  ApiConfigKey = 'AUTH_API_CONFIG',
-  LaunchDarklyFlags = 'LD_FLAGS',
-  ExtraProvincialUser = 'EXTRAPROVINCIAL_USER',
-  SessionSynced = 'SESSION_SYNCED',
-  AuthApiUrl = 'AUTH_API_URL',
-  AuthWebUrl = 'AUTH_WEB_URL',
-  PayApiUrl = 'PAY_API_URL',
-  StatusApiUrl = 'STATUS_API_URL',
-  FasWebUrl = 'FAS_WEB_URL',
-  SiteminderLogoutUrl = 'SITEMINDER_LOGOUT_URL',
-  ShortNamesTabIndex = 'Short_Names_Tab_Index',
-  LinkedAccount = 'Linked_Account',
-  LinkedShortNamesFilter = 'Linked_Short_Names_Filter',
-  CurrentAccount = 'CURRENT_ACCOUNT'
-}
-
 export enum LDFlags {
   EnableDetailsFilter = 'enable-transactions-detail-filter',
   EnableEFTRefundByCheque = 'enable-eft-refund-by-cheque'
