@@ -249,4 +249,9 @@ watch(model, () => {
 .date-range-placeholder {
   font-size: 12.25px;
 }
+
+:deep(.date-range-filter-button) {
+  padding-left: 12px;
+  padding-right: 12px;
+}
 </style>
