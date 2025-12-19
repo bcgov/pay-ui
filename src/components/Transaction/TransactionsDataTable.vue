@@ -253,6 +253,7 @@
               :attach="`#action-menu-${index}`"
               offset-y
               nudge-left="110"
+              @input="handleMenuToggle(index, $event)"
             >
               <template #activator="{ on }">
                 <v-btn
@@ -759,6 +760,20 @@ export default defineComponent({
       })
     }
 
+    const handleMenuToggle = (index: number, isOpen: boolean) => {
+      const menuContainer = document.getElementById(`action-menu-${index}`)
+      if (menuContainer) {
+        const tableRow = menuContainer.closest('tr')
+        if (tableRow) {
+          if (isOpen) {
+            tableRow.classList.add('menu-active-row')
+          } else {
+            tableRow.classList.remove('menu-active-row')
+          }
+        }
+      }
+    }
+
     return {
       ...toRefs(state),
       InvoiceStatus,
@@ -794,6 +809,7 @@ export default defineComponent({
       downloadReceipt,
       viewDetails,
       initiateRefund,
+      handleMenuToggle,
       RefundStatus,
       isRefundable
     }
@@ -940,8 +956,14 @@ export default defineComponent({
   width: 160px;
 }
 
-::v-deep .transaction-list .new-actions {
+::v-deep .v-menu__content {
   z-index: 10 !important;
+  max-width: 100%;
+  width: 160px;
+}
+
+::v-deep .menu-active-row {
+  z-index: 5 !important;
   position: relative;
 }
 
