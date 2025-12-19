@@ -956,8 +956,14 @@ export default defineComponent({
   width: 160px;
 }
 
-::v-deep .menu-active-row {
+::v-deep .v-menu__content {
   z-index: 10 !important;
+  max-width: 100%;
+  width: 160px;
+}
+
+::v-deep .menu-active-row {
+  z-index: 5 !important;
   position: relative;
 }
 
