@@ -5,6 +5,14 @@ import { DateTime } from 'luxon'
 
 const { t } = useI18n()
 
+interface Props {
+  placeholder?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  placeholder: undefined
+})
+
 const emit = defineEmits<{ (e: 'change', value: { startDate: string | null, endDate: string | null }): void }>()
 
 // defineModel replaces modelValue & update:modelValue
@@ -154,13 +162,14 @@ watch(model, () => {
       :class="[
         'focus:outline-none focus-visible:outline-none ring-transparent focus-visible:ring-none',
         'focus-visible:shadow-input-focus ring-0 shadow-input rounded-b-none',
+        'date-range-filter-button',
         open ? 'shadow-input-focus' : ''
       ]"
       :ui="{ trailingIcon: open ? 'text-primary' : '' }"
     >
       <template #default>
         <span v-if="triggerButtonLabel">{{ triggerButtonLabel }}</span>
-        <span v-else>{{ $t('label.date') }}</span>
+        <span v-else class="date-range-placeholder">{{ props.placeholder || $t('label.date') }}</span>
       </template>
     </UButton>
 
@@ -201,7 +210,9 @@ watch(model, () => {
           />
           <div class="bg-line w-full h-[0.5px]" />
           <UCalendar
+            id="date-range-calendar"
             v-model="localModel"
+            name="date-range-calendar"
             class="p-2"
             range
             size="lg"
@@ -213,3 +224,9 @@ watch(model, () => {
     </template>
   </UPopover>
 </template>
+
+<style scoped>
+.date-range-placeholder {
+  font-size: 12.25px;
+}
+</style>

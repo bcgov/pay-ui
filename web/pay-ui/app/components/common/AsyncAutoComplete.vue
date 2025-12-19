@@ -5,6 +5,7 @@ import type { InputMenuItem } from '@nuxt/ui'
 <script setup lang="ts" generic="T extends InputMenuItem = InputMenuItem">
 const props = defineProps<{
   id: string
+  name?: string
   label: string
   queryFn: (searchTerm: string) => Promise<T[]>
 }>()
@@ -66,10 +67,12 @@ const { data: items, status } = await useAsyncData<T[]>(
       {{ label }}
     </span>
     <UInputMenu
+      v-bind="$attrs"
+      :id="id"
       v-model:search-term="searchTerm"
       v-model="selected"
       :open="open"
-      v-bind="$attrs"
+      :name="name || id"
       :items="items"
       :aria-labelledby="`${id}-label`"
       ignore-filter
