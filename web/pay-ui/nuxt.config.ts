@@ -34,6 +34,10 @@ export default defineNuxtConfig({
     {
       path: '~/components/common',
       pathPrefix: false
+    },
+    {
+      path: '~/components/eft',
+      pathPrefix: false
     }
   ],
 

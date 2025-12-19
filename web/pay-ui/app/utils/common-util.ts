@@ -235,7 +235,10 @@ function isDeepEqual(object1: Record<string, unknown>, object2: Record<string, u
 }
 
 // Format amount for displaying dollar currency
-function formatAmount(amount: number): string {
+function formatAmount(amount: number | undefined): string {
+  if (amount === undefined || amount === null) {
+    return '$0.00'
+  }
   return amount.toLocaleString('en-CA', {
     style: 'currency',
     currency: 'CAD',
