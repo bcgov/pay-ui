@@ -25,7 +25,6 @@ const formatDate = (dateString?: string): string => {
   const datePart = dateString.split('T')[0]
   return CommonUtils.formatDisplayDate(datePart as string, 'DDD')
 }
-
 </script>
 
 <template>

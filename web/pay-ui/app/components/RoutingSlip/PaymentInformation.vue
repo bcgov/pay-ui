@@ -28,7 +28,6 @@ const {
   navigateTo,
   hasPaymentChanges
 } = usePaymentInformation(emit)
-
 </script>
 
 <template>
