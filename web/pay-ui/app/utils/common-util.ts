@@ -286,6 +286,10 @@ function extractAndConvertStringToNumber(str: string) {
   return Number(str.replace(/\D/g, ''))
 }
 
+function getIndexedTag(tag: string, idx: number | undefined): string {
+  return `${tag}-${idx}`
+}
+
 export default {
   formatDisplayDate,
   fileDownload,
@@ -312,5 +316,6 @@ export default {
   extractAndConvertStringToNumber,
   isDeepEqual,
   isEditEnabledBystatus,
-  requiredFieldRule
+  requiredFieldRule,
+  getIndexedTag
 }

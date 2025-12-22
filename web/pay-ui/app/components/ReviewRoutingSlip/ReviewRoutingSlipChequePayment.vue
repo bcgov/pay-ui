@@ -26,9 +26,6 @@ const formatDate = (dateString?: string): string => {
   return CommonUtils.formatDisplayDate(datePart as string, 'DDD')
 }
 
-function getIndexedTag(tag: string, index: number) {
-  return `${tag}-${index}`
-}
 </script>
 
 <template>
@@ -43,7 +40,7 @@ function getIndexedTag(tag: string, index: number) {
         :model-value="payment.chequeReceiptNumber || ''"
         :label="$t('label.chequeNumber')"
         :disabled="!isEditable || isALinkedChild"
-        :data-test="getIndexedTag('txt-cheque-receipt-number', i)"
+        :data-test="CommonUtils.getIndexedTag('txt-cheque-receipt-number', i)"
         @update:model-value="(e) => adjustRoutingSlipChequeNumber(e, i)"
       />
 
@@ -52,7 +49,7 @@ function getIndexedTag(tag: string, index: number) {
         :model-value="payment.paymentDate ? formatDate(payment.paymentDate) : '-'"
         :label="$t('label.chequeDate')"
         disabled
-        :data-test="getIndexedTag('txt-cheque-date', i)"
+        :data-test="CommonUtils.getIndexedTag('txt-cheque-date', i)"
       />
 
       <ConnectInput
@@ -61,7 +58,7 @@ function getIndexedTag(tag: string, index: number) {
         :label="$t('label.amountCAD')"
         type="number"
         :disabled="!isEditable || isALinkedChild"
-        :data-test="getIndexedTag('txt-paid-amount', i)"
+        :data-test="CommonUtils.getIndexedTag('txt-paid-amount', i)"
         @update:model-value="(e) => adjustRoutingSlipAmount(Number(e), false, i)"
       />
 
@@ -72,7 +69,7 @@ function getIndexedTag(tag: string, index: number) {
         :label="$t('label.amountUSD')"
         type="number"
         :disabled="!isEditable || isALinkedChild"
-        :data-test="getIndexedTag('txt-paid-usd-amount', i)"
+        :data-test="CommonUtils.getIndexedTag('txt-paid-usd-amount', i)"
         @update:model-value="(e) => adjustRoutingSlipAmount(Number(e), true, i)"
       />
     </div>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { usePaymentInformation } from '~/composables/usePaymentInformation'
 import { PaymentTypes } from '~/enums/payment-types'
+import CommonUtils from '~/utils/common-util'
 
 const emit = defineEmits<{
   paymentAdjusted: []
@@ -28,9 +29,6 @@ const {
   hasPaymentChanges
 } = usePaymentInformation(emit)
 
-function getIndexedTag(tag: string, index: number) {
-  return `${tag}-${index}`
-}
 </script>
 
 <template>
@@ -111,14 +109,14 @@ function getIndexedTag(tag: string, index: number) {
               <NuxtLink
                 :to="navigateTo(routingSlip?.number || '', child.number || '')"
                 class="font-semibold text-primary"
-                :data-test="getIndexedTag('text-review-routing-slip', i)"
+                :data-test="CommonUtils.getIndexedTag('text-review-routing-slip', i)"
               >
                 {{ child.number }}
               </NuxtLink>
             </div>
             <ReviewRoutingSlipChequePayment
               v-if="child.payments && child.payments[0]?.paymentMethod === PaymentTypes.CHEQUE"
-              :data-test="getIndexedTag('cheque-child-payment', i)"
+              :data-test="CommonUtils.getIndexedTag('cheque-child-payment', i)"
               :cheque-payment="child.payments"
               :is-amount-paid-in-usd="!!(child.payments[0]?.paidUsdAmount && child.payments[0].paidUsdAmount > 0)"
               :is-editable="isEditable"
@@ -126,7 +124,7 @@ function getIndexedTag(tag: string, index: number) {
             />
             <ReviewRoutingSlipCashPayment
               v-else-if="child.payments && child.payments[0]"
-              :data-test="getIndexedTag('cash-child-payment', i)"
+              :data-test="CommonUtils.getIndexedTag('cash-child-payment', i)"
               :cash-payment="child.payments[0]"
               :is-amount-paid-in-usd="!!(child.payments[0]?.paidUsdAmount && child.payments[0].paidUsdAmount > 0)"
               :is-editable="isEditable"

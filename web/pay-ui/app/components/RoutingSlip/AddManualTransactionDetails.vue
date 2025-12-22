@@ -2,6 +2,7 @@
 import useAddManualTransactionDetails from '@/composables/viewRoutingSlip/useAddManualTransactionDetails'
 import type { ManualTransactionDetails } from '@/interfaces/routing-slip'
 import FilingTypeAutoComplete from './FilingTypeAutoComplete.vue'
+import CommonUtils from '@/utils/common-util'
 
 interface Props {
   index?: number
@@ -21,7 +22,6 @@ const emit = defineEmits<{
 
 const {
   manualTransactionDetails,
-  requiredFieldRule,
   removeManualTransactionRowEventHandler,
   calculateTotal,
   delayedCalculateTotal,
@@ -30,6 +30,8 @@ const {
   errors,
   validate
 } = useAddManualTransactionDetails(props, emit)
+
+const requiredFieldRule = CommonUtils.requiredFieldRule()
 
 defineExpose({
   validate

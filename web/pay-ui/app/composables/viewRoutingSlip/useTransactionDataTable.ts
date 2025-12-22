@@ -159,16 +159,11 @@ export default function useTransactionDataTable(invoices: Ref<Invoice[]>) {
     }
   }
 
-  const getIndexedTag = (baseTag: string, index: number): string => {
-    return `${baseTag}-${index}`
-  }
-
   return {
     ...toRefs(state),
     headerTransactions,
     transformInvoices,
     cancel,
-    getIndexedTag,
     isAlreadyCancelled
   }
 }
