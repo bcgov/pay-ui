@@ -101,7 +101,6 @@ const {
 })
 
 mockNuxtImport('usePayApi', () => () => mockUsePayApi)
-mockNuxtImport('useCreateRoutingSlipStore', () => mockUseCreateRoutingSlipStore)
 mockNuxtImport('useToast', () => mockUseToast)
 mockNuxtImport('getErrorStatus', () => mockGetErrorStatus)
 mockNuxtImport('navigateTo', () => mockNavigateTo)
@@ -132,7 +131,8 @@ vi.mock('~/composables/common/useLoader', () => ({
 vi.mock('~/stores/routing-slip-store', () => ({
   useRoutingSlipStore: () => ({
     store: mockStore
-  })
+  }),
+  useCreateRoutingSlipStore: mockUseCreateRoutingSlipStore
 }))
 
 vi.mock('~/utils/create-routing-slip', () => ({
