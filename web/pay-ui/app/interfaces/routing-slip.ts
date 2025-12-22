@@ -200,7 +200,7 @@ export interface SearchRoutingSlipParams {
   routingSlipNumber?: string | null
   receiptNumber?: string | null
   accountName?: string | null
-  createdName?: string | null
+  initiator?: string | null
   dateFilter?: { startDate: string | null, endDate: string | null }
   status?: string | null
   refundStatus?: string | null
