@@ -68,7 +68,6 @@ describe('useTransactionDataTable', () => {
     expect(composable.headerTransactions).toBeDefined()
     expect(composable.transformInvoices).toBeDefined()
     expect(composable.cancel).toBeDefined()
-    expect(composable.getIndexedTag).toBeDefined()
     expect(composable.isAlreadyCancelled).toBeDefined()
     expect(composable.disableCancelButton).toBeDefined()
     expect(composable.selectedInvoiceId).toBeDefined()
@@ -215,12 +214,6 @@ describe('useTransactionDataTable', () => {
     expect(composable.isAlreadyCancelled(undefined)).toBe(false)
   })
 
-  it('should generate indexed tag correctly', () => {
-    const invoices = ref([])
-    const composable = useTransactionDataTable(invoices)
-    expect(composable.getIndexedTag('btn-cancel', 0)).toBe('btn-cancel-0')
-    expect(composable.getIndexedTag('text-label', 5)).toBe('text-label-5')
-  })
 
   it('should call openCancelTransactionModal when cancel is called', async () => {
     const invoices = ref([])
