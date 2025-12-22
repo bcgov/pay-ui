@@ -261,6 +261,19 @@ export async function useSearch() {
     return visibility
   })
 
+  const hasActiveFilters = computed(() => {
+    return filters.routingSlipNumber !== null ||
+      filters.receiptNumber !== null ||
+      filters.accountName !== null ||
+      filters.createdName !== null ||
+      filters.status !== null ||
+      filters.refundStatus !== null ||
+      filters.businessIdentifier !== null ||
+      filters.chequeReceiptNumber !== null ||
+      filters.remainingAmount !== null ||
+      (filters.dateFilter?.startDate !== null && filters.dateFilter?.endDate !== null)
+  })
+
   const resetSearchFilters = async () => {
     Object.assign(filters, filterInitialState)
     search()
@@ -270,7 +283,7 @@ export async function useSearch() {
   watch(() => filters.routingSlipNumber, newVal => updateSearchFilter({ routingSlipNumber: newVal }))
   watch(() => filters.receiptNumber, newVal => updateSearchFilter({ receiptNumber: newVal }))
   watch(() => filters.accountName, newVal => updateSearchFilter({ accountName: newVal }))
-  watch(() => filters.createdName, newVal => updateSearchFilter({ createdName: newVal }))
+  watch(() => filters.createdName, newVal => updateSearchFilter({ initiator: newVal }))
   watch(
     () => filters.dateFilter,
     (newVal) => {
@@ -278,8 +291,14 @@ export async function useSearch() {
     },
     { deep: true }
   )
-  watch(() => filters.status, newVal => updateSearchFilter({ status: newVal }))
-  watch(() => filters.refundStatus, newVal => updateSearchFilter({ refundStatus: newVal }))
+  watch(() => filters.status, newVal => {
+    updateSearchFilter({ status: newVal })
+    search()
+  })
+  watch(() => filters.refundStatus, newVal => {
+    updateSearchFilter({ refundStatus: newVal })
+    search()
+  })
   watch(() => filters.businessIdentifier, newVal => updateSearchFilter({ businessIdentifier: newVal }))
   watch(() => filters.chequeReceiptNumber, newVal => updateSearchFilter({ chequeReceiptNumber: newVal }))
   watch(() => filters.remainingAmount, newVal => updateSearchFilter({ remainingAmount: newVal }))
@@ -316,6 +335,7 @@ export async function useSearch() {
     isInitialLoad,
     columnVisibility,
     resetSearchFilters,
+    hasActiveFilters,
     search,
     resetSearchParams
   }

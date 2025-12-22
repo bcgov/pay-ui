@@ -21,6 +21,7 @@ const {
   isInitialLoad,
   columnVisibility,
   resetSearchFilters,
+  hasActiveFilters,
   search
 } = await useSearch()
 
@@ -138,7 +139,6 @@ useInfiniteScroll(
                   class="text-input-style "
                   hide-details="auto"
                   :placeholder="!filters.status ? 'Status' : ''"
-                  @change="search()"
                 />
               </th>
               <th v-if="columnVisibility.refundStatus" class="text-left px-2 py-2">
@@ -148,7 +148,6 @@ useInfiniteScroll(
                   class="text-input-style "
                   hide-details="auto"
                   :placeholder="!filters.refundStatus ? 'Refund Status' : ''"
-                  @change="search()"
                 />
               </th>
               <th v-if="columnVisibility.businessIdentifier" class="text-left px-2 py-2">
@@ -179,6 +178,7 @@ useInfiniteScroll(
                 />
               </th>
               <th
+                v-if="hasActiveFilters"
                 class="text-right pl-2 pr-4 sticky data-[pinned=left]:left-0 data-[pinned=right]:right-0"
                 data-pinned="right"
               >
