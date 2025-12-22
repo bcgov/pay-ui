@@ -74,8 +74,7 @@ const debouncedUpdateFilter = useDebounceFn((col: string, val: string | number) 
 
 const shortNameTypeModel = computed({
   get: () => {
-    const value = state.filters.filterPayload.shortNameType
-    return value ? (value as any) : undefined
+    return state.filters.filterPayload.shortNameType
   },
   set: (value: string) => {
     onShortNameTypeChange(value)
@@ -330,7 +329,6 @@ useInfiniteScroll(
 
 <template>
   <div>
-
     <div class="bg-white rounded shadow-sm">
       <div class="short-names-header px-4 py-3 border-b border-gray-200">
         <h2 class="text-xl font-bold text-gray-900">
