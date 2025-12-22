@@ -65,6 +65,19 @@ const {
   const mockResetSearchFilters = vi.fn()
   const mockSearch = vi.fn()
 
+  const mockHasActiveFilters = computed(() => {
+    return mockFilters.routingSlipNumber !== null
+      || mockFilters.receiptNumber !== null
+      || mockFilters.accountName !== null
+      || mockFilters.createdName !== null
+      || mockFilters.status !== null
+      || mockFilters.refundStatus !== null
+      || mockFilters.businessIdentifier !== null
+      || mockFilters.chequeReceiptNumber !== null
+      || mockFilters.remainingAmount !== null
+      || (mockFilters.dateFilter?.startDate !== null && mockFilters.dateFilter?.endDate !== null)
+  })
+
   const mockUseSearch = vi.fn(async () => ({
     searchRoutingSlipTableHeaders: mockSearchRoutingSlipTableHeaders,
     debouncedSearch: mockDebouncedSearch,
@@ -82,6 +95,7 @@ const {
     isInitialLoad: mockIsInitialLoad,
     columnVisibility: mockColumnVisibility,
     resetSearchFilters: mockResetSearchFilters,
+    hasActiveFilters: mockHasActiveFilters,
     search: mockSearch
   }))
 
@@ -205,6 +219,7 @@ describe('Search', () => {
   })
 
   it('should render clear filters button', async () => {
+    _mockFilters.routingSlipNumber = '123456789'
     const wrapper = await mountSuspended(Search, {
       global: {
         stubs: {
@@ -226,9 +241,11 @@ describe('Search', () => {
       }
     })
     expect(wrapper.text()).toContain('Clear Filters')
+    _mockFilters.routingSlipNumber = null
   })
 
   it('should call resetSearchFilters when clear filters button is clicked', async () => {
+    _mockFilters.routingSlipNumber = '123456789'
     const wrapper = await mountSuspended(Search, {
       global: {
         stubs: {
@@ -258,6 +275,7 @@ describe('Search', () => {
     } else {
       expect(clearButton).toBeDefined()
     }
+    _mockFilters.routingSlipNumber = null
   })
 
   it('should call debouncedSearch when filter input changes', async () => {
