@@ -262,16 +262,16 @@ export async function useSearch() {
   })
 
   const hasActiveFilters = computed(() => {
-    return filters.routingSlipNumber !== null ||
-      filters.receiptNumber !== null ||
-      filters.accountName !== null ||
-      filters.createdName !== null ||
-      filters.status !== null ||
-      filters.refundStatus !== null ||
-      filters.businessIdentifier !== null ||
-      filters.chequeReceiptNumber !== null ||
-      filters.remainingAmount !== null ||
-      (filters.dateFilter?.startDate !== null && filters.dateFilter?.endDate !== null)
+    return filters.routingSlipNumber !== null
+      || filters.receiptNumber !== null
+      || filters.accountName !== null
+      || filters.createdName !== null
+      || filters.status !== null
+      || filters.refundStatus !== null
+      || filters.businessIdentifier !== null
+      || filters.chequeReceiptNumber !== null
+      || filters.remainingAmount !== null
+      || (filters.dateFilter?.startDate !== null && filters.dateFilter?.endDate !== null)
   })
 
   const resetSearchFilters = async () => {
@@ -291,11 +291,11 @@ export async function useSearch() {
     },
     { deep: true }
   )
-  watch(() => filters.status, newVal => {
+  watch(() => filters.status, (newVal) => {
     updateSearchFilter({ status: newVal })
     search()
   })
-  watch(() => filters.refundStatus, newVal => {
+  watch(() => filters.refundStatus, (newVal) => {
     updateSearchFilter({ refundStatus: newVal })
     search()
   })
