@@ -16,7 +16,17 @@ defineEmits<{
 }>()
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const selected = defineModel<any>({ required: true, default: undefined })
+const selectedModel = defineModel<any>({ required: true, default: undefined })
+
+const selected = computed({
+  get: () => selectedModel.value,
+  set: (value) => {
+    if (value?.disabled) {
+      return
+    }
+    selectedModel.value = value
+  }
+})
 
 const searchTerm = ref('')
 const searchTermDebounced = refDebounced(searchTerm, 300)
@@ -46,6 +56,15 @@ const { data: items, status } = await useAsyncData<T[]>(
     default: () => []
   }
 )
+
+const slots = useSlots()
+const hasResultHeaderSlot = computed(() => !!slots.resultHeader)
+const itemsWithHeader = computed(() => {
+  if (!hasResultHeaderSlot.value || !items.value || items.value.length === 0) {
+    return items.value
+  }
+  return [{ __isHeader: true } as unknown as T, ...items.value]
+})
 </script>
 
 <template>
@@ -73,7 +92,7 @@ const { data: items, status } = await useAsyncData<T[]>(
       v-model="selected"
       :open="open"
       :name="name || id"
-      :items="items"
+      :items="hasResultHeaderSlot ? itemsWithHeader : items"
       :aria-labelledby="`${id}-label`"
       ignore-filter
       class="w-full"
@@ -109,7 +128,18 @@ const { data: items, status } = await useAsyncData<T[]>(
       </template>
 
       <template #item="{ item }">
-        <slot name="item" :item="item" />
+        <div
+          v-if="item && '__isHeader' in item && item.__isHeader"
+          class="sticky top-0 z-10 border-b border-gray-200
+          pointer-events-none"
+        >
+          <slot name="resultHeader" />
+        </div>
+        <slot
+          v-else
+          name="item"
+          :item="item"
+        />
       </template>
     </UInputMenu>
   </div>

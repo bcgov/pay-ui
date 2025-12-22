@@ -185,7 +185,8 @@ watch(model, () => {
       <button
         v-if="model.startDate && model.endDate"
         type="button"
-        class="absolute right-14 z-10 h-10 w-10 min-w-0 p-0 flex items-center justify-center text-primary focus:outline-none cursor-pointer"
+        class="absolute right-14 z-10 h-10 w-10 min-w-0 p-0 flex items-center justify-center
+        text-primary focus:outline-none cursor-pointer"
         style="pointer-events: auto;"
         @click.stop="clearDateRange"
       >
