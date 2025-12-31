@@ -34,7 +34,8 @@ setBreadcrumbs([
 ])
 useViewRoutingSlip({ slipId })
 
-const { getRoutingSlip, getLinkedRoutingSlips, routingSlip } = useRoutingSlip()
+const { getRoutingSlip, getLinkedRoutingSlips } = useRoutingSlip()
+const { store } = useRoutingSlipStore()
 const { isLoading, toggleLoading } = useLoader()
 
 const staffCommentsRef = useTemplateRef<InstanceType<typeof StaffComments> & {
@@ -113,7 +114,7 @@ onMounted(async () => {
         <p class="description-text mb-4">
           {{ $t('page.viewRoutingSlip.routingSlipTransaction.description') }}
         </p>
-        <RoutingSlipTransaction :invoices="routingSlip?.invoices" />
+        <RoutingSlipTransaction :invoices="store.routingSlip?.invoices" />
       </div>
     </div>
   </UContainer>

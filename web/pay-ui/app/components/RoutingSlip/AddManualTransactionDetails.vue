@@ -25,10 +25,12 @@ const {
   removeManualTransactionRowEventHandler,
   calculateTotal,
   delayedCalculateTotal,
-  emitManualTransactionDetails,
   totalFormatted,
   errors,
-  validate
+  errorMessage,
+  validate,
+  handleQuantityChange,
+  handleReferenceNumberChange
 } = useAddManualTransactionDetails(props, emit)
 
 const requiredFieldRule = CommonUtils.requiredFieldRule()
@@ -63,13 +65,7 @@ defineExpose({
         label="Quantity"
         type="number"
         required
-        @update:model-value="(value) => {
-          if (manualTransactionDetails) {
-            manualTransactionDetails.quantity = Number(value)
-            errors.quantity = ''
-          }
-          delayedCalculateTotal()
-        }"
+        @update:model-value="handleQuantityChange"
       />
       <div v-if="errors.quantity" class="relative -mt-px">
         <div class="h-px bg-error" />
@@ -84,23 +80,27 @@ defineExpose({
         :id="`manual-transaction-form-reference-${index}`"
         :model-value="manualTransactionDetails.referenceNumber || ''"
         label="Incorporation/Reference Number (optional)"
-        @update:model-value="(value) => {
-          if (manualTransactionDetails) {
-            manualTransactionDetails.referenceNumber = value?.trim();
-          }
-          emitManualTransactionDetails();
-        }"
+        @update:model-value="handleReferenceNumberChange"
       />
+      <div v-if="errors.referenceNumber" class="relative -mt-px">
+        <div class="h-px bg-error" />
+        <div class="text-xs text-error mt-1">
+          {{ errors.referenceNumber }}
+        </div>
+      </div>
     </div>
 
     <div class="col-span-5 relative">
-      <ConnectInput
-        :id="`manual-transaction-form-amount-${index}`"
-        :key="manualTransactionDetails.availableAmountForManualTransaction"
-        :model-value="totalFormatted || ''"
-        label="$ Amount"
-        readonly
-      />
+      <UFormField :error="errorMessage">
+        <ConnectInput
+          :id="`manual-transaction-form-amount-${index}`"
+          :key="manualTransactionDetails.availableAmountForManualTransaction"
+          :model-value="totalFormatted || ''"
+          label="$ Amount"
+          readonly
+          :aria-invalid="errorMessage ? 'true' : undefined"
+        />
+      </UFormField>
       <div v-if="index && index > 0" class="absolute -right-9 top-3">
         <UButton
           icon="mdi-close"

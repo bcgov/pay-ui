@@ -61,7 +61,7 @@ const {
               {{ $t('page.viewRoutingSlip.paymentInformation.viewPaymentInformation') }}
             </span>
             <UIcon
-              :name="isExpanded ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
+              :name="isExpanded ? 'i-mdi-chevron-up' : 'i-mdi-chevron-down'"
               class="ml-1"
             />
           </UButton>
@@ -75,7 +75,7 @@ const {
             :disabled="!enableEditRoutingSlip"
             @click="editPayment"
           >
-            <UIcon name="i-heroicons-pencil" class="mr-1" />
+            <UIcon name="i-mdi-pencil" class="mr-1" />
             <span>{{ $t('page.viewRoutingSlip.paymentInformation.editRoutingSlip') }}</span>
           </UButton>
         </div>

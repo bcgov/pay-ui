@@ -1,7 +1,9 @@
 import { useLoader } from '@/composables/common/useLoader'
 import { useRoutingSlip } from '@/composables/useRoutingSlip'
+import { cloneDeep } from 'lodash'
 
 export default function useRoutingSlipTransaction() {
+  const { t } = useI18n()
   const {
     getRoutingSlip,
     isRoutingSlipAChild,
@@ -38,35 +40,30 @@ export default function useRoutingSlipTransaction() {
     const isExcessAmount: boolean = availableAmountForManualTransaction() < 0
     if (isExcessAmount) {
       error = true
-      status.value = 'cantAddTransactions'
+      status.value = t('text.cantAddTransactions')
       return
     }
-    if (isValid()) {
-      toggleLoading(true)
-      for (const transactions of manualTransactionsList.value) {
-        try {
-          await saveManualTransactions(transactions)
-        } catch (err) {
-          error = true
-          console.error('error', err)
-          break
-        }
-      }
 
-      if (store.routingSlip.number) {
-        const getRoutingSlipRequestPayload: GetRoutingSlipRequestPayload
-          = { routingSlipNumber: store.routingSlip.number }
-        await getRoutingSlip(getRoutingSlipRequestPayload)
+    toggleLoading(true)
+    for (const transactions of manualTransactionsList.value) {
+      try {
+        await saveManualTransactions(transactions)
+      } catch (err) {
+        error = true
+        console.error('error', err)
+        break
       }
-      toggleLoading(false)
+    }
 
-      if (!error) {
-        resetManualTransaction()
-      }
-    } else {
-      if (formRoutingSlipManualTransactions.value) {
-        formRoutingSlipManualTransactions.value.reportValidity()
-      }
+    if (store.routingSlip.number) {
+      const getRoutingSlipRequestPayload: GetRoutingSlipRequestPayload
+        = { routingSlipNumber: store.routingSlip.number }
+      await getRoutingSlip(getRoutingSlipRequestPayload)
+    }
+    toggleLoading(false)
+
+    if (!error) {
+      resetManualTransaction()
     }
   }
 
@@ -75,6 +72,15 @@ export default function useRoutingSlipTransaction() {
     // reduce it from the remainingAmount amount and return
     const sum = manualTransactionsList.value.reduce((sum, current) => sum + (current?.total || 0), 0)
     return (store.routingSlip?.remainingAmount || 0) - sum
+  }
+
+  function validateTotalAmount(): boolean {
+    const availableAmount = availableAmountForManualTransaction()
+    if (availableAmount < 0) {
+      status.value = t('text.cantAddTransactions')
+      return false
+    }
+    return true
   }
 
   function resetManualTransaction() {
@@ -97,11 +103,7 @@ export default function useRoutingSlipTransaction() {
       key: Math.random(),
       futureEffective: false,
       priority: false,
-      total: undefined,
-      referenceNumber: undefined,
-      filingType: undefined,
       availableAmountForManualTransaction: amount
-
     } as ManualTransactionDetails
   }
 
@@ -112,13 +114,6 @@ export default function useRoutingSlipTransaction() {
   function addManualTransactionRow() {
     status.value = ''
     manualTransactionsList.value.push(getDefaultRow())
-  }
-
-  function isValid(): boolean {
-    if (!formRoutingSlipManualTransactions.value) {
-      return false
-    }
-    return formRoutingSlipManualTransactions.value.checkValidity()
   }
 
   function removeManualTransactionRow(index: number) {
@@ -136,9 +131,9 @@ export default function useRoutingSlipTransaction() {
       return
     }
     // assigning individual properties rather than spread or splice as computed/watch not recognizing it
-    transaction.filingType = JSON.parse(JSON.stringify(payload.transaction.filingType))
-    transaction.futureEffective = payload.transaction.futureEffective
-    transaction.priority = payload.transaction.priority
+    transaction.filingType = payload.transaction.filingType ? cloneDeep(payload.transaction.filingType) : undefined
+    transaction.futureEffective = Boolean(payload.transaction.futureEffective)
+    transaction.priority = Boolean(payload.transaction.priority)
     transaction.quantity = payload.transaction.quantity
     transaction.referenceNumber = payload.transaction.referenceNumber
     transaction.total = payload.transaction.total
@@ -182,7 +177,7 @@ export default function useRoutingSlipTransaction() {
     addManualTransactions,
     isLastChild,
     availableAmountForManualTransaction,
-    isValid,
+    validateTotalAmount,
     removeManualTransactionRow,
     updateManualTransactionDetails,
     hideManualTransaction,

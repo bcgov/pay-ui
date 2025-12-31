@@ -13,19 +13,25 @@ const {
   mockUseLoader,
   _mockOpenPlaceRoutingSlipToNSFModal,
   _mockOpenVoidRoutingSlipModal,
+  _mockOpenErrorDialog,
   mockUsePayModals,
-  mockUsePayApi
+  mockUsePayApi,
+  mockInvoiceCount
 } = vi.hoisted(() => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { ref } = require('vue')
   const _mockUpdateRoutingSlipStatus = vi.fn()
   const _mockUpdateRoutingSlipRefundStatus = vi.fn()
   const _mockGetRoutingSlip = vi.fn()
   const _mockUpdateRoutingSlipComments = vi.fn()
+  const mockInvoiceCount = ref(0)
 
   const mockUseRoutingSlip = {
     updateRoutingSlipStatus: _mockUpdateRoutingSlipStatus,
     updateRoutingSlipRefundStatus: _mockUpdateRoutingSlipRefundStatus,
     getRoutingSlip: _mockGetRoutingSlip,
-    updateRoutingSlipComments: _mockUpdateRoutingSlipComments
+    updateRoutingSlipComments: _mockUpdateRoutingSlipComments,
+    invoiceCount: mockInvoiceCount
   }
 
   const _mockToggleLoading = vi.fn()
@@ -35,9 +41,11 @@ const {
 
   const _mockOpenPlaceRoutingSlipToNSFModal = vi.fn()
   const _mockOpenVoidRoutingSlipModal = vi.fn()
+  const _mockOpenErrorDialog = vi.fn()
   const mockUsePayModals = {
     openPlaceRoutingSlipToNSFModal: _mockOpenPlaceRoutingSlipToNSFModal,
-    openVoidRoutingSlipModal: _mockOpenVoidRoutingSlipModal
+    openVoidRoutingSlipModal: _mockOpenVoidRoutingSlipModal,
+    openErrorDialog: _mockOpenErrorDialog
   }
 
   const mockUsePayApi = {
@@ -54,8 +62,10 @@ const {
     mockUseLoader,
     _mockOpenPlaceRoutingSlipToNSFModal,
     _mockOpenVoidRoutingSlipModal,
+    _mockOpenErrorDialog,
     mockUsePayModals,
-    mockUsePayApi
+    mockUsePayApi,
+    mockInvoiceCount
   }
 })
 
@@ -97,6 +107,7 @@ vi.mock('~/stores/routing-slip-store', () => ({
 describe('useRoutingSlipInfo', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockInvoiceCount.value = 0
     mockStore.routingSlip = {
       number: '123456',
       status: 'ACTIVE',
@@ -188,6 +199,15 @@ describe('useRoutingSlipInfo', () => {
     const composable = useRoutingSlipInfo()
     await composable.handleStatusSelect(SlipStatus.VOID)
     expect(_mockOpenVoidRoutingSlipModal).toHaveBeenCalled()
+    expect(_mockOpenErrorDialog).not.toHaveBeenCalled()
+  })
+
+  it('should show error dialog when trying to void routing slip with invoices', async () => {
+    mockInvoiceCount.value = 5
+    const composable = useRoutingSlipInfo()
+    await composable.handleStatusSelect(SlipStatus.VOID)
+    expect(_mockOpenErrorDialog).toHaveBeenCalled()
+    expect(_mockOpenVoidRoutingSlipModal).not.toHaveBeenCalled()
   })
 
   it('should handle status select for other statuses', async () => {

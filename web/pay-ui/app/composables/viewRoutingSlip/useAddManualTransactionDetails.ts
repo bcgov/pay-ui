@@ -1,7 +1,8 @@
 import CommonUtils from '@/utils/common-util'
 import { useRoutingSlip } from '../useRoutingSlip'
 import { debounce } from 'es-toolkit'
-import { nextTick, toRef } from 'vue'
+import { cloneDeep } from 'lodash'
+import { computed, nextTick, reactive, toRef, toRefs, watch } from 'vue'
 
 interface UseAddManualTransactionDetailsProps {
   index?: number
@@ -15,51 +16,56 @@ interface UseAddManualTransactionDetailsEmit {
 
 export default function useAddManualTransactionDetails(
   props: UseAddManualTransactionDetailsProps,
-  emit?: UseAddManualTransactionDetailsEmit
+  emit: UseAddManualTransactionDetailsEmit
 ) {
+  const { t } = useI18n()
   const { getFeeByCorpTypeAndFilingType } = useRoutingSlip()
-  const manualTransaction = toRef(props, 'manualTransaction')
-  const index = toRef(props, 'index')
 
-  const manualTransactionDetails = ref<ManualTransactionDetails | undefined>(undefined)
-
-  const requiredFieldRule = CommonUtils.requiredFieldRule()
-
-  const errorMessage = computed(() => {
-    const msg = manualTransactionDetails.value.quantity && (
-      manualTransactionDetails.value.availableAmountForManualTransaction < manualTransactionDetails.value.total
-      || manualTransactionDetails.value.availableAmountForManualTransaction < 0)
-      ? 'Amount exceeds the routing slip\'s current balance'
-      : ''
-    return msg
+  const state = reactive({
+    manualTransaction: toRef(props, 'manualTransaction'),
+    index: toRef(props, 'index'),
+    manualTransactionDetails: {} as ManualTransactionDetails,
+    errors: {
+      filingType: '',
+      quantity: '',
+      referenceNumber: ''
+    },
+    totalFormatted: computed<string>(() => {
+      const amount: string = CommonUtils.formatAmount(state.manualTransactionDetails.total)
+      return amount
+    })
   })
 
-  const totalFormatted = computed(() => {
-    return manualTransaction.value?.total?.toFixed(2)
+  const errorMessage = computed<string | undefined>(() => {
+    const details = state.manualTransactionDetails
+    const availableAmount: number = details.availableAmountForManualTransaction
+    const hasError: boolean = !!details.quantity && (
+      availableAmount < details.total || availableAmount < 0
+    )
+    return hasError ? t('text.amountExceedsBalance') : undefined
   })
 
   async function calculateTotal() {
     try {
-      if (manualTransactionDetails
-        && manualTransactionDetails.value.filingType
-        && manualTransactionDetails.value.quantity) {
-        const getFeeRequestParams: GetFeeRequestParams = {
-          corpTypeCode: manualTransactionDetails.value.filingType.corpTypeCode.code,
-          filingTypeCode: manualTransactionDetails.value.filingType.filingTypeCode.code,
-          requestParams: {
-            quantity: manualTransactionDetails.value.quantity,
-            priority: manualTransactionDetails.value.priority,
-            futureEffective: manualTransactionDetails.value.futureEffective
-          }
-        }
-        // Global exception handler will handle this one.
-        manualTransactionDetails.value.total = await getFeeByCorpTypeAndFilingType(getFeeRequestParams)
-      } else {
-        manualTransactionDetails.value.total = null
+      const filingType = state.manualTransactionDetails.filingType
+      if (!filingType?.corpTypeCode || !filingType?.filingTypeCode || !state.manualTransactionDetails.quantity) {
+        state.manualTransactionDetails.total = 0
+        return
       }
-    } catch (error: unknown) {
-      manualTransactionDetails.value.total = null
-      console.error('error ', error?.response?.data)
+      const getFeeRequestParams: GetFeeRequestParams = {
+        corpTypeCode: filingType.corpTypeCode.code!,
+        filingTypeCode: filingType.filingTypeCode.code!,
+        requestParams: {
+          quantity: state.manualTransactionDetails.quantity,
+          priority: Boolean(state.manualTransactionDetails.priority),
+          futureEffective: Boolean(state.manualTransactionDetails.futureEffective)
+        }
+      }
+      const result = await getFeeByCorpTypeAndFilingType(getFeeRequestParams)
+      state.manualTransactionDetails.total = result ?? 0
+    } catch (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+      state.manualTransactionDetails.total = 0
+      console.error('error', error?.response?.data)
     } finally {
       emitManualTransactionDetails()
     }
@@ -67,21 +73,16 @@ export default function useAddManualTransactionDetails(
 
   const delayedCalculateTotal = debounce(calculateTotal, 100)
 
-  // Emit this remove row event, that is consumed in parent and slice the v-model array of parent
   function removeManualTransactionRowEventHandler() {
-    if (emit && index?.value !== undefined) {
-      emit('removeManualTransactionRow', index.value)
+    if (state.index !== undefined) {
+      emit('removeManualTransactionRow', state.index as number)
     }
   }
 
   function emitManualTransactionDetails() {
-    if (emit && manualTransactionDetails.value && index?.value !== undefined) {
-      emit('updateManualTransaction', { transaction: manualTransactionDetails.value, index: index.value })
+    if (state.index !== undefined) {
+      emit('updateManualTransaction', { transaction: state.manualTransactionDetails, index: state.index as number })
     }
-  }
-
-  function getIndexedTag(tag: string, idx: number | undefined): string {
-    return `${tag}-${idx}`
   }
 
   const referenceNumberRules = [
@@ -93,37 +94,75 @@ export default function useAddManualTransactionDetails(
     (v: number) => (v > 0) || 'Quantity should be greater than 0'
   ]
 
-  if (manualTransaction) {
-    watch(manualTransaction, () => {
-      if (manualTransactionDetails.value && manualTransaction.value) {
-        manualTransactionDetails.value.availableAmountForManualTransaction
-          = manualTransaction.value.availableAmountForManualTransaction
+  function validateQuantity(quantity: number): string {
+    for (const rule of quantityRules) {
+      const result = rule(quantity)
+      if (result !== true) {
+        return result
       }
-    }, { deep: true })
+    }
+    return ''
   }
 
-  nextTick(() => {
-    if (manualTransaction?.value) {
-      manualTransactionDetails.value = JSON.parse(JSON.stringify(manualTransaction.value))
+  function validateReferenceNumber(referenceNumber: string): string {
+    if (!referenceNumber) {
+      return ''
     }
-  })
+    for (const rule of referenceNumberRules) {
+      const result = rule(referenceNumber)
+      if (result !== true) {
+        return result
+      }
+    }
+    return ''
+  }
 
-  const errors = reactive({
-    filingType: '',
-    quantity: ''
+  function handleQuantityChange(value: string) {
+    const numValue = Number(value)
+    state.manualTransactionDetails.quantity = numValue
+    state.errors.quantity = validateQuantity(numValue)
+    delayedCalculateTotal()
+  }
+
+  function handleReferenceNumberChange(value: string) {
+    const trimmedValue = value?.trim()
+    state.manualTransactionDetails.referenceNumber = trimmedValue
+    state.errors.referenceNumber = validateReferenceNumber(trimmedValue)
+    emitManualTransactionDetails()
+  }
+
+  watch(() => props.manualTransaction, (newValue) => {
+    if (newValue) {
+      Object.assign(state.manualTransactionDetails, newValue)
+    }
+  }, { deep: true, immediate: false })
+
+  nextTick(() => {
+    if (state.manualTransaction) {
+      Object.assign(state.manualTransactionDetails, cloneDeep(state.manualTransaction))
+    }
   })
 
   function validate() {
-    errors.filingType = ''
-    errors.quantity = ''
+    state.errors.filingType = ''
+    state.errors.quantity = ''
+    state.errors.referenceNumber = ''
     let isValid = true
 
-    if (!manualTransactionDetails.value?.filingType) {
-      errors.filingType = 'This field is required'
+    if (!state.manualTransactionDetails.filingType) {
+      state.errors.filingType = 'This field is required'
       isValid = false
     }
-    if (!manualTransactionDetails.value?.quantity || manualTransactionDetails.value.quantity <= 0) {
-      errors.quantity = 'This field is required'
+
+    const quantityError = validateQuantity(state.manualTransactionDetails.quantity ?? 0)
+    if (quantityError) {
+      state.errors.quantity = quantityError
+      isValid = false
+    }
+
+    const referenceNumberError = validateReferenceNumber(state.manualTransactionDetails.referenceNumber ?? '')
+    if (referenceNumberError) {
+      state.errors.referenceNumber = referenceNumberError
       isValid = false
     }
 
@@ -131,18 +170,16 @@ export default function useAddManualTransactionDetails(
   }
 
   return {
-    manualTransactionDetails,
-    requiredFieldRule,
+    ...toRefs(state),
+    errorMessage,
     removeManualTransactionRowEventHandler,
     delayedCalculateTotal,
     calculateTotal,
-    getIndexedTag,
     emitManualTransactionDetails,
-    errorMessage,
-    totalFormatted,
     referenceNumberRules,
     quantityRules,
-    errors,
-    validate
+    validate,
+    handleQuantityChange,
+    handleReferenceNumberChange
   }
 }

@@ -74,6 +74,10 @@ export default {
     saveComment: {
       title: 'Error Saving Comment',
       description: 'Could not save your comment. Please try again or cancel.'
+    },
+    voidRoutingSlip: {
+      title: 'Unable to Void Routing Slip',
+      description: 'A routing slip with transactions cannot change status to void.'
     }
   },
   label: {
@@ -224,7 +228,10 @@ export default {
     cantLinkSinceInvoicesExistP2: 'Other routing slips can link to this routing slip.',
     linkedRoutingSlip: 'Linked routing slip',
     addManualTransactionQuantityInfoText: 'The priority or future effective fee will only be applied once. '
-      + 'Input transactions separately to add additional fee'
+      + 'Input transactions separately to add additional fee',
+    cantAddTransactions: 'Transaction can\'t be added, since the filling type total amount exceeds the routing slip\'s '
+      + 'current balance',
+    amountExceedsBalance: 'Amount exceeds the routing slip\'s current balance'
   },
   validation: {
     payment: {

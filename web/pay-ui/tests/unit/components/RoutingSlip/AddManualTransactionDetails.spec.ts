@@ -64,6 +64,19 @@ vi.mock('~/utils/common-util', () => ({
   }
 }))
 
+const mockHandleQuantityChange = vi.fn()
+let mockWrapper: ReturnType<typeof mountSuspended> | null = null
+const mockHandleReferenceNumberChange = vi.fn((value: string) => {
+  mockManualTransactionDetails.value.referenceNumber = value
+  if (mockWrapper) {
+    mockWrapper.vm.$emit('updateManualTransaction', {
+      transaction: { ...mockManualTransactionDetails.value },
+      index: 0
+    })
+  }
+  mockEmitManualTransactionDetails()
+})
+
 vi.mock('~/composables/viewRoutingSlip/useAddManualTransactionDetails', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { computed } = require('vue')
@@ -75,9 +88,12 @@ vi.mock('~/composables/viewRoutingSlip/useAddManualTransactionDetails', () => {
       calculateTotal: mockCalculateTotal,
       delayedCalculateTotal: mockDelayedCalculateTotal,
       emitManualTransactionDetails: mockEmitManualTransactionDetails,
+      handleQuantityChange: mockHandleQuantityChange,
+      handleReferenceNumberChange: mockHandleReferenceNumberChange,
       totalFormatted: computed(() => mockManualTransactionDetails.value.total?.toFixed(2)),
       errors: mockErrors,
-      validate: mockValidate
+      validate: mockValidate,
+      errorMessage: computed(() => undefined)
     })
   }
 })
@@ -359,6 +375,7 @@ describe('AddManualTransactionDetails', () => {
   it('should emit updateManualTransaction when reference number changes', async () => {
     mockManualTransactionDetails.value.referenceNumber = undefined
     mockEmitManualTransactionDetails.mockClear()
+    mockHandleReferenceNumberChange.mockClear()
 
     const wrapper = await mountSuspended(AddManualTransactionDetails, {
       props: {
@@ -375,12 +392,15 @@ describe('AddManualTransactionDetails', () => {
           },
           UCheckbox: true,
           UButton: true,
-          UIcon: true
+          UIcon: true,
+          UFormField: true
         }
       }
     })
 
     await nextTick()
+
+    mockWrapper = wrapper
 
     const referenceInput = wrapper.findAll('[data-test="input"]').find(
       input => input.attributes('data-id')?.includes('reference')
@@ -389,19 +409,10 @@ describe('AddManualTransactionDetails', () => {
     expect(referenceInput?.exists()).toBe(true)
 
     if (referenceInput) {
-      mockEmitManualTransactionDetails.mockImplementation(() => {
-        wrapper.vm.$emit('updateManualTransaction', {
-          transaction: { ...mockManualTransactionDetails.value },
-          index: 0
-        })
-      })
-
-      mockManualTransactionDetails.value.referenceNumber = 'REF123'
-
       await referenceInput.setValue('REF123')
       await nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
 
+      expect(mockHandleReferenceNumberChange).toHaveBeenCalledWith('REF123')
       expect(mockEmitManualTransactionDetails).toHaveBeenCalled()
       expect(wrapper.emitted('updateManualTransaction')).toBeTruthy()
       const emittedEvents = wrapper.emitted('updateManualTransaction')

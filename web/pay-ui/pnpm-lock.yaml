@@ -20,9 +20,15 @@ importers:
       '@sbc-connect/nuxt-pay':
         specifier: ^0.1.23
         version: 0.1.23(@babel/parser@7.28.4)(@nuxt/kit@4.1.2(magicast@0.3.5))(@vue/compiler-dom@3.5.21)(axios@1.13.1)(db0@0.3.2)(embla-carousel@8.6.0)(eslint@9.36.0(jiti@2.6.0))(ioredis@5.7.0)(magicast@0.3.5)(nuxt@4.0.3(@parcel/watcher@2.5.1)(@types/node@24.5.2)(@vue/compiler-sfc@3.5.21)(db0@0.3.2)(eslint@9.36.0(jiti@2.6.0))(ioredis@5.7.0)(lightningcss@1.30.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.52.0)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0)(typescript@5.9.2)(vite@7.1.7(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.1)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0)(yaml@2.8.1))(vue-tsc@3.0.8(typescript@5.9.2))(yaml@2.8.1))(rollup@4.52.0)(typescript@5.9.2)(vite@7.1.7(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.1)(sass-embedded@1.93.2)(sass@1.93.2)(terser@5.44.0)(yaml@2.8.1))(vue-router@4.5.1(vue@3.5.21(typescript@5.9.2)))(vue@3.5.21(typescript@5.9.2))(zod@4.1.11)
+      '@types/lodash':
+        specifier: ^4.17.21
+        version: 4.17.21
       es-toolkit:
         specifier: ^1.39.10
         version: 1.39.10
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
       luxon:
         specifier: ^3.7.2
         version: 3.7.2
@@ -1738,6 +1744,9 @@ packages:
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
+
+  '@types/lodash@4.17.21':
+    resolution: {integrity: sha512-FOvQ0YPD5NOfPgMzJihoT+Za5pdkDJWcbpuj1DjaKZIr/gxodQjY/uWEFlTNqW2ugXHUiL8lRQgw63dzKHZdeQ==}
 
   '@types/luxon@3.7.1':
     resolution: {integrity: sha512-H3iskjFIAn5SlJU7OuxUmTEpebK6TKB8rxZShDslBMZJ5u9S//KM1sbdAisiSrqwLQncVjnpi2OK2J51h+4lsg==}
@@ -7223,6 +7232,8 @@ snapshots:
   '@types/estree@1.0.8': {}
 
   '@types/json-schema@7.0.15': {}
+
+  '@types/lodash@4.17.21': {}
 
   '@types/luxon@3.7.1': {}
 

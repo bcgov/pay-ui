@@ -23,6 +23,7 @@ const {
   addManualTransactionRow,
   addManualTransactions,
   isLastChild,
+  validateTotalAmount,
   removeManualTransactionRow,
   updateManualTransactionDetails,
   hideManualTransaction,
@@ -43,9 +44,15 @@ function setTransactionRef(index: number) {
 
 function handleAddTransaction() {
   addManualTransactions(() => {
-    return transactionDetailsRefs.value
+    const allComponentsValid = transactionDetailsRefs.value
       .filter((ref): ref is TransactionDetailsRef => ref !== null)
       .every(ref => ref.validate())
+
+    if (!allComponentsValid) {
+      return false
+    }
+
+    return validateTotalAmount()
   })
 }
 </script>
@@ -98,7 +105,7 @@ function handleAddTransaction() {
           <div v-if="status" class="my-4">
             <p class="mb-0">
               <span class="pl-1 text-red-600">
-                {{ $t(status) }}
+                {{ status }}
               </span>
             </p>
           </div>

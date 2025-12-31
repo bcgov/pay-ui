@@ -9,7 +9,7 @@ import { DateTime } from 'luxon'
 
 export function useRoutingSlipInfo() {
   const { updateRoutingSlipStatus, updateRoutingSlipRefundStatus,
-    getRoutingSlip, updateRoutingSlipComments } = useRoutingSlip()
+    getRoutingSlip, updateRoutingSlipComments, invoiceCount } = useRoutingSlip()
   const { store } = useRoutingSlipStore()
   const { t } = useI18n()
   const modal = usePayModals()
@@ -154,6 +154,13 @@ export function useRoutingSlipInfo() {
         await updateRoutingSlipStatusHandler(status)
       })
     } else if (status === SlipStatus.VOID) {
+      if (invoiceCount.value && invoiceCount.value > 0) {
+        await modal.openErrorDialog(
+          t('error.voidRoutingSlip.title'),
+          t('error.voidRoutingSlip.description')
+        )
+        return
+      }
       await modal.openVoidRoutingSlipModal(async () => {
         await updateRoutingSlipStatusHandler(status)
       })

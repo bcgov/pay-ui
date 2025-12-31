@@ -299,11 +299,15 @@ export const useRoutingSlip = () => {
       priority,
       quantity
     } = transation
-    const businessInfo: BusinessInfo = {
-      corpType: filingType?.corpTypeCode?.code || ''
+
+    if (!filingType?.corpTypeCode?.code) {
+      throw new Error('Filing type must have a valid corporation type code')
     }
 
-    // no need to pass if empty
+    const businessInfo: BusinessInfo = {
+      corpType: filingType.corpTypeCode.code
+    }
+
     if (referenceNumber) {
       businessInfo.businessIdentifier = referenceNumber
     }
@@ -314,8 +318,8 @@ export const useRoutingSlip = () => {
         filingTypes: [
           {
             filingTypeCode: filingType?.filingTypeCode?.code,
-            futureEffective: futureEffective,
-            priority: priority,
+            futureEffective: Boolean(futureEffective),
+            priority: Boolean(priority),
             quantity: quantity ? parseInt(quantity.toString()) : undefined
           }
         ]

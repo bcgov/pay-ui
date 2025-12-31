@@ -3,6 +3,10 @@ import useRoutingSlipTransaction from '~/composables/viewRoutingSlip/useRoutingS
 import { createPinia, setActivePinia } from 'pinia'
 import type { ManualTransactionDetails } from '~/interfaces/routing-slip'
 
+vi.mock('lodash', () => ({
+  cloneDeep: vi.fn(val => JSON.parse(JSON.stringify(val)))
+}))
+
 const mockGetRoutingSlip = vi.fn()
 const mockIsRoutingSlipAChild = ref(false)
 const mockIsRoutingSlipVoid = ref(false)
@@ -27,6 +31,11 @@ const mockStore = {
 mockNuxtImport('useRoutingSlip', () => () => mockUseRoutingSlip)
 mockNuxtImport('useRoutingSlipStore', () => () => ({
   store: mockStore
+}))
+
+const mockT = vi.fn((key: string) => key)
+mockNuxtImport('useI18n', () => () => ({
+  t: mockT
 }))
 
 vi.mock('~/composables/common/useLoader', () => ({
@@ -67,7 +76,7 @@ describe('useRoutingSlipTransaction', () => {
     expect(composable.addManualTransactions).toBeDefined()
     expect(composable.isLastChild).toBeDefined()
     expect(composable.availableAmountForManualTransaction).toBeDefined()
-    expect(composable.isValid).toBeDefined()
+    expect(composable.validateTotalAmount).toBeDefined()
     expect(composable.removeManualTransactionRow).toBeDefined()
     expect(composable.updateManualTransactionDetails).toBeDefined()
     expect(composable.hideManualTransaction).toBeDefined()
@@ -168,23 +177,6 @@ describe('useRoutingSlipTransaction', () => {
     expect(composable.showAddManualTransaction.value).toBe(false)
   })
 
-  it('should return false for isValid when form is not set', () => {
-    const composable = useRoutingSlipTransaction()
-    expect(composable.isValid()).toBe(false)
-  })
-
-  it('should return form validity when form is set', () => {
-    const composable = useRoutingSlipTransaction()
-    const mockForm = {
-      checkValidity: vi.fn(() => true)
-
-    } as unknown as HTMLFormElement
-    composable.formRoutingSlipManualTransactions.value = mockForm
-
-    expect(composable.isValid()).toBe(true)
-    expect(mockForm.checkValidity).toHaveBeenCalled()
-  })
-
   it('should not add transactions when validation function returns false', async () => {
     const composable = useRoutingSlipTransaction()
     const validateFn = vi.fn(() => false)
@@ -206,7 +198,7 @@ describe('useRoutingSlipTransaction', () => {
 
     await composable.addManualTransactions()
 
-    expect(composable.status.value).toBe('cantAddTransactions')
+    expect(composable.status.value).toBe('text.cantAddTransactions')
     expect(mockSaveManualTransactions).not.toHaveBeenCalled()
   })
 
@@ -263,21 +255,6 @@ describe('useRoutingSlipTransaction', () => {
     expect(composable.manualTransactionsList.value.length).toBe(1) // Not reset
     expect(consoleErrorSpy).toHaveBeenCalled()
     consoleErrorSpy.mockRestore()
-  })
-
-  it('should call reportValidity when form is invalid', async () => {
-    const composable = useRoutingSlipTransaction()
-    const mockForm = {
-      checkValidity: vi.fn(() => false),
-      reportValidity: vi.fn()
-
-    } as unknown as HTMLFormElement
-    composable.formRoutingSlipManualTransactions.value = mockForm
-
-    await composable.addManualTransactions()
-
-    expect(mockForm.reportValidity).toHaveBeenCalled()
-    expect(mockSaveManualTransactions).not.toHaveBeenCalled()
   })
 
   it('should not call getRoutingSlip when routingSlip number is missing', async () => {
