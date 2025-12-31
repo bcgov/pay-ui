@@ -27,8 +27,7 @@ describe('useRoutingSlipStore', () => {
     expect(store.searchRoutingSlipResult).toEqual([])
     expect(store.searchRoutingSlipParams).toEqual({
       page: 1,
-      limit: 50,
-      total: Infinity
+      limit: 50
     })
     expect(store.searchRoutingSlipTableHeaders).toBeDefined()
     expect(Array.isArray(store.searchRoutingSlipTableHeaders)).toBe(true)
@@ -64,11 +63,9 @@ describe('useRoutingSlipStore', () => {
     const { store } = useRoutingSlipStore()
     store.searchRoutingSlipParams.page = 2
     store.searchRoutingSlipParams.limit = 100
-    store.searchRoutingSlipParams.total = 50
 
     expect(store.searchRoutingSlipParams.page).toBe(2)
     expect(store.searchRoutingSlipParams.limit).toBe(100)
-    expect(store.searchRoutingSlipParams.total).toBe(50)
   })
 
   it('should allow updating isPaymentMethodCheque', () => {

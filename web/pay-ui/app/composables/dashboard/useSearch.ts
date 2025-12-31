@@ -27,8 +27,7 @@ export async function useSearch() {
   const searchRoutingSlipResult = store.searchRoutingSlipResult
   const defaultParams: SearchRoutingSlipParams = {
     page: 1,
-    limit: 50,
-    total: Infinity
+    limit: 50
   }
   const { statusLabel } = await useStatusList(reactive({ value: '' }), { emit: () => {} })
   const { isLoading, toggleLoading } = useLoader()
@@ -48,7 +47,7 @@ export async function useSearch() {
     searchRoutingSlipResult.length = 0
   }
 
-  const searchRoutingSlip = async (appendToResults = false) => {
+  const searchRoutingSlip = async (appendToResults = false): Promise<number> => {
     const params: SearchRoutingSlipParams = { ...searchRoutingSlipParams }
 
     // filtering and removing all non set values
@@ -61,36 +60,34 @@ export async function useSearch() {
 
     try {
       // Let Global Error Handler handle this one.
-      const response = await usePayApi().getSearchRoutingSlip(cleanedParams)
+      const response = await usePayApi().postSearchRoutingSlip(cleanedParams)
       if (response && response.items) {
-        Object.assign(searchRoutingSlipParams, {
-          ...searchRoutingSlipParams,
-          total: response.total || 0
-        })
         if (appendToResults) {
           searchRoutingSlipResult.push(...(response.items || []))
         } else {
           searchRoutingSlipResult.length = 0
           searchRoutingSlipResult.push(...(response.items || []))
         }
+        return response.items.length
       }
+      return 0
     } catch (error) {
       console.error('error ', error)
+      return 0
     }
   }
 
   async function infiniteScrollCallback(isInitialLoad: boolean): Promise<boolean> {
-    const params = { ...searchRoutingSlipParams }
-    if (params.total !== Infinity && params?.total && params?.limit && params?.total < params?.limit) {
-      return true
-    }
     Object.assign(searchRoutingSlipParams, {
       ...searchRoutingSlipParams,
       page: searchRoutingSlipParams.page && !isInitialLoad
         ? searchRoutingSlipParams.page + 1
         : 1
     })
-    await searchRoutingSlip(true)
+    const itemsReturned = await searchRoutingSlip(true)
+    if (itemsReturned === 0 || (itemsReturned < (searchRoutingSlipParams.limit || 50))) {
+      return true
+    }
     return false
   }
 

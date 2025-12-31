@@ -9,8 +9,7 @@ import { createEmptyCRSState, createEmptyPaymentItem } from '~/utils/create-rout
 
 const defaultParams: SearchRoutingSlipParams = {
   page: 1,
-  limit: 50,
-  total: Infinity
+  limit: 50
 }
 
 // This is in a store because it's used across the app in various components.

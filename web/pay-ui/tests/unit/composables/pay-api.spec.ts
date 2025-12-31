@@ -1,7 +1,7 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { SlipStatus } from '~/enums/slip-status'
 import { PatchActions } from '~/utils/constants'
-import type { RoutingSlip, Payment } from '~/interfaces/routing-slip'
+import type { RoutingSlip, Payment, SearchRoutingSlipParams } from '~/interfaces/routing-slip'
 
 const {
   mockPayApi,
@@ -141,8 +141,8 @@ describe('usePayApi', () => {
 
   describe('postSearchRoutingSlip', () => {
     it('should call $payApi with correct url, method and payload', async () => {
-      const body: RoutingSlipSearchParams = { routingSlipNumber: '123456789' }
-      const mockResponse: { items: RoutingSlip[] } = { items: [{ number: '123456789', status: 'ACTIVE' }] }
+      const body: SearchRoutingSlipParams = { routingSlipNumber: '123456789' }
+      const mockResponse = { items: [{ number: '123456789', status: 'ACTIVE' }], total: 1 }
       mockPayApi.mockResolvedValue(mockResponse)
 
       const result = await payApi.postSearchRoutingSlip(body)
@@ -156,7 +156,7 @@ describe('usePayApi', () => {
     })
 
     it('should throw an error if $payApi fails', async () => {
-      const body: RoutingSlipSearchParams = { routingSlipNumber: '123456789' }
+      const body: SearchRoutingSlipParams = { routingSlipNumber: '123456789' }
       const mockError = new Error('API Error 404')
 
       mockPayApi.mockRejectedValue(mockError)
@@ -343,22 +343,6 @@ describe('usePayApi', () => {
       expect(mockPayApi).toHaveBeenCalledWith('/fas/routing-slips/123456/refunds', {
         method: 'POST',
         body: details
-      })
-      expect(result).toEqual(mockResponse)
-    })
-  })
-
-  describe('getSearchRoutingSlip', () => {
-    it('should call $payApi with correct url, method and payload', async () => {
-      const searchParams = { routingSlipNumber: '123456' }
-      const mockResponse = { items: [{ number: '123456' }], total: 1 }
-      mockPayApi.mockResolvedValue(mockResponse)
-
-      const result = await payApi.getSearchRoutingSlip(searchParams)
-
-      expect(mockPayApi).toHaveBeenCalledWith('/fas/routing-slips/queries', {
-        method: 'POST',
-        body: searchParams
       })
       expect(result).toEqual(mockResponse)
     })

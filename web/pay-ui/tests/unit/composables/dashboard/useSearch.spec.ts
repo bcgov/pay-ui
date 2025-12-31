@@ -6,10 +6,10 @@ import { nextTick } from 'vue'
 import type { RoutingSlipDetails } from '~/interfaces/routing-slip'
 import type { Invoice } from '~/interfaces/invoice'
 
-const mockGetSearchRoutingSlip = vi.fn()
+const mockPostSearchRoutingSlip = vi.fn()
 const mockGetCodes = vi.fn()
 const mockPayApi = {
-  getSearchRoutingSlip: mockGetSearchRoutingSlip,
+  postSearchRoutingSlip: mockPostSearchRoutingSlip,
   getCodes: mockGetCodes
 }
 
@@ -38,7 +38,7 @@ describe('useSearch', () => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
     mockGetCodes.mockImplementation(() => Promise.resolve([]))
-    mockGetSearchRoutingSlip.mockImplementation(() => Promise.resolve({
+    mockPostSearchRoutingSlip.mockImplementation(() => Promise.resolve({
       items: [],
       total: 0
     }))
@@ -101,7 +101,7 @@ describe('useSearch', () => {
   it('should call searchRoutingSlip when searchNow is called', async () => {
     const composable = await useSearch()
     await composable.searchNow()
-    expect(mockGetSearchRoutingSlip).toHaveBeenCalled()
+    expect(mockPostSearchRoutingSlip).toHaveBeenCalled()
   })
 
   it('should toggle loading when searchNow is called', async () => {
@@ -116,7 +116,7 @@ describe('useSearch', () => {
       { number: '123', status: 'ACTIVE' },
       { number: '456', status: 'COMPLETED' }
     ]
-    mockGetSearchRoutingSlip.mockImplementation(() => Promise.resolve({
+    mockPostSearchRoutingSlip.mockImplementation(() => Promise.resolve({
       items: mockItems,
       total: 2
     }))
@@ -132,14 +132,12 @@ describe('useSearch', () => {
     const { store } = useRoutingSlipStore()
     store.searchRoutingSlipParams.page = 5
     store.searchRoutingSlipParams.limit = 100
-    store.searchRoutingSlipParams.total = 10
     store.searchRoutingSlipResult.push({} as Partial<RoutingSlipDetails>)
 
     composable.resetSearchParams()
 
     expect(store.searchRoutingSlipParams.page).toBe(1)
     expect(store.searchRoutingSlipParams.limit).toBe(50)
-    expect(store.searchRoutingSlipParams.total).toBe(Infinity)
     expect(store.searchRoutingSlipResult.length).toBe(0)
   })
 
@@ -161,7 +159,7 @@ describe('useSearch', () => {
 
     await composable.clearFilter()
 
-    expect(mockGetSearchRoutingSlip).toHaveBeenCalled()
+    expect(mockPostSearchRoutingSlip).toHaveBeenCalled()
     expect(store.searchRoutingSlipParams.page).toBe(1)
   })
 
@@ -256,7 +254,7 @@ describe('useSearch', () => {
 
     await composable.getNext()
 
-    expect(mockGetSearchRoutingSlip).not.toHaveBeenCalled()
+    expect(mockPostSearchRoutingSlip).not.toHaveBeenCalled()
   })
 
   it('should append results when getNext is called', async () => {
@@ -264,10 +262,9 @@ describe('useSearch', () => {
     const { store } = useRoutingSlipStore()
     store.searchRoutingSlipResult = [{ number: '1' }] as RoutingSlipDetails[]
     store.searchRoutingSlipParams.page = 1
-    store.searchRoutingSlipParams.total = 100
     store.searchRoutingSlipParams.limit = 50
 
-    mockGetSearchRoutingSlip.mockImplementation(() => Promise.resolve({
+    mockPostSearchRoutingSlip.mockImplementation(() => Promise.resolve({
       items: [{ number: '2' }],
       total: 2
     }))
@@ -275,6 +272,6 @@ describe('useSearch', () => {
     await composable.getNext(false)
     await nextTick()
 
-    expect(mockGetSearchRoutingSlip).toHaveBeenCalled()
+    expect(mockPostSearchRoutingSlip).toHaveBeenCalled()
   })
 })

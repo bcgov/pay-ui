@@ -214,7 +214,6 @@ describe('useTransactionDataTable', () => {
     expect(composable.isAlreadyCancelled(undefined)).toBe(false)
   })
 
-
   it('should call openCancelTransactionModal when cancel is called', async () => {
     const invoices = ref([])
     const composable = useTransactionDataTable(invoices)

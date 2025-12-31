@@ -196,7 +196,6 @@ export interface AdjustRoutingSlipAmountParams {
 export interface SearchRoutingSlipParams {
   page?: number
   limit?: number
-  total?: number
   routingSlipNumber?: string | null
   receiptNumber?: string | null
   accountName?: string | null

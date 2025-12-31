@@ -1,7 +1,7 @@
 import type { RoutingSlipComments, UpdateCommentsParams,
   RoutingSlipCommentResponse, CancelRoutingSlipInvoiceResponse,
   UpdateRoutingSlipRefundResponse, SearchRoutingSlipResponse, LinkedRoutingSlips,
-  FilingType, GetFeeRequestParams } from '~/interfaces/routing-slip'
+  FilingType, GetFeeRequestParams, SearchRoutingSlipParams } from '~/interfaces/routing-slip'
 
 export const usePayApi = () => {
   const nuxtApp = useNuxtApp()
@@ -30,8 +30,8 @@ export const usePayApi = () => {
     })
   }
 
-  async function postSearchRoutingSlip(body: RoutingSlipSearchParams): Promise<{ items: RoutingSlip[] }> {
-    return $payApi<{ items: RoutingSlip[] }>('/fas/routing-slips/queries', {
+  async function postSearchRoutingSlip(body: SearchRoutingSlipParams): Promise<SearchRoutingSlipResponse> {
+    return $payApi<SearchRoutingSlipResponse>('/fas/routing-slips/queries', {
       method: 'POST',
       body
     })
@@ -120,15 +120,6 @@ export const usePayApi = () => {
     )
   }
 
-  async function getSearchRoutingSlip(
-    searchParams: SearchRoutingSlipParams
-  ): Promise<SearchRoutingSlipResponse> {
-    return $payApi<SearchRoutingSlipResponse>(
-      '/fas/routing-slips/queries',
-      { method: 'POST', body: searchParams }
-    )
-  }
-
   async function saveLinkRoutingSlip(
     linkRoutingSlip: LinkRoutingSlipParams
   ): Promise<void> {
@@ -211,7 +202,6 @@ export const usePayApi = () => {
     getRoutingSlipComments,
     updateRoutingSlipComments,
     updateRoutingSlipRefund,
-    getSearchRoutingSlip,
     saveLinkRoutingSlip,
     getLinkedRoutingSlips,
     getDailyReport,

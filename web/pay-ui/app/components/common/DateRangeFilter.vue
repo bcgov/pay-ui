@@ -83,12 +83,6 @@ function cancel() {
   open.value = false
 }
 
-function clearDateRange() {
-  model.value = { startDate: null, endDate: null }
-  localModel.value = resetRange()
-  emit('change', model.value)
-}
-
 function getFilterCodeForRange(range?: { start?: CalendarDate, end?: CalendarDate }): string | undefined {
   if (!range?.start || !range?.end) {
     return DATEFILTER_CODES.CUSTOMRANGE
@@ -182,16 +176,6 @@ watch(model, () => {
           <span v-else class="date-range-placeholder">{{ props.placeholder || $t('label.date') }}</span>
         </template>
       </UButton>
-      <button
-        v-if="model.startDate && model.endDate"
-        type="button"
-        class="absolute right-14 z-10 h-10 w-10 min-w-0 p-0 flex items-center justify-center
-        text-primary focus:outline-none cursor-pointer"
-        style="pointer-events: auto;"
-        @click.stop="clearDateRange"
-      >
-        <UIcon name="i-mdi-close" class="h-6 w-6" />
-      </button>
     </div>
 
     <template #content>
@@ -248,7 +232,8 @@ watch(model, () => {
 
 <style scoped>
 .date-range-placeholder {
-  font-size: 12.25px;
+  font-weight: 400;
+  color: #919191;
 }
 
 :deep(.date-range-filter-button) {

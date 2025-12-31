@@ -3,7 +3,6 @@ export enum SlipStatus {
   COMPLETE = 'COMPLETE',
   NSF = 'NSF',
   REFUND = 'REFUND',
-  LAST = 'LAST',
   HOLD = 'HOLD',
   LINKED = 'LINKED',
   REFUNDREQUEST = 'REFUND_REQUESTED',

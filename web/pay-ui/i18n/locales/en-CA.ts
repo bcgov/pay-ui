@@ -36,7 +36,6 @@ export default {
       BOUNCED: 'Bounced',
       NSF: 'Non Sufficient Fund',
       REFUND: 'Refund',
-      LAST: 'Last',
       HOLD: 'On Hold',
       LINKED: 'Linked',
       REFUND_REQUESTED: 'Refund Requested',

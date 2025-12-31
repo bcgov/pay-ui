@@ -263,7 +263,7 @@ export const useRoutingSlip = () => {
     routingSlipNumber: string
   ): Promise<RoutingSlipDetails[]> => {
   // Global Exception handler will handle this one.
-    const response = await usePayApi().getSearchRoutingSlip({
+    const response = await usePayApi().postSearchRoutingSlip({
       routingSlipNumber
     })
     if (response && response.items) {

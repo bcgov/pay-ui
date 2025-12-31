@@ -58,7 +58,7 @@ const mockUsePayApi = {
   saveLinkRoutingSlip: vi.fn(),
   getLinkedRoutingSlips: vi.fn(),
   getDailyReport: vi.fn(),
-  getSearchRoutingSlip: vi.fn(),
+  postSearchRoutingSlip: vi.fn(),
   getFeeByCorpTypeAndFilingType: vi.fn(),
   saveManualTransactions: vi.fn(),
   cancelRoutingSlipInvoice: vi.fn(),
@@ -598,17 +598,17 @@ describe('useRoutingSlip', () => {
         { number: '789012', status: SlipStatus.COMPLETE }
       ]
     }
-    mockUsePayApi.getSearchRoutingSlip.mockResolvedValue(mockResponse)
+    mockUsePayApi.postSearchRoutingSlip.mockResolvedValue(mockResponse)
 
     const composable = useRoutingSlip()
     const result = await composable.getAutoCompleteRoutingSlips('123')
 
     expect(result).toEqual(mockResponse.items)
-    expect(mockUsePayApi.getSearchRoutingSlip).toHaveBeenCalledWith({ routingSlipNumber: '123' })
+    expect(mockUsePayApi.postSearchRoutingSlip).toHaveBeenCalledWith({ routingSlipNumber: '123' })
   })
 
   it('should return empty array when no items in auto complete response', async () => {
-    mockUsePayApi.getSearchRoutingSlip.mockResolvedValue({})
+    mockUsePayApi.postSearchRoutingSlip.mockResolvedValue({})
 
     const composable = useRoutingSlip()
     const result = await composable.getAutoCompleteRoutingSlips('123')
