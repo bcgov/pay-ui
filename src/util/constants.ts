@@ -245,7 +245,9 @@ export enum ShortNameHistoryType {
   STATEMENT_REVERSE = 'STATEMENT_REVERSE',
   SN_REFUND_PENDING_APPROVAL = 'SN_REFUND_PENDING_APPROVAL',
   SN_REFUND_APPROVED = 'SN_REFUND_APPROVED',
-  SN_REFUND_DECLINED = 'SN_REFUND_DECLINED'
+  SN_REFUND_DECLINED = 'SN_REFUND_DECLINED',
+  SN_TRANSFER_SENT = 'SN_TRANSFER_SENT',
+  SN_TRANSFER_RECEIVED = 'SN_TRANSFER_RECEIVED'
 }
 
 export enum ShortNameHistoryTypeDescription {
@@ -256,7 +258,9 @@ export enum ShortNameHistoryTypeDescription {
   STATEMENT_REVERSE = 'Payment Reversed',
   SN_REFUND_PENDING_APPROVAL = 'Short Name Refund Request',
   SN_REFUND_APPROVED = 'Short Name Refund Request',
-  SN_REFUND_DECLINED = 'Short Name Refund Request'
+  SN_REFUND_DECLINED = 'Short Name Refund Request',
+  SN_TRANSFER_SENT = 'Short Name Transfer Sent',
+  SN_TRANSFER_RECEIVED = 'Short Name Transfer Received'
 }
 
 export enum ShortNameReversePaymentErrors {

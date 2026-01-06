@@ -345,6 +345,9 @@ export default defineComponent({
           return 'Refund Declined'
         case ShortNameHistoryType.FUNDS_RECEIVED:
           return `Deposit Date: ${formatDate(item.transactionDate, dateDisplayFormat)}`
+        case ShortNameHistoryType.SN_TRANSFER_SENT:
+        case ShortNameHistoryType.SN_TRANSFER_RECEIVED:
+          return item.comment
         default:
           return CommonUtils.formatAccountDisplayName(item) ? item.accountId && item.accountName : ''
       }
@@ -358,6 +361,7 @@ export default defineComponent({
         case ShortNameHistoryType.STATEMENT_PAID:
         case ShortNameHistoryType.SN_REFUND_PENDING_APPROVAL:
         case ShortNameHistoryType.SN_REFUND_APPROVED:
+        case ShortNameHistoryType.SN_TRANSFER_SENT:
           return `-${amount}`
         case ShortNameHistoryType.SN_REFUND_DECLINED:
           return '-'
