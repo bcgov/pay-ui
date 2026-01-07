@@ -11,7 +11,8 @@ describe('Row', () => {
     expect(wrapper.exists()).toBe(true)
   })
 
-  it('should display label and value when both are provided', async () => {
+  it('should display label and value when both are provided, and display label and slot content '
+    + 'when value is not provided', async () => {
     const wrapper = await mountSuspended(Row, {
       props: {
         label: 'Test Label',
@@ -21,10 +22,8 @@ describe('Row', () => {
 
     expect(wrapper.text()).toContain('Test Label')
     expect(wrapper.text()).toContain('Test Value')
-  })
 
-  it('should display label and slot content when value is not provided', async () => {
-    const wrapper = await mountSuspended(Row, {
+    const wrapper2 = await mountSuspended(Row, {
       props: {
         label: 'Test Label'
       },
@@ -33,7 +32,7 @@ describe('Row', () => {
       }
     })
 
-    expect(wrapper.text()).toContain('Test Label')
-    expect(wrapper.text()).toContain('Slot Content')
+    expect(wrapper2.text()).toContain('Test Label')
+    expect(wrapper2.text()).toContain('Slot Content')
   })
 })

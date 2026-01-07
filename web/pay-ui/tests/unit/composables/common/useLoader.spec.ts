@@ -19,45 +19,31 @@ describe('useLoader', () => {
     mockHasCallFailed.value = false
   })
 
-  it('should be defined', () => {
+  it('should be defined and return all expected properties', () => {
     const composable = useLoader()
     expect(composable).toBeDefined()
-  })
-
-  it('should return isLoading, isThereActiveCalls, and toggleLoading', () => {
-    const { isLoading, isThereActiveCalls, toggleLoading } = useLoader()
+    const { isLoading, isThereActiveCalls, toggleLoading } = composable
     expect(isLoading).toBeDefined()
     expect(isThereActiveCalls).toBeDefined()
     expect(toggleLoading).toBeDefined()
   })
 
-  it('should initialize isLoading as false', () => {
-    const { isLoading } = useLoader()
+  it('should initialize isLoading as false and handle toggleLoading correctly', () => {
+    const { isLoading, toggleLoading } = useLoader()
     expect(isLoading.value).toBe(false)
-  })
 
-  it('should set isLoading to true when toggleLoading is called with true', () => {
-    const { isLoading, toggleLoading } = useLoader()
     toggleLoading(true)
     expect(isLoading.value).toBe(true)
-  })
 
-  it('should set isLoading to false when toggleLoading is called with false', () => {
-    const { isLoading, toggleLoading } = useLoader()
-    toggleLoading(true)
-    expect(isLoading.value).toBe(true)
     toggleLoading(false)
     expect(isLoading.value).toBe(false)
   })
 
-  it('should return isThereActiveCalls from useIndicators', () => {
+  it('should return isThereActiveCalls from useIndicators and update isLoading independently', () => {
     mockIsThereActiveCalls.value = true
-    const { isThereActiveCalls } = useLoader()
-    expect(isThereActiveCalls.value).toBe(true)
-  })
-
-  it('should update isLoading independently of isThereActiveCalls', () => {
     const { isLoading, isThereActiveCalls, toggleLoading } = useLoader()
+    expect(isThereActiveCalls.value).toBe(true)
+
     mockIsThereActiveCalls.value = false
     toggleLoading(true)
     expect(isLoading.value).toBe(true)

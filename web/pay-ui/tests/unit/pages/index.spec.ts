@@ -15,16 +15,10 @@ describe('Index Page', () => {
     vi.clearAllMocks()
   })
 
-  it('should navigate to /home when mounted', async () => {
+  it('should navigate to /home when mounted and call navigateTo exactly once', async () => {
     const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     await mountSuspended(Index)
     expect(mockNavigateTo).toHaveBeenCalledWith('/home')
-    consoleWarnSpy.mockRestore()
-  })
-
-  it('should call navigateTo exactly once', async () => {
-    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    await mountSuspended(Index)
     expect(mockNavigateTo).toHaveBeenCalledTimes(1)
     consoleWarnSpy.mockRestore()
   })

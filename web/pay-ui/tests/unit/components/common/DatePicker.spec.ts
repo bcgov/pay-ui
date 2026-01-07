@@ -13,20 +13,18 @@ describe('DatePicker', () => {
     vi.useRealTimers()
   })
 
-  it('should display "Select Date" when v-model is null', async () => {
+  it('should display "Select Date" when v-model is null and display ISODate when v-model is set', async () => {
     const wrapper = await mountSuspended(DatePicker, {
       props: { modelValue: null }
     })
     expect(wrapper.text()).toContain('Select Date')
-  })
 
-  it('should display ISODate when v-model is set', async () => {
-    const wrapper = await mountSuspended(DatePicker, {
+    const wrapper2 = await mountSuspended(DatePicker, {
       props: {
         modelValue: '2025-09-26'
       }
     })
-    expect(wrapper.text()).toContain('2025-09-26')
+    expect(wrapper2.text()).toContain('2025-09-26')
   })
 
   it('should update when v-model changes', async () => {

@@ -35,7 +35,7 @@ describe('CreateRoutingSlipDetails', () => {
     expect(dateField.props('name')).toBe('details.date')
   })
 
-  it('should pass modelValue to children', async () => {
+  it('should pass modelValue to children, update model on changes, and handle empty values', async () => {
     const wrapper = await mountSuspended(CreateRoutingSlipDetails, {
       props: {
         schemaPrefix: 'details',
@@ -57,10 +57,8 @@ describe('CreateRoutingSlipDetails', () => {
     expect(inputs[0]!.props('modelValue')).toBe('123456789')
     expect(inputs[1]!.props('modelValue')).toBe('BC1234567')
     expect(datePicker.props('modelValue')).toBe('2025-10-03')
-  })
 
-  it('should update model when id changes', async () => {
-    const wrapper = await mountSuspended(CreateRoutingSlipDetails, {
+    const wrapper2 = await mountSuspended(CreateRoutingSlipDetails, {
       props: {
         schemaPrefix: 'details',
         modelValue: initialModelValue
@@ -73,60 +71,6 @@ describe('CreateRoutingSlipDetails', () => {
             props: ['modelValue', 'name', 'label', 'inputId'],
             emits: ['update:modelValue']
           },
-          DatePicker: true,
-          UFormField: { template: '<div><slot /></div>' }
-        }
-      }
-    })
-
-    const inputs = wrapper.findAllComponents({ name: 'ConnectFormInput' })
-    if (inputs.length > 0 && inputs[0]!.exists()) {
-      await inputs[0]!.vm.$emit('update:modelValue', '987654321')
-      await nextTick()
-
-      expect(inputs[0]!.props('modelValue')).toBe('987654321')
-    }
-  })
-
-  it('should update model when entity changes', async () => {
-    const wrapper = await mountSuspended(CreateRoutingSlipDetails, {
-      props: {
-        schemaPrefix: 'details',
-        modelValue: initialModelValue
-      },
-      global: {
-        stubs: {
-          ConnectFieldset: { template: '<div><slot /></div>' },
-          ConnectFormInput: {
-            template: '<input @input="$emit(\'update:modelValue\', $event.target.value)" />',
-            props: ['modelValue', 'name', 'label', 'inputId'],
-            emits: ['update:modelValue']
-          },
-          DatePicker: true,
-          UFormField: { template: '<div><slot /></div>' }
-        }
-      }
-    })
-
-    const inputs = wrapper.findAllComponents({ name: 'ConnectFormInput' })
-    if (inputs.length > 1 && inputs[1]!.exists()) {
-      await inputs[1]!.vm.$emit('update:modelValue', 'BC9876543')
-      await nextTick()
-
-      expect(inputs[1]!.props('modelValue')).toBe('BC9876543')
-    }
-  })
-
-  it('should update model when date changes', async () => {
-    const wrapper = await mountSuspended(CreateRoutingSlipDetails, {
-      props: {
-        schemaPrefix: 'details',
-        modelValue: initialModelValue
-      },
-      global: {
-        stubs: {
-          ConnectFieldset: { template: '<div><slot /></div>' },
-          ConnectFormInput: true,
           DatePicker: {
             template: '<input @input="$emit(\'update:modelValue\', $event.target.value)" />',
             props: ['modelValue'],
@@ -137,23 +81,33 @@ describe('CreateRoutingSlipDetails', () => {
       }
     })
 
-    const datePicker = wrapper.findComponent({ name: 'DatePicker' })
-    if (datePicker.exists()) {
-      await datePicker.vm.$emit('update:modelValue', '2025-11-15')
+    const inputs2 = wrapper2.findAllComponents({ name: 'ConnectFormInput' })
+    if (inputs2.length > 0 && inputs2[0]!.exists()) {
+      await inputs2[0]!.vm.$emit('update:modelValue', '987654321')
       await nextTick()
-
-      expect(datePicker.props('modelValue')).toBe('2025-11-15')
+      expect(inputs2[0]!.props('modelValue')).toBe('987654321')
     }
-  })
 
-  it('should handle empty modelValue', async () => {
+    if (inputs2.length > 1 && inputs2[1]!.exists()) {
+      await inputs2[1]!.vm.$emit('update:modelValue', 'BC9876543')
+      await nextTick()
+      expect(inputs2[1]!.props('modelValue')).toBe('BC9876543')
+    }
+
+    const datePicker2 = wrapper2.findComponent({ name: 'DatePicker' })
+    if (datePicker2.exists()) {
+      await datePicker2.vm.$emit('update:modelValue', '2025-11-15')
+      await nextTick()
+      expect(datePicker2.props('modelValue')).toBe('2025-11-15')
+    }
+
     const emptyModelValue = {
       id: '',
       date: '',
       entity: ''
     }
 
-    const wrapper = await mountSuspended(CreateRoutingSlipDetails, {
+    const wrapper3 = await mountSuspended(CreateRoutingSlipDetails, {
       props: {
         schemaPrefix: 'details',
         modelValue: emptyModelValue
@@ -168,12 +122,12 @@ describe('CreateRoutingSlipDetails', () => {
       }
     })
 
-    const inputs = wrapper.findAllComponents({ name: 'ConnectFormInput' })
-    const datePicker = wrapper.findComponent({ name: 'DatePicker' })
+    const inputs3 = wrapper3.findAllComponents({ name: 'ConnectFormInput' })
+    const datePicker3 = wrapper3.findComponent({ name: 'DatePicker' })
 
-    expect(inputs[0]!.props('modelValue')).toBe('')
-    expect(inputs[1]!.props('modelValue')).toBe('')
-    expect(datePicker.props('modelValue')).toBe('')
+    expect(inputs3[0]!.props('modelValue')).toBe('')
+    expect(inputs3[1]!.props('modelValue')).toBe('')
+    expect(datePicker3.props('modelValue')).toBe('')
   })
 
   it('should use correct schema prefix for all fields', async () => {

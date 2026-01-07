@@ -96,102 +96,64 @@ describe('CreateRoutingSlip Page', () => {
     mockCrsStore.reviewMode = false
   })
 
-  it('should render the page', async () => {
+  it('should render page, back button, heading, and components based on review mode', async () => {
     const wrapper = await mountSuspended(CreateRoutingSlip)
     expect(wrapper.exists()).toBe(true)
-  })
 
-  it('should render the back button', async () => {
-    const wrapper = await mountSuspended(CreateRoutingSlip)
     const backButton = wrapper.find('button')
     expect(backButton.exists()).toBe(true)
     expect(backButton.text()).toBe('Back to Dashboard')
-  })
 
-  it('should call openLeaveCreateRoutingSlipModal when back button is clicked', async () => {
-    const wrapper = await mountSuspended(CreateRoutingSlip)
-    const backButton = wrapper.find('button')
     await backButton.trigger('click')
-
     expect(mockModal.openLeaveCreateRoutingSlipModal).toHaveBeenCalled()
-  })
 
-  it('should disable back button when loading', async () => {
     mockCrsStore.loading = true
-    const wrapper = await mountSuspended(CreateRoutingSlip)
-    const backButton = wrapper.find('button')
+    const wrapper2 = await mountSuspended(CreateRoutingSlip)
+    const backButton2 = wrapper2.find('button')
+    expect(backButton2.attributes('disabled')).toBeDefined()
 
-    expect(backButton.attributes('disabled')).toBeDefined()
-  })
-
-  it('should render the heading', async () => {
-    const wrapper = await mountSuspended(CreateRoutingSlip)
     const heading = wrapper.find('h1')
     expect(heading.exists()).toBe(true)
     expect(heading.text()).toBe('Add Routing Slip')
-  })
 
-  it('should render CreateRoutingSlip component when not in review mode', async () => {
     mockCrsStore.reviewMode = false
-    const wrapper = await mountSuspended(CreateRoutingSlip)
-    const createComponent = wrapper.find('[data-testid="create-routing-slip"]')
-    const reviewComponent = wrapper.find('[data-testid="review-routing-slip"]')
-
+    mockCrsStore.loading = false
+    const wrapper3 = await mountSuspended(CreateRoutingSlip)
+    const createComponent = wrapper3.find('[data-testid="create-routing-slip"]')
+    const reviewComponent = wrapper3.find('[data-testid="review-routing-slip"]')
     expect(createComponent.exists()).toBe(true)
     expect(reviewComponent.exists()).toBe(false)
-  })
 
-  it('should render ReviewRoutingSlip component when in review mode', async () => {
     mockCrsStore.reviewMode = true
-    const wrapper = await mountSuspended(CreateRoutingSlip)
-    const createComponent = wrapper.find('[data-testid="create-routing-slip"]')
-    const reviewComponent = wrapper.find('[data-testid="review-routing-slip"]')
-
-    expect(createComponent.exists()).toBe(false)
-    expect(reviewComponent.exists()).toBe(true)
+    const wrapper4 = await mountSuspended(CreateRoutingSlip)
+    const createComponent2 = wrapper4.find('[data-testid="create-routing-slip"]')
+    const reviewComponent2 = wrapper4.find('[data-testid="review-routing-slip"]')
+    expect(createComponent2.exists()).toBe(false)
+    expect(reviewComponent2.exists()).toBe(true)
   })
 
-  it('should set reviewMode to true when CreateRoutingSlip emits submit', async () => {
+  it('should handle component events and set page title', async () => {
     mockCrsStore.reviewMode = false
     const wrapper = await mountSuspended(CreateRoutingSlip)
     const createComponent = wrapper.findComponent({ name: 'CreateRoutingSlip' })
 
     await createComponent.vm.$emit('submit')
-
     expect(mockCrsStore.reviewMode).toBe(true)
-  })
 
-  it('should call openLeaveCreateRoutingSlipModal when CreateRoutingSlip emits cancel', async () => {
     mockCrsStore.reviewMode = false
-    const wrapper = await mountSuspended(CreateRoutingSlip)
-    const createComponent = wrapper.findComponent({ name: 'CreateRoutingSlip' })
-
     await createComponent.vm.$emit('cancel')
-
     expect(mockModal.openLeaveCreateRoutingSlipModal).toHaveBeenCalled()
-  })
 
-  it('should call createRoutingSlip when ReviewRoutingSlip emits create', async () => {
     mockCrsStore.reviewMode = true
-    const wrapper = await mountSuspended(CreateRoutingSlip)
-    const reviewComponent = wrapper.findComponent({ name: 'ReviewRoutingSlip' })
+    const wrapper2 = await mountSuspended(CreateRoutingSlip)
+    const reviewComponent = wrapper2.findComponent({ name: 'ReviewRoutingSlip' })
 
     await reviewComponent.vm.$emit('create')
-
     expect(mockCreateRoutingSlip).toHaveBeenCalled()
-  })
-
-  it('should call openLeaveCreateRoutingSlipModal when ReviewRoutingSlip emits cancel', async () => {
-    mockCrsStore.reviewMode = true
-    const wrapper = await mountSuspended(CreateRoutingSlip)
-    const reviewComponent = wrapper.findComponent({ name: 'ReviewRoutingSlip' })
 
     await reviewComponent.vm.$emit('cancel')
-
     expect(mockModal.openLeaveCreateRoutingSlipModal).toHaveBeenCalled()
-  })
 
-  it('should set page title', async () => {
     await mountSuspended(CreateRoutingSlip)
     expect(mockT).toHaveBeenCalledWith('page.createRoutingSlip.title')
   })

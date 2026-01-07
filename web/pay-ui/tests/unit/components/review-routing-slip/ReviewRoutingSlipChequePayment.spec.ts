@@ -17,7 +17,8 @@ describe('ReviewRoutingSlipChequePayment', () => {
     vi.clearAllMocks()
   })
 
-  it('renders component with correct values', async () => {
+  it('should render, display multiple payments, handle USD, enable/disable inputs, '
+    + 'format dates, and handle updates', async () => {
     const wrapper = await mountSuspended(ReviewRoutingSlipChequePayment, {
       props: {
         chequePayment: chequePaymentMock,
@@ -33,24 +34,12 @@ describe('ReviewRoutingSlipChequePayment', () => {
     expect(chequeNumberInput.exists()).toBe(true)
     expect(chequeDateInput.exists()).toBe(true)
     expect(amountInput.exists()).toBe(true)
-  })
-
-  it('renders multiple cheque payments', async () => {
-    const wrapper = await mountSuspended(ReviewRoutingSlipChequePayment, {
-      props: {
-        chequePayment: chequePaymentMock,
-        isAmountPaidInUsd: false,
-        isEditable: false
-      }
-    })
-
-    // Should have 2 cheque payments
-    expect(wrapper.find('[data-test="txt-cheque-receipt-number-0"]').exists()).toBe(true)
     expect(wrapper.find('[data-test="txt-cheque-receipt-number-1"]').exists()).toBe(true)
-  })
 
-  it('displays USD amount when isAmountPaidInUsd is true', async () => {
-    const wrapper = await mountSuspended(ReviewRoutingSlipChequePayment, {
+    expect(chequeNumberInput.attributes('disabled')).toBeDefined()
+    expect(amountInput.attributes('disabled')).toBeDefined()
+
+    const wrapper2 = await mountSuspended(ReviewRoutingSlipChequePayment, {
       props: {
         chequePayment: chequePaymentMock,
         isAmountPaidInUsd: true,
@@ -58,28 +47,10 @@ describe('ReviewRoutingSlipChequePayment', () => {
       }
     })
 
-    const usdInput = wrapper.find('[data-test="txt-paid-usd-amount-0"]')
+    const usdInput = wrapper2.find('[data-test="txt-paid-usd-amount-0"]')
     expect(usdInput.exists()).toBe(true)
-  })
 
-  it('disables inputs when not editable', async () => {
-    const wrapper = await mountSuspended(ReviewRoutingSlipChequePayment, {
-      props: {
-        chequePayment: chequePaymentMock,
-        isAmountPaidInUsd: false,
-        isEditable: false
-      }
-    })
-
-    const chequeNumberInput = wrapper.find('[data-test="txt-cheque-receipt-number-0"]')
-    const amountInput = wrapper.find('[data-test="txt-paid-amount-0"]')
-
-    expect(chequeNumberInput.attributes('disabled')).toBeDefined()
-    expect(amountInput.attributes('disabled')).toBeDefined()
-  })
-
-  it('enables inputs when editable', async () => {
-    const wrapper = await mountSuspended(ReviewRoutingSlipChequePayment, {
+    const wrapper3 = await mountSuspended(ReviewRoutingSlipChequePayment, {
       props: {
         chequePayment: chequePaymentMock,
         isAmountPaidInUsd: false,
@@ -87,86 +58,19 @@ describe('ReviewRoutingSlipChequePayment', () => {
       }
     })
 
-    const chequeNumberInput = wrapper.find('[data-test="txt-cheque-receipt-number-0"]')
-    const amountInput = wrapper.find('[data-test="txt-paid-amount-0"]')
+    const chequeNumberInput2 = wrapper3.find('[data-test="txt-cheque-receipt-number-0"]')
+    const amountInput2 = wrapper3.find('[data-test="txt-paid-amount-0"]')
 
-    expect(chequeNumberInput.attributes('disabled')).toBeUndefined()
-    expect(amountInput.attributes('disabled')).toBeUndefined()
-  })
+    expect(chequeNumberInput2.attributes('disabled')).toBeUndefined()
+    expect(amountInput2.attributes('disabled')).toBeUndefined()
 
-  it('renders cheque number input when editable', async () => {
-    const wrapper = await mountSuspended(ReviewRoutingSlipChequePayment, {
-      props: {
-        chequePayment: chequePaymentMock,
-        isAmountPaidInUsd: false,
-        isEditable: true
-      }
-    })
-
-    const chequeNumberInput = wrapper.find('[data-test="txt-cheque-receipt-number-0"]')
-    expect(chequeNumberInput.exists()).toBe(true)
-    expect(chequeNumberInput.attributes('disabled')).toBeUndefined()
-  })
-
-  it('renders amount input when editable', async () => {
-    const wrapper = await mountSuspended(ReviewRoutingSlipChequePayment, {
-      props: {
-        chequePayment: chequePaymentMock,
-        isAmountPaidInUsd: false,
-        isEditable: true
-      }
-    })
-
-    const amountInput = wrapper.find('[data-test="txt-paid-amount-0"]')
-    expect(amountInput.exists()).toBe(true)
-    expect(amountInput.attributes('disabled')).toBeUndefined()
-  })
-
-  it('formats date correctly', async () => {
-    const wrapper = await mountSuspended(ReviewRoutingSlipChequePayment, {
-      props: {
-        chequePayment: chequePaymentMock,
-        isAmountPaidInUsd: false,
-        isEditable: false
-      }
-    })
-
-    const chequeDateInput = wrapper.find('[data-test="txt-cheque-date-0"]')
-    expect(chequeDateInput.exists()).toBe(true)
-    // Date should be formatted (not raw ISO string)
-  })
-
-  it('calls adjustRoutingSlipChequeNumber when cheque number is updated', async () => {
-    const wrapper = await mountSuspended(ReviewRoutingSlipChequePayment, {
-      props: {
-        chequePayment: chequePaymentMock,
-        isAmountPaidInUsd: false,
-        isEditable: true
-      }
-    })
-
-    const inputs = wrapper.findAllComponents({ name: 'ConnectInput' })
-    const chequeNumberInput = inputs[0]
-
-    await chequeNumberInput.vm.$emit('update:modelValue', '12345')
-
+    const inputs = wrapper3.findAllComponents({ name: 'ConnectInput' })
+    const chequeNumberInput3 = inputs[0]
+    await chequeNumberInput3.vm.$emit('update:modelValue', '12345')
     expect(mockAdjustRoutingSlipChequeNumber).toHaveBeenCalledWith('12345', 0)
-  })
 
-  it('calls adjustRoutingSlipAmount when amount is updated', async () => {
-    const wrapper = await mountSuspended(ReviewRoutingSlipChequePayment, {
-      props: {
-        chequePayment: chequePaymentMock,
-        isAmountPaidInUsd: false,
-        isEditable: true
-      }
-    })
-
-    const inputs = wrapper.findAllComponents({ name: 'ConnectInput' })
-    const amountInput = inputs[2]
-
-    await amountInput.vm.$emit('update:modelValue', '1000')
-
+    const amountInput3 = inputs[2]
+    await amountInput3.vm.$emit('update:modelValue', '1000')
     expect(mockAdjustRoutingSlipAmount).toHaveBeenCalledWith(1000, false, 0)
   })
 })

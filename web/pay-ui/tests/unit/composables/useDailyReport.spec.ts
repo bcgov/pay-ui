@@ -25,37 +25,28 @@ describe('useDailyReport', () => {
     vi.clearAllMocks()
   })
 
-  it('should be defined', () => {
+  it('should be defined, return all expected properties, and initialize with default values', () => {
     const composable = useDailyReport()
     expect(composable).toBeDefined()
-  })
-
-  it('should return selectedDate, getDailyReport, showCalendar, isDownloading, and toggleCalendar', () => {
-    const { selectedDate, getDailyReport, showCalendar, isDownloading, toggleCalendar } = useDailyReport()
+    const { selectedDate, getDailyReport, showCalendar, isDownloading, toggleCalendar } = composable
     expect(selectedDate).toBeDefined()
     expect(getDailyReport).toBeDefined()
     expect(showCalendar).toBeDefined()
     expect(isDownloading).toBeDefined()
     expect(toggleCalendar).toBeDefined()
-  })
-
-  it('should initialize with default values', () => {
-    const { selectedDate, showCalendar, isDownloading } = useDailyReport()
     expect(selectedDate.value).toBeNull()
     expect(showCalendar.value).toBe(false)
     expect(isDownloading.value).toBe(false)
   })
 
-  it('should not call getDailyReportByDate when selectedDate is null', async () => {
+  it('should not call getDailyReportByDate when selectedDate is null or empty', async () => {
     const { getDailyReport } = useDailyReport()
     await getDailyReport()
     expect(mockGetDailyReportByDate).not.toHaveBeenCalled()
-  })
 
-  it('should not call getDailyReportByDate when selectedDate is empty string', async () => {
-    const { selectedDate, getDailyReport } = useDailyReport()
+    const { selectedDate, getDailyReport: getDailyReport2 } = useDailyReport()
     selectedDate.value = ''
-    await getDailyReport()
+    await getDailyReport2()
     expect(mockGetDailyReportByDate).not.toHaveBeenCalled()
   })
 
@@ -75,7 +66,7 @@ describe('useDailyReport', () => {
     )
   })
 
-  it('should set isDownloading to true during download', async () => {
+  it('should handle isDownloading state during download and on failure', async () => {
     const mockBlob = new Blob(['test'], { type: 'application/pdf' })
     mockGetDailyReportByDate.mockImplementation(() => new Promise(resolve => setTimeout(() => resolve(mockBlob), 100)))
 
@@ -87,14 +78,8 @@ describe('useDailyReport', () => {
 
     await downloadPromise
     expect(isDownloading.value).toBe(false)
-  })
 
-  it('should set isDownloading to false even if download fails', async () => {
     mockGetDailyReportByDate.mockRejectedValue(new Error('Download failed'))
-
-    const { selectedDate, getDailyReport, isDownloading } = useDailyReport()
-    selectedDate.value = '2025-09-26'
-
     try {
       await getDailyReport()
     } catch {
@@ -103,7 +88,7 @@ describe('useDailyReport', () => {
     expect(isDownloading.value).toBe(false)
   })
 
-  it('should not call fileDownload when response type is not PDF', async () => {
+  it('should handle non-PDF responses, toggle calendar, and handle null responses', async () => {
     const mockBlob = new Blob(['test'], { type: 'text/plain' })
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     mockGetDailyReportByDate.mockResolvedValue(mockBlob)
@@ -115,28 +100,16 @@ describe('useDailyReport', () => {
     expect(mockGetDailyReportByDate).toHaveBeenCalled()
     expect(mockFileDownload).not.toHaveBeenCalled()
     expect(consoleErrorSpy).toHaveBeenCalledWith(mockBlob)
-    consoleErrorSpy.mockRestore()
-  })
 
-  it('should toggle calendar when toggleCalendar is called', () => {
     const { showCalendar, toggleCalendar } = useDailyReport()
     expect(showCalendar.value).toBe(false)
-
     toggleCalendar(true)
     expect(showCalendar.value).toBe(true)
-
     toggleCalendar(false)
     expect(showCalendar.value).toBe(false)
-  })
 
-  it('should handle null response from getDailyReportByDate', async () => {
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     mockGetDailyReportByDate.mockResolvedValue(null)
-
-    const { selectedDate, getDailyReport } = useDailyReport()
-    selectedDate.value = '2025-09-26'
     await getDailyReport()
-
     expect(mockGetDailyReportByDate).toHaveBeenCalled()
     expect(mockFileDownload).not.toHaveBeenCalled()
     expect(consoleErrorSpy).toHaveBeenCalledWith(null)

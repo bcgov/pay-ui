@@ -7,49 +7,41 @@ describe('useRoutingSlipStore', () => {
     setActivePinia(createPinia())
   })
 
-  it('should be defined', () => {
+  it('should be defined and return a store object with default values', () => {
     const store = useRoutingSlipStore()
     expect(store).toBeDefined()
-  })
-
-  it('should return a store object with default values', () => {
-    const { store } = useRoutingSlipStore()
-    expect(store).toBeDefined()
-    expect(store.routingSlip).toEqual({})
-    expect(store.linkedRoutingSlips).toBeUndefined()
-    expect(store.routingSlipDetails).toEqual({})
-    expect(store.routingSlipAddress).toEqual({})
-    expect(store.accountInfo).toEqual({})
-    expect(store.chequePayment).toEqual([])
-    expect(store.cashPayment).toEqual({})
-    expect(store.isPaymentMethodCheque).toBe(true)
-    expect(store.isAmountPaidInUsd).toBe(false)
-    expect(store.searchRoutingSlipResult).toEqual([])
-    expect(store.searchRoutingSlipParams).toEqual({
+    const { store: storeObj } = store
+    expect(storeObj).toBeDefined()
+    expect(storeObj.routingSlip).toEqual({})
+    expect(storeObj.linkedRoutingSlips).toBeUndefined()
+    expect(storeObj.routingSlipDetails).toEqual({})
+    expect(storeObj.routingSlipAddress).toEqual({})
+    expect(storeObj.accountInfo).toEqual({})
+    expect(storeObj.chequePayment).toEqual([])
+    expect(storeObj.cashPayment).toEqual({})
+    expect(storeObj.isPaymentMethodCheque).toBe(true)
+    expect(storeObj.isAmountPaidInUsd).toBe(false)
+    expect(storeObj.searchRoutingSlipResult).toEqual([])
+    expect(storeObj.searchRoutingSlipParams).toEqual({
       page: 1,
       limit: 50
     })
-    expect(store.searchRoutingSlipTableHeaders).toBeDefined()
-    expect(Array.isArray(store.searchRoutingSlipTableHeaders)).toBe(true)
-    expect(store.routingSlipBeforeEdit).toEqual({})
+    expect(storeObj.searchRoutingSlipTableHeaders).toBeDefined()
+    expect(Array.isArray(storeObj.searchRoutingSlipTableHeaders)).toBe(true)
+    expect(storeObj.routingSlipBeforeEdit).toEqual({})
   })
 
-  it('should allow updating routingSlip', () => {
+  it('should allow updating all store properties', () => {
     const { store } = useRoutingSlipStore()
+
     const newRoutingSlip = { number: '123456789', status: 'ACTIVE' } as Partial<RoutingSlip>
     store.routingSlip = newRoutingSlip
     expect(store.routingSlip).toEqual(newRoutingSlip)
-  })
 
-  it('should allow updating linkedRoutingSlips', () => {
-    const { store } = useRoutingSlipStore()
     const linkedSlips = { parent: { number: '123' }, children: [] } as Partial<LinkedRoutingSlips>
     store.linkedRoutingSlips = linkedSlips
     expect(store.linkedRoutingSlips).toEqual(linkedSlips)
-  })
 
-  it('should allow updating searchRoutingSlipResult', () => {
-    const { store } = useRoutingSlipStore()
     const results = [
       { number: '123', status: 'ACTIVE' },
       { number: '456', status: 'COMPLETED' }
@@ -57,31 +49,18 @@ describe('useRoutingSlipStore', () => {
     store.searchRoutingSlipResult = results
     expect(store.searchRoutingSlipResult).toEqual(results)
     expect(store.searchRoutingSlipResult.length).toBe(2)
-  })
 
-  it('should allow updating searchRoutingSlipParams', () => {
-    const { store } = useRoutingSlipStore()
     store.searchRoutingSlipParams.page = 2
     store.searchRoutingSlipParams.limit = 100
-
     expect(store.searchRoutingSlipParams.page).toBe(2)
     expect(store.searchRoutingSlipParams.limit).toBe(100)
-  })
 
-  it('should allow updating isPaymentMethodCheque', () => {
-    const { store } = useRoutingSlipStore()
     store.isPaymentMethodCheque = false
     expect(store.isPaymentMethodCheque).toBe(false)
-  })
 
-  it('should allow updating isAmountPaidInUsd', () => {
-    const { store } = useRoutingSlipStore()
     store.isAmountPaidInUsd = true
     expect(store.isAmountPaidInUsd).toBe(true)
-  })
 
-  it('should allow updating chequePayment array', () => {
-    const { store } = useRoutingSlipStore()
     const payments = [
       { id: '1', amount: 100 },
       { id: '2', amount: 200 }
@@ -89,10 +68,7 @@ describe('useRoutingSlipStore', () => {
     store.chequePayment = payments
     expect(store.chequePayment).toEqual(payments)
     expect(store.chequePayment.length).toBe(2)
-  })
 
-  it('should allow updating cashPayment', () => {
-    const { store } = useRoutingSlipStore()
     const payment = { id: '1', amount: 100 } as Partial<Payment>
     store.cashPayment = payment
     expect(store.cashPayment).toEqual(payment)

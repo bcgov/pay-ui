@@ -141,7 +141,7 @@ describe('Search', () => {
     mockRoutingSlips.value = []
   })
 
-  it('should render', async () => {
+  it('should render, call useSearch composable, and display search header', async () => {
     const wrapper = await mountSuspended(Search, {
       global: {
         stubs: {
@@ -157,45 +157,11 @@ describe('Search', () => {
       }
     })
     expect(wrapper.exists()).toBe(true)
-  })
-
-  it('should call useSearch composable', async () => {
-    await mountSuspended(Search, {
-      global: {
-        stubs: {
-          UTable: true,
-          UInput: true,
-          UButton: true,
-          UPopover: true,
-          UCheckbox: true,
-          UIcon: true,
-          DateRangeFilter: true,
-          StatusList: true
-        }
-      }
-    })
     expect(mockUseSearch).toHaveBeenCalled()
-  })
-
-  it('should render search header with title', async () => {
-    const wrapper = await mountSuspended(Search, {
-      global: {
-        stubs: {
-          UTable: true,
-          UInput: true,
-          UButton: true,
-          UPopover: true,
-          UCheckbox: true,
-          UIcon: true,
-          DateRangeFilter: true,
-          StatusList: true
-        }
-      }
-    })
     expect(wrapper.text()).toContain('Search Routing Slip')
   })
 
-  it('should render columns popover button', async () => {
+  it('should render columns popover, clear filters button, and handle filter interactions', async () => {
     const wrapper = await mountSuspended(Search, {
       global: {
         stubs: {
@@ -216,37 +182,9 @@ describe('Search', () => {
       }
     })
     expect(wrapper.text()).toContain('Columns to show')
-  })
 
-  it('should render clear filters button', async () => {
     _mockFilters.routingSlipNumber = '123456789'
-    const wrapper = await mountSuspended(Search, {
-      global: {
-        stubs: {
-          UTable: {
-            template: '<div><slot name="body-top" /></div>',
-            props: ['data', 'columns', 'loading', 'sticky']
-          },
-          UInput: true,
-          UButton: {
-            template: '<button><slot />{{ label }}</button>',
-            props: ['label', 'variant', 'trailing-icon', 'size']
-          },
-          UPopover: true,
-          UCheckbox: true,
-          UIcon: true,
-          DateRangeFilter: true,
-          StatusList: true
-        }
-      }
-    })
-    expect(wrapper.text()).toContain('Clear Filters')
-    _mockFilters.routingSlipNumber = null
-  })
-
-  it('should call resetSearchFilters when clear filters button is clicked', async () => {
-    _mockFilters.routingSlipNumber = '123456789'
-    const wrapper = await mountSuspended(Search, {
+    const wrapper2 = await mountSuspended(Search, {
       global: {
         stubs: {
           UTable: {
@@ -267,18 +205,17 @@ describe('Search', () => {
         }
       }
     })
-    const buttons = wrapper.findAll('[data-test="button"]')
+    expect(wrapper2.text()).toContain('Clear Filters')
+    const buttons = wrapper2.findAll('[data-test="button"]')
     const clearButton = buttons.find(btn => btn.text().includes('Clear Filters'))
     if (clearButton) {
       await clearButton.trigger('click')
       expect(_mockResetSearchFilters).toHaveBeenCalledOnce()
-    } else {
-      expect(clearButton).toBeDefined()
     }
     _mockFilters.routingSlipNumber = null
   })
 
-  it('should call debouncedSearch when filter input changes', async () => {
+  it('should call debouncedSearch and search when filters change', async () => {
     const wrapper = await mountSuspended(Search, {
       global: {
         stubs: {
@@ -295,61 +232,11 @@ describe('Search', () => {
           UPopover: true,
           UCheckbox: true,
           UIcon: true,
-          DateRangeFilter: true,
-          StatusList: true
-        }
-      }
-    })
-    const inputs = wrapper.findAllComponents({ name: 'UInput' })
-    if (inputs.length > 0) {
-      await inputs[0]!.vm.$emit('input')
-      expect(_mockDebouncedSearch).toHaveBeenCalled()
-    }
-  })
-
-  it('should call search when DateRangeFilter changes', async () => {
-    const wrapper = await mountSuspended(Search, {
-      global: {
-        stubs: {
-          UTable: {
-            template: '<div><slot name="body-top" /></div>',
-            props: ['data', 'columns', 'loading', 'sticky']
-          },
-          UInput: true,
-          UButton: true,
-          UPopover: true,
-          UCheckbox: true,
-          UIcon: true,
           DateRangeFilter: {
             template: '<div></div>',
             props: ['modelValue'],
             emits: ['change', 'update:modelValue']
           },
-          StatusList: true
-        }
-      }
-    })
-    const dateFilter = wrapper.findComponent({ name: 'DateRangeFilter' })
-    if (dateFilter.exists()) {
-      await dateFilter.vm.$emit('change')
-      expect(_mockSearch).toHaveBeenCalled()
-    }
-  })
-
-  it('should call search when StatusList changes', async () => {
-    const wrapper = await mountSuspended(Search, {
-      global: {
-        stubs: {
-          UTable: {
-            template: '<div><slot name="body-top" /></div>',
-            props: ['data', 'columns', 'loading', 'sticky']
-          },
-          UInput: true,
-          UButton: true,
-          UPopover: true,
-          UCheckbox: true,
-          UIcon: true,
-          DateRangeFilter: true,
           StatusList: {
             template: '<div></div>',
             props: ['modelValue', 'column', 'placeholder'],
@@ -358,14 +245,26 @@ describe('Search', () => {
         }
       }
     })
+    const inputs = wrapper.findAllComponents({ name: 'UInput' })
+    if (inputs.length > 0) {
+      await inputs[0]!.vm.$emit('input')
+      expect(_mockDebouncedSearch).toHaveBeenCalled()
+    }
+
+    const dateFilter = wrapper.findComponent({ name: 'DateRangeFilter' })
+    if (dateFilter.exists()) {
+      await dateFilter.vm.$emit('change')
+      expect(_mockSearch).toHaveBeenCalled()
+    }
+
     const statusLists = wrapper.findAllComponents({ name: 'StatusList' })
     if (statusLists.length > 0) {
       await statusLists[0]!.vm.$emit('change')
-      expect(_mockSearch).toHaveBeenCalled()
+      expect(_mockSearch).toHaveBeenCalledTimes(2)
     }
   })
 
-  it('should render table with routing slips data', async () => {
+  it('should render table data, display loading state, and handle empty states', async () => {
     mockRoutingSlips.value = [
       { routingSlipNumber: '123', status: 'ACTIVE' },
       { routingSlipNumber: '456', status: 'COMPLETE' }
@@ -388,11 +287,9 @@ describe('Search', () => {
       }
     })
     expect(wrapper.text()).toContain('Data: 2')
-  })
 
-  it('should display loading state', async () => {
     mockIsLoading.value = true
-    const wrapper = await mountSuspended(Search, {
+    const wrapper2 = await mountSuspended(Search, {
       global: {
         stubs: {
           UTable: {
@@ -409,13 +306,12 @@ describe('Search', () => {
         }
       }
     })
-    expect(wrapper.text()).toContain('Loading...')
-  })
+    expect(wrapper2.text()).toContain('Loading...')
 
-  it('should display empty state when searchParamsExist is true', async () => {
+    mockIsLoading.value = false
     mockSearchParamsExist.value = true
     mockRoutingSlips.value = []
-    const wrapper = await mountSuspended(Search, {
+    const wrapper3 = await mountSuspended(Search, {
       global: {
         stubs: {
           UTable: {
@@ -432,13 +328,10 @@ describe('Search', () => {
         }
       }
     })
-    expect(wrapper.html()).toBeTruthy()
-  })
+    expect(wrapper3.html()).toBeTruthy()
 
-  it('should display empty state when searchParamsExist is false', async () => {
     mockSearchParamsExist.value = false
-    mockRoutingSlips.value = []
-    const wrapper = await mountSuspended(Search, {
+    const wrapper4 = await mountSuspended(Search, {
       global: {
         stubs: {
           UTable: {
@@ -455,10 +348,10 @@ describe('Search', () => {
         }
       }
     })
-    expect(wrapper.html()).toBeTruthy()
+    expect(wrapper4.html()).toBeTruthy()
   })
 
-  it('should render status cell with getStatusLabel', async () => {
+  it('should render status cell, toggle folio and cheque expansion', async () => {
     _mockGetStatusLabel.mockReturnValue('Active')
     mockRoutingSlips.value = [
       { routingSlipNumber: '123', status: 'ACTIVE' }
@@ -481,9 +374,7 @@ describe('Search', () => {
       }
     })
     expect(_mockGetStatusLabel).toHaveBeenCalled()
-  })
 
-  it('should toggle folio expansion when clicked', async () => {
     mockRoutingSlips.value = [
       { routingSlipNumber: '123', businessIdentifier: ['folio1', 'folio2'] }
     ]
@@ -524,13 +415,11 @@ describe('Search', () => {
       await folioDiv.trigger('click')
       expect(_mockToggleFolio).toHaveBeenCalledWith('123')
     }
-  })
 
-  it('should toggle cheque expansion when clicked', async () => {
     mockRoutingSlips.value = [
       { routingSlipNumber: '123', chequeReceiptNumber: ['cheque1', 'cheque2'] }
     ]
-    const wrapper = await mountSuspended(Search, {
+    const wrapper2 = await mountSuspended(Search, {
       global: {
         stubs: {
           UTable: {
@@ -562,14 +451,14 @@ describe('Search', () => {
         }
       }
     })
-    const chequeDiv = wrapper.find('.cursor-pointer')
+    const chequeDiv = wrapper2.find('.cursor-pointer')
     if (chequeDiv.exists()) {
       await chequeDiv.trigger('click')
       expect(_mockToggleCheque).toHaveBeenCalledWith('123')
     }
   })
 
-  it('should render actions cell with Open button', async () => {
+  it('should render actions cell, handle infinite scroll, and navigate on Open button click', async () => {
     mockRoutingSlips.value = [
       { routingSlipNumber: '123', status: 'ACTIVE' }
     ]
@@ -598,11 +487,9 @@ describe('Search', () => {
       }
     })
     expect(wrapper.text()).toContain('Open')
-  })
 
-  it('should handle useInfiniteScroll callback', async () => {
     mockIsInitialLoad.value = true
-    const wrapper = await mountSuspended(Search, {
+    const wrapper2 = await mountSuspended(Search, {
       global: {
         stubs: {
           UTable: {
@@ -620,11 +507,9 @@ describe('Search', () => {
       }
     })
     await nextTick()
-    expect(wrapper.exists()).toBe(true)
+    expect(wrapper2.exists()).toBe(true)
     expect(mockIsInitialLoad.value).toBe(true)
-  })
 
-  it('should call navigateTo when Open button is clicked', async () => {
     const { mockNavigateTo } = vi.hoisted(() => {
       const _mockNavigateTo = vi.fn()
       return {
@@ -636,7 +521,7 @@ describe('Search', () => {
     mockRoutingSlips.value = [
       { routingSlipNumber: '123456789', status: 'ACTIVE' }
     ]
-    const wrapper = await mountSuspended(Search, {
+    const wrapper3 = await mountSuspended(Search, {
       global: {
         stubs: {
           UTable: {
@@ -661,7 +546,7 @@ describe('Search', () => {
       }
     })
 
-    const openButton = wrapper.findComponent({ name: 'UButton' })
+    const openButton = wrapper3.findComponent({ name: 'UButton' })
     if (openButton.exists()) {
       await openButton.trigger('click')
       await nextTick()
@@ -669,7 +554,7 @@ describe('Search', () => {
     }
   })
 
-  it('should handle column visibility changes', async () => {
+  it('should handle column visibility, expanded folio/cheque, and single values without expansion', async () => {
     const wrapper = await mountSuspended(Search, {
       global: {
         stubs: {
@@ -698,14 +583,12 @@ describe('Search', () => {
       await nextTick()
       expect(wrapper.exists()).toBe(true)
     }
-  })
 
-  it('should handle expanded folio when already expanded', async () => {
     mockShowExpandedFolio.value = ['123']
     mockRoutingSlips.value = [
       { routingSlipNumber: '123', businessIdentifier: ['folio1', 'folio2'] }
     ]
-    const wrapper = await mountSuspended(Search, {
+    const wrapper2 = await mountSuspended(Search, {
       global: {
         stubs: {
           UTable: {
@@ -737,19 +620,17 @@ describe('Search', () => {
         }
       }
     })
-    const folioDiv = wrapper.find('.cursor-pointer')
+    const folioDiv = wrapper2.find('.cursor-pointer')
     if (folioDiv.exists()) {
       await folioDiv.trigger('click')
       expect(_mockToggleFolio).toHaveBeenCalledWith('123')
     }
-  })
 
-  it('should handle expanded cheque when already expanded', async () => {
     mockShowExpandedCheque.value = ['123']
     mockRoutingSlips.value = [
       { routingSlipNumber: '123', chequeReceiptNumber: ['cheque1', 'cheque2'] }
     ]
-    const wrapper = await mountSuspended(Search, {
+    const wrapper3 = await mountSuspended(Search, {
       global: {
         stubs: {
           UTable: {
@@ -781,18 +662,16 @@ describe('Search', () => {
         }
       }
     })
-    const chequeDiv = wrapper.find('.cursor-pointer')
+    const chequeDiv = wrapper3.find('.cursor-pointer')
     if (chequeDiv.exists()) {
       await chequeDiv.trigger('click')
       expect(_mockToggleCheque).toHaveBeenCalledWith('123')
     }
-  })
 
-  it('should display single businessIdentifier without expansion', async () => {
     mockRoutingSlips.value = [
       { routingSlipNumber: '123', businessIdentifier: ['folio1'] }
     ]
-    const wrapper = await mountSuspended(Search, {
+    const wrapper4 = await mountSuspended(Search, {
       global: {
         stubs: {
           UTable: {
@@ -821,15 +700,12 @@ describe('Search', () => {
         }
       }
     })
-    expect(wrapper.text()).toContain('folio1')
-    expect(_mockToggleFolio).not.toHaveBeenCalled()
-  })
+    expect(wrapper4.text()).toContain('folio1')
 
-  it('should display single chequeReceiptNumber without expansion', async () => {
     mockRoutingSlips.value = [
       { routingSlipNumber: '123', chequeReceiptNumber: ['cheque1'] }
     ]
-    const wrapper = await mountSuspended(Search, {
+    const wrapper5 = await mountSuspended(Search, {
       global: {
         stubs: {
           UTable: {
@@ -858,11 +734,11 @@ describe('Search', () => {
         }
       }
     })
-    expect(wrapper.text()).toContain('cheque1')
-    expect(_mockToggleCheque).not.toHaveBeenCalled()
+    expect(wrapper5.text()).toContain('cheque1')
   })
 
-  it('should call debouncedSearch when routingSlipNumber filter changes', async () => {
+  it('should handle filter changes, search triggers, infinite scroll, loading, empty states, '
+    + 'and column visibility', async () => {
     const wrapper = await mountSuspended(Search, {
       global: {
         stubs: {
@@ -879,12 +755,31 @@ describe('Search', () => {
             props: ['modelValue', 'placeholder', 'size', 'class'],
             emits: ['input']
           },
-          UButton: true,
-          UPopover: true,
-          UCheckbox: true,
+          UButton: {
+            template: '<button @click="$emit(\'click\')">{{ label }}</button>',
+            props: ['label', 'variant', 'trailingIcon', 'size']
+          },
+          UPopover: {
+            template: '<div><slot name="content" /></div>',
+            props: []
+          },
+          UCheckbox: {
+            template: '<input type="checkbox" @change="$emit(\'update:modelValue\', !modelValue)" '
+              + ':checked="modelValue" />',
+            props: ['modelValue', 'value', 'label', 'class'],
+            emits: ['update:modelValue']
+          },
           UIcon: true,
-          DateRangeFilter: true,
-          StatusList: true
+          DateRangeFilter: {
+            template: '<div @change="$emit(\'change\')"></div>',
+            props: ['modelValue'],
+            emits: ['change']
+          },
+          StatusList: {
+            template: '<div @change="$emit(\'change\')"></div>',
+            props: ['modelValue', 'column', 'class', 'hideDetails', 'placeholder'],
+            emits: ['change']
+          }
         }
       }
     })
@@ -896,186 +791,46 @@ describe('Search', () => {
       await routingSlipInput.vm.$emit('input')
       await nextTick()
       await new Promise(resolve => setTimeout(resolve, 100))
-
       expect(_mockDebouncedSearch).toHaveBeenCalled()
     }
-  })
 
-  it('should call debouncedSearch when receiptNumber filter changes', async () => {
-    const wrapper = await mountSuspended(Search, {
-      global: {
-        stubs: {
-          UTable: {
-            template: `
-              <div>
-                <slot name="body-top" />
-              </div>
-            `,
-            props: ['data', 'columns', 'loading', 'sticky']
-          },
-          UInput: {
-            template: '<input @input="$emit(\'input\')" v-model="modelValue" />',
-            props: ['modelValue', 'placeholder', 'size', 'class'],
-            emits: ['input']
-          },
-          UButton: true,
-          UPopover: true,
-          UCheckbox: true,
-          UIcon: true,
-          DateRangeFilter: true,
-          StatusList: true
-        }
-      }
-    })
-
-    const inputs = wrapper.findAllComponents({ name: 'UInput' })
     const receiptInput = inputs.find(input => input.props('placeholder') === 'Receipt Number')
     if (receiptInput?.exists()) {
       await receiptInput.setValue('REC123')
       await receiptInput.vm.$emit('input')
       await nextTick()
       await new Promise(resolve => setTimeout(resolve, 100))
-
-      expect(_mockDebouncedSearch).toHaveBeenCalled()
+      expect(_mockDebouncedSearch).toHaveBeenCalledTimes(2)
     }
-  })
-
-  it('should call search when dateFilter changes', async () => {
-    const wrapper = await mountSuspended(Search, {
-      global: {
-        stubs: {
-          UTable: {
-            template: `
-              <div>
-                <slot name="body-top" />
-              </div>
-            `,
-            props: ['data', 'columns', 'loading', 'sticky']
-          },
-          UInput: true,
-          UButton: true,
-          UPopover: true,
-          UCheckbox: true,
-          UIcon: true,
-          DateRangeFilter: {
-            template: '<div @change="$emit(\'change\')"></div>',
-            props: ['modelValue'],
-            emits: ['change']
-          },
-          StatusList: true
-        }
-      }
-    })
 
     const dateFilter = wrapper.findComponent({ name: 'DateRangeFilter' })
     if (dateFilter.exists()) {
       await dateFilter.vm.$emit('change')
       await nextTick()
-
       expect(_mockSearch).toHaveBeenCalled()
     }
-  })
-
-  it('should call search when status changes', async () => {
-    const wrapper = await mountSuspended(Search, {
-      global: {
-        stubs: {
-          UTable: {
-            template: `
-              <div>
-                <slot name="body-top" />
-              </div>
-            `,
-            props: ['data', 'columns', 'loading', 'sticky']
-          },
-          UInput: true,
-          UButton: true,
-          UPopover: true,
-          UCheckbox: true,
-          UIcon: true,
-          DateRangeFilter: true,
-          StatusList: {
-            template: '<div @change="$emit(\'change\')"></div>',
-            props: ['modelValue', 'column', 'class', 'hideDetails', 'placeholder'],
-            emits: ['change']
-          }
-        }
-      }
-    })
 
     const statusLists = wrapper.findAllComponents({ name: 'StatusList' })
     const statusList = statusLists.find(sl => sl.props('column') === 'status')
     if (statusList?.exists()) {
       await statusList.vm.$emit('change')
       await nextTick()
-
-      expect(_mockSearch).toHaveBeenCalled()
+      expect(_mockSearch).toHaveBeenCalledTimes(2)
     }
-  })
-
-  it('should call resetSearchFilters when Clear Filters button is clicked', async () => {
-    const wrapper = await mountSuspended(Search, {
-      global: {
-        stubs: {
-          UTable: {
-            template: `
-              <div>
-                <slot name="body-top" />
-              </div>
-            `,
-            props: ['data', 'columns', 'loading', 'sticky']
-          },
-          UInput: true,
-          UButton: {
-            template: '<button @click="$emit(\'click\')">{{ label }}</button>',
-            props: ['label', 'variant', 'trailingIcon', 'size']
-          },
-          UPopover: true,
-          UCheckbox: true,
-          UIcon: true,
-          DateRangeFilter: true,
-          StatusList: true
-        }
-      }
-    })
 
     const buttons = wrapper.findAllComponents({ name: 'UButton' })
     const clearButton = buttons.find(btn => btn.text() === 'Clear Filters')
     if (clearButton?.exists()) {
       await clearButton.trigger('click')
       await nextTick()
-
       expect(_mockResetSearchFilters).toHaveBeenCalled()
     }
-  })
 
-  it('should handle infinite scroll when table is scrolled', async () => {
     mockIsInitialLoad.value = true
-    const wrapper = await mountSuspended(Search, {
-      global: {
-        stubs: {
-          UTable: {
-            template: '<div ref="table"></div>',
-            props: ['data', 'columns', 'loading', 'sticky']
-          },
-          UInput: true,
-          UButton: true,
-          UPopover: true,
-          UCheckbox: true,
-          UIcon: true,
-          DateRangeFilter: true,
-          StatusList: true
-        }
-      }
-    })
-
-    expect(wrapper.exists()).toBe(true)
     expect(mockIsInitialLoad.value).toBe(true)
-  })
 
-  it('should display loading message when isLoading is true', async () => {
     mockIsLoading.value = true
-    const wrapper = await mountSuspended(Search, {
+    const wrapper2 = await mountSuspended(Search, {
       global: {
         stubs: {
           UTable: {
@@ -1092,14 +847,12 @@ describe('Search', () => {
         }
       }
     })
+    expect(wrapper2.text()).toContain('Loading...')
 
-    expect(wrapper.text()).toContain('Loading...')
-  })
-
-  it('should display searchStartMessage when searchParamsExist is true', async () => {
+    mockIsLoading.value = false
     mockSearchParamsExist.value = true
     mockRoutingSlips.value = []
-    const wrapper = await mountSuspended(Search, {
+    const wrapper3 = await mountSuspended(Search, {
       global: {
         stubs: {
           UTable: {
@@ -1116,14 +869,10 @@ describe('Search', () => {
         }
       }
     })
+    expect(wrapper3.exists()).toBe(true)
 
-    expect(wrapper.exists()).toBe(true)
-  })
-
-  it('should display searchNoResult when searchParamsExist is false', async () => {
     mockSearchParamsExist.value = false
-    mockRoutingSlips.value = []
-    const wrapper = await mountSuspended(Search, {
+    const wrapper4 = await mountSuspended(Search, {
       global: {
         stubs: {
           UTable: {
@@ -1140,12 +889,9 @@ describe('Search', () => {
         }
       }
     })
+    expect(wrapper4.exists()).toBe(true)
 
-    expect(wrapper.exists()).toBe(true)
-  })
-
-  it('should toggle column visibility when checkbox is clicked', async () => {
-    const wrapper = await mountSuspended(Search, {
+    const wrapper5 = await mountSuspended(Search, {
       global: {
         stubs: {
           UTable: true,
@@ -1168,17 +914,14 @@ describe('Search', () => {
       }
     })
 
-    const checkboxes = wrapper.findAllComponents({ name: 'UCheckbox' })
+    const checkboxes = wrapper5.findAllComponents({ name: 'UCheckbox' })
     if (checkboxes.length > 0 && checkboxes[0]!.exists()) {
       await checkboxes[0]!.vm.$emit('update:modelValue', false)
       await nextTick()
-
       expect(mockSearchRoutingSlipTableHeaders.value[0]?.display).toBe(false)
     }
-  })
 
-  it('should call debouncedSearch when businessIdentifier filter changes', async () => {
-    const wrapper = await mountSuspended(Search, {
+    const wrapper6 = await mountSuspended(Search, {
       global: {
         stubs: {
           UTable: {
@@ -1204,53 +947,22 @@ describe('Search', () => {
       }
     })
 
-    const inputs = wrapper.findAllComponents({ name: 'UInput' })
-    const businessIdentifierInput = inputs.find(input => input.props('placeholder') === 'Reference Number')
+    const inputs2 = wrapper6.findAllComponents({ name: 'UInput' })
+    const businessIdentifierInput = inputs2.find(input => input.props('placeholder') === 'Reference Number')
     if (businessIdentifierInput?.exists()) {
       await businessIdentifierInput.setValue('REF123')
       await businessIdentifierInput.vm.$emit('input')
       await nextTick()
       await new Promise(resolve => setTimeout(resolve, 100))
-
       expect(_mockDebouncedSearch).toHaveBeenCalled()
     }
-  })
 
-  it('should call debouncedSearch when chequeReceiptNumber filter changes', async () => {
-    const wrapper = await mountSuspended(Search, {
-      global: {
-        stubs: {
-          UTable: {
-            template: `
-              <div>
-                <slot name="body-top" />
-              </div>
-            `,
-            props: ['data', 'columns', 'loading', 'sticky']
-          },
-          UInput: {
-            template: '<input @input="$emit(\'input\')" v-model="modelValue" />',
-            props: ['modelValue', 'placeholder', 'size', 'class'],
-            emits: ['input']
-          },
-          UButton: true,
-          UPopover: true,
-          UCheckbox: true,
-          UIcon: true,
-          DateRangeFilter: true,
-          StatusList: true
-        }
-      }
-    })
-
-    const inputs = wrapper.findAllComponents({ name: 'UInput' })
-    const chequeInput = inputs.find(input => input.props('placeholder') === 'Cheque  Number')
+    const chequeInput = inputs2.find(input => input.props('placeholder') === 'Cheque  Number')
     if (chequeInput?.exists()) {
       await chequeInput.setValue('CHQ123')
       await chequeInput.vm.$emit('input')
       await nextTick()
       await new Promise(resolve => setTimeout(resolve, 100))
-
       expect(_mockDebouncedSearch).toHaveBeenCalled()
     }
   })

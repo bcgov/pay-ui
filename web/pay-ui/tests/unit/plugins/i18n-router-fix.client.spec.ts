@@ -67,61 +67,41 @@ describe('i18n-router-fix.client plugin', () => {
     })
   })
 
-  it('should redirect /en-CA string to /', async () => {
+  it('should redirect locale paths and handle normal paths', async () => {
     const plugin = i18nRouterFixPlugin
     await plugin({} as NuxtApp)
 
-    const result = mockRouter.resolve('/en-CA')
+    let result = mockRouter.resolve('/en-CA')
     expect(originalResolve).toHaveBeenCalledWith('/')
     expect(result.path).toBe('/')
-  })
 
-  it('should redirect /fr-CA string to /', async () => {
-    const plugin = i18nRouterFixPlugin
-    await plugin({} as NuxtApp)
-
-    const result = mockRouter.resolve('/fr-CA')
+    vi.clearAllMocks()
+    result = mockRouter.resolve('/fr-CA')
     expect(originalResolve).toHaveBeenCalledWith('/')
     expect(result.path).toBe('/')
-  })
 
-  it('should redirect /en-CA object path to /', async () => {
-    const plugin = i18nRouterFixPlugin
-    await plugin({} as NuxtApp)
-
-    const result = mockRouter.resolve({ path: '/en-CA' })
+    vi.clearAllMocks()
+    result = mockRouter.resolve({ path: '/en-CA' })
     expect(originalResolve).toHaveBeenCalledWith('/')
     expect(result.path).toBe('/')
-  })
 
-  it('should redirect /fr-CA object path to /', async () => {
-    const plugin = i18nRouterFixPlugin
-    await plugin({} as NuxtApp)
-
-    const result = mockRouter.resolve({ path: '/fr-CA' })
+    vi.clearAllMocks()
+    result = mockRouter.resolve({ path: '/fr-CA' })
     expect(originalResolve).toHaveBeenCalledWith('/')
     expect(result.path).toBe('/')
-  })
 
-  it('should handle normal paths without redirect', async () => {
-    const plugin = i18nRouterFixPlugin
-    await plugin({} as NuxtApp)
-
-    const result = mockRouter.resolve('/home')
+    vi.clearAllMocks()
+    result = mockRouter.resolve('/home')
     expect(originalResolve).toHaveBeenCalledWith('/home')
     expect(result.path).toBe('/home')
-  })
 
-  it('should handle normal object paths without redirect', async () => {
-    const plugin = i18nRouterFixPlugin
-    await plugin({} as NuxtApp)
-
-    const result = mockRouter.resolve({ path: '/home', name: 'home' })
+    vi.clearAllMocks()
+    result = mockRouter.resolve({ path: '/home', name: 'home' })
     expect(originalResolve).toHaveBeenCalledWith({ path: '/home', name: 'home' })
     expect(result.path).toBe('/home')
   })
 
-  it('should catch errors containing /en-CA and redirect to /', async () => {
+  it('should handle errors, non-Error objects, and object paths with name only', async () => {
     originalResolve.mockImplementationOnce(() => {
       throw new Error('Route /en-CA not found')
     })
@@ -129,55 +109,43 @@ describe('i18n-router-fix.client plugin', () => {
     const plugin = i18nRouterFixPlugin
     await plugin({} as NuxtApp)
 
-    const result = mockRouter.resolve('/some-path')
+    let result = mockRouter.resolve('/some-path')
     expect(originalResolve).toHaveBeenCalledWith('/')
     expect(result.path).toBe('/')
-  })
 
-  it('should catch errors containing /fr-CA and redirect to /', async () => {
     originalResolve.mockImplementationOnce(() => {
       throw new Error('Route /fr-CA not found')
     })
 
-    const plugin = i18nRouterFixPlugin
+    vi.clearAllMocks()
     await plugin({} as NuxtApp)
-
-    const result = mockRouter.resolve('/some-path')
+    result = mockRouter.resolve('/some-path')
     expect(originalResolve).toHaveBeenCalledWith('/')
     expect(result.path).toBe('/')
-  })
 
-  it('should throw errors not containing locale paths', async () => {
     originalResolve.mockImplementationOnce(() => {
       throw new Error('Route /other not found')
     })
 
-    const plugin = i18nRouterFixPlugin
+    vi.clearAllMocks()
     await plugin({} as NuxtApp)
-
     expect(() => {
       mockRouter.resolve('/some-path')
     }).toThrow('Route /other not found')
-  })
 
-  it('should handle non-Error objects in catch block', async () => {
     originalResolve.mockImplementationOnce(() => {
       throw 'String error with /en-CA'
     })
 
-    const plugin = i18nRouterFixPlugin
+    vi.clearAllMocks()
     await plugin({} as NuxtApp)
-
-    const result = mockRouter.resolve('/some-path')
+    result = mockRouter.resolve('/some-path')
     expect(originalResolve).toHaveBeenCalledWith('/')
     expect(result.path).toBe('/')
-  })
 
-  it('should handle object paths with name only', async () => {
-    const plugin = i18nRouterFixPlugin
+    vi.clearAllMocks()
     await plugin({} as NuxtApp)
-
-    const result = mockRouter.resolve({ name: 'home' })
+    result = mockRouter.resolve({ name: 'home' })
     expect(originalResolve).toHaveBeenCalledWith({ name: 'home' })
     expect(result.path).toBe('/')
   })

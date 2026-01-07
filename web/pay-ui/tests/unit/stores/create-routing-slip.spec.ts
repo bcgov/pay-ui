@@ -56,19 +56,16 @@ describe('useCreateRoutingSlipStore', () => {
   })
 
   describe('Computed', () => {
-    it('isCheque should return true when paymentType is CHEQUE', () => {
+    it('isCheque should return true when paymentType is CHEQUE and false when CASH', () => {
       const store = useCreateRoutingSlipStore()
       store.state.payment.paymentType = PaymentTypes.CHEQUE
       expect(store.isCheque).toBe(true)
-    })
 
-    it('isCheque should return false when paymentType is CASH', () => {
-      const store = useCreateRoutingSlipStore()
       store.state.payment.paymentType = PaymentTypes.CASH
       expect(store.isCheque).toBe(false)
     })
 
-    it('totalCAD should total amountCAD', () => {
+    it('totalCAD should total amountCAD, return "0.00" for empty list, and ignore invalid inputs', () => {
       const store = useCreateRoutingSlipStore()
       store.state.payment.paymentItems = {
         1: { amountCAD: '100.50' } as any,
@@ -76,16 +73,10 @@ describe('useCreateRoutingSlipStore', () => {
         3: { amountCAD: '10' } as any
       }
       expect(store.totalCAD).toBe('160.75')
-    })
 
-    it('totalCAD should return "0.00" for an empty list', () => {
-      const store = useCreateRoutingSlipStore()
       store.state.payment.paymentItems = {}
       expect(store.totalCAD).toBe('0.00')
-    })
 
-    it('totalCAD should ignore empty or invalid inputs', () => {
-      const store = useCreateRoutingSlipStore()
       store.state.payment.paymentItems = {
         1: { amountCAD: '25.50' } as any,
         2: { amountCAD: '' } as any,

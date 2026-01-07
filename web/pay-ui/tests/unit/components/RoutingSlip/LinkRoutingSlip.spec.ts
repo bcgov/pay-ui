@@ -49,7 +49,7 @@ describe('LinkRoutingSlip', () => {
     mockInvoiceCount.value = 0
   })
 
-  it('should render', async () => {
+  it('should render, display button, toggle search, show search component, and pass slipId', async () => {
     const wrapper = await mountSuspended(LinkRoutingSlip, {
       props: {
         slipId: '123456789'
@@ -61,95 +61,37 @@ describe('LinkRoutingSlip', () => {
             props: ['variant']
           },
           LinkRoutingSlipSearch: {
-            template: '<div></div>',
+            template: '<div data-test="link-search"></div>',
             props: ['parentRoutingSlipNumber'],
             emits: ['cancel', 'success']
           },
           LinkedRoutingSlipDetails: true,
-          UButton: true,
+          UButton: {
+            template: '<button data-test="button" :label="label" :disabled="disabled" '
+              + '@click="$emit(\'click\')"><slot /></button>',
+            props: ['label', 'disabled', 'size', 'class']
+          },
           UIcon: true
         }
       }
     })
     expect(wrapper.exists()).toBe(true)
-  })
 
-  it('should display Link Routing Slip button when not linked and no invoices', async () => {
     mockIsRoutingSlipLinked.value = false
     mockInvoiceCount.value = 0
     mockIsRoutingSlipVoid.value = false
-
-    const wrapper = await mountSuspended(LinkRoutingSlip, {
-      props: {
-        slipId: '123456789'
-      },
-      global: {
-        stubs: {
-          UCard: {
-            template: '<div><slot /></div>',
-            props: ['variant']
-          },
-          LinkRoutingSlipSearch: {
-            template: '<div></div>',
-            props: ['parentRoutingSlipNumber'],
-            emits: ['cancel', 'success']
-          },
-          LinkedRoutingSlipDetails: true,
-          UButton: {
-            template: `<button data-test="button" :label="label" :disabled="disabled"
-            @click="$emit('click')"><slot /></button>`,
-            props: ['label', 'disabled', 'size', 'class']
-          },
-          UIcon: true
-        }
-      }
-    })
-
-    expect(wrapper.exists()).toBe(true)
     expect(wrapper.text()).toContain('no linked routing slips')
-  })
-
-  it('should call toggleSearch when Link Routing Slip button is clicked', async () => {
-    const wrapper = await mountSuspended(LinkRoutingSlip, {
-      props: {
-        slipId: '123456789'
-      },
-      global: {
-        stubs: {
-          UCard: {
-            template: '<div><slot /></div>',
-            props: ['variant']
-          },
-          LinkRoutingSlipSearch: {
-            template: '<div></div>',
-            props: ['parentRoutingSlipNumber'],
-            emits: ['cancel', 'success']
-          },
-          LinkedRoutingSlipDetails: true,
-          UButton: {
-            template: '<button :label="label" :disabled="disabled" @click="$emit(\'click\')"><slot /></button>',
-            props: ['label', 'disabled', 'size', 'class']
-          },
-          UIcon: true
-        }
-      }
-    })
 
     const buttons = wrapper.findAllComponents({ name: 'UButton' })
     const linkButton = buttons.find(btn => btn.props('label') === 'Link Routing Slip')
-
     if (linkButton) {
       await linkButton.trigger('click')
       await nextTick()
-
       expect(mockToggleSearch).toHaveBeenCalled()
     }
-  })
 
-  it('should display LinkRoutingSlipSearch when showSearch is true', async () => {
     mockShowSearch.value = true
-
-    const wrapper = await mountSuspended(LinkRoutingSlip, {
+    const wrapper2 = await mountSuspended(LinkRoutingSlip, {
       props: {
         slipId: '123456789'
       },
@@ -171,14 +113,10 @@ describe('LinkRoutingSlip', () => {
       }
     })
 
-    const searchComponent = wrapper.find('[data-test="link-search"]')
-    expect(searchComponent.exists()).toBe(true)
-  })
+    const searchComponent2 = wrapper2.find('[data-test="link-search"]')
+    expect(searchComponent2.exists()).toBe(true)
 
-  it('should pass slipId to LinkRoutingSlipSearch as parentRoutingSlipNumber', async () => {
-    mockShowSearch.value = true
-
-    const wrapper = await mountSuspended(LinkRoutingSlip, {
+    const wrapper3 = await mountSuspended(LinkRoutingSlip, {
       props: {
         slipId: '987654321'
       },
@@ -200,16 +138,16 @@ describe('LinkRoutingSlip', () => {
       }
     })
 
-    const searchElement = wrapper.find('[data-test="link-search"]')
+    const searchElement = wrapper3.find('[data-test="link-search"]')
     expect(searchElement.exists()).toBe(true)
 
-    const searchComponent = wrapper.findComponent({ name: 'LinkRoutingSlipSearch' })
-    if (searchComponent.exists()) {
-      expect(searchComponent.props('parentRoutingSlipNumber')).toBe('987654321')
+    const searchComponent3 = wrapper3.findComponent({ name: 'LinkRoutingSlipSearch' })
+    if (searchComponent3.exists()) {
+      expect(searchComponent3.props('parentRoutingSlipNumber')).toBe('987654321')
     }
   })
 
-  it('should call toggleSearch when LinkRoutingSlipSearch emits cancel', async () => {
+  it('should handle cancel event, disable button, display linked details, and show messages', async () => {
     mockShowSearch.value = true
 
     const wrapper = await mountSuspended(LinkRoutingSlip, {
@@ -227,65 +165,39 @@ describe('LinkRoutingSlip', () => {
             props: ['parentRoutingSlipNumber'],
             emits: ['cancel', 'success']
           },
-          LinkedRoutingSlipDetails: true,
-          UButton: true,
-          UIcon: true
+          LinkedRoutingSlipDetails: {
+            template: '<div data-test="linked-details"></div>',
+            props: ['createdDate', 'routingSlipNumber', 'siNumber', 'parentRoutingSlipNumber']
+          },
+          UButton: {
+            template: '<button data-test="button" :label="label" :disabled="disabled" '
+              + '@click="$emit(\'click\')"><slot /></button>',
+            props: ['label', 'disabled', 'size', 'class']
+          },
+          UIcon: {
+            template: '<span></span>',
+            props: ['name', 'class']
+          }
         }
       }
     })
-
-    const searchElement = wrapper.find('[data-test="link-search"]')
-    expect(searchElement.exists()).toBe(true)
 
     const searchComponent = wrapper.findComponent({ name: 'LinkRoutingSlipSearch' })
     if (searchComponent.exists()) {
       searchComponent.vm.$emit('cancel')
       await nextTick()
-
       expect(mockToggleSearch).toHaveBeenCalled()
     }
-  })
-
-  it('should disable Link Routing Slip button when showSearch is true', async () => {
-    mockShowSearch.value = true
-
-    const wrapper = await mountSuspended(LinkRoutingSlip, {
-      props: {
-        slipId: '123456789'
-      },
-      global: {
-        stubs: {
-          UCard: {
-            template: '<div><slot /></div>',
-            props: ['variant']
-          },
-          LinkRoutingSlipSearch: {
-            template: '<div></div>',
-            props: ['parentRoutingSlipNumber'],
-            emits: ['cancel', 'success']
-          },
-          LinkedRoutingSlipDetails: true,
-          UButton: {
-            template: `<button data-test="button" :label="label"
-            :disabled="disabled" @click="$emit('click')"><slot /></button>`,
-            props: ['label', 'disabled', 'size', 'class']
-          },
-          UIcon: true
-        }
-      }
-    })
 
     const buttonComponents = wrapper.findAllComponents({ name: 'UButton' })
     const linkButton = buttonComponents.find((btn: VueWrapper) => btn.props('label') === 'Link Routing Slip')
     if (linkButton) {
       expect(linkButton.props('disabled')).toBe(true)
     }
-  })
 
-  it('should disable Link Routing Slip button when routing slip is void', async () => {
     mockIsRoutingSlipVoid.value = true
-
-    const wrapper = await mountSuspended(LinkRoutingSlip, {
+    mockShowSearch.value = false
+    const wrapper2 = await mountSuspended(LinkRoutingSlip, {
       props: {
         slipId: '123456789'
       },
@@ -311,22 +223,21 @@ describe('LinkRoutingSlip', () => {
       }
     })
 
-    const buttonComponents = wrapper.findAllComponents({ name: 'UButton' })
-    const linkButton = buttonComponents.find((btn: VueWrapper) => btn.props('label') === 'Link Routing Slip')
-    if (linkButton) {
-      expect(linkButton.props('disabled')).toBe(true)
+    const buttonComponents2 = wrapper2.findAllComponents({ name: 'UButton' })
+    const linkButton2 = buttonComponents2.find((btn: VueWrapper) => btn.props('label') === 'Link Routing Slip')
+    if (linkButton2) {
+      expect(linkButton2.props('disabled')).toBe(true)
     }
-  })
 
-  it('should display parent routing slip details when linked as child', async () => {
     mockIsRoutingSlipLinked.value = true
     mockIsRoutingSlipAChild.value = true
+    mockIsRoutingSlipVoid.value = false
     mockParentRoutingSlipDetails.value = {
       number: '987654321',
       createdOn: '2025-09-26'
     }
 
-    const wrapper = await mountSuspended(LinkRoutingSlip, {
+    const wrapper3 = await mountSuspended(LinkRoutingSlip, {
       props: {
         slipId: '123456789'
       },
@@ -351,24 +262,20 @@ describe('LinkRoutingSlip', () => {
       }
     })
 
-    const linkedDetails = wrapper.findAll('[data-test="linked-details"]')
+    const linkedDetails = wrapper3.findAll('[data-test="linked-details"]')
     expect(linkedDetails.length).toBe(1)
-
-    const linkedDetailsComponent = wrapper.findComponent({ name: 'LinkedRoutingSlipDetails' })
+    const linkedDetailsComponent = wrapper3.findComponent({ name: 'LinkedRoutingSlipDetails' })
     if (linkedDetailsComponent.exists()) {
       expect(linkedDetailsComponent.props('routingSlipNumber')).toBe('987654321')
     }
-  })
 
-  it('should display child routing slip details when linked as parent', async () => {
-    mockIsRoutingSlipLinked.value = true
     mockIsRoutingSlipAChild.value = false
     mockChildRoutingSlipDetails.value = [
       { number: '111111111', createdOn: '2025-09-26' },
       { number: '222222222', createdOn: '2025-09-27' }
     ]
 
-    const wrapper = await mountSuspended(LinkRoutingSlip, {
+    const wrapper4 = await mountSuspended(LinkRoutingSlip, {
       props: {
         slipId: '123456789'
       },
@@ -393,21 +300,17 @@ describe('LinkRoutingSlip', () => {
       }
     })
 
-    const linkedDetails = wrapper.findAll('[data-test="linked-details"]')
-    expect(linkedDetails.length).toBe(2)
-
-    const linkedDetailsComponents = wrapper.findAllComponents({ name: 'LinkedRoutingSlipDetails' })
+    const linkedDetails2 = wrapper4.findAll('[data-test="linked-details"]')
+    expect(linkedDetails2.length).toBe(2)
+    const linkedDetailsComponents = wrapper4.findAllComponents({ name: 'LinkedRoutingSlipDetails' })
     if (linkedDetailsComponents.length >= 2) {
       expect(linkedDetailsComponents[0]?.props('routingSlipNumber')).toBe('111111111')
       expect(linkedDetailsComponents[1]?.props('routingSlipNumber')).toBe('222222222')
     }
-  })
 
-  it('should display invoice message when invoices exist', async () => {
-    mockInvoiceCount.value = 5
     mockIsRoutingSlipLinked.value = false
-
-    const wrapper = await mountSuspended(LinkRoutingSlip, {
+    mockInvoiceCount.value = 5
+    const wrapper5 = await mountSuspended(LinkRoutingSlip, {
       props: {
         slipId: '123456789'
       },
@@ -431,45 +334,11 @@ describe('LinkRoutingSlip', () => {
         }
       }
     })
+    expect(wrapper5.text()).toContain('cannot link')
 
-    expect(wrapper.text()).toContain('cannot link')
-  })
-
-  it('should display void message when routing slip is void and no invoices', async () => {
     mockIsRoutingSlipVoid.value = true
     mockInvoiceCount.value = 0
-
-    const wrapper = await mountSuspended(LinkRoutingSlip, {
-      props: {
-        slipId: '123456789'
-      },
-      global: {
-        stubs: {
-          UCard: {
-            template: '<div><slot /></div>',
-            props: ['variant']
-          },
-          LinkRoutingSlipSearch: {
-            template: '<div></div>',
-            props: ['parentRoutingSlipNumber'],
-            emits: ['cancel', 'success']
-          },
-          LinkedRoutingSlipDetails: true,
-          UButton: true,
-          UIcon: true
-        }
-      }
-    })
-
-    expect(wrapper.text()).toContain('cannot link')
-  })
-
-  it('should display search info when showSearch is true and not void and no invoices', async () => {
-    mockShowSearch.value = true
-    mockIsRoutingSlipVoid.value = false
-    mockInvoiceCount.value = 0
-
-    const wrapper = await mountSuspended(LinkRoutingSlip, {
+    const wrapper6 = await mountSuspended(LinkRoutingSlip, {
       props: {
         slipId: '123456789'
       },
@@ -490,9 +359,33 @@ describe('LinkRoutingSlip', () => {
         }
       }
     })
+    expect(wrapper6.text()).toContain('cannot link')
 
-    const searchComponent = wrapper.find('[data-test="link-search"]')
-    expect(searchComponent.exists()).toBe(true)
-    expect(wrapper.text()).toContain('no linked routing slips')
+    mockShowSearch.value = true
+    mockIsRoutingSlipVoid.value = false
+    const wrapper7 = await mountSuspended(LinkRoutingSlip, {
+      props: {
+        slipId: '123456789'
+      },
+      global: {
+        stubs: {
+          UCard: {
+            template: '<div><slot /></div>',
+            props: ['variant']
+          },
+          LinkRoutingSlipSearch: {
+            template: '<div data-test="link-search"></div>',
+            props: ['parentRoutingSlipNumber'],
+            emits: ['cancel', 'success']
+          },
+          LinkedRoutingSlipDetails: true,
+          UButton: true,
+          UIcon: true
+        }
+      }
+    })
+    const searchComponent2 = wrapper7.find('[data-test="link-search"]')
+    expect(searchComponent2.exists()).toBe(true)
+    expect(wrapper7.text()).toContain('no linked routing slips')
   })
 })

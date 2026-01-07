@@ -4,7 +4,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { SlipStatus } from '~/enums/slip-status'
 import { CreateRoutingSlipStatus } from '~/utils/constants'
 import { ApiErrors } from '~/enums/api-errors'
-import type { RoutingSlip, RoutingSlipDetails } from '~/interfaces/routing-slip'
+import type { RoutingSlip } from '~/interfaces/routing-slip'
 import type { Invoice } from '~/interfaces/invoice'
 
 const mockStore = {
@@ -162,13 +162,9 @@ describe('useRoutingSlip', () => {
     }
   })
 
-  it('should be defined', () => {
+  it('should be defined, return all expected properties, and calculate computed values correctly', () => {
     const composable = useRoutingSlip()
     expect(composable).toBeDefined()
-  })
-
-  it('should return all expected properties', () => {
-    const composable = useRoutingSlip()
     expect(composable.invoiceCount).toBeDefined()
     expect(composable.isRoutingSlipAChild).toBeDefined()
     expect(composable.isRoutingSlipLinked).toBeDefined()
@@ -190,82 +186,59 @@ describe('useRoutingSlip', () => {
     expect(composable.saveManualTransactions).toBeDefined()
     expect(composable.cancelRoutingSlipInvoice).toBeDefined()
     expect(composable.updateRoutingSlipComments).toBeDefined()
-  })
 
-  it('should calculate invoiceCount correctly', () => {
-    const composable = useRoutingSlip()
     expect(composable.invoiceCount.value).toBe(1)
-  })
-
-  it('should return false for isRoutingSlipAChild when no parentNumber', () => {
-    const composable = useRoutingSlip()
     expect(composable.isRoutingSlipAChild.value).toBe(false)
-  })
 
-  it('should return true for isRoutingSlipAChild when parentNumber exists', () => {
     mockStore.routingSlip.parentNumber = '123' as string | null
-    const composable = useRoutingSlip()
-    expect(composable.isRoutingSlipAChild.value).toBe(true)
-  })
+    const composable2 = useRoutingSlip()
+    expect(composable2.isRoutingSlipAChild.value).toBe(true)
 
-  it('should return false for isRoutingSlipVoid when status is not VOID', () => {
-    const composable = useRoutingSlip()
-    expect(composable.isRoutingSlipVoid.value).toBe(false)
-  })
-
-  it('should return true for isRoutingSlipVoid when status is VOID', () => {
+    mockStore.routingSlip.parentNumber = null
     mockStore.routingSlip.status = SlipStatus.VOID
-    const composable = useRoutingSlip()
-    expect(composable.isRoutingSlipVoid.value).toBe(true)
+    const composable3 = useRoutingSlip()
+    expect(composable3.isRoutingSlipVoid.value).toBe(true)
+
+    mockStore.routingSlip.status = SlipStatus.ACTIVE
+    const composable4 = useRoutingSlip()
+    expect(composable4.isRoutingSlipVoid.value).toBe(false)
   })
 
-  it('should update routing slip cheque number', () => {
+  it('should update routing slip cheque number, amounts, and check linked status', () => {
     const composable = useRoutingSlip()
     composable.updateRoutingSlipChequeNumber({
       chequeNum: 'CHQ002',
       paymentIndex: 0
     })
     expect(mockStore.routingSlip.payments[0]?.chequeReceiptNumber).toBe('CHQ002')
-  })
 
-  it('should update routing slip amount', () => {
-    const composable = useRoutingSlip()
     composable.updateRoutingSlipAmount({
       amount: 200,
       paymentIndex: 0,
       isRoutingSlipPaidInUsd: false
     })
     expect(mockStore.routingSlip.payments[0]?.paidAmount).toBe(200)
-  })
 
-  it('should update routing slip USD amount', () => {
-    const composable = useRoutingSlip()
     composable.updateRoutingSlipAmount({
       amount: 150,
       paymentIndex: 0,
       isRoutingSlipPaidInUsd: true
     })
     expect(mockStore.routingSlip.payments[0]?.paidUsdAmount).toBe(150)
-  })
 
-  it('should return true for isRoutingSlipLinked when linkedRoutingSlips has children', () => {
     mockStore.linkedRoutingSlips = {
       children: [{ number: '123', status: SlipStatus.ACTIVE }] as RoutingSlip[]
     }
-    const composable = useRoutingSlip()
-    expect(composable.isRoutingSlipLinked.value).toBe(true)
-  })
+    const composable2 = useRoutingSlip()
+    expect(composable2.isRoutingSlipLinked.value).toBe(true)
 
-  it('should return false for isRoutingSlipLinked when no children and no parent', () => {
-    mockStore.linkedRoutingSlips = {
-      children: []
-    }
+    mockStore.linkedRoutingSlips = { children: [] }
     mockStore.routingSlip.parentNumber = null
-    const composable = useRoutingSlip()
-    expect(composable.isRoutingSlipLinked.value).toBe(false)
+    const composable3 = useRoutingSlip()
+    expect(composable3.isRoutingSlipLinked.value).toBe(false)
   })
 
-  it('should create routing slip successfully', async () => {
+  it('should create routing slip successfully and handle errors', async () => {
     const mockResponse = { number: '123456789' }
     mockUsePayApi.postRoutingSlip.mockResolvedValue(mockResponse)
     mockNavigateTo.mockResolvedValue(undefined)
@@ -277,42 +250,27 @@ describe('useRoutingSlip', () => {
     expect(mockToggleLoading).toHaveBeenCalledWith(false)
     expect(mockUsePayApi.postRoutingSlip).toHaveBeenCalled()
     expect(mockNavigateTo).toHaveBeenCalledWith('/view-routing-slip/123456789')
-  })
 
-  it('should handle error when creating routing slip', async () => {
     const mockError = new Error('API Error')
     mockUsePayApi.postRoutingSlip.mockRejectedValue(mockError)
     mockGetErrorStatus.mockReturnValue('500')
 
-    const composable = useRoutingSlip()
     await composable.createRoutingSlip()
-
-    expect(mockToggleLoading).toHaveBeenCalledWith(true)
-    expect(mockToggleLoading).toHaveBeenCalledWith(false)
+    expect(mockToggleLoading).toHaveBeenCalledTimes(4)
   })
 
-  it('should return EXISTS when routing number exists', async () => {
+  it('should check routing number and return appropriate status', async () => {
     mockStore.routingSlipDetails = { number: '123456' }
     mockUsePayApi.getRoutingSlip.mockResolvedValue({ number: '123456' })
 
     const composable = useRoutingSlip()
-    const result = await composable.checkRoutingNumber()
-
+    let result = await composable.checkRoutingNumber()
     expect(result).toBe(CreateRoutingSlipStatus.EXISTS)
-  })
 
-  it('should return VALID when routing number does not exist', async () => {
-    mockStore.routingSlipDetails = { number: '123456' } as RoutingSlipDetails
     mockUsePayApi.getRoutingSlip.mockResolvedValue(undefined)
-
-    const composable = useRoutingSlip()
-    const result = await composable.checkRoutingNumber()
-
+    result = await composable.checkRoutingNumber()
     expect(result).toBe(CreateRoutingSlipStatus.VALID)
-  })
 
-  it('should return INVALID_DIGITS when API returns 400 with invalid digits error', async () => {
-    mockStore.routingSlipDetails = { number: '123456' }
     const mockError = {
       response: {
         status: 400,
@@ -320,33 +278,24 @@ describe('useRoutingSlip', () => {
       }
     }
     mockUsePayApi.getRoutingSlip.mockRejectedValue(mockError)
-
-    const composable = useRoutingSlip()
-    const result = await composable.checkRoutingNumber()
-
+    result = await composable.checkRoutingNumber()
     expect(result).toBe(CreateRoutingSlipStatus.INVALID_DIGITS)
-  })
 
-  it('should return VALID when API error is not invalid digits', async () => {
-    mockStore.routingSlipDetails = { number: '123456' }
-    const mockError = {
+    const mockError2 = {
       response: {
         status: 500,
         data: { message: 'Server error' }
       }
     }
-    mockUsePayApi.getRoutingSlip.mockRejectedValue(mockError)
+    mockUsePayApi.getRoutingSlip.mockRejectedValue(mockError2)
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-
-    const composable = useRoutingSlip()
-    const result = await composable.checkRoutingNumber()
-
+    result = await composable.checkRoutingNumber()
     expect(result).toBe(CreateRoutingSlipStatus.VALID)
     expect(consoleErrorSpy).toHaveBeenCalled()
     consoleErrorSpy.mockRestore()
   })
 
-  it('should get routing slip successfully', async () => {
+  it('should get routing slip successfully and handle errors', async () => {
     const mockResponse: RoutingSlip = { number: '123456', status: SlipStatus.ACTIVE }
     mockUsePayApi.getRoutingSlip.mockResolvedValue(mockResponse)
 
@@ -355,131 +304,96 @@ describe('useRoutingSlip', () => {
 
     expect(mockStore.routingSlip).toEqual(mockResponse)
     expect(mockUsePayApi.getRoutingSlip).toHaveBeenCalledWith('123456')
-  })
 
-  it('should handle error when getting routing slip', async () => {
     const mockError = new Error('API Error')
     mockUsePayApi.getRoutingSlip.mockRejectedValue(mockError)
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-    const composable = useRoutingSlip()
     await composable.getRoutingSlip({ routingSlipNumber: '123456' })
-
     expect(consoleErrorSpy).toHaveBeenCalled()
     consoleErrorSpy.mockRestore()
   })
 
-  it('should update routing slip status for non-refund status', async () => {
+  it('should update routing slip status for refund and non-refund statuses and handle errors', async () => {
     const mockResponse = { number: '123456', status: SlipStatus.COMPLETE }
     mockUsePayApi.updateRoutingSlipStatus.mockResolvedValue(mockResponse)
 
     const composable = useRoutingSlip()
-    const result = await composable.updateRoutingSlipStatus({ status: SlipStatus.COMPLETE })
+    let result = await composable.updateRoutingSlipStatus({ status: SlipStatus.COMPLETE })
 
     expect(result).toEqual(mockResponse)
     expect(mockStore.routingSlip).toEqual(mockResponse)
     expect(mockUsePayApi.updateRoutingSlipStatus).toHaveBeenCalledWith(SlipStatus.COMPLETE, '123456')
-  })
 
-  it('should update routing slip status for refund status', async () => {
-    const mockResponse = { number: '123456' }
-    mockUsePayApi.updateRoutingSlipRefund.mockResolvedValue(mockResponse)
+    const mockResponse2 = { number: '123456' }
+    mockUsePayApi.updateRoutingSlipRefund.mockResolvedValue(mockResponse2)
     const mockRoutingSlip: RoutingSlip = { number: '123456', status: SlipStatus.REFUNDREQUEST }
     mockUsePayApi.getRoutingSlip.mockResolvedValue(mockRoutingSlip)
 
-    const composable = useRoutingSlip()
     const statusDetails = { status: SlipStatus.REFUNDREQUEST }
-    const result = await composable.updateRoutingSlipStatus(statusDetails)
-
-    expect(result).toEqual(mockResponse)
+    result = await composable.updateRoutingSlipStatus(statusDetails)
+    expect(result).toEqual(mockResponse2)
     expect(mockUsePayApi.updateRoutingSlipRefund).toHaveBeenCalledWith(statusDetails, '123456')
-  })
 
-  it('should handle error when updating routing slip status', async () => {
     const mockError = new Error('API Error')
     mockUsePayApi.updateRoutingSlipStatus.mockRejectedValue(mockError)
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-    const composable = useRoutingSlip()
-    const result = await composable.updateRoutingSlipStatus({ status: SlipStatus.COMPLETE })
-
+    result = await composable.updateRoutingSlipStatus({ status: SlipStatus.COMPLETE })
     expect(result).toBeNull()
     expect(consoleErrorSpy).toHaveBeenCalled()
     consoleErrorSpy.mockRestore()
   })
 
-  it('should update routing slip refund status', async () => {
+  it('should update routing slip refund status and comments with error handling', async () => {
     const mockResponse = { number: '123456' }
     mockUsePayApi.updateRoutingSlipRefundStatus.mockResolvedValue(mockResponse)
 
     const composable = useRoutingSlip()
-    const result = await composable.updateRoutingSlipRefundStatus('APPROVED')
+    let result = await composable.updateRoutingSlipRefundStatus('APPROVED')
 
     expect(result).toEqual(mockResponse)
     expect(mockUsePayApi.updateRoutingSlipRefundStatus).toHaveBeenCalledWith('APPROVED', '123456')
-  })
 
-  it('should handle error when updating refund status', async () => {
     const mockError = new Error('API Error')
     mockUsePayApi.updateRoutingSlipRefundStatus.mockRejectedValue(mockError)
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-    const composable = useRoutingSlip()
-    const result = await composable.updateRoutingSlipRefundStatus('APPROVED')
-
+    result = await composable.updateRoutingSlipRefundStatus('APPROVED')
     expect(result).toBeNull()
     expect(consoleErrorSpy).toHaveBeenCalled()
-    consoleErrorSpy.mockRestore()
-  })
 
-  it('should update routing slip comments', async () => {
-    const mockResponse = { number: '123456' }
     mockUsePayApi.updateRoutingSlipComments.mockResolvedValue(mockResponse)
-
-    const composable = useRoutingSlip()
-    const result = await composable.updateRoutingSlipComments('Test comment')
-
+    result = await composable.updateRoutingSlipComments('Test comment')
     expect(result).toEqual(mockResponse)
     expect(mockUsePayApi.updateRoutingSlipComments).toHaveBeenCalledWith(
       { comment: { businessId: '123456', comment: 'Test comment' } },
       '123456'
     )
-  })
 
-  it('should handle error when updating comments', async () => {
-    const mockError = new Error('API Error')
     mockUsePayApi.updateRoutingSlipComments.mockRejectedValue(mockError)
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-
-    const composable = useRoutingSlip()
-    const result = await composable.updateRoutingSlipComments('Test comment')
-
+    result = await composable.updateRoutingSlipComments('Test comment')
     expect(result).toBeNull()
-    expect(consoleErrorSpy).toHaveBeenCalled()
+    expect(consoleErrorSpy).toHaveBeenCalledTimes(2)
     consoleErrorSpy.mockRestore()
   })
 
-  it('should adjust routing slip', async () => {
+  it('should adjust routing slip and handle errors', async () => {
     const mockPayments = [{ chequeReceiptNumber: 'CHQ001', paidAmount: 200 }]
     const mockResponse = { number: '123456', payments: mockPayments }
     mockUsePayApi.adjustRoutingSlip.mockResolvedValue(mockResponse)
 
     const composable = useRoutingSlip()
-    const result = await composable.adjustRoutingSlip(mockPayments)
+    let result = await composable.adjustRoutingSlip(mockPayments)
 
     expect(result).toEqual(mockResponse)
     expect(mockUsePayApi.adjustRoutingSlip).toHaveBeenCalledWith(mockPayments, '123456')
-  })
 
-  it('should handle error when adjusting routing slip', async () => {
-    const mockPayments = [{ chequeReceiptNumber: 'CHQ001', paidAmount: 200 }]
     const mockError = new Error('API Error')
     mockUsePayApi.adjustRoutingSlip.mockRejectedValue(mockError)
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-    const composable = useRoutingSlip()
-    const result = await composable.adjustRoutingSlip(mockPayments)
-
+    result = await composable.adjustRoutingSlip(mockPayments)
     expect(result).toBeNull()
     expect(consoleErrorSpy).toHaveBeenCalled()
     consoleErrorSpy.mockRestore()
@@ -497,20 +411,18 @@ describe('useRoutingSlip', () => {
     expect(mockStore.routingSlipAddress).toBeUndefined()
   })
 
-  it('should save link routing slip successfully', async () => {
+  it('should save link routing slip and handle various error scenarios', async () => {
     mockUsePayApi.saveLinkRoutingSlip.mockResolvedValue(undefined)
 
     const composable = useRoutingSlip()
-    const result = await composable.saveLinkRoutingSlip('987654')
+    let result = await composable.saveLinkRoutingSlip('987654')
 
     expect(result).toEqual({ error: false })
     expect(mockUsePayApi.saveLinkRoutingSlip).toHaveBeenCalledWith({
       childRoutingSlipNumber: '123456',
       parentRoutingSlipNumber: '987654'
     })
-  })
 
-  it('should handle 400 error when saving link routing slip', async () => {
     const mockError = {
       response: {
         status: 400,
@@ -518,32 +430,24 @@ describe('useRoutingSlip', () => {
       }
     }
     mockUsePayApi.saveLinkRoutingSlip.mockRejectedValue(mockError)
-
-    const composable = useRoutingSlip()
-    const result = await composable.saveLinkRoutingSlip('987654')
-
+    result = await composable.saveLinkRoutingSlip('987654')
     expect(result).toEqual({ error: true, details: { message: 'Invalid link' } })
-  })
 
-  it('should handle non-400 error when saving link routing slip', async () => {
-    const mockError = {
+    const mockError2 = {
       response: {
         status: 500,
         data: { message: 'Server error' }
       }
     }
-    mockUsePayApi.saveLinkRoutingSlip.mockRejectedValue(mockError)
+    mockUsePayApi.saveLinkRoutingSlip.mockRejectedValue(mockError2)
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-
-    const composable = useRoutingSlip()
-    const result = await composable.saveLinkRoutingSlip('987654')
-
+    result = await composable.saveLinkRoutingSlip('987654')
     expect(result).toBeUndefined()
     expect(consoleErrorSpy).toHaveBeenCalled()
     consoleErrorSpy.mockRestore()
   })
 
-  it('should get linked routing slips successfully', async () => {
+  it('should get linked routing slips and daily report with error handling', async () => {
     const mockResponse = { children: [{ number: '111' }], parent: { number: '222' } }
     mockUsePayApi.getLinkedRoutingSlips.mockResolvedValue(mockResponse)
 
@@ -552,46 +456,29 @@ describe('useRoutingSlip', () => {
 
     expect(mockStore.linkedRoutingSlips).toEqual(mockResponse)
     expect(mockUsePayApi.getLinkedRoutingSlips).toHaveBeenCalledWith('123456')
-  })
 
-  it('should handle error when getting linked routing slips', async () => {
     const mockError = new Error('API Error')
     mockUsePayApi.getLinkedRoutingSlips.mockRejectedValue(mockError)
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-    const composable = useRoutingSlip()
     await composable.getLinkedRoutingSlips('123456')
-
     expect(mockStore.linkedRoutingSlips).toBeUndefined()
     expect(consoleErrorSpy).toHaveBeenCalled()
-    consoleErrorSpy.mockRestore()
-  })
 
-  it('should get daily report by date', async () => {
-    const mockResponse = { report: 'data' }
-    mockUsePayApi.getDailyReport.mockResolvedValue(mockResponse)
-
-    const composable = useRoutingSlip()
-    const result = await composable.getDailyReportByDate('2025-01-01', 'type1')
-
-    expect(result).toEqual(mockResponse)
+    const mockResponse2 = { report: 'data' }
+    mockUsePayApi.getDailyReport.mockResolvedValue(mockResponse2)
+    let result = await composable.getDailyReportByDate('2025-01-01', 'type1')
+    expect(result).toEqual(mockResponse2)
     expect(mockUsePayApi.getDailyReport).toHaveBeenCalled()
-  })
 
-  it('should handle error when getting daily report', async () => {
-    const mockError = new Error('API Error')
     mockUsePayApi.getDailyReport.mockRejectedValue(mockError)
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-
-    const composable = useRoutingSlip()
-    const result = await composable.getDailyReportByDate('2025-01-01', 'type1')
-
+    result = await composable.getDailyReportByDate('2025-01-01', 'type1')
     expect(result).toBeNull()
-    expect(consoleErrorSpy).toHaveBeenCalled()
+    expect(consoleErrorSpy).toHaveBeenCalledTimes(2)
     consoleErrorSpy.mockRestore()
   })
 
-  it('should get auto complete routing slips', async () => {
+  it('should get auto complete routing slips and fees with various response scenarios', async () => {
     const mockResponse = {
       items: [
         { number: '123456', status: SlipStatus.ACTIVE },
@@ -601,50 +488,35 @@ describe('useRoutingSlip', () => {
     mockUsePayApi.postSearchRoutingSlip.mockResolvedValue(mockResponse)
 
     const composable = useRoutingSlip()
-    const result = await composable.getAutoCompleteRoutingSlips('123')
+    let result = await composable.getAutoCompleteRoutingSlips('123')
 
     expect(result).toEqual(mockResponse.items)
     expect(mockUsePayApi.postSearchRoutingSlip).toHaveBeenCalledWith({ routingSlipNumber: '123' })
-  })
 
-  it('should return empty array when no items in auto complete response', async () => {
     mockUsePayApi.postSearchRoutingSlip.mockResolvedValue({})
-
-    const composable = useRoutingSlip()
-    const result = await composable.getAutoCompleteRoutingSlips('123')
-
+    result = await composable.getAutoCompleteRoutingSlips('123')
     expect(result).toEqual([])
-  })
 
-  it('should get fee by corp type and filing type', async () => {
-    const mockResponse = { total: 100.50 }
-    mockUsePayApi.getFeeByCorpTypeAndFilingType.mockResolvedValue(mockResponse)
-
-    const composable = useRoutingSlip()
-    const result = await composable.getFeeByCorpTypeAndFilingType({
+    const mockResponse2 = { total: 100.50 }
+    mockUsePayApi.getFeeByCorpTypeAndFilingType.mockResolvedValue(mockResponse2)
+    result = await composable.getFeeByCorpTypeAndFilingType({
       corpTypeCode: 'BC',
       filingTypeCode: 'OTANN',
       requestParams: {}
     })
-
     expect(result).toBe(100.50)
     expect(mockUsePayApi.getFeeByCorpTypeAndFilingType).toHaveBeenCalledWith({
       corpTypeCode: 'BC',
       filingTypeCode: 'OTANN',
       requestParams: {}
     })
-  })
 
-  it('should return null when fee response has no total', async () => {
     mockUsePayApi.getFeeByCorpTypeAndFilingType.mockResolvedValue({})
-
-    const composable = useRoutingSlip()
-    const result = await composable.getFeeByCorpTypeAndFilingType({
+    result = await composable.getFeeByCorpTypeAndFilingType({
       corpTypeCode: 'BC',
       filingTypeCode: 'OTANN',
       requestParams: {}
     })
-
     expect(result).toBeNull()
   })
 

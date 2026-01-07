@@ -13,70 +13,37 @@ describe('common-util', () => {
   })
 
   describe('formatDisplayDate', () => {
-    it('should format a Date object with default format', () => {
+    it('should format Date objects and strings with default and custom formats, '
+      + 'and handle invalid/null/undefined', () => {
       const date = new Date('2025-09-26T10:00:00.000Z')
-      const result = commonUtil.formatDisplayDate(date)
-      expect(result).toBe('Sep 26, 2025')
-    })
+      expect(commonUtil.formatDisplayDate(date)).toBe('Sep 26, 2025')
 
-    it('should format a date string with default format', () => {
-      const result = commonUtil.formatDisplayDate('2025-09-26T00:00:00.000Z')
-      expect(result).toContain('Sep')
-      expect(result).toContain('2025')
-    })
+      const stringResult = commonUtil.formatDisplayDate('2025-09-26T00:00:00.000Z')
+      expect(stringResult).toContain('Sep')
+      expect(stringResult).toContain('2025')
 
-    it('should format with custom format', () => {
-      const date = new Date('2025-09-26T10:00:00.000Z')
-      const result = commonUtil.formatDisplayDate(date, 'yyyy-MM-dd')
-      expect(result).toBe('2025-09-26')
-    })
-
-    it('should return empty string for invalid date', () => {
-      const result = commonUtil.formatDisplayDate('invalid-date')
-      expect(result).toBe('')
-    })
-
-    it('should return empty string for null/undefined', () => {
+      expect(commonUtil.formatDisplayDate(date, 'yyyy-MM-dd')).toBe('2025-09-26')
+      expect(commonUtil.formatDisplayDate('invalid-date')).toBe('')
       expect(commonUtil.formatDisplayDate(null as unknown as Date | string)).toBe('')
       expect(commonUtil.formatDisplayDate(undefined as unknown as Date | string)).toBe('')
     })
   })
 
   describe('statusListColor', () => {
-    it('should return success color for ACTIVE status', () => {
+    it('should return correct colors for various statuses and handle unknown statuses', () => {
       expect(commonUtil.statusListColor(SlipStatus.ACTIVE)).toBe('text-success')
       expect(commonUtil.statusListColor(SlipStatus.ACTIVE, false)).toBe('success')
-    })
-
-    it('should return success color for COMPLETE status', () => {
       expect(commonUtil.statusListColor(SlipStatus.COMPLETE)).toBe('text-success')
-    })
-
-    it('should return error color for NSF status', () => {
       expect(commonUtil.statusListColor(SlipStatus.NSF)).toBe('text-error')
-    })
-
-    it('should return error color for VOID status', () => {
       expect(commonUtil.statusListColor(SlipStatus.VOID)).toBe('text-error')
-    })
-
-    it('should return text- prefix for unknown status when textColor is true', () => {
-      const result = commonUtil.statusListColor('UNKNOWN_STATUS')
-      expect(result).toBe('text-')
-    })
-
-    it('should return empty string for unknown status when textColor is false', () => {
-      const result = commonUtil.statusListColor('UNKNOWN_STATUS', false)
-      expect(result).toBe('')
+      expect(commonUtil.statusListColor('UNKNOWN_STATUS')).toBe('text-')
+      expect(commonUtil.statusListColor('UNKNOWN_STATUS', false)).toBe('')
     })
   })
 
   describe('appendCurrencySymbol', () => {
-    it('should append dollar sign to number', () => {
+    it('should append dollar sign to numbers and strings', () => {
       expect(commonUtil.appendCurrencySymbol(100)).toBe('$100')
-    })
-
-    it('should append dollar sign to string', () => {
       expect(commonUtil.appendCurrencySymbol('50.50')).toBe('$50.50')
     })
   })
@@ -203,45 +170,19 @@ describe('common-util', () => {
     })
   })
 
-  describe('isRefundProcessStatus', () => {
-    it('should return true for REFUNDREQUEST status', () => {
+  describe('isRefundProcessStatus, isRefundRequestStatus, and isEditEnabledBystatus', () => {
+    it('should return correct boolean values for various status checks', () => {
       expect(commonUtil.isRefundProcessStatus(SlipStatus.REFUNDREQUEST)).toBe(true)
-    })
-
-    it('should return true for REFUNDAUTHORIZED status', () => {
       expect(commonUtil.isRefundProcessStatus(SlipStatus.REFUNDAUTHORIZED)).toBe(true)
-    })
-
-    it('should return true for REFUNDPROCESSED status', () => {
       expect(commonUtil.isRefundProcessStatus(SlipStatus.REFUNDPROCESSED)).toBe(true)
-    })
-
-    it('should return false for ACTIVE status', () => {
       expect(commonUtil.isRefundProcessStatus(SlipStatus.ACTIVE)).toBe(false)
-    })
-  })
 
-  describe('isRefundRequestStatus', () => {
-    it('should return true for REFUNDREQUEST status', () => {
       expect(commonUtil.isRefundRequestStatus(SlipStatus.REFUNDREQUEST)).toBe(true)
-    })
-
-    it('should return false for other statuses', () => {
       expect(commonUtil.isRefundRequestStatus(SlipStatus.ACTIVE)).toBe(false)
       expect(commonUtil.isRefundRequestStatus(SlipStatus.REFUNDPROCESSED)).toBe(false)
-    })
-  })
 
-  describe('isEditEnabledBystatus', () => {
-    it('should return false for REFUNDPROCESSED status', () => {
       expect(commonUtil.isEditEnabledBystatus(SlipStatus.REFUNDPROCESSED)).toBe(false)
-    })
-
-    it('should return false for NSF status', () => {
       expect(commonUtil.isEditEnabledBystatus(SlipStatus.NSF)).toBe(false)
-    })
-
-    it('should return true for ACTIVE status', () => {
       expect(commonUtil.isEditEnabledBystatus(SlipStatus.ACTIVE)).toBe(true)
     })
   })
@@ -272,24 +213,14 @@ describe('common-util', () => {
     })
   })
 
-  describe('formatAmount', () => {
-    it('should format amount as CAD currency', () => {
+  describe('formatAmount and formatToTwoDecimals', () => {
+    it('should format amounts and numbers correctly', () => {
       expect(commonUtil.formatAmount(1234.56)).toBe('$1,234.56')
       expect(commonUtil.formatAmount(1000)).toBe('$1,000.00')
-    })
-
-    it('should handle zero', () => {
       expect(commonUtil.formatAmount(0)).toBe('$0.00')
-    })
-  })
 
-  describe('formatToTwoDecimals', () => {
-    it('should format number to two decimals', () => {
       expect(commonUtil.formatToTwoDecimals(1234.5)).toBe('1,234.50')
       expect(commonUtil.formatToTwoDecimals(1000)).toBe('1,000.00')
-    })
-
-    it('should format string to two decimals', () => {
       expect(commonUtil.formatToTwoDecimals('1234.5')).toBe('1,234.50')
     })
   })
@@ -432,61 +363,23 @@ describe('common-util', () => {
     })
   })
 
-  describe('statusListColor - additional statuses', () => {
-    it('should return success color for REFUNDPROCESSED', () => {
+  describe('statusListColor, isRefundProcessStatus, and isEditEnabledBystatus - additional statuses', () => {
+    it('should return correct colors and boolean values for additional statuses', () => {
       expect(commonUtil.statusListColor(SlipStatus.REFUNDPROCESSED)).toBe('text-success')
       expect(commonUtil.statusListColor(SlipStatus.REFUNDPROCESSED, false)).toBe('success')
-    })
-
-    it('should return success color for WRITEOFFCOMPLETED', () => {
       expect(commonUtil.statusListColor(SlipStatus.WRITEOFFCOMPLETED)).toBe('text-success')
-    })
-
-    it('should return error color for LINKED', () => {
       expect(commonUtil.statusListColor(SlipStatus.LINKED)).toBe('text-error')
-    })
-
-    it('should return error color for REFUNDREQUEST', () => {
       expect(commonUtil.statusListColor(SlipStatus.REFUNDREQUEST)).toBe('text-error')
-    })
-
-    it('should return error color for REFUNDAUTHORIZED', () => {
       expect(commonUtil.statusListColor(SlipStatus.REFUNDAUTHORIZED)).toBe('text-error')
-    })
-
-    it('should return error color for WRITEOFFAUTHORIZED', () => {
       expect(commonUtil.statusListColor(SlipStatus.WRITEOFFAUTHORIZED)).toBe('text-error')
-    })
-
-    it('should return error color for WRITEOFFREQUESTED', () => {
       expect(commonUtil.statusListColor(SlipStatus.WRITEOFFREQUESTED)).toBe('text-error')
-    })
-  })
 
-  describe('isRefundProcessStatus - additional statuses', () => {
-    it('should return true for REFUNDREJECTED', () => {
       expect(commonUtil.isRefundProcessStatus(SlipStatus.REFUNDREJECTED)).toBe(true)
-    })
-
-    it('should return true for REFUNDUPLOADED', () => {
       expect(commonUtil.isRefundProcessStatus(SlipStatus.REFUNDUPLOADED)).toBe(true)
-    })
-  })
 
-  describe('isEditEnabledBystatus - additional statuses', () => {
-    it('should return false for REFUNDAUTHORIZED', () => {
       expect(commonUtil.isEditEnabledBystatus(SlipStatus.REFUNDAUTHORIZED)).toBe(false)
-    })
-
-    it('should return false for LINKED', () => {
       expect(commonUtil.isEditEnabledBystatus(SlipStatus.LINKED)).toBe(false)
-    })
-
-    it('should return true for COMPLETE', () => {
       expect(commonUtil.isEditEnabledBystatus(SlipStatus.COMPLETE)).toBe(true)
-    })
-
-    it('should return true for VOID', () => {
       expect(commonUtil.isEditEnabledBystatus(SlipStatus.VOID)).toBe(true)
     })
   })
@@ -517,30 +410,14 @@ describe('common-util', () => {
     })
   })
 
-  describe('formatAmount - edge cases', () => {
-    it('should handle negative amounts', () => {
+  describe('formatAmount and formatToTwoDecimals - edge cases', () => {
+    it('should handle negative amounts, large amounts, decimal precision, zero, and small numbers', () => {
       expect(commonUtil.formatAmount(-1234.56)).toBe('-$1,234.56')
-    })
-
-    it('should handle very large amounts', () => {
       expect(commonUtil.formatAmount(999999999.99)).toBe('$999,999,999.99')
-    })
-
-    it('should handle decimal precision', () => {
       expect(commonUtil.formatAmount(123.456)).toBe('$123.46')
-    })
-  })
 
-  describe('formatToTwoDecimals - edge cases', () => {
-    it('should handle negative numbers', () => {
       expect(commonUtil.formatToTwoDecimals(-1234.5)).toBe('-1,234.50')
-    })
-
-    it('should handle zero', () => {
       expect(commonUtil.formatToTwoDecimals(0)).toBe('0.00')
-    })
-
-    it('should handle very small numbers', () => {
       expect(commonUtil.formatToTwoDecimals(0.1)).toBe('0.10')
     })
   })

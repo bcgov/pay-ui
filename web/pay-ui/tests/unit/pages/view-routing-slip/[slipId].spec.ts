@@ -145,13 +145,9 @@ describe('ViewRoutingSlip Page [slipId]', () => {
     expect(wrapper.exists()).toBe(true)
   })
 
-  it('should set page title', async () => {
+  it('should set page title, breadcrumbs, call useViewRoutingSlip, and fetch routing slip data', async () => {
     await mountSuspended(ViewRoutingSlip)
     expect(mockT).toHaveBeenCalledWith('page.viewRoutingSlip.title')
-  })
-
-  it('should set breadcrumbs with correct labels', async () => {
-    await mountSuspended(ViewRoutingSlip)
     expect(mockSetBreadcrumbs).toHaveBeenCalled()
     const breadcrumbsCall = mockSetBreadcrumbs.mock.calls[0]?.[0]
     expect(breadcrumbsCall).toBeDefined()
@@ -163,18 +159,9 @@ describe('ViewRoutingSlip Page [slipId]', () => {
       })
       expect(breadcrumbsCall[1]).toHaveProperty('label')
     }
-  })
-
-  it('should call useViewRoutingSlip with slipId from route', async () => {
-    await mountSuspended(ViewRoutingSlip)
     expect(mockUseViewRoutingSlip).toHaveBeenCalledWith({ slipId: '123456789' })
-  })
-
-  it('should call getRoutingSlip and getLinkedRoutingSlips on mount', async () => {
-    await mountSuspended(ViewRoutingSlip)
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
-
     expect(mockToggleLoading).toHaveBeenCalledWith(true)
     expect(mockGetRoutingSlip).toHaveBeenCalledWith({ routingSlipNumber: '123456789' })
     expect(mockGetLinkedRoutingSlips).toHaveBeenCalledWith('123456789')
@@ -253,73 +240,35 @@ describe('ViewRoutingSlip Page [slipId]', () => {
     consoleWarnSpy.mockRestore()
   })
 
-  it('should render loading state when isLoading is true', async () => {
+  it('should render loading state, content, heading, and all child components', async () => {
     mockIsLoadingRef.value = true
     const wrapper = await mountSuspended(ViewRoutingSlip)
     await nextTick()
 
     const loadingIcon = wrapper.find('.animate-spin')
     expect(loadingIcon.exists()).toBe(true)
-  })
 
-  it('should render content when isLoading is false', async () => {
     mockIsLoadingRef.value = false
-    const wrapper = await mountSuspended(ViewRoutingSlip)
     await nextTick()
 
     const heading = wrapper.find('h1')
     expect(heading.exists()).toBe(true)
-  })
-
-  it('should render heading with slipId', async () => {
-    const wrapper = await mountSuspended(ViewRoutingSlip)
-    await nextTick()
-
-    const heading = wrapper.find('h1')
     expect(heading.text()).toContain('123456789')
-  })
-
-  it('should render StaffComments component', async () => {
-    const wrapper = await mountSuspended(ViewRoutingSlip)
-    await nextTick()
 
     const staffComments = wrapper.find('[data-testid="staff-comments"]')
-    expect(staffComments.exists()).toBe(true)
-  })
-
-  it('should render RoutingSlipInformation component', async () => {
-    const wrapper = await mountSuspended(ViewRoutingSlip)
-    await nextTick()
-
     const routingSlipInfo = wrapper.find('[data-testid="routing-slip-information"]')
-    expect(routingSlipInfo.exists()).toBe(true)
-  })
-
-  it('should render PaymentInformation component', async () => {
-    const wrapper = await mountSuspended(ViewRoutingSlip)
-    await nextTick()
-
     const paymentInfo = wrapper.find('[data-testid="payment-information"]')
-    expect(paymentInfo.exists()).toBe(true)
-  })
-
-  it('should render LinkRoutingSlip component with slipId prop', async () => {
-    const wrapper = await mountSuspended(ViewRoutingSlip)
-    await nextTick()
-
     const linkRoutingSlip = wrapper.find('[data-testid="link-routing-slip"]')
-    expect(linkRoutingSlip.exists()).toBe(true)
-  })
-
-  it('should render RoutingSlipTransaction component with invoices', async () => {
-    const wrapper = await mountSuspended(ViewRoutingSlip)
-    await nextTick()
-
     const transaction = wrapper.find('[data-testid="routing-slip-transaction"]')
+
+    expect(staffComments.exists()).toBe(true)
+    expect(routingSlipInfo.exists()).toBe(true)
+    expect(paymentInfo.exists()).toBe(true)
+    expect(linkRoutingSlip.exists()).toBe(true)
     expect(transaction.exists()).toBe(true)
   })
 
-  it('should call fetchStaffComments when handlePaymentAdjusted is called', async () => {
+  it('should call fetchStaffComments on events and handle missing refs gracefully', async () => {
     const wrapper = await mountSuspended(ViewRoutingSlip)
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 100))
@@ -329,38 +278,16 @@ describe('ViewRoutingSlip Page [slipId]', () => {
     await paymentInfo.vm.$emit('payment-adjusted')
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 50))
-
     expect(mockFetchStaffComments).toHaveBeenCalled()
-  })
 
-  it('should call fetchStaffComments when RoutingSlipInformation emits comments-updated', async () => {
-    const wrapper = await mountSuspended(ViewRoutingSlip)
-    await nextTick()
-    await new Promise(resolve => setTimeout(resolve, 100))
-
+    vi.clearAllMocks()
     const routingSlipInfo = wrapper.findComponent({ name: 'RoutingSlipInformation' })
     expect(routingSlipInfo.exists()).toBe(true)
     await routingSlipInfo.vm.$emit('comments-updated')
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 50))
-
     expect(mockFetchStaffComments).toHaveBeenCalled()
-  })
 
-  it('should handle missing staffCommentsRef gracefully', async () => {
-    const wrapper = await mountSuspended(ViewRoutingSlip)
-    await nextTick()
-    await new Promise(resolve => setTimeout(resolve, 100))
-
-    const routingSlipInfo = wrapper.findComponent({ name: 'RoutingSlipInformation' })
-    expect(routingSlipInfo.exists()).toBe(true)
-    await routingSlipInfo.vm.$emit('comments-updated')
-
-    await nextTick()
-    await new Promise(resolve => setTimeout(resolve, 50))
-
-    const paymentInfo = wrapper.findComponent({ name: 'PaymentInformation' })
-    expect(paymentInfo.exists()).toBe(true)
     await expect(async () => {
       await paymentInfo.vm.$emit('payment-adjusted')
     }).not.toThrow()

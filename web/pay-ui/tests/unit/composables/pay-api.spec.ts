@@ -39,18 +39,15 @@ describe('usePayApi', () => {
     vi.clearAllMocks()
   })
 
-  describe('getCodes', () => {
-    it('should call $payApi with the correct url', async () => {
+  describe('getCodes and getRoutingSlip', () => {
+    it('should call $payApi with correct urls and return appropriate responses', async () => {
       mockPayApi.mockResolvedValue({ codes: [] })
       const codeType = 'routing_slip_statuses'
 
       await payApi.getCodes(codeType)
-
       expect(mockPayApi).toHaveBeenCalledOnce()
       expect(mockPayApi).toHaveBeenCalledWith(`/codes/${codeType}`)
-    })
 
-    it('should return destructured `codes` property', async () => {
       const mockResponse = {
         codes: [
           { code: 'ACTIVE', description: 'Active' },
@@ -58,33 +55,22 @@ describe('usePayApi', () => {
         ]
       }
       mockPayApi.mockResolvedValue(mockResponse)
-
       const result = await payApi.getCodes('some-type')
       expect(result).toEqual(mockResponse.codes)
-    })
-  })
 
-  describe('getRoutingSlip', () => {
-    it('should call $payApi with the correct url', async () => {
       mockPayApi.mockResolvedValue({})
       const routingNumber = '123456789'
-
       await payApi.getRoutingSlip(routingNumber)
-
-      expect(mockPayApi).toHaveBeenCalledOnce()
       expect(mockPayApi).toHaveBeenCalledWith(`/fas/routing-slips/${routingNumber}`)
-    })
 
-    it('should return the full response', async () => {
       const mockRoutingSlip = {
         id: 123,
         number: '123456789',
         status: 'ACTIVE'
       }
       mockPayApi.mockResolvedValue(mockRoutingSlip)
-
-      const result = await payApi.getRoutingSlip('123456789')
-      expect(result).toEqual(mockRoutingSlip)
+      const result2 = await payApi.getRoutingSlip('123456789')
+      expect(result2).toEqual(mockRoutingSlip)
     })
   })
 
@@ -140,7 +126,7 @@ describe('usePayApi', () => {
   })
 
   describe('postSearchRoutingSlip', () => {
-    it('should call $payApi with correct url, method and payload', async () => {
+    it('should call $payApi with correct url, method and payload, and handle errors', async () => {
       const body: SearchRoutingSlipParams = { routingSlipNumber: '123456789' }
       const mockResponse = { items: [{ number: '123456789', status: 'ACTIVE' }], total: 1 }
       mockPayApi.mockResolvedValue(mockResponse)
@@ -153,20 +139,12 @@ describe('usePayApi', () => {
         body
       })
       expect(result).toEqual(mockResponse)
-    })
 
-    it('should throw an error if $payApi fails', async () => {
-      const body: SearchRoutingSlipParams = { routingSlipNumber: '123456789' }
       const mockError = new Error('API Error 404')
-
       mockPayApi.mockRejectedValue(mockError)
 
       await expect(payApi.postSearchRoutingSlip(body)).rejects.toThrow(mockError)
-      expect(mockPayApi).toHaveBeenCalledTimes(1)
-      expect(mockPayApi).toHaveBeenCalledWith('/fas/routing-slips/queries', {
-        method: 'POST',
-        body
-      })
+      expect(mockPayApi).toHaveBeenCalledTimes(2)
     })
   })
 
@@ -227,7 +205,7 @@ describe('usePayApi', () => {
   })
 
   describe('updateRoutingSlipRefundStatus', () => {
-    it('should call $payApi with correct url, method and payload', async () => {
+    it('should call $payApi with correct url, method and payload, and handle errors', async () => {
       const mockResponse = { number: '123456', status: 'REFUND_REQUESTED' }
       mockPayApi.mockResolvedValue(mockResponse)
 
@@ -241,9 +219,7 @@ describe('usePayApi', () => {
         }
       )
       expect(result).toEqual(mockResponse)
-    })
 
-    it('should handle error and throw', async () => {
       const mockError = new Error('API Error')
       mockPayApi.mockRejectedValue(mockError)
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -255,7 +231,7 @@ describe('usePayApi', () => {
   })
 
   describe('postLinkRoutingSlip', () => {
-    it('should call $payApi with correct url, method and payload', async () => {
+    it('should call $payApi with correct url, method and payload, and handle errors', async () => {
       const body: LinkRoutingSlipParams = { childRoutingSlipNumber: 'child123', parentRoutingSlipNumber: 'parent456' }
 
       mockPayApi.mockResolvedValue(undefined)
@@ -267,20 +243,12 @@ describe('usePayApi', () => {
         method: 'POST',
         body
       })
-    })
 
-    it('should throw an error if $payApi fails', async () => {
-      const body: LinkRoutingSlipParams = { childRoutingSlipNumber: 'child123', parentRoutingSlipNumber: 'parent456' }
       const mockError = new Error('API Error 500')
-
       mockPayApi.mockRejectedValue(mockError)
 
       await expect(payApi.postLinkRoutingSlip(body)).rejects.toThrow(mockError)
-      expect(mockPayApi).toHaveBeenCalledTimes(1)
-      expect(mockPayApi).toHaveBeenCalledWith('/fas/routing-slips/links', {
-        method: 'POST',
-        body
-      })
+      expect(mockPayApi).toHaveBeenCalledTimes(2)
     })
   })
 
@@ -297,7 +265,7 @@ describe('usePayApi', () => {
   })
 
   describe('updateRoutingSlipComments', () => {
-    it('should call $payApi with correct url, method and payload', async () => {
+    it('should call $payApi with correct url, method and payload, handle null responses, and errors', async () => {
       const data = { comment: { businessId: '123456', comment: 'Test comment' } }
       const mockResponse = { id: 1, comment: 'Test comment' }
       mockPayApi.mockResolvedValue(mockResponse)
@@ -309,19 +277,11 @@ describe('usePayApi', () => {
         body: data
       })
       expect(result).toEqual(mockResponse)
-    })
 
-    it('should return null when response is falsy', async () => {
-      const data = { comment: { businessId: '123456', comment: 'Test comment' } }
       mockPayApi.mockResolvedValue(null)
+      const nullResult = await payApi.updateRoutingSlipComments(data, '123456')
+      expect(nullResult).toBeNull()
 
-      const result = await payApi.updateRoutingSlipComments(data, '123456')
-
-      expect(result).toBeNull()
-    })
-
-    it('should throw error when API call fails', async () => {
-      const data = { comment: { businessId: '123456', comment: 'Test comment' } }
       const mockError = new Error('API Error')
       mockPayApi.mockRejectedValue(mockError)
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -377,25 +337,20 @@ describe('usePayApi', () => {
   })
 
   describe('getDailyReport', () => {
-    it('should call $payApi with correct url, method and headers', async () => {
+    it('should call $payApi with correct url, method, headers, and handle custom types', async () => {
       const mockBlob = new Blob(['test'], { type: 'application/pdf' })
       mockPayApi.mockResolvedValue(mockBlob)
 
       const result = await payApi.getDailyReport('2025-01-01')
-
       expect(mockPayApi).toHaveBeenCalledWith('/fas/routing-slips/2025-01-01/reports', {
         method: 'POST',
         headers: { Accept: 'application/pdf' }
       })
       expect(result).toEqual(mockBlob)
-    })
 
-    it('should use custom type when provided', async () => {
-      const mockBlob = new Blob(['test'], { type: 'text/csv' })
-      mockPayApi.mockResolvedValue(mockBlob)
-
+      const mockBlob2 = new Blob(['test'], { type: 'text/csv' })
+      mockPayApi.mockResolvedValue(mockBlob2)
       await payApi.getDailyReport('2025-01-01', 'text/csv')
-
       expect(mockPayApi).toHaveBeenCalledWith('/fas/routing-slips/2025-01-01/reports', {
         method: 'POST',
         headers: { Accept: 'text/csv' }

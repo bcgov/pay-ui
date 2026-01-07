@@ -48,7 +48,7 @@ describe('LinkRoutingSlipSearch', () => {
     mockGetRoutingSlip.mockImplementation(() => Promise.resolve({}))
   })
 
-  it('should render', async () => {
+  it('should render, display AsyncAutoComplete, display buttons, emit cancel, and validate', async () => {
     const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
       props: {
         parentRoutingSlipNumber: '123456789'
@@ -56,41 +56,7 @@ describe('LinkRoutingSlipSearch', () => {
       global: {
         stubs: {
           UFormField: {
-            template: '<div><slot /></div>',
-            props: ['error', 'class']
-          },
-          AsyncAutoComplete: {
-            template: '<div></div>',
-            props: {
-              id: String,
-              label: { type: String, default: '' },
-              modelValue: [String, Object],
-              placeholder: String,
-              queryFn: Function,
-              valueKey: String,
-              labelKey: String,
-              size: String,
-              disabled: Boolean
-            },
-            emits: ['update:modelValue', 'blur', 'focus']
-          },
-          UButton: true,
-          ConnectI18nHelper: true
-        }
-      }
-    })
-    expect(wrapper.exists()).toBe(true)
-  })
-
-  it('should display AsyncAutoComplete component', async () => {
-    const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
-      props: {
-        parentRoutingSlipNumber: '123456789'
-      },
-      global: {
-        stubs: {
-          UFormField: {
-            template: '<div><slot /></div>',
+            template: '<div data-test="form-field"><slot /></div>',
             props: ['error', 'class']
           },
           AsyncAutoComplete: {
@@ -108,45 +74,9 @@ describe('LinkRoutingSlipSearch', () => {
             },
             emits: ['update:modelValue', 'blur', 'focus']
           },
-          UButton: true,
-          ConnectI18nHelper: true
-        }
-      }
-    })
-
-    const autocomplete = wrapper.find('[data-test="autocomplete"]')
-    expect(autocomplete.exists()).toBe(true)
-  })
-
-  it('should display Link and Cancel buttons', async () => {
-    const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
-      props: {
-        parentRoutingSlipNumber: '123456789'
-      },
-      global: {
-        stubs: {
-          UFormField: {
-            template: '<div><slot /></div>',
-            props: ['error', 'class']
-          },
-          AsyncAutoComplete: {
-            template: '<div></div>',
-            props: {
-              id: String,
-              label: { type: String, default: '' },
-              modelValue: [String, Object],
-              placeholder: String,
-              queryFn: Function,
-              valueKey: String,
-              labelKey: String,
-              size: String,
-              disabled: Boolean
-            },
-            emits: ['update:modelValue', 'blur', 'focus']
-          },
           UButton: defineComponent({
             name: 'UButton',
-            template: '<button data-test="button" v-bind="$attrs"><slot /></button>',
+            template: '<button data-test="button" v-bind="$attrs" @click="$emit(\'click\')"><slot /></button>',
             inheritAttrs: false,
             emits: ['click']
           }),
@@ -154,93 +84,28 @@ describe('LinkRoutingSlipSearch', () => {
         }
       }
     })
+    expect(wrapper.exists()).toBe(true)
+
+    const autocomplete = wrapper.find('[data-test="autocomplete"]')
+    expect(autocomplete.exists()).toBe(true)
 
     const buttons = wrapper.findAll('[data-test="button"]')
     expect(buttons.length).toBeGreaterThanOrEqual(2)
-  })
 
-  it('should emit cancel event when cancel button is clicked', async () => {
-    const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
-      props: {
-        parentRoutingSlipNumber: '123456789'
-      },
-      global: {
-        stubs: {
-          UFormField: {
-            template: '<div><slot /></div>',
-            props: ['error', 'class']
-          },
-          AsyncAutoComplete: {
-            template: '<div></div>',
-            props: {
-              id: String,
-              label: { type: String, default: '' },
-              modelValue: [String, Object],
-              placeholder: String,
-              queryFn: Function,
-              valueKey: String,
-              labelKey: String,
-              size: String,
-              disabled: Boolean
-            },
-            emits: ['update:modelValue', 'blur', 'focus']
-          },
-          UButton: UButtonStub,
-          ConnectI18nHelper: true
-        }
-      }
-    })
-
-    const buttons = wrapper.findAllComponents({ name: 'UButton' })
-
-    const cancelButton = buttons.find(btn => btn.props('label') === 'label.cancel')
-
+    const buttonComponents = wrapper.findAllComponents({ name: 'UButton' })
+    const cancelButton = buttonComponents.find(btn => btn.props('label') === 'label.cancel')
     if (cancelButton) {
       await cancelButton.trigger('click')
       await nextTick()
-
       expect(wrapper.emitted('cancel')).toBeTruthy()
       expect(wrapper.emitted('cancel')).toHaveLength(1)
     }
-  })
-
-  it('should validate when selected value is empty', async () => {
-    const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
-      props: {
-        parentRoutingSlipNumber: '123456789'
-      },
-      global: {
-        stubs: {
-          UFormField: {
-            template: '<div data-test="form-field"><slot /></div>',
-            props: ['error', 'class']
-          },
-          AsyncAutoComplete: {
-            template: '<div></div>',
-            props: {
-              id: String,
-              label: { type: String, default: '' },
-              modelValue: [String, Object],
-              placeholder: String,
-              queryFn: Function,
-              valueKey: String,
-              labelKey: String,
-              size: String,
-              disabled: Boolean
-            },
-            emits: ['update:modelValue', 'blur', 'focus']
-          },
-          UButton: true,
-          ConnectI18nHelper: true
-        }
-      }
-    })
 
     const formField = wrapper.find('[data-test="form-field"]')
     expect(formField.exists()).toBe(true)
   })
 
-  it('should call postSearchRoutingSlip when searchRoutingSlipForLinking is called with valid input', async () => {
+  it('should call postSearchRoutingSlip with valid input and return empty array for short input', async () => {
     const mockItems = [
       {
         number: '987654321',
@@ -281,9 +146,6 @@ describe('LinkRoutingSlipSearch', () => {
       }
     })
 
-    const autocomplete = wrapper.find('[data-test="autocomplete"]')
-    expect(autocomplete.exists()).toBe(true)
-
     const autocompleteComponent = wrapper.findComponent({ name: 'AsyncAutoComplete' })
     if (autocompleteComponent.exists()) {
       const queryFn = autocompleteComponent.props('queryFn')
@@ -291,58 +153,15 @@ describe('LinkRoutingSlipSearch', () => {
       if (queryFn && typeof queryFn === 'function') {
         await queryFn('123')
         expect(mockPostSearchRoutingSlip).toHaveBeenCalledWith({ routingSlipNumber: '123' })
-      }
-    }
-  })
 
-  it('should return empty array searchRoutingSlipForLinking is called with input less than 3 characters', async () => {
-    const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
-      props: {
-        parentRoutingSlipNumber: '123456789'
-      },
-      global: {
-        stubs: {
-          UFormField: {
-            template: '<div><slot /></div>',
-            props: ['error', 'class']
-          },
-          AsyncAutoComplete: {
-            template: '<div data-test="autocomplete"></div>',
-            props: {
-              id: String,
-              label: { type: String, default: '' },
-              modelValue: [String, Object],
-              placeholder: String,
-              queryFn: Function,
-              valueKey: String,
-              labelKey: String,
-              size: String,
-              disabled: Boolean
-            },
-            emits: ['update:modelValue', 'blur', 'focus']
-          },
-          UButton: true,
-          ConnectI18nHelper: true
-        }
-      }
-    })
-
-    const autocomplete = wrapper.find('[data-test="autocomplete"]')
-    expect(autocomplete.exists()).toBe(true)
-
-    const autocompleteComponent = wrapper.findComponent({ name: 'AsyncAutoComplete' })
-    if (autocompleteComponent.exists()) {
-      const queryFn = autocompleteComponent.props('queryFn')
-
-      if (queryFn && typeof queryFn === 'function') {
         const result = await queryFn('12')
         expect(result).toEqual([])
-        expect(mockPostSearchRoutingSlip).not.toHaveBeenCalled()
+        expect(mockPostSearchRoutingSlip).toHaveBeenCalledTimes(1)
       }
     }
   })
 
-  it('should call linkRoutingSlip and emit success when link button is clicked with valid selection', async () => {
+  it('should handle linkRoutingSlip success, errors, validation, and refresh data', async () => {
     mockPostLinkRoutingSlip.mockImplementation(() => Promise.resolve({}))
 
     const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
@@ -394,10 +213,10 @@ describe('LinkRoutingSlipSearch', () => {
       })
       expect(wrapper.emitted('success')).toBeTruthy()
       expect(wrapper.emitted('success')![0]).toEqual(['987654321'])
+      expect(mockGetRoutingSlip).toHaveBeenCalledWith({ routingSlipNumber: '123456789' })
+      expect(mockGetLinkedRoutingSlips).toHaveBeenCalledWith('123456789')
     }
-  })
 
-  it('should set error message when linkRoutingSlip fails with FetchError', async () => {
     const fetchError = new FetchError('Error')
     Object.assign(fetchError, {
       response: {
@@ -410,44 +229,9 @@ describe('LinkRoutingSlipSearch', () => {
     } as Partial<FetchError>)
 
     mockPostLinkRoutingSlip.mockImplementation(() => Promise.reject(fetchError))
-
-    const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
-      props: {
-        parentRoutingSlipNumber: '123456789'
-      },
-      global: {
-        stubs: {
-          UFormField: {
-            template: '<div><slot /></div>',
-            props: ['error', 'class']
-          },
-          AsyncAutoComplete: {
-            template: '<div></div>',
-            props: {
-              id: String,
-              label: { type: String, default: '' },
-              modelValue: [String, Object],
-              placeholder: String,
-              queryFn: Function,
-              valueKey: String,
-              labelKey: String,
-              size: String,
-              disabled: Boolean
-            },
-            emits: ['update:modelValue', 'blur', 'focus']
-          },
-          UButton: UButtonStub,
-          ConnectI18nHelper: true
-        }
-      }
-    })
-
-    const component = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & { selected?: string }
+    vi.clearAllMocks()
     component.selected = '987654321'
     await nextTick()
-
-    const buttons = wrapper.findAllComponents({ name: 'UButton' })
-    const linkButton = buttons.find(btn => btn.props('label') === 'label.link')
 
     if (linkButton) {
       await linkButton.trigger('click')
@@ -457,48 +241,11 @@ describe('LinkRoutingSlipSearch', () => {
       const formField = wrapper.findComponent({ name: 'UFormField' })
       expect(formField.props('error')).toBe('Custom error message')
     }
-  })
 
-  it('should set error message when linkRoutingSlip fails with non-FetchError', async () => {
     mockPostLinkRoutingSlip.mockImplementation(() => Promise.reject(new Error('Generic error')))
-
-    const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
-      props: {
-        parentRoutingSlipNumber: '123456789'
-      },
-      global: {
-        stubs: {
-          UFormField: {
-            template: '<div><slot /></div>',
-            props: ['error', 'class']
-          },
-          AsyncAutoComplete: {
-            template: '<div></div>',
-            props: {
-              id: String,
-              label: { type: String, default: '' },
-              modelValue: [String, Object],
-              placeholder: String,
-              queryFn: Function,
-              valueKey: String,
-              labelKey: String,
-              size: String,
-              disabled: Boolean
-            },
-            emits: ['update:modelValue', 'blur', 'focus']
-          },
-          UButton: UButtonStub,
-          ConnectI18nHelper: true
-        }
-      }
-    })
-
-    const component = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & { selected?: string }
+    vi.clearAllMocks()
     component.selected = '987654321'
     await nextTick()
-
-    const buttons = wrapper.findAllComponents({ name: 'UButton' })
-    const linkButton = buttons.find(btn => btn.props('label') === 'label.link')
 
     if (linkButton) {
       await linkButton.trigger('click')
@@ -508,11 +255,19 @@ describe('LinkRoutingSlipSearch', () => {
       const formField = wrapper.findComponent({ name: 'UFormField' })
       expect(formField.props('error')).toBe('validation.unknownError')
     }
+
+    component.selected = undefined
+    await nextTick()
+
+    if (linkButton) {
+      await linkButton.trigger('click')
+      await nextTick()
+      await new Promise(resolve => setTimeout(resolve, 100))
+      expect(mockPostLinkRoutingSlip).not.toHaveBeenCalled()
+    }
   })
 
-  it('should call getRoutingSlip and getLinkedRoutingSlips after successful link', async () => {
-    mockPostLinkRoutingSlip.mockImplementation(() => Promise.resolve({}))
-
+  it('should handle cancel, success emission, various error types, loading states, and refresh calls', async () => {
     const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
       props: {
         parentRoutingSlipNumber: '123456789'
@@ -544,68 +299,127 @@ describe('LinkRoutingSlipSearch', () => {
       }
     })
 
+    const buttons = wrapper.findAllComponents({ name: 'UButton' })
+    const cancelButton = buttons.find(btn => btn.props('label') === 'label.cancel')
+    if (cancelButton?.exists()) {
+      await cancelButton.trigger('click')
+      await nextTick()
+      expect(wrapper.emitted('cancel')).toBeTruthy()
+      expect(wrapper.emitted('cancel')).toHaveLength(1)
+    }
+
+    mockPostLinkRoutingSlip.mockImplementation(() => Promise.resolve({}))
+    mockGetRoutingSlip.mockImplementation(() => Promise.resolve({}))
+    mockGetLinkedRoutingSlips.mockImplementation(() => Promise.resolve({}))
     const component = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & { selected?: string }
     component.selected = '987654321'
     await nextTick()
 
-    const buttons = wrapper.findAllComponents({ name: 'UButton' })
     const linkButton = buttons.find(btn => btn.props('label') === 'label.link')
-
     if (linkButton) {
       await linkButton.trigger('click')
       await nextTick()
       await new Promise(resolve => setTimeout(resolve, 100))
-
-      expect(mockGetRoutingSlip).toHaveBeenCalledWith({ routingSlipNumber: '123456789' })
-      expect(mockGetLinkedRoutingSlips).toHaveBeenCalledWith('123456789')
+      expect(wrapper.emitted('success')).toBeTruthy()
+      expect(wrapper.emitted('success')?.[0]?.[0]).toBe('987654321')
+      expect(mockGetRoutingSlip).toHaveBeenCalled()
+      expect(mockGetLinkedRoutingSlips).toHaveBeenCalled()
     }
-  })
 
-  it('should not call linkRoutingSlip when validation fails', async () => {
-    const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
-      props: {
-        parentRoutingSlipNumber: '123456789'
-      },
-      global: {
-        stubs: {
-          UFormField: {
-            template: '<div><slot /></div>',
-            props: ['error', 'class']
-          },
-          AsyncAutoComplete: {
-            template: '<div></div>',
-            props: {
-              id: String,
-              label: { type: String, default: '' },
-              modelValue: [String, Object],
-              placeholder: String,
-              queryFn: Function,
-              valueKey: String,
-              labelKey: String,
-              size: String,
-              disabled: Boolean
-            },
-            emits: ['update:modelValue', 'blur', 'focus']
-          },
-          UButton: UButtonStub,
-          ConnectI18nHelper: true
+    interface FetchErrorWithResponse extends Error {
+      response?: {
+        _data?: {
+          rootCause?: {
+            detail?: string
+          }
         }
       }
-    })
-
-    const component = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & { selected?: string }
-    component.selected = undefined
+    }
+    const fetchError = new Error('Fetch Error') as FetchErrorWithResponse
+    fetchError.response = {
+      _data: {
+        rootCause: {
+          detail: 'Custom error detail'
+        }
+      }
+    }
+    mockPostLinkRoutingSlip.mockImplementation(() => Promise.reject(fetchError))
+    vi.clearAllMocks()
+    component.selected = '987654321'
     await nextTick()
-
-    const buttons = wrapper.findAllComponents({ name: 'UButton' })
-    const linkButton = buttons.find(btn => btn.props('label') === 'label.link')
 
     if (linkButton) {
       await linkButton.trigger('click')
       await nextTick()
       await new Promise(resolve => setTimeout(resolve, 100))
+      const componentWithError = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & {
+        selected?: string
+        errorMessage?: string
+      }
+      expect(componentWithError.errorMessage).toBe('Custom error detail')
+    }
 
-      expect(mockPostLinkRoutingSlip).not.toHaveBeenCalled()
+    mockPostLinkRoutingSlip.mockImplementation(() => Promise.reject(new Error('Generic error')))
+    vi.clearAllMocks()
+    component.selected = '987654321'
+    await nextTick()
+
+    if (linkButton) {
+      await linkButton.trigger('click')
+      await nextTick()
+      await new Promise(resolve => setTimeout(resolve, 100))
+      const componentWithError = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & {
+        selected?: string
+        errorMessage?: string
+      }
+      expect(componentWithError.errorMessage).toBe('validation.unknownError')
+    }
+
+    const fetchError2 = new Error('Fetch Error') as FetchErrorWithResponse
+    fetchError2.response = {
+      _data: {}
+    }
+    mockPostLinkRoutingSlip.mockImplementation(() => Promise.reject(fetchError2))
+    vi.clearAllMocks()
+    component.selected = '987654321'
+    await nextTick()
+
+    if (linkButton) {
+      await linkButton.trigger('click')
+      await nextTick()
+      await new Promise(resolve => setTimeout(resolve, 100))
+      const componentWithError = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & {
+        selected?: string
+        errorMessage?: string
+      }
+      expect(componentWithError.errorMessage).toBe('validation.unknownError')
+    }
+
+    mockPostLinkRoutingSlip.mockImplementation(() => Promise.resolve({}))
+    mockGetRoutingSlip.mockImplementation(() => Promise.resolve({}))
+    mockGetLinkedRoutingSlips.mockImplementation(() => Promise.resolve({}))
+    vi.clearAllMocks()
+    component.selected = '987654321'
+    await nextTick()
+
+    if (linkButton) {
+      await linkButton.trigger('click')
+      await nextTick()
+      await new Promise(resolve => setTimeout(resolve, 100))
+      const componentWithLoading = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & {
+        selected?: string
+        loading?: boolean
+      }
+      expect(componentWithLoading.loading).toBe(false)
+    }
+
+    const componentWithLoading = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & { loading?: boolean }
+    componentWithLoading.loading = true
+    await nextTick()
+
+    const cancelButton2 = buttons.find(btn => btn.props('label') === 'label.cancel')
+    if (cancelButton2?.exists()) {
+      expect(cancelButton2.props('disabled')).toBe(true)
     }
   })
 
@@ -948,440 +762,6 @@ describe('LinkRoutingSlipSearch', () => {
 
       expect(mockPostLinkRoutingSlip).toHaveBeenCalled()
       expect(mockGetRoutingSlip).toHaveBeenCalledWith({ routingSlipNumber: '' })
-    }
-  })
-
-  it('should emit cancel when cancel button is clicked', async () => {
-    const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
-      props: {
-        parentRoutingSlipNumber: '123456789'
-      },
-      global: {
-        stubs: {
-          UFormField: {
-            template: '<div><slot /></div>',
-            props: ['error', 'class']
-          },
-          AsyncAutoComplete: {
-            template: '<div></div>',
-            props: {
-              id: String,
-              label: { type: String, default: '' },
-              modelValue: [String, Object],
-              placeholder: String,
-              queryFn: Function,
-              valueKey: String,
-              labelKey: String,
-              size: String,
-              disabled: Boolean
-            },
-            emits: ['update:modelValue', 'blur', 'focus']
-          },
-          UButton: UButtonStub,
-          ConnectI18nHelper: true
-        }
-      }
-    })
-
-    const buttons = wrapper.findAllComponents({ name: 'UButton' })
-    const cancelButton = buttons.find(btn => btn.props('label') === 'label.cancel')
-
-    if (cancelButton?.exists()) {
-      await cancelButton.trigger('click')
-      await nextTick()
-
-      expect(wrapper.emitted('cancel')).toBeTruthy()
-      expect(wrapper.emitted('cancel')).toHaveLength(1)
-    }
-  })
-
-  it('should emit success with childRoutingSlipNumber when linkRoutingSlip succeeds', async () => {
-    mockPostLinkRoutingSlip.mockImplementation(() => Promise.resolve({}))
-    mockGetRoutingSlip.mockImplementation(() => Promise.resolve({}))
-    mockGetLinkedRoutingSlips.mockImplementation(() => Promise.resolve({}))
-
-    const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
-      props: {
-        parentRoutingSlipNumber: '123456789'
-      },
-      global: {
-        stubs: {
-          UFormField: {
-            template: '<div><slot /></div>',
-            props: ['error', 'class']
-          },
-          AsyncAutoComplete: {
-            template: '<div></div>',
-            props: {
-              id: String,
-              label: { type: String, default: '' },
-              modelValue: [String, Object],
-              placeholder: String,
-              queryFn: Function,
-              valueKey: String,
-              labelKey: String,
-              size: String,
-              disabled: Boolean
-            },
-            emits: ['update:modelValue', 'blur', 'focus']
-          },
-          UButton: UButtonStub,
-          ConnectI18nHelper: true
-        }
-      }
-    })
-
-    const component = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & { selected?: string }
-    component.selected = '987654321'
-    await nextTick()
-
-    const buttons = wrapper.findAllComponents({ name: 'UButton' })
-    const linkButton = buttons.find(btn => btn.props('label') === 'label.link')
-
-    if (linkButton) {
-      await linkButton.trigger('click')
-      await nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      expect(wrapper.emitted('success')).toBeTruthy()
-      expect(wrapper.emitted('success')?.[0]?.[0]).toBe('987654321')
-    }
-  })
-
-  it('should handle FetchError with rootCause detail', async () => {
-    interface FetchErrorWithResponse extends Error {
-      response?: {
-        _data?: {
-          rootCause?: {
-            detail?: string
-          }
-        }
-      }
-    }
-    const fetchError = new Error('Fetch Error') as FetchErrorWithResponse
-    fetchError.response = {
-      _data: {
-        rootCause: {
-          detail: 'Custom error detail'
-        }
-      }
-    }
-    mockPostLinkRoutingSlip.mockImplementation(() => Promise.reject(fetchError))
-
-    const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
-      props: {
-        parentRoutingSlipNumber: '123456789'
-      },
-      global: {
-        stubs: {
-          UFormField: {
-            template: '<div><slot /></div>',
-            props: ['error', 'class']
-          },
-          AsyncAutoComplete: {
-            template: '<div></div>',
-            props: {
-              id: String,
-              label: { type: String, default: '' },
-              modelValue: [String, Object],
-              placeholder: String,
-              queryFn: Function,
-              valueKey: String,
-              labelKey: String,
-              size: String,
-              disabled: Boolean
-            },
-            emits: ['update:modelValue', 'blur', 'focus']
-          },
-          UButton: UButtonStub,
-          ConnectI18nHelper: true
-        }
-      }
-    })
-
-    const component = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & {
-      selected?: string
-      errorMessage?: string
-    }
-    component.selected = '987654321'
-    await nextTick()
-
-    const buttons = wrapper.findAllComponents({ name: 'UButton' })
-    const linkButton = buttons.find(btn => btn.props('label') === 'label.link')
-
-    if (linkButton) {
-      await linkButton.trigger('click')
-      await nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      expect(component.errorMessage).toBe('Custom error detail')
-    }
-  })
-
-  it('should handle non-FetchError with fallback message', async () => {
-    mockPostLinkRoutingSlip.mockImplementation(() => Promise.reject(new Error('Generic error')))
-
-    const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
-      props: {
-        parentRoutingSlipNumber: '123456789'
-      },
-      global: {
-        stubs: {
-          UFormField: {
-            template: '<div><slot /></div>',
-            props: ['error', 'class']
-          },
-          AsyncAutoComplete: {
-            template: '<div></div>',
-            props: {
-              id: String,
-              label: { type: String, default: '' },
-              modelValue: [String, Object],
-              placeholder: String,
-              queryFn: Function,
-              valueKey: String,
-              labelKey: String,
-              size: String,
-              disabled: Boolean
-            },
-            emits: ['update:modelValue', 'blur', 'focus']
-          },
-          UButton: UButtonStub,
-          ConnectI18nHelper: true
-        }
-      }
-    })
-
-    const component = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & {
-      selected?: string
-      errorMessage?: string
-    }
-    component.selected = '987654321'
-    await nextTick()
-
-    const buttons = wrapper.findAllComponents({ name: 'UButton' })
-    const linkButton = buttons.find(btn => btn.props('label') === 'label.link')
-
-    if (linkButton) {
-      await linkButton.trigger('click')
-      await nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      expect(component.errorMessage).toBe('validation.unknownError')
-    }
-  })
-
-  it('should handle FetchError without rootCause', async () => {
-    interface FetchErrorWithResponse extends Error {
-      response?: {
-        _data?: Record<string, unknown>
-      }
-    }
-    const fetchError = new Error('Fetch Error') as FetchErrorWithResponse
-    fetchError.response = {
-      _data: {}
-    }
-    mockPostLinkRoutingSlip.mockImplementation(() => Promise.reject(fetchError))
-
-    const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
-      props: {
-        parentRoutingSlipNumber: '123456789'
-      },
-      global: {
-        stubs: {
-          UFormField: {
-            template: '<div><slot /></div>',
-            props: ['error', 'class']
-          },
-          AsyncAutoComplete: {
-            template: '<div></div>',
-            props: {
-              id: String,
-              label: { type: String, default: '' },
-              modelValue: [String, Object],
-              placeholder: String,
-              queryFn: Function,
-              valueKey: String,
-              labelKey: String,
-              size: String,
-              disabled: Boolean
-            },
-            emits: ['update:modelValue', 'blur', 'focus']
-          },
-          UButton: UButtonStub,
-          ConnectI18nHelper: true
-        }
-      }
-    })
-
-    const component = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & {
-      selected?: string
-      errorMessage?: string
-    }
-    component.selected = '987654321'
-    await nextTick()
-
-    const buttons = wrapper.findAllComponents({ name: 'UButton' })
-    const linkButton = buttons.find(btn => btn.props('label') === 'label.link')
-
-    if (linkButton) {
-      await linkButton.trigger('click')
-      await nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      expect(component.errorMessage).toBe('validation.unknownError')
-    }
-  })
-
-  it('should set loading to false after linkRoutingSlip completes', async () => {
-    mockPostLinkRoutingSlip.mockImplementation(() => Promise.resolve({}))
-    mockGetRoutingSlip.mockImplementation(() => Promise.resolve({}))
-    mockGetLinkedRoutingSlips.mockImplementation(() => Promise.resolve({}))
-
-    const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
-      props: {
-        parentRoutingSlipNumber: '123456789'
-      },
-      global: {
-        stubs: {
-          UFormField: {
-            template: '<div><slot /></div>',
-            props: ['error', 'class']
-          },
-          AsyncAutoComplete: {
-            template: '<div></div>',
-            props: {
-              id: String,
-              label: { type: String, default: '' },
-              modelValue: [String, Object],
-              placeholder: String,
-              queryFn: Function,
-              valueKey: String,
-              labelKey: String,
-              size: String,
-              disabled: Boolean
-            },
-            emits: ['update:modelValue', 'blur', 'focus']
-          },
-          UButton: UButtonStub,
-          ConnectI18nHelper: true
-        }
-      }
-    })
-
-    const component = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & {
-      selected?: string
-      loading?: boolean
-    }
-    component.selected = '987654321'
-    await nextTick()
-
-    const buttons = wrapper.findAllComponents({ name: 'UButton' })
-    const linkButton = buttons.find(btn => btn.props('label') === 'label.link')
-
-    if (linkButton) {
-      await linkButton.trigger('click')
-      await nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      expect(component.loading).toBe(false)
-    }
-  })
-
-  it('should disable cancel button when loading', async () => {
-    const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
-      props: {
-        parentRoutingSlipNumber: '123456789'
-      },
-      global: {
-        stubs: {
-          UFormField: {
-            template: '<div><slot /></div>',
-            props: ['error', 'class']
-          },
-          AsyncAutoComplete: {
-            template: '<div></div>',
-            props: {
-              id: String,
-              label: { type: String, default: '' },
-              modelValue: [String, Object],
-              placeholder: String,
-              queryFn: Function,
-              valueKey: String,
-              labelKey: String,
-              size: String,
-              disabled: Boolean
-            },
-            emits: ['update:modelValue', 'blur', 'focus']
-          },
-          UButton: UButtonStub,
-          ConnectI18nHelper: true
-        }
-      }
-    })
-
-    const component = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & { loading?: boolean }
-    component.loading = true
-    await nextTick()
-
-    const buttons = wrapper.findAllComponents({ name: 'UButton' })
-    const cancelButton = buttons.find(btn => btn.props('label') === 'label.cancel')
-
-    if (cancelButton?.exists()) {
-      expect(cancelButton.props('disabled')).toBe(true)
-    }
-  })
-
-  it('should call getRoutingSlip and getLinkedRoutingSlips after successful link', async () => {
-    mockPostLinkRoutingSlip.mockImplementation(() => Promise.resolve({}))
-    mockGetRoutingSlip.mockImplementation(() => Promise.resolve({}))
-    mockGetLinkedRoutingSlips.mockImplementation(() => Promise.resolve({}))
-
-    const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
-      props: {
-        parentRoutingSlipNumber: '123456789'
-      },
-      global: {
-        stubs: {
-          UFormField: {
-            template: '<div><slot /></div>',
-            props: ['error', 'class']
-          },
-          AsyncAutoComplete: {
-            template: '<div></div>',
-            props: {
-              id: String,
-              label: { type: String, default: '' },
-              modelValue: [String, Object],
-              placeholder: String,
-              queryFn: Function,
-              valueKey: String,
-              labelKey: String,
-              size: String,
-              disabled: Boolean
-            },
-            emits: ['update:modelValue', 'blur', 'focus']
-          },
-          UButton: UButtonStub,
-          ConnectI18nHelper: true
-        }
-      }
-    })
-
-    const component = wrapper.vm as InstanceType<typeof LinkRoutingSlipSearch> & { selected?: string }
-    component.selected = '987654321'
-    await nextTick()
-
-    const buttons = wrapper.findAllComponents({ name: 'UButton' })
-    const linkButton = buttons.find(btn => btn.props('label') === 'label.link')
-
-    if (linkButton) {
-      await linkButton.trigger('click')
-      await nextTick()
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      expect(mockGetRoutingSlip).toHaveBeenCalled()
-      expect(mockGetLinkedRoutingSlips).toHaveBeenCalled()
     }
   })
 })

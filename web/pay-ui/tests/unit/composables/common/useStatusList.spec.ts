@@ -22,68 +22,49 @@ describe('useStatusList', () => {
     ]))
   })
 
-  it('should be defined', async () => {
+  it('should be defined, return all expected properties, and load status list on initialization', async () => {
     const composable = await useStatusList({ value: '' }, { emit: vi.fn() })
     expect(composable).toBeDefined()
-  })
-
-  it('should return routingSlipStatusList, currentStatus, statusLabel, and selectedStatusObject', async () => {
-    const composable = await useStatusList({ value: '' }, { emit: vi.fn() })
     expect(composable.routingSlipStatusList).toBeDefined()
     expect(composable.currentStatus).toBeDefined()
     expect(composable.statusLabel).toBeDefined()
     expect(composable.selectedStatusObject).toBeDefined()
-  })
-
-  it('should load routing slip status list on initialization', async () => {
-    await useStatusList({ value: '' }, { emit: vi.fn() })
     expect(mockGetCodes).toHaveBeenCalledWith('routing_slip_statuses')
   })
 
-  it('should initialize with empty status list if API call fails', async () => {
+  it('should initialize with empty status list if API call fails and set currentStatus from props', async () => {
     mockGetCodes.mockImplementation(() => Promise.reject(new Error('API Error')))
-    const composable = await useStatusList({ value: '' }, { emit: vi.fn() })
-    expect(composable.routingSlipStatusList.value).toEqual([])
+    const composable1 = await useStatusList({ value: '' }, { emit: vi.fn() })
+    expect(composable1.routingSlipStatusList.value).toEqual([])
+
+    mockGetCodes.mockImplementation(() => Promise.resolve([
+      { code: 'ACTIVE', description: 'Active' },
+      { code: 'COMPLETED', description: 'Completed' },
+      { code: 'CANCELLED', description: 'Cancelled' }
+    ]))
+    const composable2 = await useStatusList({ value: 'ACTIVE' }, { emit: vi.fn() })
+    expect(composable2.currentStatus.value).toBe('ACTIVE')
   })
 
-  it('should set currentStatus from props value', async () => {
-    const composable = await useStatusList({ value: 'ACTIVE' }, { emit: vi.fn() })
-    expect(composable.currentStatus.value).toBe('ACTIVE')
-  })
-
-  it('should emit update:modelValue when currentStatus is set', async () => {
+  it('should emit update:modelValue when currentStatus is set and handle status label/object lookups', async () => {
     const emit = vi.fn()
     const composable = await useStatusList({ value: '' }, { emit })
+    await nextTick()
+
     composable.currentStatus.value = { code: 'ACTIVE', description: 'Active' } as Code
     expect(emit).toHaveBeenCalledWith('update:modelValue', 'ACTIVE')
-  })
 
-  it('should return status label for given code', async () => {
-    const composable = await useStatusList({ value: '' }, { emit: vi.fn() })
-    await nextTick()
     const label = composable.statusLabel('ACTIVE')
     expect(label).toBe('Active')
-  })
 
-  it('should return empty string if status code not found', async () => {
-    const composable = await useStatusList({ value: '' }, { emit: vi.fn() })
-    await nextTick()
-    const label = composable.statusLabel('UNKNOWN')
-    expect(label).toBe('')
-  })
+    const unknownLabel = composable.statusLabel('UNKNOWN')
+    expect(unknownLabel).toBe('')
 
-  it('should return selected status object for given code', async () => {
-    const composable = await useStatusList({ value: '' }, { emit: vi.fn() })
-    await nextTick()
     const statusObject = composable.selectedStatusObject('ACTIVE')
     expect(statusObject).toEqual({ code: 'ACTIVE', description: 'Active' })
-  })
 
-  it('should return undefined if status code not found', async () => {
-    const composable = await useStatusList({ value: '' }, { emit: vi.fn() })
-    await nextTick()
-    const statusObject = composable.selectedStatusObject('UNKNOWN')
-    expect(statusObject).toBeUndefined()
+    const unknownObject = composable.selectedStatusObject('UNKNOWN')
+    expect(unknownObject).toBeUndefined()
   })
 })
 
@@ -96,69 +77,51 @@ describe('useStatusListSelect', () => {
     ]))
   })
 
-  it('should be defined', () => {
-    const composable = useStatusListSelect({ column: 'status' })
-    expect(composable).toBeDefined()
+  it('should be defined and return all expected properties with correct placeholders', () => {
+    const statusComposable = useStatusListSelect({ column: 'status' })
+    expect(statusComposable).toBeDefined()
+    expect(statusComposable.items).toBeDefined()
+    expect(statusComposable.placeholder).toBeDefined()
+    expect(statusComposable.routingSlipStatusList).toBeDefined()
+    expect(statusComposable.placeholder).toBe('label.status')
+
+    const refundComposable = useStatusListSelect({ column: 'refundStatus' })
+    expect(refundComposable.placeholder).toBe('label.refundStatus')
   })
 
-  it('should return items, placeholder, and routingSlipStatusList', () => {
-    const composable = useStatusListSelect({ column: 'status' })
-    expect(composable.items).toBeDefined()
-    expect(composable.placeholder).toBeDefined()
-    expect(composable.routingSlipStatusList).toBeDefined()
-  })
-
-  it('should return routing slip status items when column is status', async () => {
-    const composable = useStatusListSelect({ column: 'status' })
-    composable.routingSlipStatusList.value = [
+  it('should return correct items for status and refundStatus columns', async () => {
+    const statusComposable = useStatusListSelect({ column: 'status' })
+    statusComposable.routingSlipStatusList.value = [
       { code: 'ACTIVE', description: 'Active' },
       { code: 'COMPLETED', description: 'Completed' }
     ] as Code[]
     await nextTick()
 
-    expect(composable.items.value.length).toBeGreaterThan(0)
-    expect(composable.items.value[0]).toHaveProperty('label')
-    expect(composable.items.value[0]).toHaveProperty('value')
+    expect(statusComposable.items.value.length).toBeGreaterThan(0)
+    expect(statusComposable.items.value[0]).toHaveProperty('label')
+    expect(statusComposable.items.value[0]).toHaveProperty('value')
+
+    const refundComposable = useStatusListSelect({ column: 'refundStatus' })
+    expect(refundComposable.items.value.length).toBeGreaterThan(0)
+    expect(refundComposable.items.value[0]).toHaveProperty('label')
+    expect(refundComposable.items.value[0]).toHaveProperty('value')
   })
 
-  it('should return cheque refund status items when column is refundStatus', () => {
-    const composable = useStatusListSelect({ column: 'refundStatus' })
-    expect(composable.items.value.length).toBeGreaterThan(0)
-    expect(composable.items.value[0]).toHaveProperty('label')
-    expect(composable.items.value[0]).toHaveProperty('value')
-  })
-
-  it('should return correct placeholder for status column', () => {
-    const composable = useStatusListSelect({ column: 'status' })
-    expect(composable.placeholder).toBe('label.status')
-  })
-
-  it('should return correct placeholder for refundStatus column', () => {
-    const composable = useStatusListSelect({ column: 'refundStatus' })
-    expect(composable.placeholder).toBe('label.refundStatus')
-  })
-
-  it('should load status list when routingSlipStatusList is empty and column is status', async () => {
+  it('should load status list when empty and not load if already loaded', async () => {
     vi.clearAllMocks()
-    const composable = useStatusListSelect({ column: 'status' })
+    const composable1 = useStatusListSelect({ column: 'status' })
 
-    // Simulate the loadStatusList behavior
-    if (composable.routingSlipStatusList.value.length === 0) {
-      composable.routingSlipStatusList.value = await mockGetCodes('routing_slip_statuses')
+    if (composable1.routingSlipStatusList.value.length === 0) {
+      composable1.routingSlipStatusList.value = await mockGetCodes('routing_slip_statuses')
     }
 
     expect(mockGetCodes).toHaveBeenCalledWith('routing_slip_statuses')
-  })
 
-  it('should not load status list if already loaded', async () => {
     vi.clearAllMocks()
-    const composable = useStatusListSelect({ column: 'status' })
+    const composable2 = useStatusListSelect({ column: 'status' })
+    composable2.routingSlipStatusList.value = [{ code: 'TEST', description: 'Test' }] as Code[]
 
-    // Set the list to have items already
-    composable.routingSlipStatusList.value = [{ code: 'TEST', description: 'Test' }] as Code[]
-
-    // The loadStatusList function checks if length === 0, so it shouldn't load
-    if (composable.routingSlipStatusList.value.length === 0) {
+    if (composable2.routingSlipStatusList.value.length === 0) {
       await mockGetCodes('routing_slip_statuses')
     }
 

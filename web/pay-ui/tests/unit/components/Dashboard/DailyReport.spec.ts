@@ -33,21 +33,16 @@ describe('DailyReport', () => {
     vi.useRealTimers()
   })
 
-  it('should render', async () => {
+  it('should render, display calendar, selected date, and handle download button states', async () => {
     const wrapper = await mountSuspended(DailyReport)
     expect(wrapper.exists()).toBe(true)
-  })
 
-  it('should render the Daily Report button with correct label', async () => {
-    const wrapper = await mountSuspended(DailyReport)
     const button = wrapper.find('button')
     expect(button.exists()).toBe(true)
     expect(button.text()).toContain('Daily Report')
-  })
 
-  it('should display calendar popover when showCalendar is true', async () => {
     mockShowCalendar.value = true
-    const wrapper = await mountSuspended(DailyReport, {
+    const wrapper2 = await mountSuspended(DailyReport, {
       global: {
         stubs: {
           UPopover: {
@@ -60,23 +55,27 @@ describe('DailyReport', () => {
             },
             emits: ['update:open']
           },
-          UButton: true,
+          UButton: {
+            template: '<button v-bind="$attrs" :disabled="disabled" '
+              + ':class="{ loading: loading }"><slot>{{ label }}</slot></button>',
+            props: ['label', 'disabled', 'loading'],
+            inheritAttrs: false
+          },
           UCard: {
             template: '<div><slot name="header" /><slot /><slot name="footer" /></div>'
           },
-          UCalendar: true
+          UCalendar: {
+            template: '<div>Calendar</div>',
+            props: ['modelValue', 'maxValue']
+          }
         }
       }
     })
     await nextTick()
+    expect(wrapper2.text()).toContain('Select Daily Report Date')
 
-    expect(wrapper.text()).toContain('Select Daily Report Date')
-  })
-
-  it('should display selected date when date is selected', async () => {
     mockSelectedDate.value = '2025-09-25'
-    mockShowCalendar.value = true
-    const wrapper = await mountSuspended(DailyReport, {
+    const wrapper3 = await mountSuspended(DailyReport, {
       global: {
         stubs: {
           UPopover: {
@@ -89,24 +88,28 @@ describe('DailyReport', () => {
             },
             emits: ['update:open']
           },
-          UButton: true,
+          UButton: {
+            template: '<button v-bind="$attrs" :disabled="disabled" '
+              + ':class="{ loading: loading }"><slot>{{ label }}</slot></button>',
+            props: ['label', 'disabled', 'loading'],
+            inheritAttrs: false
+          },
           UCard: {
             template: '<div><slot name="header" /><slot /><slot name="footer" /></div>'
           },
-          UCalendar: true
+          UCalendar: {
+            template: '<div>Calendar</div>',
+            props: ['modelValue', 'maxValue']
+          }
         }
       }
     })
     await nextTick()
+    expect(wrapper3.text()).toContain('Selected Date:')
+    expect(wrapper3.text()).toContain('Thu, Sep 25, 2025')
 
-    expect(wrapper.text()).toContain('Selected Date:')
-    expect(wrapper.text()).toContain('Thu, Sep 25, 2025')
-  })
-
-  it('should disable download button when no date is selected', async () => {
     mockSelectedDate.value = null
-    mockShowCalendar.value = true
-    const wrapper = await mountSuspended(DailyReport, {
+    const wrapper4 = await mountSuspended(DailyReport, {
       global: {
         stubs: {
           UPopover: {
@@ -137,15 +140,12 @@ describe('DailyReport', () => {
     })
     await nextTick()
 
-    const downloadButton = wrapper.find('[data-test="btn-download-report"]')
+    const downloadButton = wrapper4.find('[data-test="btn-download-report"]')
     expect(downloadButton.exists()).toBe(true)
     expect(downloadButton.attributes('disabled')).toBeDefined()
-  })
 
-  it('should enable download button when date is selected', async () => {
     mockSelectedDate.value = '2025-09-25'
-    mockShowCalendar.value = true
-    const wrapper = await mountSuspended(DailyReport, {
+    const wrapper5 = await mountSuspended(DailyReport, {
       global: {
         stubs: {
           UPopover: {
@@ -176,9 +176,9 @@ describe('DailyReport', () => {
     })
     await nextTick()
 
-    const downloadButton = wrapper.find('[data-test="btn-download-report"]')
-    expect(downloadButton.exists()).toBe(true)
-    expect(downloadButton.attributes('disabled')).toBeUndefined()
+    const downloadButton2 = wrapper5.find('[data-test="btn-download-report"]')
+    expect(downloadButton2.exists()).toBe(true)
+    expect(downloadButton2.attributes('disabled')).toBeUndefined()
   })
 
   it('should show loading state on download button when downloading', async () => {
@@ -351,7 +351,7 @@ describe('DailyReport', () => {
     expect(mockGetDailyReport).not.toHaveBeenCalled()
   })
 
-  it('should format selected date correctly', async () => {
+  it('should format, update, and handle date selection correctly', async () => {
     mockSelectedDate.value = '2025-09-25'
     mockShowCalendar.value = true
     const wrapper = await mountSuspended(DailyReport, {
@@ -377,11 +377,9 @@ describe('DailyReport', () => {
     })
     await nextTick()
     expect(wrapper.text()).toContain('Thu, Sep 25, 2025')
-  })
 
-  it('should update selectedDate when localModel is set', async () => {
     mockSelectedDate.value = null
-    const wrapper = await mountSuspended(DailyReport, {
+    const wrapper2 = await mountSuspended(DailyReport, {
       global: {
         stubs: {
           UPopover: {
@@ -406,18 +404,16 @@ describe('DailyReport', () => {
         }
       }
     })
-    const calendar = wrapper.findComponent({ name: 'UCalendar' })
+    const calendar = wrapper2.findComponent({ name: 'UCalendar' })
     if (calendar.exists()) {
       const testDate = { year: 2025, month: 9, day: 25 }
       await calendar.vm.$emit('update:modelValue', testDate)
       await nextTick()
       expect(mockSelectedDate.value).toBe('2025-09-25')
     }
-  })
 
-  it('should set selectedDate to null when localModel is set to undefined', async () => {
     mockSelectedDate.value = '2025-09-25'
-    const wrapper = await mountSuspended(DailyReport, {
+    const wrapper3 = await mountSuspended(DailyReport, {
       global: {
         stubs: {
           UPopover: {
@@ -442,18 +438,16 @@ describe('DailyReport', () => {
         }
       }
     })
-    const calendar = wrapper.findComponent({ name: 'UCalendar' })
-    if (calendar.exists()) {
-      await calendar.vm.$emit('update:modelValue', undefined)
+    const calendar2 = wrapper3.findComponent({ name: 'UCalendar' })
+    if (calendar2.exists()) {
+      await calendar2.vm.$emit('update:modelValue', undefined)
       await nextTick()
       expect(mockSelectedDate.value).toBeNull()
     }
-  })
 
-  it('should display empty string when no date is selected in formatSelectedDate', async () => {
     mockSelectedDate.value = null
     mockShowCalendar.value = true
-    const wrapper = await mountSuspended(DailyReport, {
+    const wrapper4 = await mountSuspended(DailyReport, {
       global: {
         stubs: {
           UPopover: {
@@ -475,9 +469,9 @@ describe('DailyReport', () => {
       }
     })
     await nextTick()
-    const selectedDateText = wrapper.text().match(/Selected Date:.*?(\w+)/)
+    const selectedDateText = wrapper4.text().match(/Selected Date:.*?(\w+)/)
     if (selectedDateText) {
-      expect(wrapper.text()).toContain('Selected Date:')
+      expect(wrapper4.text()).toContain('Selected Date:')
     }
   })
 })

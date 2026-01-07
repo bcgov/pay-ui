@@ -23,7 +23,8 @@ describe('StatusMenu', () => {
     vi.clearAllMocks()
   })
 
-  it('should only render items with a matching translation', async () => {
+  it('should only render items with a matching translation and emit a SlipStatus '
+    + 'when an item is selected', async () => {
     const wrapper = await mountSuspended(StatusMenu, {
       props: {
         allowedStatusList: [
@@ -44,23 +45,7 @@ describe('StatusMenu', () => {
     expect(items).toHaveLength(2)
     expect(items[0].label).toContain('Place routing slip to active')
     expect(items[1].label).toContain('Place routing slip on hold')
-  })
 
-  it('should emit a SlipStatus when an item is selected', async () => {
-    const wrapper = await mountSuspended(StatusMenu, {
-      props: {
-        allowedStatusList: [SlipStatusDropdown.ACTIVE, SlipStatusDropdown.HOLD]
-      },
-      global: {
-        stubs: {
-          UDropdownMenu: true,
-          UButton: true
-        }
-      }
-    })
-
-    const dropdown = wrapper.findComponent({ name: 'UDropdownMenu' })
-    const items = dropdown.props('items')
     items[1].onSelect()
 
     const emitted = wrapper.emitted('select')

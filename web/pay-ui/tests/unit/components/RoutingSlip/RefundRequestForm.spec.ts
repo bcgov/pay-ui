@@ -28,7 +28,7 @@ describe('RefundRequestForm', () => {
     expect(wrapper.exists()).toBe(true)
   })
 
-  it('should display refund amount when provided', async () => {
+  it('should display refund amount, entity number, and handle missing values', async () => {
     const wrapper = await mountSuspended(RefundRequestForm, {
       props: {
         refundAmount: 500.50
@@ -49,10 +49,8 @@ describe('RefundRequestForm', () => {
 
     await nextTick()
     expect(wrapper.text()).toContain('$500.50')
-  })
 
-  it('should display default refund amount when not provided', async () => {
-    const wrapper = await mountSuspended(RefundRequestForm, {
+    const wrapper2 = await mountSuspended(RefundRequestForm, {
       global: {
         stubs: {
           UForm: {
@@ -68,11 +66,10 @@ describe('RefundRequestForm', () => {
     })
 
     await nextTick()
-    expect(wrapper.text()).toContain('$0.00')
-  })
+    expect(wrapper2.text()).toContain('$0.00')
+    expect(wrapper2.text()).toContain('-')
 
-  it('should display entity number when provided', async () => {
-    const wrapper = await mountSuspended(RefundRequestForm, {
+    const wrapper3 = await mountSuspended(RefundRequestForm, {
       props: {
         entityNumber: 'BC1234567'
       },
@@ -91,27 +88,7 @@ describe('RefundRequestForm', () => {
     })
 
     await nextTick()
-    expect(wrapper.text()).toContain('BC1234567')
-  })
-
-  it('should display dash when entity number is not provided', async () => {
-    const wrapper = await mountSuspended(RefundRequestForm, {
-      global: {
-        stubs: {
-          UForm: {
-            template: '<div><slot /></div>',
-            props: ['state', 'schema'],
-            emits: ['error', 'submit']
-          },
-          ConnectFormInput: true,
-          ConnectFormAddress: true,
-          UButton: true
-        }
-      }
-    })
-
-    await nextTick()
-    expect(wrapper.text()).toContain('-')
+    expect(wrapper3.text()).toContain('BC1234567')
   })
 
   it('should populate form with initial data', async () => {
@@ -209,7 +186,7 @@ describe('RefundRequestForm', () => {
     }])
   })
 
-  it('should emit cancel event when cancel button is clicked', async () => {
+  it('should handle cancel, form state updates, empty data, formatting, and render fields/buttons', async () => {
     const wrapper = await mountSuspended(RefundRequestForm, {
       global: {
         stubs: {
@@ -218,10 +195,16 @@ describe('RefundRequestForm', () => {
             props: ['state', 'schema'],
             emits: ['error', 'submit']
           },
-          ConnectFormInput: true,
-          ConnectFormAddress: true,
+          ConnectFormInput: {
+            template: '<input data-test="form-input" />',
+            props: ['modelValue', 'label', 'name', 'inputId', 'type']
+          },
+          ConnectFormAddress: {
+            template: '<div data-test="form-address"></div>',
+            props: ['modelValue', 'id', 'schemaPrefix']
+          },
           UButton: {
-            template: '<button @click="$emit(\'click\')"></button>',
+            template: '<button data-test="button" @click="$emit(\'click\')"></button>',
             props: ['label', 'type', 'variant', 'size']
           }
         }
@@ -234,12 +217,17 @@ describe('RefundRequestForm', () => {
     const component = wrapper.vm as any
     await component.onCancel()
     await nextTick()
-
     expect(wrapper.emitted('cancel')).toBeTruthy()
-  })
 
-  it('should update form state when initialData prop changes', async () => {
-    const wrapper = await mountSuspended(RefundRequestForm, {
+    const formInputs = wrapper.findAll('[data-test="form-input"]')
+    const addressInput = wrapper.find('[data-test="form-address"]')
+    expect(formInputs.length).toBeGreaterThanOrEqual(2)
+    expect(addressInput.exists()).toBe(true)
+
+    const buttons = wrapper.findAll('[data-test="button"]')
+    expect(buttons.length).toBeGreaterThanOrEqual(2)
+
+    const wrapper2 = await mountSuspended(RefundRequestForm, {
       props: {
         initialData: {
           name: 'Initial Name',
@@ -272,12 +260,12 @@ describe('RefundRequestForm', () => {
     await nextTick()
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const component = wrapper.vm as any
-    expect(component.formState.name).toBe('Initial Name')
-    expect(component.formState.address.street).toBe('Initial Street')
-    expect(component.formState.address.city).toBe('Initial City')
+    const component2 = wrapper2.vm as any
+    expect(component2.formState.name).toBe('Initial Name')
+    expect(component2.formState.address.street).toBe('Initial Street')
+    expect(component2.formState.address.city).toBe('Initial City')
 
-    await wrapper.setProps({
+    await wrapper2.setProps({
       initialData: {
         name: 'Updated Name',
         mailingAddress: {
@@ -287,14 +275,11 @@ describe('RefundRequestForm', () => {
       }
     })
     await nextTick()
+    expect(component2.formState.name).toBe('Updated Name')
+    expect(component2.formState.address.street).toBe('Updated Street')
+    expect(component2.formState.address.city).toBe('Updated City')
 
-    expect(component.formState.name).toBe('Updated Name')
-    expect(component.formState.address.street).toBe('Updated Street')
-    expect(component.formState.address.city).toBe('Updated City')
-  })
-
-  it('should handle empty initialData gracefully', async () => {
-    const wrapper = await mountSuspended(RefundRequestForm, {
+    const wrapper3 = await mountSuspended(RefundRequestForm, {
       props: {
         initialData: {}
       },
@@ -315,40 +300,15 @@ describe('RefundRequestForm', () => {
     await nextTick()
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const component = wrapper.vm as any
-    expect(component.formState.name).toBe('')
-    expect(component.formState.address.street).toBe('')
-    expect(component.formState.chequeAdvice).toBe('')
-  })
+    const component3 = wrapper3.vm as any
+    expect(component3.formState.name).toBe('')
+    expect(component3.formState.address.street).toBe('')
+    expect(component3.formState.chequeAdvice).toBe('')
 
-  it('should format refund amount correctly', async () => {
-    const wrapper = await mountSuspended(RefundRequestForm, {
+    const wrapper4 = await mountSuspended(RefundRequestForm, {
       props: {
         refundAmount: 1234.56
       },
-      global: {
-        stubs: {
-          UForm: {
-            template: '<div><slot /></div>',
-            props: ['state', 'schema'],
-            emits: ['error', 'submit']
-          },
-          ConnectFormInput: true,
-          ConnectFormAddress: true,
-          UButton: true
-        }
-      }
-    })
-
-    await nextTick()
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const component = wrapper.vm as any
-    expect(component.formattedRefundAmount).toBe('$1234.56')
-  })
-
-  it('should handle chequeAdvice model correctly', async () => {
-    const wrapper = await mountSuspended(RefundRequestForm, {
       global: {
         stubs: {
           UForm: {
@@ -369,71 +329,15 @@ describe('RefundRequestForm', () => {
     await nextTick()
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const component = wrapper.vm as any
-    component.formState.chequeAdvice = 'Test advice'
+    const component4 = wrapper4.vm as any
+    expect(component4.formattedRefundAmount).toBe('$1234.56')
+
+    component4.formState.chequeAdvice = 'Test advice'
     await nextTick()
+    expect(component4.chequeAdviceModel.value).toBe('Test advice')
 
-    expect(component.chequeAdviceModel.value).toBe('Test advice')
-
-    component.formState.chequeAdvice = undefined
+    component4.formState.chequeAdvice = undefined
     await nextTick()
-
-    expect(component.chequeAdviceModel.value).toBe('')
-  })
-
-  it('should render all form fields', async () => {
-    const wrapper = await mountSuspended(RefundRequestForm, {
-      global: {
-        stubs: {
-          UForm: {
-            template: '<div><slot /></div>',
-            props: ['state', 'schema'],
-            emits: ['error', 'submit']
-          },
-          ConnectFormInput: {
-            template: '<input data-test="form-input" />',
-            props: ['modelValue', 'label', 'name', 'inputId', 'type']
-          },
-          ConnectFormAddress: {
-            template: '<div data-test="form-address"></div>',
-            props: ['modelValue', 'id', 'schemaPrefix']
-          },
-          UButton: true
-        }
-      }
-    })
-
-    await nextTick()
-
-    const formInputs = wrapper.findAll('[data-test="form-input"]')
-    const addressInput = wrapper.find('[data-test="form-address"]')
-
-    expect(formInputs.length).toBeGreaterThanOrEqual(2)
-    expect(addressInput.exists()).toBe(true)
-  })
-
-  it('should render submit and cancel buttons', async () => {
-    const wrapper = await mountSuspended(RefundRequestForm, {
-      global: {
-        stubs: {
-          UForm: {
-            template: '<div><slot /></div>',
-            props: ['state', 'schema'],
-            emits: ['error', 'submit']
-          },
-          ConnectFormInput: true,
-          ConnectFormAddress: true,
-          UButton: {
-            template: '<button data-test="button"></button>',
-            props: ['label', 'type', 'variant', 'size']
-          }
-        }
-      }
-    })
-
-    await nextTick()
-
-    const buttons = wrapper.findAll('[data-test="button"]')
-    expect(buttons.length).toBeGreaterThanOrEqual(2)
+    expect(component4.chequeAdviceModel.value).toBe('')
   })
 })

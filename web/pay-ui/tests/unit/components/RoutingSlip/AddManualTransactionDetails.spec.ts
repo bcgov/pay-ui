@@ -150,8 +150,11 @@ describe('AddManualTransactionDetails', () => {
     expect(wrapper.exists()).toBe(true)
   })
 
-  it('should render all form fields', async () => {
+  it('should render all form fields, inputs, checkboxes, and remove button based on index', async () => {
     const wrapper = await mountSuspended(AddManualTransactionDetails, {
+      props: {
+        index: 0
+      },
       global: {
         stubs: {
           FilingTypeAutoComplete: {
@@ -160,7 +163,7 @@ describe('AddManualTransactionDetails', () => {
             emits: ['input', 'update:modelValue']
           },
           ConnectInput: {
-            template: '<input data-test="input" />',
+            template: '<input data-test="input" :data-id="id" :data-readonly="readonly" />',
             props: ['id', 'modelValue', 'label', 'type', 'required', 'readonly']
           },
           UCheckbox: {
@@ -168,7 +171,10 @@ describe('AddManualTransactionDetails', () => {
             props: ['modelValue', 'label'],
             emits: ['change', 'update:modelValue']
           },
-          UButton: true,
+          UButton: {
+            template: '<button data-test="remove-button"></button>',
+            props: ['icon', 'variant', 'size']
+          },
           UIcon: true
         }
       }
@@ -179,118 +185,22 @@ describe('AddManualTransactionDetails', () => {
     const filingType = wrapper.find('[data-test="filing-type"]')
     const inputs = wrapper.findAll('[data-test="input"]')
     const checkboxes = wrapper.findAll('[data-test="checkbox"]')
+    const removeButton = wrapper.find('[data-test="remove-button"]')
 
     expect(filingType.exists()).toBe(true)
     expect(inputs.length).toBeGreaterThanOrEqual(3)
     expect(checkboxes.length).toBe(2)
-  })
+    expect(removeButton.exists()).toBe(false)
 
-  it('should display quantity input with correct props', async () => {
-    const wrapper = await mountSuspended(AddManualTransactionDetails, {
-      props: {
-        index: 0
-      },
-      global: {
-        stubs: {
-          FilingTypeAutoComplete: true,
-          ConnectInput: {
-            template: '<input data-test="input" :data-id="id" />',
-            props: ['id', 'modelValue', 'label', 'type', 'required', 'readonly']
-          },
-          UCheckbox: true,
-          UButton: true,
-          UIcon: true
-        }
-      }
-    })
+    const quantityInput = inputs.find(input => input.attributes('data-id')?.includes('quantity'))
+    const referenceInput = inputs.find(input => input.attributes('data-id')?.includes('reference'))
+    const amountInput = inputs.find(input => input.attributes('data-id')?.includes('amount'))
 
-    await nextTick()
-
-    const quantityInput = wrapper.findAll('[data-test="input"]').find(
-      input => input.attributes('data-id')?.includes('quantity')
-    )
     expect(quantityInput?.exists()).toBe(true)
-  })
-
-  it('should display reference number input', async () => {
-    const wrapper = await mountSuspended(AddManualTransactionDetails, {
-      props: {
-        index: 0
-      },
-      global: {
-        stubs: {
-          FilingTypeAutoComplete: true,
-          ConnectInput: {
-            template: '<input data-test="input" :data-id="id" />',
-            props: ['id', 'modelValue', 'label', 'type', 'required', 'readonly']
-          },
-          UCheckbox: true,
-          UButton: true,
-          UIcon: true
-        }
-      }
-    })
-
-    await nextTick()
-
-    const referenceInput = wrapper.findAll('[data-test="input"]').find(
-      input => input.attributes('data-id')?.includes('reference')
-    )
     expect(referenceInput?.exists()).toBe(true)
-  })
-
-  it('should display amount input as readonly', async () => {
-    const wrapper = await mountSuspended(AddManualTransactionDetails, {
-      props: {
-        index: 0
-      },
-      global: {
-        stubs: {
-          FilingTypeAutoComplete: true,
-          ConnectInput: {
-            template: '<input data-test="input" :data-id="id" :data-readonly="readonly" />',
-            props: ['id', 'modelValue', 'label', 'type', 'required', 'readonly']
-          },
-          UCheckbox: true,
-          UButton: true,
-          UIcon: true
-        }
-      }
-    })
-
-    await nextTick()
-
-    const amountInput = wrapper.findAll('[data-test="input"]').find(
-      input => input.attributes('data-id')?.includes('amount')
-    )
     expect(amountInput?.exists()).toBe(true)
-  })
 
-  it('should display priority and future effective checkboxes', async () => {
-    const wrapper = await mountSuspended(AddManualTransactionDetails, {
-      global: {
-        stubs: {
-          FilingTypeAutoComplete: true,
-          ConnectInput: true,
-          UCheckbox: {
-            template: '<input type="checkbox" data-test="checkbox" />',
-            props: ['modelValue', 'label'],
-            emits: ['change', 'update:modelValue']
-          },
-          UButton: true,
-          UIcon: true
-        }
-      }
-    })
-
-    await nextTick()
-
-    const checkboxes = wrapper.findAll('[data-test="checkbox"]')
-    expect(checkboxes.length).toBe(2)
-  })
-
-  it('should show remove button when index is greater than 0', async () => {
-    const wrapper = await mountSuspended(AddManualTransactionDetails, {
+    const wrapper2 = await mountSuspended(AddManualTransactionDetails, {
       props: {
         index: 1
       },
@@ -310,33 +220,8 @@ describe('AddManualTransactionDetails', () => {
 
     await nextTick()
 
-    const removeButton = wrapper.find('[data-test="remove-button"]')
-    expect(removeButton.exists()).toBe(true)
-  })
-
-  it('should not show remove button when index is 0', async () => {
-    const wrapper = await mountSuspended(AddManualTransactionDetails, {
-      props: {
-        index: 0
-      },
-      global: {
-        stubs: {
-          FilingTypeAutoComplete: true,
-          ConnectInput: true,
-          UCheckbox: true,
-          UButton: {
-            template: '<button data-test="remove-button"></button>',
-            props: ['icon', 'variant', 'size']
-          },
-          UIcon: true
-        }
-      }
-    })
-
-    await nextTick()
-
-    const removeButton = wrapper.find('[data-test="remove-button"]')
-    expect(removeButton.exists()).toBe(false)
+    const removeButton2 = wrapper2.find('[data-test="remove-button"]')
+    expect(removeButton2.exists()).toBe(true)
   })
 
   it('should emit removeManualTransactionRow when remove button is clicked', async () => {
@@ -571,7 +456,7 @@ describe('AddManualTransactionDetails', () => {
     expect(typeof component.validate).toBe('function')
   })
 
-  it('should call calculateTotal when priority checkbox changes', async () => {
+  it('should call calculateTotal when checkboxes change and handle input updates', async () => {
     const wrapper = await mountSuspended(AddManualTransactionDetails, {
       global: {
         stubs: {
@@ -598,26 +483,6 @@ describe('AddManualTransactionDetails', () => {
 
     const component = wrapper.vm as InstanceType<typeof AddManualTransactionDetails>
     expect(typeof component.calculateTotal).toBe('function')
-  })
-
-  it('should call calculateTotal when future effective checkbox changes', async () => {
-    const wrapper = await mountSuspended(AddManualTransactionDetails, {
-      global: {
-        stubs: {
-          FilingTypeAutoComplete: true,
-          ConnectInput: true,
-          UCheckbox: {
-            template: "<input type=\"checkbox\" @change=\"$emit('change')\" />",
-            props: ['modelValue', 'label'],
-            emits: ['change', 'update:modelValue']
-          },
-          UButton: true,
-          UIcon: true
-        }
-      }
-    })
-
-    await nextTick()
 
     const futureEffectiveCheckbox = wrapper.findAllComponents({ name: 'UCheckbox' })[1]
     if (futureEffectiveCheckbox?.exists()) {
@@ -625,18 +490,19 @@ describe('AddManualTransactionDetails', () => {
       await nextTick()
     }
 
-    const component = wrapper.vm as InstanceType<typeof AddManualTransactionDetails>
     expect(typeof component.calculateTotal).toBe('function')
-  })
 
-  it('should handle quantity input update', async () => {
-    const wrapper = await mountSuspended(AddManualTransactionDetails, {
+    const wrapper2 = await mountSuspended(AddManualTransactionDetails, {
       props: {
         index: 0
       },
       global: {
         stubs: {
-          FilingTypeAutoComplete: true,
+          FilingTypeAutoComplete: {
+            template: '<div data-test="filing-type"></div>',
+            props: ['id', 'modelValue', 'required', 'rules'],
+            emits: ['input', 'update:modelValue']
+          },
           ConnectInput: {
             template: '<input />',
             props: ['id', 'modelValue', 'label', 'type', 'required', 'readonly'],
@@ -651,42 +517,21 @@ describe('AddManualTransactionDetails', () => {
 
     await nextTick()
 
-    const component = wrapper.vm as InstanceType<typeof AddManualTransactionDetails>
-    component.manualTransactionDetails.value.quantity = 5
+    const component2 = wrapper2.vm as InstanceType<typeof AddManualTransactionDetails>
+    component2.manualTransactionDetails.value.quantity = 5
     await nextTick()
 
-    expect(component.manualTransactionDetails.value.quantity).toBe(5)
-  })
+    expect(component2.manualTransactionDetails.value.quantity).toBe(5)
 
-  it('should handle filing type input event', async () => {
-    const wrapper = await mountSuspended(AddManualTransactionDetails, {
-      props: {
-        index: 0
-      },
-      global: {
-        stubs: {
-          FilingTypeAutoComplete: {
-            template: '<div data-test="filing-type"></div>',
-            props: ['id', 'modelValue', 'required', 'rules'],
-            emits: ['input', 'update:modelValue']
-          },
-          ConnectInput: true,
-          UCheckbox: true,
-          UButton: true,
-          UIcon: true
-        }
-      }
-    })
-
-    await nextTick()
-
-    const filingType = wrapper.findComponent({ name: 'FilingTypeAutoComplete' })
+    const filingType = wrapper2.findComponent({ name: 'FilingTypeAutoComplete' })
     if (filingType.exists()) {
       await filingType.vm.$emit('input')
       await nextTick()
 
-      const component = wrapper.vm as ComponentPublicInstance & { errors?: { filingType?: string, quantity?: string } }
-      expect(component.errors?.filingType).toBe('')
+      const component3 = wrapper2.vm as ComponentPublicInstance & {
+        errors?: { filingType?: string, quantity?: string }
+      }
+      expect(component3.errors?.filingType).toBe('')
     }
   })
 })

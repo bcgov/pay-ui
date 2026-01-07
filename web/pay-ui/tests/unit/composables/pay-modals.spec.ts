@@ -57,89 +57,55 @@ describe('usePayModals', () => {
     })
   })
 
-  describe('openPlaceRoutingSlipToNSFModal', () => {
-    it('should open baseModal with correct props and call onConfirm', async () => {
-      const mockOnConfirm = vi.fn().mockResolvedValue(undefined)
-
-      await modal.openPlaceRoutingSlipToNSFModal(mockOnConfirm)
-
+  describe('openPlaceRoutingSlipToNSFModal, openVoidRoutingSlipModal, and openCancelTransactionModal', () => {
+    it('should open baseModal with correct props and call onConfirm for all confirmation modals', async () => {
+      const mockOnConfirm1 = vi.fn().mockResolvedValue(undefined)
+      await modal.openPlaceRoutingSlipToNSFModal(mockOnConfirm1)
       expect(mockBaseModalOpen).toHaveBeenCalledOnce()
-      const props = mockBaseModalOpen.mock.calls[0]![0]
+      const props1 = mockBaseModalOpen.mock.calls[0]![0]
+      expect(props1.title).toBeDefined()
+      expect(props1.description).toBeDefined()
+      expect(props1.dismissible).toBe(true)
+      expect(props1.buttons).toHaveLength(2)
+      await props1.buttons[0].onClick()
+      expect(mockOnConfirm1).toHaveBeenCalledOnce()
+      expect(props1.buttons[1].label).toBe('Cancel')
+      expect(props1.buttons[1].shouldClose).toBe(true)
+      expect(props1.buttons[1].variant).toBe('outline')
 
-      expect(props.title).toBeDefined()
-      expect(props.description).toBeDefined()
-      expect(props.dismissible).toBe(true)
-      expect(props.buttons).toHaveLength(2)
-
-      const confirmButton = props.buttons[0]
-      expect(confirmButton.label).toBeDefined()
-      expect(confirmButton.shouldClose).toBe(true)
-
-      await confirmButton.onClick()
-      expect(mockOnConfirm).toHaveBeenCalledOnce()
-
-      const cancelButton = props.buttons[1]
-      expect(cancelButton.label).toBe('Cancel')
-      expect(cancelButton.shouldClose).toBe(true)
-      expect(cancelButton.variant).toBe('outline')
-    })
-  })
-
-  describe('openVoidRoutingSlipModal', () => {
-    it('should open baseModal with correct props and call onConfirm', async () => {
-      const mockOnConfirm = vi.fn().mockResolvedValue(undefined)
-
-      await modal.openVoidRoutingSlipModal(mockOnConfirm)
-
+      vi.clearAllMocks()
+      const mockOnConfirm2 = vi.fn().mockResolvedValue(undefined)
+      await modal.openVoidRoutingSlipModal(mockOnConfirm2)
       expect(mockBaseModalOpen).toHaveBeenCalledOnce()
-      const props = mockBaseModalOpen.mock.calls[0]![0]
+      const props2 = mockBaseModalOpen.mock.calls[0]![0]
+      expect(props2.title).toBeDefined()
+      expect(props2.description).toBeDefined()
+      expect(props2.dismissible).toBe(true)
+      expect(props2.buttons).toHaveLength(2)
+      await props2.buttons[0].onClick()
+      expect(mockOnConfirm2).toHaveBeenCalledOnce()
+      expect(props2.buttons[1].label).toBe('Cancel')
+      expect(props2.buttons[1].shouldClose).toBe(true)
+      expect(props2.buttons[1].variant).toBe('outline')
 
-      expect(props.title).toBeDefined()
-      expect(props.description).toBeDefined()
-      expect(props.dismissible).toBe(true)
-      expect(props.buttons).toHaveLength(2)
-
-      const confirmButton = props.buttons[0]
-      expect(confirmButton.label).toBeDefined()
-      expect(confirmButton.shouldClose).toBe(true)
-
-      await confirmButton.onClick()
-      expect(mockOnConfirm).toHaveBeenCalledOnce()
-
-      const cancelButton = props.buttons[1]
-      expect(cancelButton.label).toBe('Cancel')
-      expect(cancelButton.shouldClose).toBe(true)
-      expect(cancelButton.variant).toBe('outline')
-    })
-  })
-
-  describe('openCancelTransactionModal', () => {
-    it('should open baseModal with correct props and call onConfirm', async () => {
-      const mockOnConfirm = vi.fn().mockResolvedValue(undefined)
-
-      await modal.openCancelTransactionModal(mockOnConfirm)
-
+      vi.clearAllMocks()
+      const mockOnConfirm3 = vi.fn().mockResolvedValue(undefined)
+      await modal.openCancelTransactionModal(mockOnConfirm3)
       expect(mockBaseModalOpen).toHaveBeenCalledOnce()
-      const props = mockBaseModalOpen.mock.calls[0]![0]
-
-      expect(props.title).toBe('Cancel Transaction?')
-      expect(props.description).toBe(
+      const props3 = mockBaseModalOpen.mock.calls[0]![0]
+      expect(props3.title).toBe('Cancel Transaction?')
+      expect(props3.description).toBe(
         'Canceling a transaction will place the transaction amount back to the routing slip.'
       )
-      expect(props.dismissible).toBe(true)
-      expect(props.buttons).toHaveLength(2)
-
-      const confirmButton = props.buttons[0]
-      expect(confirmButton.label).toBe('Cancel Transaction')
-      expect(confirmButton.shouldClose).toBe(true)
-
-      await confirmButton.onClick()
-      expect(mockOnConfirm).toHaveBeenCalledOnce()
-
-      const cancelButton = props.buttons[1]
-      expect(cancelButton.label).toBe('Cancel')
-      expect(cancelButton.shouldClose).toBe(true)
-      expect(cancelButton.variant).toBe('outline')
+      expect(props3.dismissible).toBe(true)
+      expect(props3.buttons).toHaveLength(2)
+      expect(props3.buttons[0].label).toBe('Cancel Transaction')
+      expect(props3.buttons[0].shouldClose).toBe(true)
+      await props3.buttons[0].onClick()
+      expect(mockOnConfirm3).toHaveBeenCalledOnce()
+      expect(props3.buttons[1].label).toBe('Cancel')
+      expect(props3.buttons[1].shouldClose).toBe(true)
+      expect(props3.buttons[1].variant).toBe('outline')
     })
   })
 
