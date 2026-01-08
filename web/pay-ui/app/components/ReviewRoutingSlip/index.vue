@@ -25,6 +25,22 @@ const payData = computed<RoutingSlipPaymentItem[]>(() => {
 
   return items
 })
+
+const shouldShowNameAndAddress = computed(() => {
+  const name = crsStore.state.address.name
+  const address = crsStore.state.address.address
+  const hasName = !!name?.trim()
+  const hasAddress = !!address && (
+    !!address.street?.trim()
+    || !!address.city?.trim()
+    || !!address.region?.trim()
+    || !!address.postalCode?.trim()
+    || !!address.country?.trim()
+    || !!address.streetAdditional?.trim()
+    || !!address.locationDescription?.trim()
+  )
+  return hasName || hasAddress
+})
 </script>
 
 <template>
@@ -92,10 +108,16 @@ const payData = computed<RoutingSlipPaymentItem[]>(() => {
         :value="`$${crsStore.totalCAD}`"
       />
     </div>
-    <ReviewRoutingSlipRow :label="$t('label.nameOfPersonOrOrgAndAddress')">
+    <ReviewRoutingSlipRow
+      v-if="shouldShowNameAndAddress"
+      :label="$t('label.nameOfPersonOrOrgAndAddress')"
+    >
       <div class="flex flex-col gap-4">
-        <span>{{ crsStore.state.address.name }}</span>
+        <span v-if="crsStore.state.address.name?.trim()">
+          {{ crsStore.state.address.name }}
+        </span>
         <ConnectAddressDisplay
+          v-if="crsStore.state.address.address"
           :key="JSON.stringify(crsStore.state.address.address)"
           :address="crsStore.state.address.address"
           text-decor

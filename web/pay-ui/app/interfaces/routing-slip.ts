@@ -4,8 +4,8 @@ import type { PaymentTypes } from '~/enums/payment-types'
 import type { SlipStatus } from '~/enums/slip-status'
 
 export interface CreateRoutingSlipPayload {
-  contactName: string
-  mailingAddress: Partial<Address>
+  contactName?: string
+  mailingAddress?: Partial<Address>
   number: string
   paymentAccount: {
     accountName: string

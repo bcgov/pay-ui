@@ -75,12 +75,19 @@ export function createRoutingSlipPayload(data: RoutingSlipSchema): CreateRouting
     payments.push(payment)
   }
 
-  return {
-    contactName: data.address.name,
-    mailingAddress: {
-      ...data.address.address,
-      deliveryInstructions: data.address.address.locationDescription // discrepancy between connect/pay attribute name
-    },
+  const hasContactName = !!data.address.name?.trim()
+  const address = data.address.address
+  const hasMailingAddress = !!address && (
+    !!address.street?.trim()
+    || !!address.city?.trim()
+    || !!address.region?.trim()
+    || !!address.postalCode?.trim()
+    || !!address.country?.trim()
+    || !!address.streetAdditional?.trim()
+    || !!address.locationDescription?.trim()
+  )
+
+  const payload: CreateRoutingSlipPayload = {
     number: data.details.id,
     paymentAccount: {
       accountName: data.details.entity
@@ -89,4 +96,17 @@ export function createRoutingSlipPayload(data: RoutingSlipSchema): CreateRouting
     routingSlipDate: DateTime.fromISO(data.details.date).setZone('UTC').toFormat('yyyy-MM-dd'),
     payments
   }
+
+  if (hasContactName) {
+    payload.contactName = data.address.name
+  }
+
+  if (hasMailingAddress) {
+    payload.mailingAddress = {
+      ...address,
+      deliveryInstructions: address.locationDescription
+    }
+  }
+
+  return payload
 }
