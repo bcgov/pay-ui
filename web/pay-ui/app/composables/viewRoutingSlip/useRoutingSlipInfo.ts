@@ -176,7 +176,7 @@ export function useRoutingSlipInfo() {
 
     try {
       const payload = {
-        ...details,
+        details,
         status: SlipStatus.REFUNDREQUEST
       }
       const detailsString = JSON.stringify(payload)
