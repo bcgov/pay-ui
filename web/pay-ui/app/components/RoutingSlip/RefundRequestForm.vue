@@ -19,17 +19,17 @@ const emit = defineEmits<{
 useTemplateRef<Form<RefundRequestFormSchema>>('form-ref')
 
 const addressSchema = z.object({
-  street: z.string().optional(),
+  street: z.string().min(1, t('validation.fieldRequired')),
   streetAdditional: z.string().optional(),
-  city: z.string().optional(),
-  region: z.string().optional(),
-  postalCode: z.string().optional(),
-  country: z.string().optional(),
+  city: z.string().min(1, t('validation.fieldRequired')),
+  region: z.string().min(1, t('validation.fieldRequired')),
+  postalCode: z.string().min(1, t('validation.fieldRequired')),
+  country: z.string().min(1, t('validation.fieldRequired')),
   deliveryInstructions: z.string().optional()
 })
 
 const schema = z.object({
-  name: z.string().min(1, t('connect.validation.required')),
+  name: z.string().min(1, t('validation.fieldRequired')),
   address: addressSchema,
   chequeAdvice: z.string().optional()
 })

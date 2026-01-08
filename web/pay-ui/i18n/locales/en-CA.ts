@@ -234,6 +234,7 @@ export default {
     amountExceedsBalance: 'Amount exceeds the routing slip\'s current balance'
   },
   validation: {
+    fieldRequired: 'This field is required',
     payment: {
       chequeDate: {
         required: 'Cheque date is required'
