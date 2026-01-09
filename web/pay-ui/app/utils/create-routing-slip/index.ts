@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { DateTime } from 'luxon'
 
-export * from './address'
+export * from '../validation'
 export * from './details'
 export * from './payment'
 

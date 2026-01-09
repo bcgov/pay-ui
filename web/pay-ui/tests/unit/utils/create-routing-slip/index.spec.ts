@@ -6,7 +6,7 @@ vi.mock('~/utils/create-routing-slip/details', () => (
 vi.mock('~/utils/create-routing-slip/payment', () => (
   { getRoutingSlipPaymentSchema: vi.fn(() => z.object({ paymentField: z.string() })) })
 )
-vi.mock('~/utils/create-routing-slip/address', () => (
+vi.mock('~/utils/validation', () => (
   { getRoutingSlipAddressSchema: vi.fn(() => z.object({ addressField: z.string() })) })
 )
 vi.mock('~/utils/date', () => (

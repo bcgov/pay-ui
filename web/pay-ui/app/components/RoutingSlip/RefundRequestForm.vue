@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import type { FormErrorEvent, Form } from '@nuxt/ui'
-import { z } from 'zod'
+import type { z } from 'zod'
 import type { RefundRequestDetails } from '~/interfaces/routing-slip'
-
-const { t } = useI18n()
+import { getRefundRequestFormSchema } from '~/utils/validation'
 
 const props = defineProps<{
   refundAmount?: number
@@ -18,21 +17,7 @@ const emit = defineEmits<{
 
 useTemplateRef<Form<RefundRequestFormSchema>>('form-ref')
 
-const addressSchema = z.object({
-  street: z.string().min(1, t('validation.fieldRequired')),
-  streetAdditional: z.string().optional(),
-  city: z.string().min(1, t('validation.fieldRequired')),
-  region: z.string().min(1, t('validation.fieldRequired')),
-  postalCode: z.string().min(1, t('validation.fieldRequired')),
-  country: z.string().min(1, t('validation.fieldRequired')),
-  deliveryInstructions: z.string().optional()
-})
-
-const schema = z.object({
-  name: z.string().min(1, t('validation.fieldRequired')),
-  address: addressSchema,
-  chequeAdvice: z.string().optional()
-})
+const schema = getRefundRequestFormSchema()
 
 type RefundRequestFormSchema = z.infer<typeof schema>
 
@@ -45,7 +30,7 @@ const formState = reactive<RefundRequestFormSchema>({
     region: '',
     postalCode: '',
     country: '',
-    deliveryInstructions: ''
+    locationDescription: ''
   },
   chequeAdvice: ''
 })
@@ -60,7 +45,7 @@ watch(() => props.initialData, (newData) => {
       region: newData.mailingAddress?.region || '',
       postalCode: newData.mailingAddress?.postalCode || '',
       country: newData.mailingAddress?.country || '',
-      deliveryInstructions: newData.mailingAddress?.deliveryInstructions || ''
+      locationDescription: newData.mailingAddress?.deliveryInstructions || ''
     }
     formState.chequeAdvice = newData.chequeAdvice || ''
   }
@@ -86,19 +71,28 @@ function onError(event: FormErrorEvent) {
 }
 
 function onSubmit() {
+  const mailingAddress: Address = {
+    street: formState.address.street,
+    city: formState.address.city,
+    region: formState.address.region,
+    postalCode: formState.address.postalCode,
+    country: formState.address.country
+  }
+
+  if (formState.address.streetAdditional?.trim()) {
+    mailingAddress.streetAdditional = formState.address.streetAdditional
+  }
+
+  if (formState.address.locationDescription?.trim()) {
+    mailingAddress.deliveryInstructions = formState.address.locationDescription
+  }
+
   const refundDetails: RefundRequestDetails = {
     name: formState.name,
-    mailingAddress: {
-      street: formState.address.street,
-      streetAdditional: formState.address.streetAdditional,
-      city: formState.address.city,
-      region: formState.address.region,
-      postalCode: formState.address.postalCode,
-      country: formState.address.country,
-      deliveryInstructions: formState.address.deliveryInstructions
-    },
-    chequeAdvice: formState.chequeAdvice
+    mailingAddress,
+    chequeAdvice: formState.chequeAdvice?.trim() || undefined
   }
+
   emit('submit', refundDetails)
 }
 
@@ -138,7 +132,7 @@ const formattedRefundAmount = computed(() => {
       <div class="w-full sm:w-3/4 p-4">
         <ConnectFormInput
           v-model="formState.name"
-          :label="$t('label.clientName')"
+          :label="$t('label.clientNamePlaceholder')"
           :name="'name'"
           input-id="refund-name"
         />
@@ -165,10 +159,11 @@ const formattedRefundAmount = computed(() => {
       <div class="w-full sm:w-3/4 p-4">
         <ConnectFormInput
           v-model="chequeAdviceModel"
-          :label="$t('label.chequeAdvice')"
+          :label="$t('label.chequeAdvicePlaceholder')"
           :name="'chequeAdvice'"
           input-id="refund-cheque-advice"
           type="textarea"
+          :help="$t('text.chequeAdviceHelp')"
         />
       </div>
     </div>

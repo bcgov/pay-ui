@@ -175,14 +175,58 @@ describe('RefundRequestForm', () => {
       name: 'Test Name',
       mailingAddress: {
         street: '123 Main St',
-        streetAdditional: '',
+        city: 'Victoria',
+        region: 'BC',
+        postalCode: 'V1X 1X1',
+        country: 'CA'
+      },
+      chequeAdvice: 'Test advice'
+    }])
+  })
+
+  it('should include deliveryInstructions when it has a value', async () => {
+    const wrapper = await mountSuspended(RefundRequestForm, {
+      global: {
+        stubs: {
+          UForm: {
+            template: '<div><slot /></div>',
+            props: ['state', 'schema'],
+            emits: ['error', 'submit']
+          },
+          ConnectFormInput: true,
+          ConnectFormAddress: true,
+          UButton: true
+        }
+      }
+    })
+
+    await nextTick()
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const component = wrapper.vm as any
+    component.formState.name = 'Test Name'
+    component.formState.address.street = '123 Main St'
+    component.formState.address.city = 'Victoria'
+    component.formState.address.region = 'BC'
+    component.formState.address.postalCode = 'V1X 1X1'
+    component.formState.address.country = 'CA'
+    component.formState.address.locationDescription = 'Leave at front door'
+
+    await component.onSubmit()
+    await nextTick()
+
+    expect(wrapper.emitted('submit')).toBeTruthy()
+    expect(wrapper.emitted('submit')?.[0]).toEqual([{
+      name: 'Test Name',
+      mailingAddress: {
+        street: '123 Main St',
         city: 'Victoria',
         region: 'BC',
         postalCode: 'V1X 1X1',
         country: 'CA',
-        deliveryInstructions: ''
+        deliveryInstructions: 'Leave at front door'
       },
-      chequeAdvice: 'Test advice'
+      chequeAdvice: undefined
     }])
   })
 

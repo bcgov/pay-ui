@@ -208,6 +208,8 @@ export default {
   },
   text: {
     entityNumberHelp: 'Example: BC1234567, CP1234567, FM1234567 or 123456',
+    chequeAdviceHelp:
+      'There is a 40 character limit. Include the entity name, entity number and what the refund is for.',
     pleaseSearchForRoutingSlip: 'Please search for and select a Routing Slip ID',
     routingSlipSearchDisplay: '{boldStart}{number}{boldEnd} - {date} - Current Balance: ${amount}',
     searchStartMessage: 'Search routing slips by entering one of the value above. '
