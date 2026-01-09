@@ -74,7 +74,7 @@
           <span class="font-weight-bold">Additional Cheque</span>
         </v-btn>
       </v-col>
-      <v-col cols="3" class="d-flex justify-end py-0">
+      <v-col cols="3" class="d-flex justify-end py-0" v-if="enableUSDExchange">
         <v-checkbox
           v-model="isTheAmountPaidInUsd"
           label="Funds received in USD"
@@ -124,7 +124,8 @@ import { useCreateRoutingSlipChequePayment } from '@/composables/RoutingSlip'
       getIndexedTag,
       addCheque,
       removeCheque,
-      isValid
+      isValid,
+      enableUSDExchange
     } = useCreateRoutingSlipChequePayment()
     return {
       totalAmount,
@@ -140,7 +141,8 @@ import { useCreateRoutingSlipChequePayment } from '@/composables/RoutingSlip'
       getIndexedTag,
       addCheque,
       removeCheque,
-      isValid
+      isValid,
+      enableUSDExchange
     }
   }
 })

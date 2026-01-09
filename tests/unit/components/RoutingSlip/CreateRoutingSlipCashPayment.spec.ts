@@ -3,6 +3,7 @@ import { mount, shallowMount } from '@vue/test-utils'
 import CreateRoutingSlipCashPayment from '@/components/RoutingSlip/CreateRoutingSlipCashPayment.vue'
 import Vuetify from 'vuetify'
 import { useRoutingSlip } from '@/composables/useRoutingSlip'
+import LaunchDarklyService from 'sbc-common-components/src/services/launchdarkly.services'
 
 describe('CreateRoutingSlipCashPayment.vue', () => {
   let store
@@ -48,5 +49,15 @@ describe('CreateRoutingSlipCashPayment.vue', () => {
     txtPaidAmount.setValue('40')
     expect(reciptNumber.element.value).toBe('456')
     expect(txtPaidAmount.element.value).toBe('40')
+  })
+
+  it('When EnableUSDExchange flag is FALSE, should NOT display USD checkbox and amount field', () => {
+    vi.spyOn(LaunchDarklyService, 'getFlag').mockReturnValue(false)
+    const wrapper: any = mount(CreateRoutingSlipCashPayment, { vuetify })
+
+    const usdCheckbox: any = wrapper.find('[data-test="usd-checkbox"]')
+    const usdAmountField: any = wrapper.find('[data-test="txtPaidUsdAmount"]')
+    expect(usdCheckbox.exists()).toBeFalsy()
+    expect(usdAmountField.exists()).toBeFalsy()
   })
 })

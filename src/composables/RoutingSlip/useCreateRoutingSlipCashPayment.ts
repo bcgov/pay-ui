@@ -1,13 +1,15 @@
 import { computed, ref } from '@vue/composition-api'
 
 import CommonUtils from '@/util/common-util'
-import { PaymentMethods } from '@/util/constants'
+import { PaymentMethods, LDFlags } from '@/util/constants'
+import LaunchDarklyService from 'sbc-common-components/src/services/launchdarkly.services'
 import { useRoutingSlip } from '../useRoutingSlip'
 
 // Composable function to inject Props, options and values to CreateRoutingSlipDetails component
 export function useCreateRoutingSlipCashPayment () {
   const { cashPayment, isAmountPaidInUsd } = useRoutingSlip()
   const createRoutingSlipCashPaymentForm = ref<HTMLFormElement>()
+  const enableUSDExchange: boolean = LaunchDarklyService.getFlag(LDFlags.EnableUSDExchange, false)
 
   // using same v-model value for getting value and update parent on change
   const chequeReceiptNumber:any = computed({
@@ -94,6 +96,7 @@ export function useCreateRoutingSlipCashPayment () {
     paidUsdAmountRules,
     isValid,
     isTheAmountPaidInUsd,
-    getColumnWidth
+    getColumnWidth,
+    enableUSDExchange
   }
 }

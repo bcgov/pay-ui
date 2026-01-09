@@ -18,7 +18,8 @@ export enum SessionStorageKeys {
 
 export enum LDFlags {
   EnableDetailsFilter = 'enable-transactions-detail-filter',
-  EnableEFTRefundByCheque = 'enable-eft-refund-by-cheque'
+  EnableEFTRefundByCheque = 'enable-eft-refund-by-cheque',
+  EnableUSDExchange = 'enable-usd-exchange'
 }
 
 export enum RouteNames {
