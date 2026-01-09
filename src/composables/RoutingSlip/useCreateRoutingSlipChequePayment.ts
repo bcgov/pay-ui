@@ -2,7 +2,8 @@ import { computed, onMounted, ref, watch } from '@vue/composition-api'
 
 import CommonUtils from '@/util/common-util'
 import { Payment } from '@/models/Payment'
-import { PaymentMethods } from '@/util/constants'
+import { PaymentMethods, LDFlags } from '@/util/constants'
+import LaunchDarklyService from 'sbc-common-components/src/services/launchdarkly.services'
 import { useRoutingSlip } from '../useRoutingSlip'
 
 // Composable function to inject Props, options and values to CreateRoutingSlipDetails component
@@ -10,6 +11,7 @@ export function useCreateRoutingSlipChequePayment () {
   const { chequePayment, isAmountPaidInUsd } = useRoutingSlip()
   const chequeList = ref<Payment[]>([])
   const createRoutingSlipChequePaymentForm = ref<HTMLFormElement>()
+  const enableUSDExchange: boolean = LaunchDarklyService.getFlag(LDFlags.EnableUSDExchange, false)
 
   // watch any changes and update to store
   watch(chequeList, () => {
@@ -100,6 +102,7 @@ export function useCreateRoutingSlipChequePayment () {
     addCheque,
     removeCheque,
     isValid,
-    getColumnWidth
+    getColumnWidth,
+    enableUSDExchange
   }
 }
