@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { LDFlags } from '@/utils/constants'
+import LaunchDarklyService from 'sbc-common-components/src/services/launchdarkly.services'
+
 defineProps<{
   schemaPrefix: string
   isCheque: boolean
@@ -14,6 +17,7 @@ defineEmits<{
 }>()
 
 const model = defineModel<RoutingSlipPaymentSchema>({ required: true })
+const enableUSDExchange = LaunchDarklyService.getFlag(LDFlags.EnableUSDExchange, false)
 </script>
 
 <template>
@@ -97,6 +101,7 @@ const model = defineModel<RoutingSlipPaymentSchema>({ required: true })
           @click="$emit('add-cheque')"
         />
         <UCheckbox
+          v-if="enableUSDExchange"
           v-model="model.isUSD"
           :label="$t('label.fundsReceivedInUSD')"
           :ui="{ label: 'text-base' }"

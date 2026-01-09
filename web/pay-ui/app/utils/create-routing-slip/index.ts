@@ -63,7 +63,7 @@ export function createRoutingSlipPayload(data: RoutingSlipSchema): CreateRouting
     } = {
       chequeReceiptNumber: item.identifier,
       paidAmount: parseFloat(item.amountCAD) || 0,
-      paidUsdAmount: parseFloat(item.amountUSD) || 0,
+      paidUsdAmount: data.payment.isUSD ? (parseFloat(item.amountUSD) || 0) : 0,
       paymentMethod: data.payment.paymentType
     }
 

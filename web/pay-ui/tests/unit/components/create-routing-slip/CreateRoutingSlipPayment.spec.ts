@@ -1,5 +1,6 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { CreateRoutingSlipPayment } from '#components'
+import LaunchDarklyService from 'sbc-common-components/src/services/launchdarkly.services'
 
 const initialModelValue = {
   paymentType: PaymentTypes.CHEQUE as PaymentTypes.CASH | PaymentTypes.CHEQUE,
@@ -131,5 +132,15 @@ describe('CreateRoutingSlipPayment', () => {
     const emitted = wrapper.emitted('validate-date')
     expect(emitted).toHaveLength(1)
     expect(emitted![0]).toEqual(['payment.paymentItems.1.date'])
+  })
+
+  it('When EnableUSDExchange flag is FALSE, should NOT display USD checkbox', async () => {
+    vi.spyOn(LaunchDarklyService, 'getFlag').mockReturnValue(false)
+    const wrapper = await mountSuspended(CreateRoutingSlipPayment, {
+      props: defaultProps
+    })
+
+    const checkbox = wrapper.findComponent({ name: 'UCheckbox' })
+    expect(checkbox.exists()).toBe(false)
   })
 })
