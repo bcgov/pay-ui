@@ -123,9 +123,21 @@ async function linkRoutingSlip(): Promise<void> {
       <UButton
         :disabled="loading"
         :label="$t('label.cancel')"
+        variant="outline"
         class="h-min"
         @click="$emit('cancel')"
       />
     </div>
   </div>
 </template>
+
+<style lang="scss" scoped>
+:deep(input) {
+  font-size: 16px !important;
+  color: var(--color-text-secondary) !important;
+}
+
+:deep(input::placeholder) {
+  color: var(--color-text-secondary) !important;
+}
+</style>

@@ -56,7 +56,7 @@ const {
       </div>
       <div v-else>
         <div v-if="invoiceCount && invoiceCount > 0">
-          <div class="flex">
+          <div class="flex pl-4">
             <UIcon name="mdi-information-outline" class="size-6 mt-1" />
             <p class="ml-3">
               <span v-if="isRoutingSlipVoid">
@@ -72,7 +72,7 @@ const {
         </div>
         <div v-else>
           <div class="flex justify-between items-center flex-wrap mb-4 gap-4">
-            <div class="flex-1 min-w-0">
+            <div class="flex-1 min-w-0 pl-4">
               <p class="font-bold">
                 <span v-if="isRoutingSlipVoid">
                   {{ $t('text.cantLinkBecauseVoided') }}
@@ -113,7 +113,7 @@ const {
 
 <style>
 .linked-rs-info {
-  background-color: #f1f3f5;
+  background-color: var(--color-bg-shade);
   padding: 13px 19px;
   border-left: 8px solid #38598a;
   border-radius: 6px;

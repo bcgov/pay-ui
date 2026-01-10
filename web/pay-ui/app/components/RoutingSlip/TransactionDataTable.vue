@@ -27,7 +27,7 @@ const appendCurrencySymbol = commonUtil.appendCurrencySymbol
 <template>
   <div class="bg-white rounded shadow-sm">
     <div class="header-bg-color flex items-center py-5 mb-0 mt-3">
-      <UIcon name="i-mdi-view-list" class="ml-8 text-primary" />
+      <UIcon name="i-mdi-view-list" class="ml-8 text-primary size-6" />
       <p class="ml-2 mb-0 font-bold header-text" data-test="title">
         Transactions
       </p>
@@ -88,6 +88,7 @@ const appendCurrencySymbol = commonUtil.appendCurrencySymbol
               label="Cancel"
               variant="outline"
               color="primary"
+              class="btn-table"
               :disabled="disableCancelButton"
               @click="cancel(row.original.id!)"
             />

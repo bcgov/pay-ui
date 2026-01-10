@@ -32,12 +32,12 @@ const {
 
 <template>
   <UCard>
-    <div class="space-y-4">
-      <div class="flex flex-col sm:flex-row gap-2">
-        <div class="w-full sm:w-1/4 font-semibold">
+    <div>
+      <div class="flex flex-col sm:flex-row sm:items-start gap-2">
+        <div class="w-full sm:w-1/4 font-semibold p-4">
           {{ $t('page.viewRoutingSlip.paymentInformation.totalAmountReceived') }}
         </div>
-        <div class="w-full sm:w-3/4" data-test="total">
+        <div class="w-full sm:w-3/4 p-4" data-test="total">
           {{ totalAmount }}
           <span
             v-if="isRoutingSlipPaidInUsd || isRoutingSlipChildPaidInUsd"
@@ -49,7 +49,7 @@ const {
       </div>
 
       <div class="flex flex-col sm:flex-row items-start justify-between gap-2">
-        <div>
+        <div class="w-full sm:w-3/4 pl-4">
           <UButton
             variant="link"
             color="primary"
@@ -81,7 +81,7 @@ const {
         </div>
       </div>
 
-      <template v-if="isExpanded && routingSlip?.payments">
+      <div v-if="isExpanded && routingSlip?.payments" class="px-4 pb-4">
         <ReviewRoutingSlipChequePayment
           v-if="isPaymentCheque"
           data-test="review-routing-slip-cheque-payment"
@@ -152,13 +152,13 @@ const {
             {{ $t('page.viewRoutingSlip.paymentInformation.cancel') }}
           </UButton>
         </div>
-      </template>
+      </div>
 
-      <div class="flex flex-col sm:flex-row gap-2">
-        <div class="w-full sm:w-1/4 font-semibold">
+      <div class="flex flex-col sm:flex-row sm:items-start gap-2">
+        <div class="w-full sm:w-1/4 font-semibold p-4">
           {{ $t('page.viewRoutingSlip.paymentInformation.currentBalance') }}
         </div>
-        <div class="w-full sm:w-3/4 font-semibold" data-test="remaining-amount">
+        <div class="w-full sm:w-3/4 p-4 font-semibold" data-test="remaining-amount">
           {{ remainingAmount }}
         </div>
       </div>

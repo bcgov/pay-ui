@@ -213,7 +213,7 @@ function flattenAndSortComments(commentsArray: Array<{ comment: Comment }>): Arr
                 placeholder="Enter Comments"
                 :class="[
                   'w-full px-3 py-2 bg-gray-100 border-0 border-b-2 rounded-t resize-none',
-                  'placeholder:text-gray-400 focus:outline-none focus:ring-0',
+                  'placeholder-secondary focus:outline-none focus:ring-0',
                   errorMessage
                     ? 'border-red-500'
                     : 'border-blue-500'
@@ -230,7 +230,7 @@ function flattenAndSortComments(commentsArray: Array<{ comment: Comment }>): Arr
           </div>
 
           <div class="flex items-center justify-between mb-6">
-            <div class="text-sm text-gray-400">
+            <div class="text-sm text-secondary">
               {{ charsRemaining }} characters remaining
             </div>
             <div class="flex gap-2 items-center">
@@ -270,7 +270,7 @@ function flattenAndSortComments(commentsArray: Array<{ comment: Comment }>): Arr
                 class="whitespace-pre-line text-gray-700"
                 v-html="$sanitize(commentItem.comment)"
               />
-              <p class="text-gray-500 text-xs mt-1">
+              <p class="text-secondary text-xs mt-1">
                 {{ commentItem.submitterDisplayName }}
                 &hyphen;
                 {{ formatTimestamp(commentItem.timestamp) }}
@@ -291,6 +291,14 @@ function flattenAndSortComments(commentsArray: Array<{ comment: Comment }>): Arr
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.placeholder-secondary::placeholder {
+  color: var(--color-text-secondary);
 }
 
 #existing-comments {

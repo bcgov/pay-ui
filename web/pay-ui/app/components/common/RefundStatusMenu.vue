@@ -43,7 +43,7 @@ const items = computed<DropdownMenuItem[]>(() => {
         color="primary"
         :trailing-icon="open ? 'i-mdi-menu-up' : 'i-mdi-menu-down'"
         :label="t('label.updateStatus')"
-        class="text-primary hover:text-primary-dark"
+        class="text-primary hover:text-primary-dark h-auto"
         v-bind="$attrs"
       />
     </template>

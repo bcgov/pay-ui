@@ -1,27 +1,23 @@
 import type { Invoice } from '~/interfaces/invoice'
 import type { SearchRoutingSlipParams, RoutingSlip } from '~/interfaces/routing-slip'
+import type { TableColumn } from '@nuxt/ui'
 import { debounce } from 'es-toolkit'
 import { useLoader } from '@/composables/common/useLoader'
 import { useStatusList } from '@/composables/common/useStatusList'
-import { chequeRefundCodes, ChequeRefundStatus, PaymentMethods, SearchRoutingSlipTableHeaders } from '@/utils/constants'
+import { chequeRefundCodes, ChequeRefundStatus, PaymentMethods, getSearchRoutingSlipTableHeaders } from '@/utils/constants'
 import { SlipStatus } from '~/enums/slip-status'
 import CommonUtils from '@/utils/common-util'
 import { usePayApi } from '@/composables/pay-api'
+import { defaultFilters } from '@/stores/routing-slip-store'
 
-export interface SearchFilterState {
-  routingSlipNumber: string | null
-  receiptNumber: string | null
-  accountName: string | null
-  createdName: string | null
-  dateFilter: { startDate: string | null, endDate: string | null }
-  status: string | null
-  refundStatus: string | null
-  businessIdentifier: string | null
-  chequeReceiptNumber: string | null
-  remainingAmount: string | null
+type ExtendedTableColumn = TableColumn<Record<string, unknown>> & {
+  display?: boolean
+  hideInSearchColumnFilter?: boolean
+  accessorKey?: string
 }
 
 export async function useSearch() {
+  const { t } = useI18n()
   const { store } = useRoutingSlipStore()
   const searchRoutingSlipParams = store.searchRoutingSlipParams
   const searchRoutingSlipResult = store.searchRoutingSlipResult
@@ -34,39 +30,32 @@ export async function useSearch() {
 
   const searchParamsExist = computed<boolean>(() => {
     const params = searchRoutingSlipParams as Record<string, unknown>
-    for (const key in params) {
-      if (params[key] && params[key] !== '') {
-        return false
-      }
-    }
-    return true
+    return !Object.values(params).some(value => value && value !== '')
   })
 
   const resetSearchParams = (): void => {
     Object.assign(searchRoutingSlipParams, defaultParams)
+    Object.assign(store.searchFilters, { ...defaultFilters })
     searchRoutingSlipResult.length = 0
   }
 
   const searchRoutingSlip = async (appendToResults = false): Promise<number> => {
     const params: SearchRoutingSlipParams = { ...searchRoutingSlipParams }
 
-    // filtering and removing all non set values
     if (!params.dateFilter?.startDate || !params.dateFilter?.endDate) {
       delete params.dateFilter
     }
-    const cleanedParams = CommonUtils.cleanObject(
-      params as Record<string, unknown>
-    ) as SearchRoutingSlipParams
+
+    const cleanedParams = CommonUtils.cleanObject(params as Record<string, unknown>) as SearchRoutingSlipParams
 
     try {
-      // Let Global Error Handler handle this one.
       const response = await usePayApi().postSearchRoutingSlip(cleanedParams)
-      if (response && response.items) {
+      if (response?.items) {
         if (appendToResults) {
-          searchRoutingSlipResult.push(...(response.items || []))
+          searchRoutingSlipResult.push(...response.items)
         } else {
           searchRoutingSlipResult.length = 0
-          searchRoutingSlipResult.push(...(response.items || []))
+          searchRoutingSlipResult.push(...response.items)
         }
         return response.items.length
       }
@@ -78,22 +67,15 @@ export async function useSearch() {
   }
 
   async function infiniteScrollCallback(isInitialLoad: boolean): Promise<boolean> {
-    Object.assign(searchRoutingSlipParams, {
-      ...searchRoutingSlipParams,
-      page: searchRoutingSlipParams.page && !isInitialLoad
-        ? searchRoutingSlipParams.page + 1
-        : 1
-    })
+    searchRoutingSlipParams.page = !isInitialLoad && searchRoutingSlipParams.page
+      ? searchRoutingSlipParams.page + 1
+      : 1
     const itemsReturned = await searchRoutingSlip(true)
-    if (itemsReturned === 0 || (itemsReturned < (searchRoutingSlipParams.limit || 50))) {
-      return true
-    }
-    return false
+    return itemsReturned === 0 || itemsReturned < (searchRoutingSlipParams.limit || 50)
   }
 
   const showExpandedFolio = ref<string[]>([])
   const showExpandedCheque = ref<string[]>([])
-  // to make sure not updating result on keyup
   const searchParamsChanged = ref(false)
   const reachedEnd = ref(false)
 
@@ -103,33 +85,19 @@ export async function useSearch() {
 
   const isInitialLoad = ref(true)
 
-  const filterInitialState: SearchFilterState = {
-    routingSlipNumber: null,
-    receiptNumber: null,
-    accountName: null,
-    createdName: null,
-    dateFilter: { startDate: null, endDate: null },
-    status: null,
-    refundStatus: null,
-    businessIdentifier: null,
-    chequeReceiptNumber: null,
-    remainingAmount: null
-  }
+  const filters = store.searchFilters
 
-  const filters = reactive<SearchFilterState>({
-    routingSlipNumber: null,
-    receiptNumber: null,
-    accountName: null,
-    createdName: null,
-    dateFilter: { startDate: null, endDate: null },
-    status: null,
-    refundStatus: null,
-    businessIdentifier: null,
-    chequeReceiptNumber: null,
-    remainingAmount: null
-  })
-
-  const searchRoutingSlipTableHeaders = ref(SearchRoutingSlipTableHeaders)
+  const searchRoutingSlipTableHeaders = ref(
+    (store.searchRoutingSlipTableHeaders?.length ? store.searchRoutingSlipTableHeaders : getSearchRoutingSlipTableHeaders(t))
+      .map((header) => {
+        const extHeader = header as ExtendedTableColumn
+        const savedVisibility = store.searchColumnVisibility[extHeader.accessorKey as string]
+        return {
+          ...header,
+          display: savedVisibility !== undefined ? savedVisibility : (extHeader.display ?? true)
+        }
+      }) as ExtendedTableColumn[]
+  )
 
   function updateSearchFilter(updates: Record<string, string | number | boolean | object | null>) {
     Object.assign(searchRoutingSlipParams, {
@@ -169,32 +137,19 @@ export async function useSearch() {
     toggleLoading(false)
   }
 
-  function toggleFolio(id: string) {
-    // to show and hide multiple folio on click
-    // remove from array if already existing else add to array
-    if (showExpandedFolio.value.includes(id)) {
-      showExpandedFolio.value = showExpandedFolio.value.filter(function (item) {
-        return item !== id
-      })
+  function toggleArrayItem(array: Ref<string[]>, id: string) {
+    const index = array.value.indexOf(id)
+    if (index > -1) {
+      array.value.splice(index, 1)
     } else {
-      showExpandedFolio.value.push(id)
+      array.value.push(id)
     }
   }
 
-  function toggleCheque(id: string) {
-    // to show and hide multiple folio on click
-    // remove from array if already existing else add to array
-    if (showExpandedCheque.value.includes(id)) {
-      showExpandedCheque.value = showExpandedCheque.value.filter(function (item) {
-        return item !== id
-      })
-    } else {
-      showExpandedCheque.value.push(id)
-    }
-  }
+  const toggleFolio = (id: string) => toggleArrayItem(showExpandedFolio, id)
+  const toggleCheque = (id: string) => toggleArrayItem(showExpandedCheque, id)
 
   function formatFolioResult(invoices: Invoice[], businessIdentifier: string | null) {
-    // to make sure not updating on keyup
     if (
       !searchParamsChanged.value
       && businessIdentifier
@@ -250,55 +205,71 @@ export async function useSearch() {
     })
   })
 
-  const columnVisibility = computed<Record<string, boolean>>(() => {
-    const visibility: Record<string, boolean> = {}
-    searchRoutingSlipTableHeaders.value.forEach((item: { accessorKey: string, display: boolean }) => {
-      visibility[item.accessorKey] = item.display
-    })
-    return visibility
+  const columnVisibility = computed<Record<string, boolean>>({
+    get() {
+      const visibility: Record<string, boolean> = {}
+      ;(searchRoutingSlipTableHeaders.value as ExtendedTableColumn[]).forEach((item) => {
+        if (item.accessorKey) {
+          visibility[item.accessorKey] = item.display ?? true
+        }
+      })
+      return visibility
+    },
+    set(newVisibility: Record<string, boolean>) {
+      ;(searchRoutingSlipTableHeaders.value as ExtendedTableColumn[]).forEach((item) => {
+        if (item.accessorKey && newVisibility[item.accessorKey] !== undefined) {
+          item.display = newVisibility[item.accessorKey]
+        }
+      })
+      Object.assign(store.searchColumnVisibility, newVisibility)
+    }
   })
 
   const hasActiveFilters = computed(() => {
-    return filters.routingSlipNumber !== null
-      || filters.receiptNumber !== null
-      || filters.accountName !== null
-      || filters.createdName !== null
-      || filters.status !== null
-      || filters.refundStatus !== null
-      || filters.businessIdentifier !== null
-      || filters.chequeReceiptNumber !== null
-      || filters.remainingAmount !== null
-      || (filters.dateFilter?.startDate !== null && filters.dateFilter?.endDate !== null)
+    return !!filters.routingSlipNumber
+      || !!filters.receiptNumber
+      || !!filters.accountName
+      || !!filters.createdName
+      || !!filters.status
+      || !!filters.refundStatus
+      || !!filters.businessIdentifier
+      || !!filters.chequeReceiptNumber
+      || !!filters.remainingAmount
+      || (!!filters.dateFilter?.startDate && !!filters.dateFilter?.endDate)
   })
 
   const resetSearchFilters = async () => {
-    Object.assign(filters, filterInitialState)
+    Object.assign(filters, { ...defaultFilters })
+    resetSearchParams()
     search()
   }
 
-  // Watch filters and update search params
-  watch(() => filters.routingSlipNumber, newVal => updateSearchFilter({ routingSlipNumber: newVal }))
-  watch(() => filters.receiptNumber, newVal => updateSearchFilter({ receiptNumber: newVal }))
-  watch(() => filters.accountName, newVal => updateSearchFilter({ accountName: newVal }))
-  watch(() => filters.createdName, newVal => updateSearchFilter({ initiator: newVal }))
-  watch(
-    () => filters.dateFilter,
-    (newVal) => {
-      updateSearchFilter({ dateFilter: newVal })
-    },
-    { deep: true }
-  )
-  watch(() => filters.status, (newVal) => {
-    updateSearchFilter({ status: newVal })
+  watch(() => filters.routingSlipNumber, val => updateSearchFilter({ routingSlipNumber: val }))
+  watch(() => filters.receiptNumber, val => updateSearchFilter({ receiptNumber: val }))
+  watch(() => filters.accountName, val => updateSearchFilter({ accountName: val }))
+  watch(() => filters.createdName, val => updateSearchFilter({ initiator: val }))
+  watch(() => filters.dateFilter, val => updateSearchFilter({ dateFilter: val }), { deep: true })
+  watch(() => filters.status, (val) => {
+    updateSearchFilter({ status: val })
     search()
   })
-  watch(() => filters.refundStatus, (newVal) => {
-    updateSearchFilter({ refundStatus: newVal })
+  watch(() => filters.refundStatus, (val) => {
+    updateSearchFilter({ refundStatus: val })
     search()
   })
-  watch(() => filters.businessIdentifier, newVal => updateSearchFilter({ businessIdentifier: newVal }))
-  watch(() => filters.chequeReceiptNumber, newVal => updateSearchFilter({ chequeReceiptNumber: newVal }))
-  watch(() => filters.remainingAmount, newVal => updateSearchFilter({ remainingAmount: newVal }))
+  watch(() => filters.businessIdentifier, val => updateSearchFilter({ businessIdentifier: val }))
+  watch(() => filters.chequeReceiptNumber, val => updateSearchFilter({ chequeReceiptNumber: val }))
+  watch(() => filters.remainingAmount, val => updateSearchFilter({ remainingAmount: val }))
+
+  watch(searchRoutingSlipTableHeaders, (headers) => {
+    const visibility: Record<string, boolean> = {}
+    ;(headers as ExtendedTableColumn[]).forEach((item) => {
+      if (item.accessorKey) {
+        visibility[item.accessorKey] = item.display ?? true
+      }
+    })
+    Object.assign(store.searchColumnVisibility, visibility)
+  }, { deep: true })
 
   function getStatusFromRefundStatus(statusCode: string): SlipStatus {
     if (statusCode === chequeRefundCodes.PROCESSING) {

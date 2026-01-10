@@ -44,8 +44,8 @@ const shouldShowNameAndAddress = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-10">
-    <div class="flex flex-col gap-4">
+  <div class="flex flex-col gap-16">
+    <div class="flex flex-col gap-6">
       <ReviewRoutingSlipRow
         :label="$t('label.routingSlipUniqueID')"
         :value="crsStore.state.details.id"
@@ -59,12 +59,12 @@ const shouldShowNameAndAddress = computed(() => {
         :value="crsStore.state.details.entity"
       />
     </div>
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-6">
       <ReviewRoutingSlipRow
         :label="$t('label.paymentInformation')"
         :value="crsStore.isCheque ? $t('enum.PaymentTypes.CHEQUE') : $t('enum.PaymentTypes.CASH')"
       />
-      <div class="space-y-6">
+      <div class="space-y-8">
         <div
           v-for="(item, index) in payData"
           :key="index"
@@ -112,7 +112,7 @@ const shouldShowNameAndAddress = computed(() => {
       v-if="shouldShowNameAndAddress"
       :label="$t('label.nameOfPersonOrOrgAndAddress')"
     >
-      <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-6">
         <span v-if="crsStore.state.address.name?.trim()">
           {{ crsStore.state.address.name }}
         </span>

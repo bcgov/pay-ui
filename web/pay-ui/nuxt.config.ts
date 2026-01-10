@@ -63,6 +63,10 @@ export default defineNuxtConfig({
     ]
   },
 
+  css: [
+    '~/assets/scss/global.scss'
+  ],
+
   vite: {
     server: {
       watch: {

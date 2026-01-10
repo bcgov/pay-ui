@@ -65,6 +65,14 @@ export default defineAppConfig({
       slots: {
         content: 'bg-neutral ring-neutral text-secondary p-4 text-sm'
       }
+    },
+    button: {
+      slots: {
+        base: 'h-[44px] px-[19px]'
+      },
+      default: {
+        padding: 'px-[19px]'
+      }
     }
   }
 })

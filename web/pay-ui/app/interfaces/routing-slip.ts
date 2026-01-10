@@ -193,6 +193,19 @@ export interface AdjustRoutingSlipAmountParams {
   isRoutingSlipPaidInUsd: boolean
 }
 
+export interface SearchFilterState {
+  routingSlipNumber: string | null
+  receiptNumber: string | null
+  accountName: string | null
+  createdName: string | null
+  dateFilter: { startDate: string | null, endDate: string | null }
+  status: string | null
+  refundStatus: string | null
+  businessIdentifier: string | null
+  chequeReceiptNumber: string | null
+  remainingAmount: string | null
+}
+
 export interface SearchRoutingSlipParams {
   page?: number
   limit?: number

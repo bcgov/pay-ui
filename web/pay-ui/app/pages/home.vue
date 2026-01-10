@@ -31,7 +31,7 @@ useHead({
         color="primary"
         size="lg"
         leading-icon="i-mdi-plus"
-        class="rounded-lg shadow-md font-semibold text-white"
+        class="rounded-lg font-semibold text-white add-routing-slip-btn"
         @click="navigateTo('/create-routing-slip')"
       >
         Add New Routing Slip
@@ -55,4 +55,10 @@ useHead({
   padding-bottom: 4rem;
   overflow: hidden;
 }
+</style>
+
+<style lang="scss">
+/*.app-inner-container {
+  max-width: calc(100w - 2.5rem) !important;
+} fix later */
 </style>

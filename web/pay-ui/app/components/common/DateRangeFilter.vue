@@ -160,16 +160,18 @@ watch(model, () => {
   >
     <div class="relative flex items-center w-full">
       <UButton
-        color="neutral"
         variant="subtle"
         trailing-icon="i-mdi-calendar"
         :class="[
           'focus:outline-none focus-visible:outline-none ring-transparent focus-visible:ring-none',
-          'focus-visible:shadow-input-focus ring-0 shadow-input rounded-b-none',
+          'focus-visible:shadow-input-focus ring-0 shadow-input rounded-b-none bg-shade',
           'date-range-filter-button flex-1',
           open ? 'shadow-input-focus' : ''
         ]"
-        :ui="{ trailingIcon: open ? 'text-primary' : '' }"
+        :ui="{
+          trailingIcon: open ? 'text-primary absolute right-3' : 'absolute right-3',
+          base: 'text-[var(--color-text-primary)] hover:!bg-[var(--color-bg-shade)]'
+        }"
       >
         <template #default>
           <span v-if="triggerButtonLabel" class="flex-1 text-left pr-8">{{ triggerButtonLabel }}</span>
@@ -230,14 +232,37 @@ watch(model, () => {
   </UPopover>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
+@use '~/assets/scss/colors.scss' as *;
+
 .date-range-placeholder {
   font-weight: 400;
-  color: #919191;
+  color: var(--color-text-secondary) !important;
 }
 
-:deep(.date-range-filter-button) {
-  padding-left: 12px;
-  padding-right: 12px;
+.date-range-filter-button {
+  width: 100%;
+  padding-left: 0.75rem !important;
+  
+  :deep(.ui-button),
+  :deep(button) {
+    background-color: var(--color-bg-shade) !important;
+    color: var(--color-text-primary) !important;
+    
+    * {
+      color: var(--color-text-primary) !important;
+    }
+    
+    .date-range-placeholder {
+      color: var(--color-text-secondary) !important;
+    }
+    
+    &:hover,
+    &:focus,
+    &:focus-visible {
+      background-color: var(--color-bg-shade) !important;
+    }
+  }
 }
+
 </style>

@@ -1,8 +1,8 @@
 import type {
   AccountInfo, LinkedRoutingSlips, RoutingSlip, RoutingSlipDetails,
-  RoutingSlipAddress, Payment, SearchRoutingSlipParams
+  RoutingSlipAddress, Payment, SearchRoutingSlipParams, SearchFilterState
 } from '~/interfaces/routing-slip'
-import { SearchRoutingSlipTableHeaders } from '@/utils/constants'
+import type { getSearchRoutingSlipTableHeaders } from '@/utils/constants'
 import { PaymentTypes } from '@/enums/payment-types'
 import type { RoutingSlipSchema } from '~/types/create-routing-slip'
 import { createEmptyCRSState, createEmptyPaymentItem } from '~/utils/create-routing-slip'
@@ -10,6 +10,19 @@ import { createEmptyCRSState, createEmptyPaymentItem } from '~/utils/create-rout
 const defaultParams: SearchRoutingSlipParams = {
   page: 1,
   limit: 50
+}
+
+export const defaultFilters: SearchFilterState = {
+  routingSlipNumber: null,
+  receiptNumber: null,
+  accountName: null,
+  createdName: null,
+  dateFilter: { startDate: null, endDate: null },
+  status: null,
+  refundStatus: null,
+  businessIdentifier: null,
+  chequeReceiptNumber: null,
+  remainingAmount: null
 }
 
 // This is in a store because it's used across the app in various components.
@@ -26,7 +39,9 @@ export const useRoutingSlipStore = defineStore('routing-slip-store', () => {
     isAmountPaidInUsd: false,
     searchRoutingSlipResult: [] as RoutingSlip[],
     searchRoutingSlipParams: defaultParams as SearchRoutingSlipParams,
-    searchRoutingSlipTableHeaders: SearchRoutingSlipTableHeaders,
+    searchRoutingSlipTableHeaders: [] as ReturnType<typeof getSearchRoutingSlipTableHeaders>,
+    searchFilters: { ...defaultFilters } as SearchFilterState,
+    searchColumnVisibility: {} as Record<string, boolean>,
     routingSlipBeforeEdit: {} as RoutingSlip
   })
 

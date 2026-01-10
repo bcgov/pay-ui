@@ -1,0 +1,151 @@
+@use 'colors.scss' as *;
+
+// ============================================
+// Table Styles
+// ============================================
+
+// Exception for table filter input buttons
+.table-filter-input button,
+.table-filter-input .ui-button,
+.table-filter-input [class*='ui-button'],
+.table-filter-input .ui-select button {
+  padding-left: 0.75rem !important;
+  padding-right: 0.5rem !important;
+}
+
+
+
+// Table header text color
+.table-header-text {
+  color: var(--color-table-header-text) !important;
+}
+
+// Global label font size
+label,
+.ui-form-label {
+  font-size: 16px;
+}
+
+// Button font size
+.ui-button,
+button.ui-button,
+button[class*='ui-button'],
+button {
+  font-size: 16px !important;
+  
+  span,
+  label,
+  .ui-button-label,
+  [class*='label'] {
+    font-size: 16px !important;
+  }
+  
+  * {
+    font-size: 16px !important;
+  }
+}
+
+// Target all spans and labels inside buttons globally
+button span,
+button label,
+.ui-button span,
+.ui-button label {
+  font-size: 16px !important;
+}
+
+// Utility class for table buttons (38px height)
+.btn-table {
+  height: 38px !important;
+  padding-left: 19px !important;
+  padding-right: 19px !important;
+}
+
+// Utility class for table filter inputs (40px height)
+.table-filter-input {
+  // Target UInput components
+  .ui-input,
+  .ui-input input,
+  input {
+    height: 40px !important;
+    border-radius: 0.375rem 0.375rem 0 0 !important;
+    padding-left: 0.75rem !important;
+    color: var(--color-text-primary) !important;
+  }
+  
+  input::placeholder {
+    color: var(--color-text-secondary) !important;
+  }
+  
+  // Target UButton components (for DateRangeFilter)
+  .ui-button,
+  button {
+    height: 40px !important;
+    border-radius: 0.375rem 0.375rem 0 0 !important;
+    color: var(--color-text-primary) !important;
+    
+    .date-range-placeholder,
+    span.date-range-placeholder {
+      color: var(--color-text-secondary) !important;
+    }
+  }
+  
+  // Target USelect components
+  .ui-select,
+  .ui-select button {
+    height: 40px !important;
+    border-radius: 0.375rem 0.375rem 0 0 !important;
+    padding-left: 0.75rem !important;
+  }
+  
+  .ui-select button {
+    color: var(--color-text-primary) !important;
+  }
+  
+  .ui-select button:not([data-selected="true"]) {
+    color: var(--color-text-secondary) !important;
+  }
+  
+  // Target status-list components
+  .ui-select-menu,
+  .ui-select-menu button {
+    height: 40px !important;
+    border-radius: 0.375rem 0.375rem 0 0 !important;
+  }
+  
+  * {
+    .ui-input,
+    .ui-input input,
+    input[type="text"],
+    input[type="number"] {
+      height: 40px !important;
+      border-radius: 0.375rem 0.375rem 0 0 !important;
+      padding-left: 0.75rem !important;
+      color: var(--color-text-primary) !important;
+    }
+    
+    input::placeholder {
+      color: var(--color-text-secondary) !important;
+    }
+    
+    .ui-button,
+    button.ui-button {
+      height: 40px !important;
+      border-radius: 0.375rem 0.375rem 0 0 !important;
+      color: var(--color-text-primary) !important;
+    }
+    
+    .ui-select,
+    .ui-select button {
+      height: 40px !important;
+      border-radius: 0.375rem 0.375rem 0 0 !important;
+    }
+    
+    .ui-select button {
+      color: var(--color-text-primary) !important;
+    }
+    
+    .ui-select button:not([data-selected="true"]) {
+      color: var(--color-text-secondary) !important;
+    }
+  }
+}

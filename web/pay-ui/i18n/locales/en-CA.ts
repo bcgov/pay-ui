@@ -94,6 +94,7 @@ export default {
     columnsToShow: 'Columns to Show',
     contactSupport: 'Contact Support',
     create: 'Create',
+    createdBy: 'Created By',
     date: 'Date',
     editStatus: 'Edit Status',
     entityNumber: 'Entity Number',
@@ -106,6 +107,7 @@ export default {
     ok: 'OK',
     paymentInformation: 'Payment Information',
     receiptNumber: 'Receipt Number',
+    referenceNumber: 'Reference Number',
     refundAmount: 'Refund Amount',
     refundStatus: 'Refund Status',
     reviewAndCreate: 'Review and Create',
@@ -116,6 +118,7 @@ export default {
     done: 'Done',
     reviewNewRoutingSlip: 'Review New Routing Slip',
     routingSlip: 'Routing Slip',
+    routingSlipNumber: 'Routing Slip Number',
     routingSlipUniqueID: 'Routing Slip - Unique ID',
     searchRoutingSlipUniqueID: 'Search by routing slip - Unique ID',
     selectDate: 'Select Date',
@@ -123,7 +126,9 @@ export default {
     status: 'Status',
     totalAmount: 'Total Amount',
     totalAmountReceived: 'Total Amount Received ($)',
-    updateStatus: 'Update Status'
+    updateStatus: 'Update Status',
+    balance: 'Balance',
+    actions: 'Actions'
   },
   modal: {
     leaveCreateRoutingSlip: {

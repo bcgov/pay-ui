@@ -239,11 +239,11 @@ export enum LookupStates {
   SUMMARY = 'summary'
 }
 
-export const SearchRoutingSlipTableHeaders
-  = [
+export function getSearchRoutingSlipTableHeaders(t: (key: string) => string) {
+  return [
     {
-      header: 'Routing Slip Number',
-      align: 'start',
+      header: t('label.routingSlipNumber'),
+      align: 'start' as const,
       accessorKey: 'routingSlipNumber',
       display: true,
       meta: {
@@ -253,8 +253,8 @@ export const SearchRoutingSlipTableHeaders
       }
     },
     {
-      header: 'Receipt Number',
-      align: 'start',
+      header: t('label.receiptNumber'),
+      align: 'start' as const,
       sortable: false,
       accessorKey: 'receiptNumber',
       display: true,
@@ -265,8 +265,8 @@ export const SearchRoutingSlipTableHeaders
       }
     },
     {
-      header: 'Entity Number',
-      align: 'start',
+      header: t('label.entityNumber'),
+      align: 'start' as const,
       accessorKey: 'accountName',
       sortable: false,
       display: false,
@@ -277,8 +277,8 @@ export const SearchRoutingSlipTableHeaders
       }
     },
     {
-      header: 'Created By',
-      align: 'start',
+      header: t('label.createdBy'),
+      align: 'start' as const,
       accessorKey: 'createdName',
       sortable: false,
       display: false,
@@ -289,8 +289,8 @@ export const SearchRoutingSlipTableHeaders
       }
     },
     {
-      header: 'Date',
-      align: 'start',
+      header: t('label.date'),
+      align: 'start' as const,
       sortable: false,
       accessorKey: 'date',
       display: true,
@@ -301,8 +301,8 @@ export const SearchRoutingSlipTableHeaders
       }
     },
     {
-      header: 'Status',
-      align: 'start',
+      header: t('label.status'),
+      align: 'start' as const,
       sortable: false,
       accessorKey: 'status',
       display: true,
@@ -313,8 +313,8 @@ export const SearchRoutingSlipTableHeaders
       }
     },
     {
-      header: 'Refund Status',
-      align: 'start',
+      header: t('label.refundStatus'),
+      align: 'start' as const,
       sortable: false,
       accessorKey: 'refundStatus',
       display: true,
@@ -325,8 +325,8 @@ export const SearchRoutingSlipTableHeaders
       }
     },
     {
-      header: 'Reference Number',
-      align: 'start',
+      header: t('label.referenceNumber'),
+      align: 'start' as const,
       accessorKey: 'businessIdentifier',
       sortable: false,
       display: true,
@@ -337,8 +337,8 @@ export const SearchRoutingSlipTableHeaders
       }
     },
     {
-      header: 'Cheque Number',
-      align: 'start',
+      header: t('label.chequeNumber'),
+      align: 'start' as const,
       accessorKey: 'chequeReceiptNumber',
       sortable: false,
       display: false,
@@ -349,8 +349,8 @@ export const SearchRoutingSlipTableHeaders
       }
     },
     {
-      header: 'Balance',
-      align: 'right',
+      header: t('label.balance'),
+      align: 'right' as const,
       accessorKey: 'remainingAmount',
       sortable: false,
       display: true,
@@ -362,8 +362,8 @@ export const SearchRoutingSlipTableHeaders
       }
     },
     {
-      header: 'Actions',
-      align: 'start',
+      header: t('label.actions'),
+      align: 'start' as const,
       accessorKey: 'actions',
       sortable: false,
       display: true,
@@ -375,6 +375,7 @@ export const SearchRoutingSlipTableHeaders
       }
     }
   ]
+}
 
 export const ChequeRefundStatus = [
   {

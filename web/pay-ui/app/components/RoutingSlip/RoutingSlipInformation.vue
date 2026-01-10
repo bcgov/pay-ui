@@ -3,6 +3,7 @@ import StatusMenu from '~/components/common/StatusMenu.vue'
 import RefundStatusMenu from '~/components/common/RefundStatusMenu.vue'
 import RefundRequestForm from '~/components/RoutingSlip/RefundRequestForm.vue'
 import { useRoutingSlipInfo } from '~/composables/viewRoutingSlip/useRoutingSlipInfo'
+import { chequeRefundCodes } from '~/utils/constants'
 
 const emit = defineEmits<{
   commentsUpdated: []
@@ -34,6 +35,10 @@ const {
   shouldShowRefundStatusSection,
   shouldShowNameAndAddress
 } = useRoutingSlipInfo()
+
+const isRefundStatusProcessing = computed(() => {
+  return routingSlip.value?.refundStatus === chequeRefundCodes.PROCESSING
+})
 
 const handleRefundStatusSelectWithComments = async (status: string) => {
   await handleRefundStatusSelect(status, () => {
@@ -147,7 +152,7 @@ const handleRefundStatusSelectWithComments = async (status: string) => {
           v-if="shouldShowRefundStatusSection"
           class="border-t border-line-muted pt-4 mt-4"
         >
-          <div class="flex flex-col sm:flex-row sm:items-start gap-2 relative">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-2 relative">
             <div class="w-full sm:w-1/4 font-semibold p-4">
               {{ $t('label.refundStatus') }}
             </div>
@@ -157,7 +162,11 @@ const handleRefundStatusSelectWithComments = async (status: string) => {
                   v-if="refundStatus"
                   :label="refundStatus"
                   :color="isRefundStatusUndeliverable ? 'error' : 'neutral'"
-                  :class="isRefundStatusUndeliverable ? '!bg-red-600 !text-white' : ''"
+                  :class="isRefundStatusUndeliverable 
+                    ? '!bg-red-600 !text-white' 
+                    : isRefundStatusProcessing 
+                      ? '!bg-gray-200 !text-gray-700' 
+                      : '!bg-[var(--color-refund-status-bg)] !text-[var(--color-text-primary)]'"
                 />
                 <span v-else>-</span>
                 <div v-if="canUpdateRefundStatus">

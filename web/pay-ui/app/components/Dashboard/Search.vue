@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useSearch } from '~/composables/dashboard/useSearch'
-import { useInfiniteScroll } from '@vueuse/core'
+import { useInfiniteScroll, useResizeObserver } from '@vueuse/core'
 
 const { t } = useI18n()
 
@@ -22,10 +22,26 @@ const {
   columnVisibility,
   resetSearchFilters,
   hasActiveFilters,
-  search
+  search,
+  updateSearchFilter
 } = await useSearch()
 
 const table = useTemplateRef<HTMLElement>('table')
+const scrollEl = useTemplateRef<HTMLElement>('scrollEl')
+
+const updateStickyHeaderHeight = () => {
+  const el = scrollEl.value
+  if (!el) return
+
+  const thead = el.querySelector('thead')
+  const height = thead?.getBoundingClientRect().height ?? 0
+  el.style.setProperty('--search-sticky-header-height', `${Math.ceil(height)}px`)
+}
+
+const visibleColumns = computed(() => {
+  const headers = searchRoutingSlipTableHeaders.value
+  return headers.filter((f) => !(f as { hideInSearchColumnFilter?: boolean }).hideInSearchColumnFilter)
+})
 
 useInfiniteScroll(
   table,
@@ -37,12 +53,37 @@ useInfiniteScroll(
     distance: 200
   }
 )
+
+onMounted(async () => {
+  await nextTick()
+  updateStickyHeaderHeight()
+
+  if (hasActiveFilters.value) {
+    updateSearchFilter({
+      routingSlipNumber: filters.routingSlipNumber,
+      receiptNumber: filters.receiptNumber,
+      accountName: filters.accountName,
+      initiator: filters.createdName,
+      dateFilter: filters.dateFilter,
+      status: filters.status,
+      refundStatus: filters.refundStatus,
+      businessIdentifier: filters.businessIdentifier,
+      chequeReceiptNumber: filters.chequeReceiptNumber,
+      remainingAmount: filters.remainingAmount
+    })
+  }
+  search()
+})
+
+useResizeObserver(scrollEl, () => {
+  updateStickyHeaderHeight()
+})
 </script>
 
 <template>
   <div class="h-full flex flex-col">
-    <div class="bg-white fas-search w-full flex flex-col h-full">
-      <div class="relative rounded-t-lg px-4 py-3.5 flex-shrink-0 search-header-bg">
+    <div class="bg-white fas-search w-full flex flex-col h-full rounded-lg overflow-hidden">
+      <div class="relative rounded-t-lg px-2 py-3.5 flex-shrink-0 search-header-bg">
         <div class="flex flex-wrap justify-between">
           <div class="flex">
             <UIcon
@@ -50,28 +91,29 @@ useInfiniteScroll(
               class="mr-2 size-6 text-primary"
               style="margin-top: 5px;"
             />
-            <h2 class="text-gray-700 font-bold">
+            <h2 class="table-header-text font-bold">
               Search Routing Slip
             </h2>
           </div>
           <div>
             <UPopover>
               <UButton
-                label="Columns to show"
+                label="Columns to Show"
                 color="neutral"
                 variant="subtle"
                 trailing-icon="i-mdi-menu-down"
                 :dismissible="false"
+                class="columns-to-show-btn"
               />
               <template #content>
                 <div class="py-2">
                   <UCheckbox
-                    v-for="(col, index) in searchRoutingSlipTableHeaders.filter(f => !f.hideInSearchColumnFilter)"
-                    :key="index"
-                    v-model="col.display"
-                    :value="col.accessorKey"
+                    v-for="col in visibleColumns"
+                    :key="col.accessorKey"
+                    :model-value="!!col.display"
                     :label="col.header"
-                    class="px-4 py-2"
+                    class="px-2 py-2"
+                    @update:model-value="col.display = !!$event"
                   />
                 </div>
               </template>
@@ -80,20 +122,21 @@ useInfiniteScroll(
         </div>
       </div>
 
-      <div class="w-full overflow-x-auto overflow-y-auto flex-1 min-h-0">
-        <UTable
-          ref="table"
-          v-model:column-visibility="columnVisibility"
-          v-model:column-pinning="columnPinning"
-          :data="routingSlips"
-          :columns="searchRoutingSlipTableHeaders"
-          :loading="isLoading"
-          class="h-full w-full"
-          sticky
-        >
+      <div class="w-full flex-1 min-h-0 bg-white rounded-b-lg">
+        <div ref="scrollEl" class="table-scroll">
+          <UTable
+            ref="table"
+            v-model:column-visibility="columnVisibility"
+            v-model:column-pinning="columnPinning"
+            :data="routingSlips"
+            :columns="searchRoutingSlipTableHeaders"
+            :loading="isLoading"
+            class="h-full w-full search-table sticky-table"
+            sticky
+          >
           <template #body-top>
             <tr class="sticky-row header-row-2">
-              <th v-if="columnVisibility.routingSlipNumber" class="text-left px-2 py-2">
+              <th v-if="columnVisibility.routingSlipNumber" class="text-left px-2 py-2 table-filter-input header-routing-slip">
                 <UInput
                   v-model="filters.routingSlipNumber"
                   placeholder="Routing Slip Number"
@@ -102,7 +145,7 @@ useInfiniteScroll(
                   @input="debouncedSearch()"
                 />
               </th>
-              <th v-if="columnVisibility.receiptNumber" class="text-left px-2 py-2">
+              <th v-if="columnVisibility.receiptNumber" class="text-left px-2 py-2 table-filter-input header-receipt-number">
                 <UInput
                   v-model="filters.receiptNumber"
                   placeholder="Receipt Number"
@@ -111,7 +154,7 @@ useInfiniteScroll(
                   @input="debouncedSearch()"
                 />
               </th>
-              <th v-if="columnVisibility.accountName" class="text-left px-2 py-2">
+              <th v-if="columnVisibility.accountName" class="text-left px-2 py-2 table-filter-input header-account-name">
                 <UInput
                   v-model="filters.accountName"
                   placeholder="Entity Number"
@@ -120,7 +163,7 @@ useInfiniteScroll(
                   @input="debouncedSearch()"
                 />
               </th>
-              <th v-if="columnVisibility.createdName" class="text-left px-2 py-2">
+              <th v-if="columnVisibility.createdName" class="text-left px-2 py-2 table-filter-input header-created-name">
                 <UInput
                   v-model="filters.createdName"
                   placeholder="Created By"
@@ -129,10 +172,10 @@ useInfiniteScroll(
                   @input="debouncedSearch()"
                 />
               </th>
-              <th v-if="columnVisibility.date" class="text-left px-2 py-2 date">
+              <th v-if="columnVisibility.date" class="text-left px-2 py-2 date table-filter-input header-date">
                 <DateRangeFilter v-model="filters.dateFilter" @change="search()" />
               </th>
-              <th v-if="columnVisibility.status" class="text-left px-2 py-2">
+              <th v-if="columnVisibility.status" class="text-left px-2 py-2 table-filter-input header-status">
                 <status-list
                   v-model="filters.status"
                   column="status"
@@ -141,7 +184,7 @@ useInfiniteScroll(
                   :placeholder="!filters.status ? 'Status' : ''"
                 />
               </th>
-              <th v-if="columnVisibility.refundStatus" class="text-left px-2 py-2">
+              <th v-if="columnVisibility.refundStatus" class="text-left px-2 py-2 table-filter-input header-refund-status">
                 <status-list
                   v-model="filters.refundStatus"
                   column="refundStatus"
@@ -150,7 +193,7 @@ useInfiniteScroll(
                   :placeholder="!filters.refundStatus ? 'Refund Status' : ''"
                 />
               </th>
-              <th v-if="columnVisibility.businessIdentifier" class="text-left px-2 py-2">
+              <th v-if="columnVisibility.businessIdentifier" class="text-left px-2 py-2 table-filter-input header-business-identifier">
                 <UInput
                   v-model="filters.businessIdentifier"
                   placeholder="Reference Number"
@@ -159,7 +202,7 @@ useInfiniteScroll(
                   @input="debouncedSearch()"
                 />
               </th>
-              <th v-if="columnVisibility.chequeReceiptNumber" class="text-left px-2 py-2">
+              <th v-if="columnVisibility.chequeReceiptNumber" class="text-left px-2 py-2 table-filter-input header-cheque-receipt-number">
                 <UInput
                   v-model="filters.chequeReceiptNumber"
                   placeholder="Cheque  Number"
@@ -168,7 +211,7 @@ useInfiniteScroll(
                   @input="debouncedSearch()"
                 />
               </th>
-              <th v-if="columnVisibility.remainingAmount" class="text-left px-2 py-2">
+              <th v-if="columnVisibility.remainingAmount" class="text-left px-2 py-2 table-filter-input header-remaining-amount header-total">
                 <UInput
                   v-model="filters.remainingAmount"
                   placeholder="Balance"
@@ -178,17 +221,19 @@ useInfiniteScroll(
                 />
               </th>
               <th
-                v-if="hasActiveFilters"
-                class="text-right pl-2 pr-4 sticky data-[pinned=left]:left-0 data-[pinned=right]:right-0"
-                data-pinned="right"
+                class="text-right pl-2 pr-4 clear-filters-th"
               >
-                <UButton
-                  label="Clear Filters"
-                  variant="outline"
-                  trailing-icon="i-mdi-close"
-                  size="md"
-                  @click="resetSearchFilters()"
-                />
+                <template v-if="hasActiveFilters">
+                  <UButton
+                    label="Clear Filters"
+                    variant="outline"
+                    color="primary"
+                    trailing-icon="i-mdi-close"
+                    size="sm"
+                    class="clear-filters-btn"
+                    @click="resetSearchFilters()"
+                  />
+                </template>
               </th>
             </tr>
           </template>
@@ -300,56 +345,180 @@ useInfiniteScroll(
             <div class="text-right">
               <UButton
                 label="Open"
+                class="btn-table font-normal"
                 @click="navigateTo(`/view-routing-slip/${row.original.routingSlipNumber}`)"
               />
             </div>
           </template>
         </UTable>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
-<style lang="scss">
-@use '~/assets/scss/search.scss' as *;
-</style>
-
-<style scoped>
+<style lang="scss" scoped>
+@use '~/assets/scss/colors.scss' as *;
 .search-header-bg {
-  background-color: #e0e7ed;
+  background-color: #e0e7ed !important;
+  opacity: 1 !important;
 }
 
 :deep(table td) {
-  color: #495057;
+  color: var(--color-text-secondary);
 }
 
 :deep(.sticky-row) {
   position: sticky;
-  top: 48px;
-  z-index: 10;
-  background-color: white;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  top: var(--search-sticky-header-height, 48px);
+  z-index: 19;
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  margin: 0 !important;
+  transform: none !important;
 }
 
 :deep(.sticky-row th) {
-  background-color: white;
-  border-bottom: 1px solid #e5e7eb;
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: 1px solid var(--color-divider) !important;
+  padding-left: 0.25rem !important;
+  padding-right: 0.25rem !important;
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+  vertical-align: middle;
 }
 
-:deep(input) {
-  font-weight: 400;
-  color: #212529;
+:deep(.sticky-row th:first-child) {
+  border-left: none !important;
 }
 
-:deep(input::placeholder) {
-  font-weight: 400;
-  color: #919191;
+:deep(.sticky-row th:last-child) {
+  border-right: none !important;
+}
+
+:deep(.sticky-row td) {
+  background-color: white !important;
+  background: white !important;
+  opacity: 1 !important;
+}
+
+:deep(.sticky-row th *),
+
+:deep(.table-filter-input .ui-input),
+
+:deep(.table-filter-input .ui-input),
+:deep(.table-filter-input .ui-input *),
+:deep(.table-filter-input .ui-input input),
+:deep(.table-filter-input .ui-input input[type="text"]),
+:deep(.table-filter-input .ui-input input[type="number"]),
+:deep(.table-filter-input input),
+:deep(.table-filter-input input[type="text"]),
+:deep(.table-filter-input input[type="number"]),
+:deep(.table-filter-input .text-neutral),
+:deep(.table-filter-input .text-neutral-highlighted) {
+  font-weight: 400 !important;
+  color: var(--color-text-primary) !important;
+}
+
+:deep(.table-filter-input .ui-input input::placeholder),
+:deep(.table-filter-input input::placeholder),
+:deep(.table-filter-input input[placeholder]),
+:deep(.table-filter-input .placeholder) {
+  font-weight: 400 !important;
+  color: var(--color-text-secondary) !important;
+}
+
+:deep(.table-filter-input .ui-select),
+:deep(.table-filter-input .ui-select *),
+:deep(.table-filter-input .ui-select button),
+:deep(.table-filter-input .ui-select button *),
+:deep(.table-filter-input .ui-select button span),
+:deep(.table-filter-input .ui-select button div),
+:deep(.table-filter-input status-list),
+:deep(.table-filter-input status-list *),
+:deep(.table-filter-input status-list .ui-select),
+:deep(.table-filter-input status-list .ui-select button),
+:deep(.table-filter-input status-list .ui-select button *) {
+  font-weight: 400 !important;
+}
+
+:deep(.table-filter-input .ui-select button[data-selected="true"]),
+:deep(.table-filter-input .ui-select button[data-selected="true"] *),
+:deep(.table-filter-input .ui-select button[data-selected="true"] span),
+:deep(.table-filter-input .ui-select button[data-selected="true"] div),
+:deep(.table-filter-input status-list .ui-select button[data-selected="true"]),
+:deep(.table-filter-input status-list .ui-select button[data-selected="true"] *),
+:deep(.table-filter-input .ui-select button[data-selected="true"].text-neutral),
+:deep(.table-filter-input .ui-select button[data-selected="true"].text-neutral-highlighted) {
+  color: var(--color-text-primary) !important;
+}
+
+:deep(.table-filter-input .ui-select button:not([data-selected="true"])),
+:deep(.table-filter-input .ui-select button:not([data-selected="true"]) *),
+:deep(.table-filter-input .ui-select button:not([data-selected="true"]) span),
+:deep(.table-filter-input .ui-select button:not([data-selected="true"]) div),
+:deep(.table-filter-input .ui-select [data-placeholder]),
+:deep(.table-filter-input .ui-select [data-placeholder] *),
+:deep(.table-filter-input status-list .ui-select button:not([data-selected="true"])),
+:deep(.table-filter-input status-list .ui-select button:not([data-selected="true"]) *),
+:deep(.table-filter-input status-list .ui-select [data-placeholder]),
+:deep(.table-filter-input .ui-select button:not([data-selected="true"]).text-neutral),
+:deep(.table-filter-input .ui-select [data-placeholder].text-neutral) {
+  color: var(--color-text-secondary) !important;
+}
+
+:deep(.ui-select button) {
+  padding-left: 0.75rem !important;
+}
+
+// Set 14px font size for DateRangeFilter and StatusList - override global button font size
+:deep(.table-filter-input .date),
+:deep(.table-filter-input .date *),
+:deep(.table-filter-input .date button),
+:deep(.table-filter-input .date button *),
+:deep(.table-filter-input .date button span),
+:deep(.table-filter-input .date button label),
+:deep(.table-filter-input .date .ui-button),
+:deep(.table-filter-input .date .ui-button *),
+:deep(.table-filter-input .date .ui-button span),
+:deep(.table-filter-input .date .ui-button label),
+:deep(.table-filter-input .date .date-range-filter-button),
+:deep(.table-filter-input .date .date-range-filter-button *),
+:deep(.table-filter-input .date .date-range-filter-button button),
+:deep(.table-filter-input .date .date-range-filter-button button *),
+:deep(.table-filter-input .date .date-range-filter-button button span),
+:deep(.table-filter-input .date .date-range-filter-button button label),
+:deep(.table-filter-input .date .date-range-filter-button span),
+:deep(.table-filter-input .date .date-range-filter-button .ui-button),
+:deep(.table-filter-input .date .date-range-filter-button .ui-button *),
+:deep(.table-filter-input .date .date-range-filter-button .ui-button span),
+:deep(.table-filter-input .date .date-range-filter-button .ui-button label),
+:deep(.table-filter-input .date .date-range-placeholder),
+:deep(.table-filter-input .status-list-wrapper),
+:deep(.table-filter-input .status-list-wrapper *),
+:deep(.table-filter-input .status-list-wrapper button),
+:deep(.table-filter-input .status-list-wrapper button *),
+:deep(.table-filter-input .status-list-wrapper button span),
+:deep(.table-filter-input .status-list-wrapper .ui-select),
+:deep(.table-filter-input .status-list-wrapper .ui-select *),
+:deep(.table-filter-input .status-list-wrapper .ui-select button),
+:deep(.table-filter-input .status-list-wrapper .ui-select button *),
+:deep(.table-filter-input .status-list-wrapper .ui-select button span) {
+  font-size: 14px !important;
 }
 
 :deep(.overflow-x-auto) {
   display: flex;
   flex-direction: column;
   height: 100%;
+  background-color: white !important;
+  margin: 0 !important;
+  transform: none !important;
+  position: relative;
 }
 
 :deep(.overflow-x-auto > *) {
@@ -357,5 +526,321 @@ useInfiniteScroll(
   display: flex;
   flex-direction: column;
   min-height: 0;
+}
+
+.columns-to-show-btn {
+  background-color: #FFFFFF !important;
+}
+
+.columns-to-show-btn:hover,
+.columns-to-show-btn:focus,
+.columns-to-show-btn:active {
+  background-color: #FFFFFF !important;
+}
+
+:deep(.columns-to-show-btn) {
+  background-color: #FFFFFF !important;
+}
+
+:deep(.columns-to-show-btn:hover),
+:deep(.columns-to-show-btn:focus),
+:deep(.columns-to-show-btn:active) {
+  background-color: #FFFFFF !important;
+}
+
+
+.table-scroll {
+  max-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  height: 100%;
+}
+
+.table-scroll,
+.table-scroll * {
+  transform: none !important;
+  will-change: auto !important;
+}
+
+:deep(.sticky-table thead th) {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--ui-bg, #ffffff);
+}
+
+:deep(.sticky-table .relative) {
+  overflow: visible !important;
+}
+
+:deep(.sticky-table table) {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+:deep(table) {
+  border-spacing: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+  position: relative;
+}
+
+:deep(table),
+:deep(table thead),
+:deep(table thead tr),
+:deep(table thead tr th) {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+}
+
+:deep(table thead) {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+:deep(table tbody) {
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+}
+
+:deep(table tbody tr) {
+  background-color: transparent;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+:deep(table thead tr th) {
+  color: var(--color-text-primary);
+  padding-left: 0.25rem !important;
+  padding-right: 0.25rem !important;
+  font-weight: 700 !important;
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  border-top: 1px solid var(--color-divider) !important;
+  border-bottom: 1px solid var(--color-divider) !important;
+  border-left: none !important;
+  border-right: none !important;
+}
+
+:deep(table thead tr th::before),
+:deep(table thead tr th::after) {
+  display: none !important;
+}
+
+:deep(table thead tr th:first-child) {
+  padding-left: 1rem !important;
+}
+
+:deep(table thead tr th:last-child) {
+  padding-right: 1rem !important;
+  text-align: right !important;
+  border-right: none !important;
+  border-left: none !important;
+}
+
+:deep(table tbody tr td:first-child) {
+  padding-left: 1rem !important;
+}
+
+:deep(table tbody tr td:last-child) {
+  padding-right: 1rem !important;
+  border-right: none !important;
+  border-left: none !important;
+  min-width: 130px !important;
+}
+
+:deep(table thead tr th.header-action),
+:deep(table tbody tr td:has(.btn-table)) {
+  border-right: none !important;
+  border-left: none !important;
+  min-width: 130px !important;
+}
+
+:deep(table thead tr th:last-child) {
+  border-top: 1px solid var(--color-divider) !important;
+  border-bottom: 1px solid var(--color-divider) !important;
+  border-left: none !important;
+  border-right: none !important;
+  min-width: 130px !important;
+}
+
+:deep(.sticky-row th:first-child) {
+  padding-left: 1rem !important;
+}
+
+:deep(.sticky-row th:last-child) {
+  padding-right: 1rem !important;
+  border-right: none !important;
+  border-bottom: 1px solid var(--color-divider) !important;
+}
+
+:deep(.header-receipt-number),
+:deep(table thead tr th.header-receipt-number) {
+  min-width: 100px !important;
+  max-width: 100px !important;
+  width: 100px !important;
+}
+
+:deep(table tbody tr td) {
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
+  border-bottom: 1px solid var(--color-divider) !important;
+  border-left: none !important;
+  border-right: none !important;
+}
+
+:deep(table tbody tr td:nth-of-type(2)) {
+  min-width: 100px !important;
+  max-width: 100px !important;
+  width: 100px !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
+  overflow: visible !important;
+}
+
+:deep(.sticky-row .ui-select),
+:deep(.sticky-row .ui-select *),
+:deep(.sticky-row status-list),
+:deep(.sticky-row status-list *),
+:deep(.sticky-row .input-text),
+:deep(.sticky-row .input-text *) {
+  font-weight: 400 !important;
+}
+
+:deep(.sticky-row .ui-select button),
+:deep(.sticky-row status-list .ui-select button),
+:deep(.sticky-row .input-text .ui-select button),
+:deep(.sticky-row .ui-input input),
+:deep(.sticky-row .ui-input),
+:deep(.sticky-row input[type="text"]),
+:deep(.sticky-row input[type="number"]) {
+  padding-left: 0.75rem !important;
+}
+
+// Make table divider thicker
+:deep(tr.absolute.z-\[1\].left-0.w-full.h-px),
+:deep(tr[class*="absolute"][class*="z-[1]"][class*="h-px"]) {
+  height: 2px !important;
+}
+
+// Clear Filters button styling
+:deep(.clear-filters-th .clear-filters-btn),
+:deep(.clear-filters-th .ui-button) {
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+  font-size: 0.875rem !important;
+  height: 38px !important;
+  color: var(--color-primary, #2563eb) !important;
+
+  * {
+    color: var(--color-primary, #2563eb) !important;
+  }
+
+  span,
+  label {
+    color: var(--color-primary, #2563eb) !important;
+  }
+}
+
+// Styles from search.scss - now scoped to Search component
+.fas-search {
+  // column width
+  .header {
+    &-routing-slip {
+      min-width: 195px;
+    }
+    &-receipt-number {
+      min-width: 174px !important;
+    }
+    &-account-name {
+      min-width: 171px !important;
+    }
+    &-created-name {
+      min-width: 130px !important;
+    }
+    &-date {
+      min-width: 170px;
+    }
+    &-status {
+      min-width: 150px !important;
+    }
+    &-refund-status {
+      min-width: 160px !important;
+    }
+    &-business-identifier {
+      min-width: 160px !important;
+    }
+    &-cheque-receipt-number {
+      min-width: 185px;
+    }
+    &-total {
+      min-width: 121px !important;
+    }
+    &-remaining-amount {
+      min-width: 121px !important;
+    }
+    &-action {
+      min-width: 130px !important;
+      text-align: right;
+    }
+  }
+
+  .sticky {
+    background-color: white;
+  }
+
+  .header-row-2 {
+    th > div {
+      width: 100%;
+    }
+    .date button {
+      padding: 6px 10px !important;
+      overflow: hidden;
+      white-space: nowrap;
+      width: 170px;
+      background-color: var(--color-bg-shade) !important;
+    }
+    .placeholder {
+      font-weight: 400;
+      color: var(--color-text-secondary);
+    }
+    .input-text {
+      font-weight: 400 !important;
+      color: var(--color-text-primary);
+    }
+  }
+}
+
+.wide-dropdown {
+  width: 200px !important;
+}
+
+// Override global label font size for search page
+:deep(label),
+:deep(.ui-form-label) {
+  font-size: inherit;
+}
+
+// Exclude DateRangeFilter and StatusList from 16px font size
+.fas-search {
+  :deep(.date label),
+  :deep(.date .ui-form-label),
+  :deep(.date-range-filter-button label),
+  :deep(.date-range-filter-button .ui-form-label),
+  :deep(.status-list-wrapper label),
+  :deep(.status-list-wrapper .ui-form-label),
+  :deep(.table-filter-input .date label),
+  :deep(.table-filter-input .date .ui-form-label),
+  :deep(.table-filter-input .status-list-wrapper label),
+  :deep(.table-filter-input .status-list-wrapper .ui-form-label) {
+    font-size: inherit !important;
+  }
 }
 </style>

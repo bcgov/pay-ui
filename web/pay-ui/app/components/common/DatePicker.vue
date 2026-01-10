@@ -55,11 +55,12 @@ watch(open, (v) => {
       :class="[
         'focus:outline-none focus-visible:outline-none ring-transparent focus-visible:ring-none',
         'focus-visible:shadow-input-focus ring-0 shadow-input rounded-b-none',
-        'w-full justify-between px-2.5 py-4.5 bg-shade',
+        'w-full justify-between px-2.5 py-3.5 bg-shade h-14 hover:!bg-shade',
         open ? 'shadow-input-focus' : '',
         hasError ? 'shadow-input-error' : ''
       ]"
       :ui="{
+        base: 'px-[19px]',
         trailingIcon: hasError
           ? 'text-error'
           : open
@@ -68,8 +69,8 @@ watch(open, (v) => {
       }"
     >
       <template #default>
-        <span v-if="localModel" class="text-neutral">{{ localModel.toString() }}</span>
-        <span v-else :class="hasError ? 'text-error' : 'text-neutral'">{{ $t('label.selectDate') }}</span>
+        <span v-if="localModel" class="text-neutral text-base">{{ localModel.toString() }}</span>
+        <span v-else :class="hasError ? 'text-error text-base' : 'text-neutral text-base'">{{ $t('label.selectDate') }}</span>
       </template>
     </UButton>
 
@@ -83,3 +84,4 @@ watch(open, (v) => {
     </template>
   </UPopover>
 </template>
+

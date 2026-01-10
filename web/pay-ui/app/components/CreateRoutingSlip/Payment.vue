@@ -82,25 +82,15 @@ const model = defineModel<RoutingSlipPaymentSchema>({ required: true })
         />
       </div>
       <div
-        class="flex"
-        :class="isCheque
-          ? 'justify-between'
-          : 'justify-end'
-        "
+        v-if="isCheque"
+        class="flex justify-start"
       >
         <UButton
-          v-if="isCheque"
           :label="$t('label.additionalCheque')"
           variant="ghost"
           icon="i-mdi-plus-box"
           class="pl-0"
           @click="$emit('add-cheque')"
-        />
-        <UCheckbox
-          v-model="model.isUSD"
-          :label="$t('label.fundsReceivedInUSD')"
-          :ui="{ label: 'text-base' }"
-          @change="$emit('change:usd')"
         />
       </div>
       <ConnectInput

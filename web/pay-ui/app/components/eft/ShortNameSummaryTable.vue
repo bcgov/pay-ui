@@ -355,7 +355,7 @@ useInfiniteScroll(
         >
           <template #body-top>
             <tr class="sticky-row header-row-2 bg-white">
-              <th class="text-left px-1 py-1">
+              <th class="text-left px-1 py-1 table-filter-input">
                 <UInput
                   id="short-name-filter"
                   v-model="state.filters.filterPayload.shortName"
@@ -366,7 +366,7 @@ useInfiniteScroll(
                   @update:model-value="debouncedUpdateFilter('shortName', $event)"
                 />
               </th>
-              <th class="text-left px-1 py-1">
+              <th class="text-left px-1 py-1 table-filter-input">
                 <USelect
                   id="short-name-type-filter"
                   v-model="shortNameTypeModel"
@@ -376,13 +376,13 @@ useInfiniteScroll(
                   size="md"
                 />
               </th>
-              <th class="text-left px-1 py-1">
+              <th class="text-left px-1 py-1 table-filter-input">
                 <DateRangeFilter
                   v-model="dateRangeModel"
                   placeholder="Last Payment Received Date"
                 />
               </th>
-              <th class="text-left px-1 py-1">
+              <th class="text-left px-1 py-1 table-filter-input">
                 <UInput
                   id="credits-remaining-filter"
                   v-model="state.filters.filterPayload.creditsRemaining"
@@ -393,7 +393,7 @@ useInfiniteScroll(
                   @update:model-value="debouncedUpdateFilter('creditsRemaining', $event)"
                 />
               </th>
-              <th class="text-left px-1 py-1">
+              <th class="text-left px-1 py-1 table-filter-input">
                 <UInput
                   id="linked-accounts-count-filter"
                   v-model="state.filters.filterPayload.linkedAccountsCount"
@@ -459,8 +459,7 @@ useInfiniteScroll(
               <UButton
                 label="View Details"
                 color="primary"
-                size="sm"
-                class="font-normal"
+                class="btn-table font-normal"
                 @click="navigateTo(`/eft/shortname-details/${row.original.id}`)"
               />
               <UDropdownMenu
@@ -476,7 +475,7 @@ useInfiniteScroll(
               >
                 <UButton
                   color="primary"
-                  size="sm"
+                  class="btn-table"
                   trailing-icon="i-mdi-menu-down"
                 />
               </UDropdownMenu>
@@ -535,7 +534,7 @@ useInfiniteScroll(
 
 :deep(.header-row-2 input),
 :deep(.header-row-2 select) {
-  background-color: #f1f3f5;
+  background-color: var(--color-bg-shade);
   border: 1px solid #e5e7eb;
   color: #212529;
 }
@@ -548,7 +547,7 @@ useInfiniteScroll(
 }
 
 :deep(.header-row-2 .ui-select) {
-  background-color: #f1f3f5;
+  background-color: var(--color-bg-shade);
   border: none;
   border-bottom: 1px solid #e5e7eb;
   border-radius: 0.125rem 0.125rem 0 0;
@@ -563,13 +562,13 @@ useInfiniteScroll(
 }
 
 :deep(.header-row-2 .ui-select button) {
-  background-color: #f1f3f5;
+  background-color: var(--color-bg-shade);
   color: #919191;
   font-weight: 400;
 }
 
 :deep(.header-row-2 .ui-select button[aria-expanded="true"]) {
-  background-color: #f1f3f5;
+  background-color: var(--color-bg-shade);
   font-weight: 400;
 }
 
