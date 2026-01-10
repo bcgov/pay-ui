@@ -55,10 +55,5 @@ useHead({
   padding-bottom: 4rem;
   overflow: hidden;
 }
-</style>
 
-<style lang="scss">
-/*.app-inner-container {
-  max-width: calc(100w - 2.5rem) !important;
-} fix later */
 </style>

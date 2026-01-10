@@ -842,5 +842,8 @@ useResizeObserver(scrollEl, () => {
   :deep(.table-filter-input .status-list-wrapper .ui-form-label) {
     font-size: inherit !important;
   }
+  :deep(.date-range-placeholder) {
+    font-size: 14px !important;
+  }
 }
 </style>

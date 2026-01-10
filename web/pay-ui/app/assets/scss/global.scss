@@ -149,3 +149,9 @@ button label,
     }
   }
 }
+
+body.fas-search-active {
+  .app-inner-container {
+    max-width: calc(100vw - 10rem) !important;
+  }
+}
