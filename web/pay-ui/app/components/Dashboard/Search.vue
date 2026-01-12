@@ -205,7 +205,7 @@ useResizeObserver(scrollEl, () => {
               <th v-if="columnVisibility.chequeReceiptNumber" class="text-left px-2 py-2 table-filter-input header-cheque-receipt-number">
                 <UInput
                   v-model="filters.chequeReceiptNumber"
-                  placeholder="Cheque  Number"
+                  placeholder="Cheque Number"
                   size="md"
                   class="pt-0"
                   @input="debouncedSearch()"

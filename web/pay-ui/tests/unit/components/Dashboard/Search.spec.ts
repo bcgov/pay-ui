@@ -957,7 +957,7 @@ describe('Search', () => {
       expect(_mockDebouncedSearch).toHaveBeenCalled()
     }
 
-    const chequeInput = inputs2.find(input => input.props('placeholder') === 'Cheque  Number')
+    const chequeInput = inputs2.find(input => input.props('placeholder') === 'Cheque Number')
     if (chequeInput?.exists()) {
       await chequeInput.setValue('CHQ123')
       await chequeInput.vm.$emit('input')
