@@ -421,7 +421,7 @@ useResizeObserver(scrollEl, () => {
 :deep(.table-filter-input .text-neutral),
 :deep(.table-filter-input .text-neutral-highlighted) {
   font-weight: 400 !important;
-  color: var(--color-text-primary) !important;
+  color: var(--color-text-secondary) !important;
 }
 
 :deep(.table-filter-input .ui-input input::placeholder),
@@ -454,7 +454,7 @@ useResizeObserver(scrollEl, () => {
 :deep(.table-filter-input status-list .ui-select button[data-selected="true"] *),
 :deep(.table-filter-input .ui-select button[data-selected="true"].text-neutral),
 :deep(.table-filter-input .ui-select button[data-selected="true"].text-neutral-highlighted) {
-  color: var(--color-text-primary) !important;
+  color: var(--color-text-secondary) !important;
 }
 
 :deep(.table-filter-input .ui-select button:not([data-selected="true"])),
@@ -813,7 +813,7 @@ useResizeObserver(scrollEl, () => {
     }
     .input-text {
       font-weight: 400 !important;
-      color: var(--color-text-primary);
+      color: var(--color-text-secondary);
     }
   }
 }
