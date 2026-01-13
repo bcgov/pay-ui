@@ -55,5 +55,4 @@ useHead({
   padding-bottom: 4rem;
   overflow: hidden;
 }
-
 </style>

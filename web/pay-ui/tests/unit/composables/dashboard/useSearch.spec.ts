@@ -216,7 +216,7 @@ describe('useSearch', () => {
     mockPostSearchRoutingSlip.mockImplementation(() => {
       throw new Error('API error')
     })
-    
+
     await composable.getNext(false)
     await nextTick()
 

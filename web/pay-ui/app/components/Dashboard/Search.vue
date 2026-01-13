@@ -31,7 +31,7 @@ const scrollEl = useTemplateRef<HTMLElement>('scrollEl')
 
 const updateStickyHeaderHeight = () => {
   const el = scrollEl.value
-  if (!el) return
+  if (!el) { return }
 
   const thead = el.querySelector('thead')
   const height = thead?.getBoundingClientRect().height ?? 0
@@ -40,7 +40,7 @@ const updateStickyHeaderHeight = () => {
 
 const visibleColumns = computed(() => {
   const headers = searchRoutingSlipTableHeaders.value
-  return headers.filter((f) => !(f as { hideInSearchColumnFilter?: boolean }).hideInSearchColumnFilter)
+  return headers.filter(f => !(f as { hideInSearchColumnFilter?: boolean }).hideInSearchColumnFilter)
 })
 
 useInfiniteScroll(
@@ -134,223 +134,247 @@ useResizeObserver(scrollEl, () => {
             class="h-full w-full search-table sticky-table"
             sticky
           >
-          <template #body-top>
-            <tr class="sticky-row header-row-2">
-              <th v-if="columnVisibility.routingSlipNumber" class="text-left px-2 py-2 table-filter-input header-routing-slip">
-                <UInput
-                  v-model="filters.routingSlipNumber"
-                  placeholder="Routing Slip Number"
-                  size="md"
-                  class="pt-0"
-                  @input="debouncedSearch()"
-                />
-              </th>
-              <th v-if="columnVisibility.receiptNumber" class="text-left px-2 py-2 table-filter-input header-receipt-number">
-                <UInput
-                  v-model="filters.receiptNumber"
-                  placeholder="Receipt Number"
-                  size="md"
-                  class="pt-0"
-                  @input="debouncedSearch()"
-                />
-              </th>
-              <th v-if="columnVisibility.accountName" class="text-left px-2 py-2 table-filter-input header-account-name">
-                <UInput
-                  v-model="filters.accountName"
-                  placeholder="Entity Number"
-                  size="md"
-                  class="pt-0"
-                  @input="debouncedSearch()"
-                />
-              </th>
-              <th v-if="columnVisibility.createdName" class="text-left px-2 py-2 table-filter-input header-created-name">
-                <UInput
-                  v-model="filters.createdName"
-                  placeholder="Created By"
-                  size="md"
-                  class="pt-0"
-                  @input="debouncedSearch()"
-                />
-              </th>
-              <th v-if="columnVisibility.date" class="text-left px-2 py-2 date table-filter-input header-date">
-                <DateRangeFilter v-model="filters.dateFilter" @change="search()" />
-              </th>
-              <th v-if="columnVisibility.status" class="text-left px-2 py-2 table-filter-input header-status">
-                <status-list
-                  v-model="filters.status"
-                  column="status"
-                  class="text-input-style "
-                  hide-details="auto"
-                  :placeholder="!filters.status ? 'Status' : ''"
-                />
-              </th>
-              <th v-if="columnVisibility.refundStatus" class="text-left px-2 py-2 table-filter-input header-refund-status">
-                <status-list
-                  v-model="filters.refundStatus"
-                  column="refundStatus"
-                  class="text-input-style "
-                  hide-details="auto"
-                  :placeholder="!filters.refundStatus ? 'Refund Status' : ''"
-                />
-              </th>
-              <th v-if="columnVisibility.businessIdentifier" class="text-left px-2 py-2 table-filter-input header-business-identifier">
-                <UInput
-                  v-model="filters.businessIdentifier"
-                  placeholder="Reference Number"
-                  size="md"
-                  class="pt-0"
-                  @input="debouncedSearch()"
-                />
-              </th>
-              <th v-if="columnVisibility.chequeReceiptNumber" class="text-left px-2 py-2 table-filter-input header-cheque-receipt-number">
-                <UInput
-                  v-model="filters.chequeReceiptNumber"
-                  placeholder="Cheque Number"
-                  size="md"
-                  class="pt-0"
-                  @input="debouncedSearch()"
-                />
-              </th>
-              <th v-if="columnVisibility.remainingAmount" class="text-left px-2 py-2 table-filter-input header-remaining-amount header-total">
-                <UInput
-                  v-model="filters.remainingAmount"
-                  placeholder="Balance"
-                  size="md"
-                  class="pt-0"
-                  @input="debouncedSearch()"
-                />
-              </th>
-              <th
-                class="text-right pl-2 pr-4 clear-filters-th"
-              >
-                <template v-if="hasActiveFilters">
-                  <UButton
-                    label="Clear Filters"
-                    variant="outline"
-                    color="primary"
-                    trailing-icon="i-mdi-close"
-                    size="sm"
-                    class="clear-filters-btn"
-                    @click="resetSearchFilters()"
+            <template #body-top>
+              <tr class="sticky-row header-row-2">
+                <th
+                  v-if="columnVisibility.routingSlipNumber"
+                  class="text-left px-2 py-2 table-filter-input header-routing-slip"
+                >
+                  <UInput
+                    v-model="filters.routingSlipNumber"
+                    placeholder="Routing Slip Number"
+                    size="md"
+                    class="pt-0"
+                    @input="debouncedSearch()"
                   />
-                </template>
-              </th>
-            </tr>
-          </template>
-          <template #loading>
-            Loading...
-          </template>
-          <template #empty>
-            <!-- eslint-disable vue/no-v-html -->
-            <div
-              class="text-center py-8 text-gray-600"
-              v-html="
-                t(
-                  searchParamsExist
-                    ? 'text.searchStartMessage'
-                    : 'text.searchNoResult',
-                  {
-                    h4Start: '<h4>',
-                    h4End: '</h4>',
-                    pStart: '<p>',
-                    pEnd: '</p>'
-                  }
-                )
-              "
-            />
-          <!-- eslint-enable vue/no-v-html -->
-          </template>
-
-          <template #status-cell="{ row }">
-            <span
-              :class="commonUtil.statusListColor(row.original.status)"
-            >
-              {{ getStatusLabel(row.original.status) ?? '-' }}
-            </span>
-          </template>
-
-          <template #businessIdentifier-cell="{ row }">
-            <span v-if="row.original.businessIdentifier.length === 1">
-              {{ row.original.businessIdentifier[0] }}
-            </span>
-            <template v-else>
-              <div
-                v-if="!showExpandedFolio.includes(row.original.routingSlipNumber)"
-                class="cursor-pointer"
-                @click="toggleFolio(row.original.routingSlipNumber)"
-              >
-                {{ row.original.businessIdentifier[0] }}
-                <UIcon
-                  name="i-mdi-menu-down"
-                />
-              </div>
-              <div
-                v-else
-                class="cursor-pointer"
-                @click="toggleFolio(row.original.routingSlipNumber)"
-              >
-                <div
-                  v-for="(folio, index) in row.original.businessIdentifier"
-                  :key="index"
+                </th>
+                <th
+                  v-if="columnVisibility.receiptNumber"
+                  class="text-left px-2 py-2 table-filter-input header-receipt-number"
                 >
-                  <span>
-                    {{ folio }}
-                    <UIcon
-                      v-if="index === 0"
-                      name="i-mdi-menu-up"
-                    />
-                  </span>
-                </div>
-              </div>
-            </template>
-          </template>
-
-          <template #chequeReceiptNumber-cell="{ row }">
-            <span v-if="row.original.chequeReceiptNumber.length === 1">
-              {{ row.original.chequeReceiptNumber[0] }}
-            </span>
-            <template v-else>
-              <div
-                v-if="!showExpandedCheque.includes(row.original.routingSlipNumber)"
-                class="cursor-pointer"
-                @click="toggleCheque(row.original.routingSlipNumber)"
-              >
-                {{ row.original.chequeReceiptNumber[0] }}
-                <UIcon
-                  name="i-mdi-menu-down"
-                />
-              </div>
-              <div
-                v-else
-                class="cursor-pointer"
-                @click="toggleCheque(row.original.routingSlipNumber)"
-              >
-                <div
-                  v-for="(chequeReceiptNumber, index) in row.original.chequeReceiptNumber"
-                  :key="index"
+                  <UInput
+                    v-model="filters.receiptNumber"
+                    placeholder="Receipt Number"
+                    size="md"
+                    class="pt-0"
+                    @input="debouncedSearch()"
+                  />
+                </th>
+                <th
+                  v-if="columnVisibility.accountName"
+                  class="text-left px-2 py-2 table-filter-input header-account-name"
                 >
-                  <span>
-                    {{ chequeReceiptNumber }}
-                    <UIcon
-                      v-if="index === 0"
-                      name="i-mdi-menu-up"
+                  <UInput
+                    v-model="filters.accountName"
+                    placeholder="Entity Number"
+                    size="md"
+                    class="pt-0"
+                    @input="debouncedSearch()"
+                  />
+                </th>
+                <th
+                  v-if="columnVisibility.createdName"
+                  class="text-left px-2 py-2 table-filter-input header-created-name"
+                >
+                  <UInput
+                    v-model="filters.createdName"
+                    placeholder="Created By"
+                    size="md"
+                    class="pt-0"
+                    @input="debouncedSearch()"
+                  />
+                </th>
+                <th v-if="columnVisibility.date" class="text-left px-2 py-2 date table-filter-input header-date">
+                  <DateRangeFilter v-model="filters.dateFilter" @change="search()" />
+                </th>
+                <th v-if="columnVisibility.status" class="text-left px-2 py-2 table-filter-input header-status">
+                  <status-list
+                    v-model="filters.status"
+                    column="status"
+                    class="text-input-style "
+                    hide-details="auto"
+                    :placeholder="!filters.status ? 'Status' : ''"
+                  />
+                </th>
+                <th
+                  v-if="columnVisibility.refundStatus"
+                  class="text-left px-2 py-2 table-filter-input header-refund-status status-list-wrapper"
+                >
+                  <status-list
+                    v-model="filters.refundStatus"
+                    column="refundStatus"
+                    class="text-input-style "
+                    hide-details="auto"
+                    :placeholder="!filters.refundStatus ? 'Refund Status' : ''"
+                  />
+                </th>
+                <th
+                  v-if="columnVisibility.businessIdentifier"
+                  class="text-left px-2 py-2 table-filter-input header-business-identifier"
+                >
+                  <UInput
+                    v-model="filters.businessIdentifier"
+                    placeholder="Reference Number"
+                    size="md"
+                    class="pt-0"
+                    @input="debouncedSearch()"
+                  />
+                </th>
+                <th
+                  v-if="columnVisibility.chequeReceiptNumber"
+                  class="text-left px-2 py-2 table-filter-input header-cheque-receipt-number"
+                >
+                  <UInput
+                    v-model="filters.chequeReceiptNumber"
+                    placeholder="Cheque Number"
+                    size="md"
+                    class="pt-0"
+                    @input="debouncedSearch()"
+                  />
+                </th>
+                <th
+                  v-if="columnVisibility.remainingAmount"
+                  class="text-left px-2 py-2 table-filter-input header-remaining-amount header-total"
+                >
+                  <UInput
+                    v-model="filters.remainingAmount"
+                    placeholder="Balance"
+                    size="md"
+                    class="pt-0"
+                    @input="debouncedSearch()"
+                  />
+                </th>
+                <th
+                  class="text-right pl-2 pr-4 clear-filters-th"
+                >
+                  <template v-if="hasActiveFilters">
+                    <UButton
+                      label="Clear Filters"
+                      variant="outline"
+                      color="primary"
+                      trailing-icon="i-mdi-close"
+                      size="sm"
+                      class="clear-filters-btn"
+                      @click="resetSearchFilters()"
                     />
-                  </span>
-                </div>
-              </div>
+                  </template>
+                </th>
+              </tr>
             </template>
-          </template>
-
-          <template #actions-cell="{ row }">
-            <div class="text-right">
-              <UButton
-                label="Open"
-                class="btn-table font-normal"
-                @click="navigateTo(`/view-routing-slip/${row.original.routingSlipNumber}`)"
+            <template #loading>
+              Loading...
+            </template>
+            <template #empty>
+              <!-- eslint-disable vue/no-v-html -->
+              <div
+                class="text-center py-8 text-gray-600"
+                v-html="
+                  t(
+                    searchParamsExist
+                      ? 'text.searchStartMessage'
+                      : 'text.searchNoResult',
+                    {
+                      h4Start: '<h4>',
+                      h4End: '</h4>',
+                      pStart: '<p>',
+                      pEnd: '</p>'
+                    }
+                  )
+                "
               />
-            </div>
-          </template>
-        </UTable>
+              <!-- eslint-enable vue/no-v-html -->
+            </template>
+
+            <template #status-cell="{ row }">
+              <span
+                :class="commonUtil.statusListColor(row.original.status)"
+              >
+                {{ getStatusLabel(row.original.status) ?? '-' }}
+              </span>
+            </template>
+
+            <template #businessIdentifier-cell="{ row }">
+              <span v-if="row.original.businessIdentifier.length === 1">
+                {{ row.original.businessIdentifier[0] }}
+              </span>
+              <template v-else>
+                <div
+                  v-if="!showExpandedFolio.includes(row.original.routingSlipNumber)"
+                  class="cursor-pointer"
+                  @click="toggleFolio(row.original.routingSlipNumber)"
+                >
+                  {{ row.original.businessIdentifier[0] }}
+                  <UIcon
+                    name="i-mdi-menu-down"
+                  />
+                </div>
+                <div
+                  v-else
+                  class="cursor-pointer"
+                  @click="toggleFolio(row.original.routingSlipNumber)"
+                >
+                  <div
+                    v-for="(folio, index) in row.original.businessIdentifier"
+                    :key="index"
+                  >
+                    <span>
+                      {{ folio }}
+                      <UIcon
+                        v-if="index === 0"
+                        name="i-mdi-menu-up"
+                      />
+                    </span>
+                  </div>
+                </div>
+              </template>
+            </template>
+
+            <template #chequeReceiptNumber-cell="{ row }">
+              <span v-if="row.original.chequeReceiptNumber.length === 1">
+                {{ row.original.chequeReceiptNumber[0] }}
+              </span>
+              <template v-else>
+                <div
+                  v-if="!showExpandedCheque.includes(row.original.routingSlipNumber)"
+                  class="cursor-pointer"
+                  @click="toggleCheque(row.original.routingSlipNumber)"
+                >
+                  {{ row.original.chequeReceiptNumber[0] }}
+                  <UIcon
+                    name="i-mdi-menu-down"
+                  />
+                </div>
+                <div
+                  v-else
+                  class="cursor-pointer"
+                  @click="toggleCheque(row.original.routingSlipNumber)"
+                >
+                  <div
+                    v-for="(chequeReceiptNumber, index) in row.original.chequeReceiptNumber"
+                    :key="index"
+                  >
+                    <span>
+                      {{ chequeReceiptNumber }}
+                      <UIcon
+                        v-if="index === 0"
+                        name="i-mdi-menu-up"
+                      />
+                    </span>
+                  </div>
+                </div>
+              </template>
+            </template>
+
+            <template #actions-cell="{ row }">
+              <div class="text-right">
+                <UButton
+                  label="Open"
+                  class="btn-table font-normal"
+                  @click="navigateTo(`/view-routing-slip/${row.original.routingSlipNumber}`)"
+                />
+              </div>
+            </template>
+          </UTable>
         </div>
       </div>
     </div>
@@ -425,8 +449,10 @@ useResizeObserver(scrollEl, () => {
 // Set 14px font size for DateRangeFilter and StatusList - override global button font size
 :deep(.table-filter-input:is(.date, .status-list-wrapper, status-list)),
 :deep(.table-filter-input:is(.date, .status-list-wrapper, status-list) *),
-:deep(.table-filter-input :is(.date, .status-list-wrapper, status-list, .date-range-filter-button, .date-range-placeholder)),
-:deep(.table-filter-input :is(.date, .status-list-wrapper, status-list, .date-range-filter-button, .date-range-placeholder) *) {
+:deep(.table-filter-input :is(.date, .status-list-wrapper, status-list, .date-range-filter-button,
+  .date-range-placeholder)),
+:deep(.table-filter-input :is(.date, .status-list-wrapper, status-list, .date-range-filter-button,
+  .date-range-placeholder) *) {
   font-size: 14px !important;
 }
 
@@ -466,7 +492,6 @@ useResizeObserver(scrollEl, () => {
 :deep(.columns-to-show-btn:active) {
   background-color: #FFFFFF !important;
 }
-
 
 .table-scroll {
   max-height: 100%;
@@ -751,7 +776,8 @@ useResizeObserver(scrollEl, () => {
   }
 // Exclude DateRangeFilter and StatusList from 16px font size
 .fas-search {
-  :deep(:is(.date, .date-range-filter-button, .status-list-wrapper, .table-filter-input, .table-filter-input *)) {
+  :deep(:is(.date, .date-range-filter-button, .status-list-wrapper, .table-filter-input,
+    .table-filter-input *)) {
     :is(label, .ui-form-label) {
       font-size: inherit !important;
     }
@@ -759,7 +785,6 @@ useResizeObserver(scrollEl, () => {
       font-size: 14px !important;
     }
   }
-
 
   :deep(.date-range-filter-button) {
     ::is(span) {

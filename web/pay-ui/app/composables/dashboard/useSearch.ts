@@ -4,7 +4,12 @@ import type { TableColumn } from '@nuxt/ui'
 import { debounce } from 'es-toolkit'
 import { useLoader } from '@/composables/common/useLoader'
 import { useStatusList } from '@/composables/common/useStatusList'
-import { chequeRefundCodes, ChequeRefundStatus, PaymentMethods, getSearchRoutingSlipTableHeaders } from '@/utils/constants'
+import {
+  chequeRefundCodes,
+  ChequeRefundStatus,
+  PaymentMethods,
+  getSearchRoutingSlipTableHeaders
+} from '@/utils/constants'
 import { SlipStatus } from '~/enums/slip-status'
 import CommonUtils from '@/utils/common-util'
 import { usePayApi } from '@/composables/pay-api'
@@ -88,7 +93,9 @@ export async function useSearch() {
   const filters = store.searchFilters
 
   const searchRoutingSlipTableHeaders = ref(
-    (store.searchRoutingSlipTableHeaders?.length ? store.searchRoutingSlipTableHeaders : getSearchRoutingSlipTableHeaders(t))
+    (store.searchRoutingSlipTableHeaders?.length
+      ? store.searchRoutingSlipTableHeaders
+      : getSearchRoutingSlipTableHeaders(t))
       .map((header) => {
         const extHeader = header as ExtendedTableColumn
         const savedVisibility = store.searchColumnVisibility[extHeader.accessorKey as string]

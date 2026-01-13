@@ -243,20 +243,20 @@ watch(model, () => {
 .date-range-filter-button {
   width: 100%;
   padding-left: 0.75rem !important;
-  
+
   :deep(.ui-button),
   :deep(button) {
     background-color: var(--color-bg-shade) !important;
     color: var(--color-text-primary) !important;
-    
+
     * {
       color: var(--color-text-primary) !important;
     }
-    
+
     .date-range-placeholder {
       color: var(--color-text-secondary) !important;
     }
-    
+
     &:hover,
     &:focus,
     &:focus-visible {
@@ -264,5 +264,4 @@ watch(model, () => {
     }
   }
 }
-
 </style>

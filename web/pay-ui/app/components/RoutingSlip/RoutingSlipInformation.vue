@@ -162,10 +162,10 @@ const handleRefundStatusSelectWithComments = async (status: string) => {
                   v-if="refundStatus"
                   :label="refundStatus"
                   :color="isRefundStatusUndeliverable ? 'error' : 'neutral'"
-                  :class="isRefundStatusUndeliverable 
-                    ? '!bg-red-600 !text-white' 
-                    : isRefundStatusProcessing 
-                      ? '!bg-gray-200 !text-gray-700' 
+                  :class="isRefundStatusUndeliverable
+                    ? '!bg-red-600 !text-white'
+                    : isRefundStatusProcessing
+                      ? '!bg-gray-200 !text-gray-700'
                       : '!bg-[var(--color-refund-status-bg)] !text-[var(--color-text-primary)]'"
                 />
                 <span v-else>-</span>

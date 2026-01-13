@@ -70,7 +70,12 @@ watch(open, (v) => {
     >
       <template #default>
         <span v-if="localModel" class="text-neutral text-base">{{ localModel.toString() }}</span>
-        <span v-else :class="hasError ? 'text-error text-base' : 'text-neutral text-base'">{{ $t('label.selectDate') }}</span>
+        <span
+          v-else
+          :class="hasError ? 'text-error text-base' : 'text-neutral text-base'"
+        >
+          {{ $t('label.selectDate') }}
+        </span>
       </template>
     </UButton>
 
@@ -84,4 +89,3 @@ watch(open, (v) => {
     </template>
   </UPopover>
 </template>
-
