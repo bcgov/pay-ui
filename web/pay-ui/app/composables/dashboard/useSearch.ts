@@ -111,7 +111,7 @@ export async function useSearch() {
 
   async function searchNow() {
     toggleLoading(true)
-    await searchRoutingSlip()
+    reachedEnd.value = await searchRoutingSlip() === 0
     searchParamsChanged.value = false
     toggleLoading(false)
   }
@@ -132,7 +132,7 @@ export async function useSearch() {
   async function clearFilter() {
     toggleLoading(true)
     resetSearchParams()
-    await searchRoutingSlip()
+    reachedEnd.value = await searchRoutingSlip() === 0
     searchParamsChanged.value = false
     toggleLoading(false)
   }
@@ -175,7 +175,9 @@ export async function useSearch() {
     if (isLoading.value) {
       return
     }
-    reachedEnd.value = await infiniteScrollCallback(isInitialLoadParam)
+    if (!reachedEnd.value) {
+      reachedEnd.value = await infiniteScrollCallback(isInitialLoadParam)
+    }
   }
 
   const routingSlips = computed(() => {
@@ -305,6 +307,7 @@ export async function useSearch() {
     resetSearchFilters,
     hasActiveFilters,
     search,
-    resetSearchParams
+    resetSearchParams,
+    reachedEnd // Expose reachedEnd
   }
 }
