@@ -48,7 +48,7 @@ function onTabChange() {
 
 <template>
   <div class="w-full bg-white">
-    <div class="bg-[#f1f3f5]">
+    <div class="bg-[var(--color-bg-shade)]">
       <div class="px-4 pt-7">
         <h1 class="text-3xl font-bold text-gray-900 mb-2">
           Electronic Funds Transfer Received Payments
@@ -92,7 +92,7 @@ function onTabChange() {
       </div>
     </div>
 
-    <div class="bg-white pt-4 pb-6">
+    <div class="bg-white pb-6">
       <div v-if="tab === 0">
         <ShortNameSummaryTable
           :linked-account="linkedAccount"
