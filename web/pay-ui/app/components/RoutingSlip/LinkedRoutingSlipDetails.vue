@@ -47,7 +47,7 @@ const formatDisplayDate = commonUtil.formatDisplayDate
 
 <style lang="scss" scoped>
   a {
-    color: #1a73e8;
+    color: var(--color-link-blue);
     text-decoration: underline;
   }
 </style>

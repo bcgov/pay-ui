@@ -312,16 +312,16 @@ function flattenAndSortComments(commentsArray: Array<{ comment: Comment }>): Arr
   }
 
   &::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: var(--color-bg-light-gray);
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #888;
+    background: var(--color-gray-500);
     border-radius: 3px;
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: var(--color-gray-700);
   }
 }
 </style>

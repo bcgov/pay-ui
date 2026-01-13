@@ -115,7 +115,7 @@ const {
 .linked-rs-info {
   background-color: var(--color-bg-shade);
   padding: 13px 19px;
-  border-left: 8px solid #38598a;
+  border-left: 8px solid var(--color-border-blue);
   border-radius: 6px;
 }
 </style>

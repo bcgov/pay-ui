@@ -46,7 +46,7 @@ useHead({
 
 <style lang="scss" scoped>
 .dashboard-subtitle {
-  color: #495057;
+  color: var(--color-text-secondary);
 }
 
 .dashboard-container {

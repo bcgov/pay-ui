@@ -8,7 +8,8 @@ import { useShortNameTable } from '@/composables/eft/useShortNameTable'
 import { usePayModals } from '@/composables/pay-modals'
 import { DateTime } from 'luxon'
 import type { TableColumn } from '@nuxt/ui'
-import { useInfiniteScroll, useDebounceFn } from '@vueuse/core'
+import { useInfiniteScroll, useDebounceFn, useResizeObserver } from '@vueuse/core'
+import { ShortNameType } from '@/utils/constants'
 
 interface Props {
   linkedAccount?: EFTShortnameResponse
@@ -50,11 +51,13 @@ const state = reactive<ShortNameSummaryState>({
   shortNameLookupKey: 0,
   dateRangeReset: 0,
   clearFiltersTrigger: 0,
+  selectedShortName: {},
   showDatePicker: false,
   dateRangeSelected: false,
   dateRangeText: '',
   accountLinkingErrorDialogTitle: '',
   accountLinkingErrorDialogText: '',
+  isShortNameLinkingDialogOpen: false,
   startDate: '',
   endDate: '',
   highlightIndex: -1
@@ -83,12 +86,12 @@ const shortNameTypeModel = computed({
 
 function onShortNameTypeChange(value: string) {
   const stringValue = value || ''
-  state.filters.filterPayload.shortNameType = value
+  state.filters.filterPayload.shortNameType = value as ShortNameType
   updateFilter('shortNameType', stringValue)
 }
 
-function getShortNameTypeDescription(shortNameType: string) {
-  return ShortNameUtils.getShortNameTypeDescription(shortNameType)
+function getShortNameTypeDescription(shortNameType: ShortNameType | string | undefined) {
+  return ShortNameUtils.getShortNameTypeDescription(shortNameType as string)
 }
 
 function formatLastPaymentDate(date: string | undefined) {
@@ -110,10 +113,11 @@ function formatAmount(amount: number) {
   return amount !== undefined ? CommonUtils.formatAmount(amount) : ''
 }
 
-const { shortNameLinkingModal } = usePayModals()
+const payModals = usePayModals()
 
 async function openAccountLinkingDialog(item: EFTShortnameResponse) {
-  await shortNameLinkingModal.open({
+  // @ts-ignore
+  await payModals.shortNameLinkingModal.open({
     selectedShortName: item,
     onLinkAccount: async (account: unknown) => {
       await onLinkAccount(account)
@@ -198,8 +202,26 @@ watch(() => state.totalResults, (total) => {
   emit('shortname-state-total', total)
 })
 
+const scrollEl = useTemplateRef<HTMLElement>('scrollEl')
+const isInitialLoad = ref(true)
+
+const updateStickyHeaderHeight = () => {
+  const el = scrollEl.value
+  if (!el) { return }
+
+  const thead = el.querySelector('thead')
+  const height = thead?.getBoundingClientRect().height ?? 0
+  el.style.setProperty('--search-sticky-header-height', `${Math.ceil(height)}px`)
+}
+
 onMounted(async () => {
   await loadData()
+  await nextTick()
+  updateStickyHeaderHeight()
+})
+
+useResizeObserver(scrollEl, () => {
+  updateStickyHeaderHeight()
 })
 
 async function loadData() {
@@ -252,8 +274,8 @@ const columns = computed<TableColumn<EFTShortnameResponse>[]>(() => {
       header: 'Short Name',
       meta: {
         class: {
-          th: 'min-w-[180px]',
-          td: 'min-w-[180px]'
+          th: 'header-short-name',
+          td: 'header-short-name'
         }
       }
     },
@@ -262,8 +284,8 @@ const columns = computed<TableColumn<EFTShortnameResponse>[]>(() => {
       header: 'Type',
       meta: {
         class: {
-          th: 'min-w-[120px]',
-          td: 'min-w-[120px]'
+          th: 'header-type',
+          td: 'header-type'
         }
       }
     },
@@ -272,8 +294,8 @@ const columns = computed<TableColumn<EFTShortnameResponse>[]>(() => {
       header: 'Last Payment Received Date',
       meta: {
         class: {
-          th: 'min-w-[220px]',
-          td: 'min-w-[220px]'
+          th: 'header-date',
+          td: 'header-date'
         }
       }
     },
@@ -282,8 +304,8 @@ const columns = computed<TableColumn<EFTShortnameResponse>[]>(() => {
       header: 'Unsettled Amount',
       meta: {
         class: {
-          th: 'min-w-[160px] text-left',
-          td: 'min-w-[160px] text-left'
+          th: 'header-unsettled-amount',
+          td: 'header-unsettled-amount'
         }
       }
     },
@@ -292,8 +314,8 @@ const columns = computed<TableColumn<EFTShortnameResponse>[]>(() => {
       header: 'Linked Accounts',
       meta: {
         class: {
-          th: 'min-w-[140px]',
-          td: 'min-w-[140px]'
+          th: 'header-linked-accounts',
+          td: 'header-linked-accounts'
         }
       }
     },
@@ -302,19 +324,16 @@ const columns = computed<TableColumn<EFTShortnameResponse>[]>(() => {
       header: 'Actions',
       meta: {
         class: {
-          th: 'min-w-[180px]',
-          td: 'min-w-[180px]'
+          th: 'header-action',
+          td: 'header-action'
         }
       }
     }
   ]
 })
 
-const table = useTemplateRef<HTMLElement>('table')
-const isInitialLoad = ref(true)
-
 useInfiniteScroll(
-  table,
+  scrollEl,
   async () => {
     if (!state.loading) {
       await infiniteScrollCallback(isInitialLoad.value)
@@ -340,7 +359,7 @@ useInfiniteScroll(
       </div>
 
       <div
-        ref="table"
+        ref="scrollEl"
         class="w-full overflow-x-auto overflow-y-auto"
         style="max-height: calc(100vh - 300px);"
       >
@@ -348,25 +367,27 @@ useInfiniteScroll(
           :data="state.results"
           :columns="columns"
           :loading="state.loading"
+          sticky
           :class="[
             'short-name-summaries',
+            'sticky-table',
             state.highlightIndex >= 0 ? 'highlight-row' : ''
           ]"
         >
           <template #body-top>
             <tr class="sticky-row header-row-2 bg-white">
-              <th class="text-left px-1 py-1 table-filter-input">
+              <th class="text-left px-1 py-1 table-filter-input header-short-name">
                 <UInput
                   id="short-name-filter"
                   v-model="state.filters.filterPayload.shortName"
                   name="short-name-filter"
                   placeholder="Bank Short Name"
                   size="md"
-                  class="pt-0"
+                  class="w-full pt-0"
                   @update:model-value="debouncedUpdateFilter('shortName', $event)"
                 />
               </th>
-              <th class="text-left px-1 py-1 table-filter-input">
+              <th class="text-left px-1 py-1 table-filter-input header-type">
                 <USelect
                   id="short-name-type-filter"
                   v-model="shortNameTypeModel"
@@ -374,6 +395,7 @@ useInfiniteScroll(
                   :items="ShortNameUtils.ShortNameTypeItems"
                   placeholder="Type"
                   size="md"
+                  class="w-full"
                 />
               </th>
               <th class="text-left px-1 py-1 table-filter-input">
@@ -429,7 +451,7 @@ useInfiniteScroll(
           </template>
 
           <template #shortNameType-cell="{ row }">
-            <span>{{ getShortNameTypeDescription(row.original.shortNameType) }}</span>
+            <span>{{ getShortNameTypeDescription(row.original.shortNameType as any) }}</span>
           </template>
 
           <template #lastPaymentReceivedDate-cell="{ row }">
@@ -500,6 +522,374 @@ useInfiniteScroll(
 </template>
 
 <style lang="scss" scoped>
+  @use '~/assets/scss/colors.scss' as *;
+.search-header-bg {
+  background-color: #e0e7ed !important;
+  opacity: 1 !important;
+}
+
+:deep(table td) {
+  color: var(--color-text-secondary);
+}
+
+:deep(.sticky-row) {
+  position: sticky;
+  top: var(--search-sticky-header-height, 48px);
+  z-index: 19;
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+:deep(.sticky-row th) {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: 1px solid var(--color-divider) !important;
+  padding-left: 0.25rem !important;
+  padding-right: 0.25rem !important;
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+  vertical-align: middle;
+}
+
+:deep(.sticky-row th:first-child) {
+  border-left: none !important;
+}
+
+:deep(.sticky-row th:last-child) {
+  border-right: none !important;
+}
+
+:deep(.sticky-row td) {
+  background-color: white !important;
+  background: white !important;
+  opacity: 1 !important;
+}
+
+:deep(.sticky-row th *),
+:deep(.table-filter-input) {
+  &,
+  & *,
+  & input::placeholder,
+  & .placeholder::placeholder,
+  & [placeholder]::placeholder {
+    font-weight: 400 !important;
+    color: var(--color-text-secondary) !important;
+  }
+}
+
+:deep(.ui-select button) {
+  padding-left: 0.75rem !important;
+}
+
+// Set 14px font size for DateRangeFilter and StatusList - override global button font size
+:deep(.table-filter-input:is(.date, .status-list-wrapper, status-list)),
+:deep(.table-filter-input:is(.date, .status-list-wrapper, status-list) *),
+:deep(.table-filter-input :is(.date, .status-list-wrapper, status-list, .date-range-filter-button,
+  .date-range-placeholder)),
+:deep(.table-filter-input :is(.date, .status-list-wrapper, status-list, .date-range-filter-button,
+  .date-range-placeholder) *) {
+  font-size: 14px !important;
+}
+
+:deep(.overflow-x-auto) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: white !important;
+  margin: 0 !important;
+  transform: none !important;
+  position: relative;
+}
+
+:deep(.overflow-x-auto > *) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.columns-to-show-btn {
+  background-color: #FFFFFF !important;
+}
+
+.columns-to-show-btn:hover,
+.columns-to-show-btn:focus,
+.columns-to-show-btn:active {
+  background-color: #FFFFFF !important;
+}
+
+:deep(.columns-to-show-btn) {
+  background-color: #FFFFFF !important;
+}
+
+:deep(.columns-to-show-btn:hover),
+:deep(.columns-to-show-btn:focus),
+:deep(.columns-to-show-btn:active) {
+  background-color: #FFFFFF !important;
+}
+
+.table-scroll {
+  max-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  height: 100%;
+}
+
+.table-scroll,
+.table-scroll * {
+  transform: none !important;
+  will-change: auto !important;
+}
+
+:deep(.sticky-table thead th) {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--ui-bg, #ffffff);
+}
+
+:deep(.sticky-table .relative) {
+  overflow: visible !important;
+}
+
+:deep(.sticky-table table) {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+:deep(table) {
+  border-spacing: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+  position: relative;
+}
+
+:deep(table),
+:deep(table thead),
+:deep(table thead tr),
+:deep(table thead tr th) {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+}
+
+:deep(table thead) {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+:deep(table tbody) {
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+}
+
+:deep(table tbody tr) {
+  background-color: transparent;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+:deep(table thead tr th) {
+  color: var(--color-text-primary);
+  padding-left: 0.25rem !important;
+  padding-right: 0.25rem !important;
+  font-weight: 700 !important;
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  border-top: 1px solid var(--color-divider) !important;
+  border-bottom: 1px solid var(--color-divider) !important;
+  border-left: none !important;
+  border-right: none !important;
+}
+
+:deep(table thead tr th::before),
+:deep(table thead tr th::after) {
+  display: none !important;
+}
+
+:deep(table thead tr th:first-child) {
+  padding-left: 1rem !important;
+}
+
+:deep(table thead tr th:last-child) {
+  padding-right: 1rem !important;
+  text-align: right !important;
+  border-right: none !important;
+  border-left: none !important;
+}
+
+:deep(table tbody tr td:first-child) {
+  padding-left: 1rem !important;
+}
+
+:deep(table tbody tr td:last-child) {
+  padding-right: 1rem !important;
+  border-right: none !important;
+  border-left: none !important;
+}
+
+:deep(table thead tr th.header-action),
+:deep(table tbody tr td:has(.btn-table)) {
+  border-right: none !important;
+  border-left: none !important;
+}
+
+:deep(table thead tr th:last-child) {
+  border-top: 1px solid var(--color-divider) !important;
+  border-bottom: 1px solid var(--color-divider) !important;
+  border-left: none !important;
+  border-right: none !important;
+}
+
+:deep(.sticky-row th:first-child) {
+  padding-left: 1rem !important;
+}
+
+:deep(.sticky-row th:last-child) {
+  padding-right: 1rem !important;
+  border-right: none !important;
+  border-bottom: 1px solid var(--color-divider) !important;
+}
+
+:deep(table tbody tr td) {
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
+  border-bottom: 1px solid var(--color-divider) !important;
+  border-left: none !important;
+  border-right: none !important;
+}
+
+:deep(.sticky-row) {
+  :is(.ui-select, status-list, .input-text) {
+    &, * {
+      font-weight: 400 !important;
+    }
+
+    .ui-select button {
+      padding-left: 0.75rem !important;
+    }
+  }
+
+  :is(.ui-input, input:is([type="text"], [type="number"])) {
+    &, & input {
+      padding-left: 0.75rem !important;
+    }
+  }
+}
+
+// Make table divider thicker
+:deep(tr.absolute.z-\[1\].left-0.w-full.h-px),
+:deep(tr[class*="absolute"][class*="z-[1]"][class*="h-px"]) {
+  height: 2px !important;
+}
+
+// Clear Filters button styling
+:deep(.clear-filters-th .clear-filters-btn),
+:deep(.clear-filters-th .ui-button) {
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+  font-size: 0.875rem !important;
+  height: 38px !important;
+  color: var(--color-primary, #2563eb) !important;
+
+  * {
+    color: var(--color-primary, #2563eb) !important;
+  }
+
+  span,
+  label {
+    color: var(--color-primary, #2563eb) !important;
+  }
+}
+
+:deep(.header-short-name) {
+  min-width: 350px !important;
+}
+:deep(.header-type) {
+  min-width: 180px !important;
+}
+:deep(.header-date) {
+  min-width: 200px !important;
+}
+:deep(.header-unsettled-amount) {
+  min-width: 121px !important;
+}
+:deep(.header-linked-accounts) {
+  min-width: 160px !important;
+}
+:deep(.header-action) {
+  min-width: 130px !important;
+  text-align: right;
+}
+
+.header {
+  .sticky {
+    background-color: white;
+  }
+
+  .header-row-2 {
+    th > div {
+      width: 100%;
+    }
+    .date button {
+      padding: 6px 10px !important;
+      overflow: hidden;
+      white-space: nowrap;
+      width: 200px !important;
+      background-color: var(--color-bg-shade) !important;
+    }
+    .placeholder {
+      font-weight: 400;
+      color: var(--color-text-secondary);
+    }
+    .input-text {
+      font-weight: 400 !important;
+      color: var(--color-text-secondary);
+    }
+  }
+}
+
+.wide-dropdown {
+  width: 200px !important;
+}
+
+// Override global label font size for search page
+:deep(label),
+:deep(.ui-form-label) {
+  font-size: inherit;
+}
+
+:deep(.date-range-placeholder, .date-range-result) {
+    font-size: 14px !important;
+  }
+
+// Exclude DateRangeFilter and StatusList from 16px font size
+:deep(:is(.date, .date-range-filter-button, .status-list-wrapper, .table-filter-input,
+  .table-filter-input *)) {
+  :is(label, .ui-form-label) {
+    font-size: inherit !important;
+  }
+  :is(span) {
+    font-size: 14px !important;
+  }
+}
+
+:deep(.date-range-filter-button) {
+  ::is(span) {
+    font-size: 14px !important;
+  }
+}
+
 .short-name-summaries {
   border: 1px solid #e5e7eb;
 }
@@ -507,97 +897,5 @@ useInfiniteScroll(
 .short-names-header {
   background-color: #e0e7ed;
 }
-
-:deep(.sticky-row) {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background-color: white;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
-
-:deep(.sticky-row th) {
-  padding: 8px 4px;
-}
-
-:deep(table thead tr th) {
-  padding: 12px 4px;
-  font-size: 12.25px;
-}
-
-:deep(table tbody tr td) {
-  padding: 12px 4px;
-  color: #495057;
-  font-weight: 700;
-  font-size: 12.25px;
-}
-
-:deep(.header-row-2 input),
-:deep(.header-row-2 select) {
-  background-color: var(--color-bg-shade);
-  border: 1px solid #e5e7eb;
-  color: #212529;
-}
-
-:deep(.header-row-2 input::placeholder),
-:deep(.header-row-2 select::placeholder) {
-  color: #919191;
-  font-weight: 400;
-  font-size: 12.25px;
-}
-
-:deep(.header-row-2 .ui-select) {
-  background-color: var(--color-bg-shade);
-  border: none;
-  border-bottom: 1px solid #e5e7eb;
-  border-radius: 0.125rem 0.125rem 0 0;
-  box-shadow: none;
-}
-
-:deep(.header-row-2 .ui-select:focus),
-:deep(.header-row-2 .ui-select:focus-within) {
-  border-bottom: 1px solid #e5e7eb;
-  box-shadow: none;
-  outline: none;
-}
-
-:deep(.header-row-2 .ui-select button) {
-  background-color: var(--color-bg-shade);
-  color: #919191;
-  font-weight: 400;
-}
-
-:deep(.header-row-2 .ui-select button[aria-expanded="true"]) {
-  background-color: var(--color-bg-shade);
-  font-weight: 400;
-}
-
-:deep(.header-row-2 .ui-select [data-placeholder]) {
-  font-weight: 400;
-  color: #919191;
-  font-size: 12.25px;
-}
-
-:deep(.header-row-2 .ui-select button span) {
-  font-weight: 400;
-  font-size: 12.25px;
-}
-
-:deep(.header-row-2 .ui-select button:not([data-selected="true"]) span) {
-  font-weight: 400;
-  color: #919191;
-  font-size: 12.25px;
-}
-
-:deep(.header-row-2 .ui-select button span) {
-  font-weight: 400;
-}
-
-:deep(.highlight-row) {
-  background-color: #d4edda;
-}
-
-:deep(.highlight-row td) {
-  background-color: #d4edda;
-}
 </style>
+// Override global label font size for search page

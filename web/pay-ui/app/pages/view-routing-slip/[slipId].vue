@@ -123,6 +123,6 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 .description-text {
-  color: #495057;
+  color: var(--color-text-secondary);
 }
 </style>

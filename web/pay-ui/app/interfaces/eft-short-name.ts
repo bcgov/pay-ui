@@ -1,7 +1,9 @@
+import { ShortNameType } from '@/utils/constants'
+
 export interface EFTShortnameResponse {
   id: number
   shortName: string
-  shortNameType: string
+  shortNameType: ShortNameType
   lastPaymentReceivedDate?: string
   creditsRemaining: number
   linkedAccountsCount: number
@@ -38,7 +40,7 @@ export interface ShortNameSummaryState {
 
 export interface ShortNameFilterPayload {
   shortName: string
-  shortNameType: string
+  shortNameType: ShortNameType
   creditsRemaining: string
   linkedAccountsCount: string
   paymentReceivedStartDate: string

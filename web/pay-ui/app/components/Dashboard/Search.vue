@@ -384,7 +384,7 @@ useResizeObserver(scrollEl, () => {
 <style lang="scss" scoped>
 @use '~/assets/scss/colors.scss' as *;
 .search-header-bg {
-  background-color: #e0e7ed !important;
+  background-color: var(--color-bg-light-blue) !important;
   opacity: 1 !important;
 }
 
@@ -396,15 +396,15 @@ useResizeObserver(scrollEl, () => {
   position: sticky;
   top: var(--search-sticky-header-height, 48px);
   z-index: 19;
-  background-color: #ffffff !important;
-  background: #ffffff !important;
+  background-color: var(--color-white) !important;
+  background: var(--color-white) !important;
   margin: 0 !important;
   transform: none !important;
 }
 
 :deep(.sticky-row th) {
-  background-color: #ffffff !important;
-  background: #ffffff !important;
+  background-color: var(--color-white) !important;
+  background: var(--color-white) !important;
   border-top: none !important;
   border-left: none !important;
   border-right: none !important;
@@ -460,7 +460,7 @@ useResizeObserver(scrollEl, () => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: white !important;
+  background-color: var(--color-white) !important;
   margin: 0 !important;
   transform: none !important;
   position: relative;
@@ -474,23 +474,23 @@ useResizeObserver(scrollEl, () => {
 }
 
 .columns-to-show-btn {
-  background-color: #FFFFFF !important;
+  background-color: var(--color-white) !important;
 }
 
 .columns-to-show-btn:hover,
 .columns-to-show-btn:focus,
 .columns-to-show-btn:active {
-  background-color: #FFFFFF !important;
+  background-color: var(--color-white) !important;
 }
 
 :deep(.columns-to-show-btn) {
-  background-color: #FFFFFF !important;
+  background-color: var(--color-white) !important;
 }
 
 :deep(.columns-to-show-btn:hover),
 :deep(.columns-to-show-btn:focus),
 :deep(.columns-to-show-btn:active) {
-  background-color: #FFFFFF !important;
+  background-color: var(--color-white) !important;
 }
 
 .table-scroll {
@@ -535,13 +535,13 @@ useResizeObserver(scrollEl, () => {
 :deep(table thead),
 :deep(table thead tr),
 :deep(table thead tr th) {
-  background-color: #ffffff !important;
-  background: #ffffff !important;
+  background-color: var(--color-white) !important;
+  background: var(--color-white) !important;
 }
 
 :deep(table thead) {
-  background-color: #ffffff !important;
-  background: #ffffff !important;
+  background-color: var(--color-white) !important;
+  background: var(--color-white) !important;
   margin: 0 !important;
   transform: none !important;
 }
@@ -563,8 +563,8 @@ useResizeObserver(scrollEl, () => {
   padding-left: 0.25rem !important;
   padding-right: 0.25rem !important;
   font-weight: 700 !important;
-  background-color: #ffffff !important;
-  background: #ffffff !important;
+  background-color: var(--color-white) !important;
+  background: var(--color-white) !important;
   border-top: 1px solid var(--color-divider) !important;
   border-bottom: 1px solid var(--color-divider) !important;
   border-left: none !important;

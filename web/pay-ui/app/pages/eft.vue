@@ -48,49 +48,51 @@ function onTabChange() {
 
 <template>
   <div class="w-full bg-white">
-    <div class="px-4 pt-7">
-      <h1 class="text-3xl font-bold text-gray-900 mb-2">
-        Electronic Funds Transfer Received Payments
-      </h1>
-    </div>
-    <div class="px-4 pt-2 mb-8">
-      <p class="text-gray-800">
-        Manage received Electronic Funds Transfers
-      </p>
+    <div class="bg-[#f1f3f5]">
+      <div class="px-4 pt-7">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+          Electronic Funds Transfer Received Payments
+        </h1>
+      </div>
+      <div class="px-4 pt-2 pb-6">
+        <p class="text-gray-800">
+          Manage received Electronic Funds Transfers
+        </p>
+      </div>
+
+      <div class="w-full flex">
+        <button
+          :class="[
+            'flex-1 px-6 py-3 font-semibold text-base transition-colors rounded-t-lg',
+            tab === 0
+              ? 'text-gray-900 bg-white'
+              : 'text-white bg-blue-800 hover:bg-blue-900'
+          ]"
+          @click="tab = 0; onTabChange()"
+        >
+          All Short Names
+          <span class="font-normal">
+            ({{ summaries }})
+          </span>
+        </button>
+        <button
+          :class="[
+            'flex-1 px-6 py-3 font-semibold text-base transition-colors rounded-t-lg',
+            tab === 1
+              ? 'text-gray-900 bg-white'
+              : 'text-white bg-blue-800 hover:bg-blue-900'
+          ]"
+          @click="tab = 1; onTabChange()"
+        >
+          EFT Enabled Accounts
+          <span class="font-normal">
+            ({{ linked }})
+          </span>
+        </button>
+      </div>
     </div>
 
-    <div class="w-full flex my-6">
-      <button
-        :class="[
-          'flex-1 px-6 py-3 font-semibold text-base transition-colors rounded-t-lg',
-          tab === 0
-            ? 'text-gray-900 bg-white'
-            : 'text-white bg-blue-800 hover:bg-blue-900'
-        ]"
-        @click="tab = 0; onTabChange()"
-      >
-        All Short Names
-        <span class="font-normal">
-          ({{ summaries }})
-        </span>
-      </button>
-      <button
-        :class="[
-          'flex-1 px-6 py-3 font-semibold text-base transition-colors rounded-t-lg',
-          tab === 1
-            ? 'text-gray-900 bg-white'
-            : 'text-white bg-blue-800 hover:bg-blue-900'
-        ]"
-        @click="tab = 1; onTabChange()"
-      >
-        EFT Enabled Accounts
-        <span class="font-normal">
-          ({{ linked }})
-        </span>
-      </button>
-    </div>
-
-    <div class="bg-white pt-6 pb-6">
+    <div class="bg-white pt-4 pb-6">
       <div v-if="tab === 0">
         <ShortNameSummaryTable
           :linked-account="linkedAccount"

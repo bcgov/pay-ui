@@ -101,34 +101,34 @@ const appendCurrencySymbol = commonUtil.appendCurrencySymbol
 
 <style lang="scss" scoped>
 .header-bg-color {
-  background-color: #e0e7ed;
+  background-color: var(--color-bg-light-blue);
 }
 
 .header-text {
-  color: #374151;
+  color: var(--color-text-dark-gray);
 }
 
 .table-cell-text {
-  color: #495057;
+  color: var(--color-text-secondary);
 }
 
 :deep(.fas-transactions) {
-  background-color: white;
+  background-color: var(--color-white);
 }
 
 :deep(.fas-transactions table) {
-  background-color: white;
+  background-color: var(--color-white);
 }
 
 :deep(.fas-transactions table tbody tr td) {
   padding: 20px 15px !important;
-  background-color: white;
-  color: #495057;
+  background-color: var(--color-white);
+  color: var(--color-text-secondary);
 }
 
 :deep(.fas-transactions table thead tr th) {
-  background-color: white;
+  background-color: var(--color-white);
   font-weight: bold;
-  color: #374151;
+  color: var(--color-text-dark-gray);
 }
 </style>

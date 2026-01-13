@@ -139,7 +139,8 @@ export enum EFTRefundStatusDescription {
 
 export enum ShortNameType {
   EFT = 'EFT',
-  WIRE = 'WIRE'
+  WIRE = 'WIRE',
+  ALL = 'ALL'
 }
 
 export enum ShortNameTypeDescription {
