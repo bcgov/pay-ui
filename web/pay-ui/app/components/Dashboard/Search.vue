@@ -407,68 +407,15 @@ useResizeObserver(scrollEl, () => {
 }
 
 :deep(.sticky-row th *),
-
-:deep(.table-filter-input .ui-input),
-
-:deep(.table-filter-input .ui-input),
-:deep(.table-filter-input .ui-input *),
-:deep(.table-filter-input .ui-input input),
-:deep(.table-filter-input .ui-input input[type="text"]),
-:deep(.table-filter-input .ui-input input[type="number"]),
-:deep(.table-filter-input input),
-:deep(.table-filter-input input[type="text"]),
-:deep(.table-filter-input input[type="number"]),
-:deep(.table-filter-input .text-neutral),
-:deep(.table-filter-input .text-neutral-highlighted) {
-  font-weight: 400 !important;
-  color: var(--color-text-secondary) !important;
-}
-
-:deep(.table-filter-input .ui-input input::placeholder),
-:deep(.table-filter-input input::placeholder),
-:deep(.table-filter-input input[placeholder]),
-:deep(.table-filter-input .placeholder) {
-  font-weight: 400 !important;
-  color: var(--color-text-secondary) !important;
-}
-
-:deep(.table-filter-input .ui-select),
-:deep(.table-filter-input .ui-select *),
-:deep(.table-filter-input .ui-select button),
-:deep(.table-filter-input .ui-select button *),
-:deep(.table-filter-input .ui-select button span),
-:deep(.table-filter-input .ui-select button div),
-:deep(.table-filter-input status-list),
-:deep(.table-filter-input status-list *),
-:deep(.table-filter-input status-list .ui-select),
-:deep(.table-filter-input status-list .ui-select button),
-:deep(.table-filter-input status-list .ui-select button *) {
-  font-weight: 400 !important;
-}
-
-:deep(.table-filter-input .ui-select button[data-selected="true"]),
-:deep(.table-filter-input .ui-select button[data-selected="true"] *),
-:deep(.table-filter-input .ui-select button[data-selected="true"] span),
-:deep(.table-filter-input .ui-select button[data-selected="true"] div),
-:deep(.table-filter-input status-list .ui-select button[data-selected="true"]),
-:deep(.table-filter-input status-list .ui-select button[data-selected="true"] *),
-:deep(.table-filter-input .ui-select button[data-selected="true"].text-neutral),
-:deep(.table-filter-input .ui-select button[data-selected="true"].text-neutral-highlighted) {
-  color: var(--color-text-secondary) !important;
-}
-
-:deep(.table-filter-input .ui-select button:not([data-selected="true"])),
-:deep(.table-filter-input .ui-select button:not([data-selected="true"]) *),
-:deep(.table-filter-input .ui-select button:not([data-selected="true"]) span),
-:deep(.table-filter-input .ui-select button:not([data-selected="true"]) div),
-:deep(.table-filter-input .ui-select [data-placeholder]),
-:deep(.table-filter-input .ui-select [data-placeholder] *),
-:deep(.table-filter-input status-list .ui-select button:not([data-selected="true"])),
-:deep(.table-filter-input status-list .ui-select button:not([data-selected="true"]) *),
-:deep(.table-filter-input status-list .ui-select [data-placeholder]),
-:deep(.table-filter-input .ui-select button:not([data-selected="true"]).text-neutral),
-:deep(.table-filter-input .ui-select [data-placeholder].text-neutral) {
-  color: var(--color-text-secondary) !important;
+:deep(.table-filter-input) {
+  &,
+  & *,
+  & input::placeholder,
+  & .placeholder::placeholder,
+  & [placeholder]::placeholder {
+    font-weight: 400 !important;
+    color: var(--color-text-secondary) !important;
+  }
 }
 
 :deep(.ui-select button) {
@@ -476,38 +423,10 @@ useResizeObserver(scrollEl, () => {
 }
 
 // Set 14px font size for DateRangeFilter and StatusList - override global button font size
-:deep(.table-filter-input .date),
-:deep(.table-filter-input .date *),
-:deep(.table-filter-input .date button),
-:deep(.table-filter-input .date button *),
-:deep(.table-filter-input .date button span),
-:deep(.table-filter-input .date button label),
-:deep(.table-filter-input .date .ui-button),
-:deep(.table-filter-input .date .ui-button *),
-:deep(.table-filter-input .date .ui-button span),
-:deep(.table-filter-input .date .ui-button label),
-:deep(.table-filter-input .date .date-range-filter-button),
-:deep(.table-filter-input .date .date-range-filter-button *),
-:deep(.table-filter-input .date .date-range-filter-button button),
-:deep(.table-filter-input .date .date-range-filter-button button *),
-:deep(.table-filter-input .date .date-range-filter-button button span),
-:deep(.table-filter-input .date .date-range-filter-button button label),
-:deep(.table-filter-input .date .date-range-filter-button span),
-:deep(.table-filter-input .date .date-range-filter-button .ui-button),
-:deep(.table-filter-input .date .date-range-filter-button .ui-button *),
-:deep(.table-filter-input .date .date-range-filter-button .ui-button span),
-:deep(.table-filter-input .date .date-range-filter-button .ui-button label),
-:deep(.table-filter-input .date .date-range-placeholder),
-:deep(.table-filter-input .status-list-wrapper),
-:deep(.table-filter-input .status-list-wrapper *),
-:deep(.table-filter-input .status-list-wrapper button),
-:deep(.table-filter-input .status-list-wrapper button *),
-:deep(.table-filter-input .status-list-wrapper button span),
-:deep(.table-filter-input .status-list-wrapper .ui-select),
-:deep(.table-filter-input .status-list-wrapper .ui-select *),
-:deep(.table-filter-input .status-list-wrapper .ui-select button),
-:deep(.table-filter-input .status-list-wrapper .ui-select button *),
-:deep(.table-filter-input .status-list-wrapper .ui-select button span) {
+:deep(.table-filter-input:is(.date, .status-list-wrapper, status-list)),
+:deep(.table-filter-input:is(.date, .status-list-wrapper, status-list) *),
+:deep(.table-filter-input :is(.date, .status-list-wrapper, status-list, .date-range-filter-button, .date-range-placeholder)),
+:deep(.table-filter-input :is(.date, .status-list-wrapper, status-list, .date-range-filter-button, .date-range-placeholder) *) {
   font-size: 14px !important;
 }
 
@@ -705,23 +624,22 @@ useResizeObserver(scrollEl, () => {
   overflow: visible !important;
 }
 
-:deep(.sticky-row .ui-select),
-:deep(.sticky-row .ui-select *),
-:deep(.sticky-row status-list),
-:deep(.sticky-row status-list *),
-:deep(.sticky-row .input-text),
-:deep(.sticky-row .input-text *) {
-  font-weight: 400 !important;
-}
+:deep(.sticky-row) {
+  :is(.ui-select, status-list, .input-text) {
+    &, * {
+      font-weight: 400 !important;
+    }
 
-:deep(.sticky-row .ui-select button),
-:deep(.sticky-row status-list .ui-select button),
-:deep(.sticky-row .input-text .ui-select button),
-:deep(.sticky-row .ui-input input),
-:deep(.sticky-row .ui-input),
-:deep(.sticky-row input[type="text"]),
-:deep(.sticky-row input[type="number"]) {
-  padding-left: 0.75rem !important;
+    .ui-select button {
+      padding-left: 0.75rem !important;
+    }
+  }
+
+  :is(.ui-input, input:is([type="text"], [type="number"])) {
+    &, & input {
+      padding-left: 0.75rem !important;
+    }
+  }
 }
 
 // Make table divider thicker
@@ -828,22 +746,25 @@ useResizeObserver(scrollEl, () => {
   font-size: inherit;
 }
 
+:deep(.date-range-placeholder, .date-range-result) {
+    font-size: 14px !important;
+  }
 // Exclude DateRangeFilter and StatusList from 16px font size
 .fas-search {
-  :deep(.date label),
-  :deep(.date .ui-form-label),
-  :deep(.date-range-filter-button label),
-  :deep(.date-range-filter-button .ui-form-label),
-  :deep(.status-list-wrapper label),
-  :deep(.status-list-wrapper .ui-form-label),
-  :deep(.table-filter-input .date label),
-  :deep(.table-filter-input .date .ui-form-label),
-  :deep(.table-filter-input .status-list-wrapper label),
-  :deep(.table-filter-input .status-list-wrapper .ui-form-label) {
-    font-size: inherit !important;
+  :deep(:is(.date, .date-range-filter-button, .status-list-wrapper, .table-filter-input, .table-filter-input *)) {
+    :is(label, .ui-form-label) {
+      font-size: inherit !important;
+    }
+    :is(span) {
+      font-size: 14px !important;
+    }
   }
-  :deep(.date-range-placeholder) {
-    font-size: 14px !important;
+
+
+  :deep(.date-range-filter-button) {
+    ::is(span) {
+      font-size: 14px !important;
+    }
   }
 }
 </style>
