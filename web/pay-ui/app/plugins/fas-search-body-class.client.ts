@@ -8,7 +8,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     const isFasSearch = ref(false)
 
     watch(() => route.path, (newPath) => {
-      if (isFasSearch.value || newPath === '/home') {
+      if (isFasSearch.value || newPath.includes('/home')) {
         document.body.classList.add('fas-search-active')
       } else {
         isFasSearch.value = false
