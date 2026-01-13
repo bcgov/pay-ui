@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { RouteLocationNormalizedGeneric } from 'vue-router'
-import middleware from '~/middleware/pay-auth.global'
+import middleware from '~/middleware/pay-auth'
 
 const mockIsAuthenticated = ref(false)
 const mockAuthUser = ref({ roles: [] as string[] })
