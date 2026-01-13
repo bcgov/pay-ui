@@ -216,6 +216,7 @@ const updateStickyHeaderHeight = () => {
 
 onMounted(async () => {
   await loadData()
+  isInitialLoad.value = false
   await nextTick()
   updateStickyHeaderHeight()
 })
@@ -335,26 +336,24 @@ const columns = computed<TableColumn<EFTShortnameResponse>[]>(() => {
 useInfiniteScroll(
   scrollEl,
   async () => {
-    if (!state.loading) {
+    const reachedEnd = state.results.length >= state.totalResults && !isInitialLoad.value
+    if (!state.loading && !reachedEnd) {
       await infiniteScrollCallback(isInitialLoad.value)
       isInitialLoad.value = false
     }
   },
   {
-    distance: 200
+    distance: 20
   }
 )
 </script>
 
 <template>
   <div>
-    <div class="bg-white rounded shadow-sm">
-      <div class="short-names-header px-4 py-3 border-b border-gray-200">
-        <h2 class="text-xl font-bold text-gray-900">
-          All Short Names
-          <span class="font-normal">
-            ({{ state.totalResults }})
-          </span>
+    <div class="bg-white rounded shadow-sm border border-[var(--color-divider)] overflow-hidden">
+      <div class="short-names-header px-4 py-3.5 border-b border-[var(--color-divider)]">
+        <h2 class="font-bold text-gray-900">
+          All Short Names ({{ state.totalResults }})
         </h2>
       </div>
 
@@ -369,13 +368,12 @@ useInfiniteScroll(
           :loading="state.loading"
           sticky
           :class="[
-            'short-name-summaries',
             'sticky-table',
             state.highlightIndex >= 0 ? 'highlight-row' : ''
           ]"
         >
           <template #body-top>
-            <tr class="sticky-row header-row-2 bg-white">
+            <tr class="sticky-row header-row-2 bg-[var(--color-white)]">
               <th class="text-left px-1 py-1 table-filter-input header-short-name">
                 <UInput
                   id="short-name-filter"
@@ -442,7 +440,7 @@ useInfiniteScroll(
           <template #creditsRemaining-header>
             <div class="flex items-center justify-start gap-1">
               <span>Unsettled Amount</span>
-              <UIcon name="i-mdi-menu-down" class="text-gray-500" />
+              <UIcon name="i-mdi-arrow-down" class="text-gray-500" />
             </div>
           </template>
 
@@ -498,7 +496,7 @@ useInfiniteScroll(
                 <UButton
                   color="primary"
                   class="btn-table"
-                  trailing-icon="i-mdi-menu-down"
+                  trailing-icon="i-mdi-arrow-down"
                 />
               </UDropdownMenu>
             </div>
@@ -524,7 +522,7 @@ useInfiniteScroll(
 <style lang="scss" scoped>
   @use '~/assets/scss/colors.scss' as *;
 .search-header-bg {
-  background-color: #e0e7ed !important;
+  background-color: var(--color-bg-light-blue) !important;
   opacity: 1 !important;
 }
 
@@ -536,15 +534,15 @@ useInfiniteScroll(
   position: sticky;
   top: var(--search-sticky-header-height, 48px);
   z-index: 19;
-  background-color: #ffffff !important;
-  background: #ffffff !important;
+  background-color: var(--color-white) !important;
+  background: var(--color-white) !important;
   margin: 0 !important;
   transform: none !important;
 }
 
 :deep(.sticky-row th) {
-  background-color: #ffffff !important;
-  background: #ffffff !important;
+  background-color: var(--color-white) !important;
+  background: var(--color-white) !important;
   border-top: none !important;
   border-left: none !important;
   border-right: none !important;
@@ -565,8 +563,8 @@ useInfiniteScroll(
 }
 
 :deep(.sticky-row td) {
-  background-color: white !important;
-  background: white !important;
+  background-color: var(--color-white) !important;
+  background: var(--color-white) !important;
   opacity: 1 !important;
 }
 
@@ -600,7 +598,7 @@ useInfiniteScroll(
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: white !important;
+  background-color: var(--color-white) !important;
   margin: 0 !important;
   transform: none !important;
   position: relative;
@@ -614,23 +612,23 @@ useInfiniteScroll(
 }
 
 .columns-to-show-btn {
-  background-color: #FFFFFF !important;
+  background-color: var(--color-white) !important;
 }
 
 .columns-to-show-btn:hover,
 .columns-to-show-btn:focus,
 .columns-to-show-btn:active {
-  background-color: #FFFFFF !important;
+  background-color: var(--color-white) !important;
 }
 
 :deep(.columns-to-show-btn) {
-  background-color: #FFFFFF !important;
+  background-color: var(--color-white) !important;
 }
 
 :deep(.columns-to-show-btn:hover),
 :deep(.columns-to-show-btn:focus),
 :deep(.columns-to-show-btn:active) {
-  background-color: #FFFFFF !important;
+  background-color: var(--color-white) !important;
 }
 
 .table-scroll {
@@ -675,13 +673,13 @@ useInfiniteScroll(
 :deep(table thead),
 :deep(table thead tr),
 :deep(table thead tr th) {
-  background-color: #ffffff !important;
-  background: #ffffff !important;
+  background-color: var(--color-white) !important;
+  background: var(--color-white) !important;
 }
 
 :deep(table thead) {
-  background-color: #ffffff !important;
-  background: #ffffff !important;
+  background-color: var(--color-white) !important;
+  background: var(--color-white) !important;
   margin: 0 !important;
   transform: none !important;
 }
@@ -703,8 +701,8 @@ useInfiniteScroll(
   padding-left: 0.25rem !important;
   padding-right: 0.25rem !important;
   font-weight: 700 !important;
-  background-color: #ffffff !important;
-  background: #ffffff !important;
+  background-color: var(--color-white) !important;
+  background: var(--color-white) !important;
   border-top: 1px solid var(--color-divider) !important;
   border-bottom: 1px solid var(--color-divider) !important;
   border-left: none !important;
@@ -813,13 +811,13 @@ useInfiniteScroll(
 }
 
 :deep(.header-short-name) {
-  min-width: 350px !important;
+  max-width: 200px !important;
 }
 :deep(.header-type) {
   min-width: 180px !important;
 }
 :deep(.header-date) {
-  min-width: 200px !important;
+  min-width: 250px !important;
 }
 :deep(.header-unsettled-amount) {
   min-width: 121px !important;
@@ -834,7 +832,7 @@ useInfiniteScroll(
 
 .header {
   .sticky {
-    background-color: white;
+    background-color: var(--color-white);
   }
 
   .header-row-2 {
@@ -845,7 +843,7 @@ useInfiniteScroll(
       padding: 6px 10px !important;
       overflow: hidden;
       white-space: nowrap;
-      width: 200px !important;
+      width: 250px !important;
       background-color: var(--color-bg-shade) !important;
     }
     .placeholder {
@@ -890,12 +888,7 @@ useInfiniteScroll(
   }
 }
 
-.short-name-summaries {
-  border: 1px solid #e5e7eb;
-}
-
 .short-names-header {
-  background-color: #e0e7ed;
+  background-color: var(--color-bg-light-blue);
 }
 </style>
-// Override global label font size for search page
