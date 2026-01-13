@@ -64,6 +64,7 @@ const {
   }))
   const mockResetSearchFilters = vi.fn()
   const mockSearch = vi.fn()
+  const mockUpdateSearchFilter = vi.fn()
 
   const mockHasActiveFilters = computed(() => {
     return mockFilters.routingSlipNumber !== null
@@ -96,7 +97,8 @@ const {
     columnVisibility: mockColumnVisibility,
     resetSearchFilters: mockResetSearchFilters,
     hasActiveFilters: mockHasActiveFilters,
-    search: mockSearch
+    search: mockSearch,
+    updateSearchFilter: mockUpdateSearchFilter
   }))
 
   return {
@@ -117,6 +119,7 @@ const {
     _mockColumnVisibility: mockColumnVisibility,
     _mockResetSearchFilters: mockResetSearchFilters,
     _mockSearch: mockSearch,
+    _mockUpdateSearchFilter: mockUpdateSearchFilter,
     mockUseSearch
   }
 })
@@ -181,7 +184,7 @@ describe('Search', () => {
         }
       }
     })
-    expect(wrapper.text()).toContain('Columns to show')
+    expect(wrapper.text()).toContain('Columns to Show')
 
     _mockFilters.routingSlipNumber = '123456789'
     const wrapper2 = await mountSuspended(Search, {

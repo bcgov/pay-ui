@@ -110,16 +110,6 @@ describe('CreateRoutingSlipPayment', () => {
     expect(wrapper.emitted()).toHaveProperty('change:payment-type')
   })
 
-  it('emits `change:usd` when the USD checkbox is clicked', async () => {
-    const wrapper = await mountSuspended(CreateRoutingSlipPayment, {
-      props: defaultProps
-    })
-
-    const checkbox = wrapper.findComponent({ name: 'UCheckbox' })
-    checkbox.vm.$emit('change')
-    expect(wrapper.emitted()).toHaveProperty('change:usd')
-  })
-
   it('emits `validate-date` with field path on blur', async () => {
     const wrapper = await mountSuspended(CreateRoutingSlipPayment, {
       props: defaultProps

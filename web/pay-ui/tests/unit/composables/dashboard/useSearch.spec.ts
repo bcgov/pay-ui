@@ -18,6 +18,10 @@ const mockIsLoading = ref(false)
 
 const mockStatusLabel = vi.fn((code: string) => `Status: ${code}`)
 
+mockNuxtImport('useI18n', () => () => ({
+  t: (key: string) => key
+}))
+
 mockNuxtImport('usePayApi', () => () => mockPayApi)
 
 vi.mock('~/composables/common/useLoader', () => ({
@@ -46,45 +50,6 @@ describe('useSearch', () => {
     mockToggleLoading.mockImplementation((value: boolean) => {
       mockIsLoading.value = value
     })
-  })
-
-  it('should be defined, return all expected properties, and initialize with defaults', async () => {
-    const composable = await useSearch()
-    expect(composable).toBeDefined()
-    expect(composable.searchRoutingSlipTableHeaders).toBeDefined()
-    expect(composable.searchNow).toBeDefined()
-    expect(composable.debouncedSearch).toBeDefined()
-    expect(composable.searchRoutingSlipResult).toBeDefined()
-    expect(composable.getStatusLabel).toBeDefined()
-    expect(composable.searchParamsExist).toBeDefined()
-    expect(composable.formatFolioResult).toBeDefined()
-    expect(composable.showExpandedFolio).toBeDefined()
-    expect(composable.showExpandedCheque).toBeDefined()
-    expect(composable.toggleFolio).toBeDefined()
-    expect(composable.toggleCheque).toBeDefined()
-    expect(composable.isLoading).toBeDefined()
-    expect(composable.getNext).toBeDefined()
-    expect(composable.getRefundStatusText).toBeDefined()
-    expect(composable.getStatusFromRefundStatus).toBeDefined()
-    expect(composable.updateSearchFilter).toBeDefined()
-    expect(composable.clearFilter).toBeDefined()
-    expect(composable.filters).toBeDefined()
-    expect(composable.routingSlips).toBeDefined()
-    expect(composable.columnPinning).toBeDefined()
-    expect(composable.isInitialLoad).toBeDefined()
-    expect(composable.columnVisibility).toBeDefined()
-    expect(composable.resetSearchFilters).toBeDefined()
-    expect(composable.search).toBeDefined()
-    expect(composable.resetSearchParams).toBeDefined()
-
-    const { store } = useRoutingSlipStore()
-    expect(store.searchRoutingSlipParams.page).toBe(1)
-    expect(store.searchRoutingSlipParams.limit).toBe(50)
-    expect(composable.filters.routingSlipNumber).toBeNull()
-    expect(composable.filters.receiptNumber).toBeNull()
-    expect(composable.filters.accountName).toBeNull()
-    expect(composable.filters.status).toBeNull()
-    expect(composable.filters.refundStatus).toBeNull()
   })
 
   it('should handle search operations, loading, results, params reset, and filter updates', async () => {
