@@ -73,7 +73,7 @@
       </div>
     </div>
     <v-alert
-      v-if="displayRefundAlert && canEFTRefund"
+      v-if="canEFTRefund"
       class="mt-3 mb-4 alert-item account-alert-inner"
       :icon="false"
       prominent
@@ -103,7 +103,7 @@
     />
 
     <ShortNameRefund
-      v-if="displayRefund && canEFTRefund"
+      v-if="canEFTRefund"
       class="mb-12"
       :shortNameDetails="shortNameDetails"
       :unsettledAmount="unsettledAmount"
@@ -135,7 +135,6 @@ import ShortNameFinancialDialog from '@/components/eft/ShortNameFinancialDialog.
 import ShortNamePaymentHistory from '@/components/eft/ShortNamePaymentHistory.vue'
 import ShortNameRefund from '@/components/eft/ShortNameRefund.vue'
 import ShortNameUtils from '@/util/short-name-util'
-import moment from 'moment'
 
 export default defineComponent({
   name: 'ShortNameMappingView',
@@ -154,8 +153,6 @@ export default defineComponent({
       snackbar: false,
       snackbarText: '',
       unsettledAmount: '',
-      displayRefundAlert: false,
-      displayRefund: false,
       displayShortNameFinancialDialog: false,
       shortNameFinancialDialogType: '',
       lastRefundId: null
@@ -173,13 +170,6 @@ export default defineComponent({
 
       state.unsettledAmount = details.creditsRemaining !== undefined
         ? CommonUtils.formatAmount(details.creditsRemaining) : ''
-
-      state.displayRefundAlert = (
-        (details.creditsRemaining > 0 && details.linkedAccountsCount > 0) ||
-          (details.creditsRemaining > 0 && details.linkedAccountsCount <= 0 &&
-              moment(details.lastPaymentReceivedDate).isBefore(moment().subtract(30, 'days')))
-      )
-      state.displayRefund = state.displayRefundAlert || details.refundStatus === 'PENDING_APPROVAL'
     }
 
     const unsettledAmountHeader = computed<string>(() => {
