@@ -10,6 +10,7 @@ import { DateTime } from 'luxon'
 import type { TableColumn } from '@nuxt/ui'
 import { useInfiniteScroll, useDebounceFn, useResizeObserver } from '@vueuse/core'
 import { ShortNameType } from '@/utils/constants'
+import { useShortNameTypeList } from '@/composables/common/useStatusList'
 
 interface Props {
   linkedAccount?: EFTShortnameResponse
@@ -70,6 +71,8 @@ const {
 } = useShortNameTable(state)
 
 const eftStore = useEftStore()
+
+const { list: shortNameTypeList, mapFn: shortNameTypeMapFn } = useShortNameTypeList()
 
 const debouncedUpdateFilter = useDebounceFn((col: string, val: string | number) => {
   updateFilter(col, val)
@@ -386,14 +389,11 @@ useInfiniteScroll(
                 />
               </th>
               <th class="text-left px-1 py-1 table-filter-input header-type">
-                <USelect
-                  id="short-name-type-filter"
+                <StatusList
                   v-model="shortNameTypeModel"
-                  name="short-name-type-filter"
-                  :items="ShortNameUtils.ShortNameTypeItems"
+                  :list="shortNameTypeList"
+                  :map-fn="shortNameTypeMapFn"
                   placeholder="Type"
-                  size="md"
-                  class="w-full"
                 />
               </th>
               <th class="text-left px-1 py-1 table-filter-input">
@@ -424,13 +424,15 @@ useInfiniteScroll(
                   @update:model-value="debouncedUpdateFilter('linkedAccountsCount', $event)"
                 />
               </th>
-              <th class="text-right px-1 py-1">
+              <th class="text-right px-1 py-1 clear-filters-th">
                 <UButton
                   v-if="state.filters.isActive"
                   label="Clear Filters"
                   variant="outline"
+                  color="primary"
                   trailing-icon="i-mdi-close"
                   size="md"
+                  class="clear-filters-btn"
                   @click="clearFilters"
                 />
               </th>
@@ -792,22 +794,14 @@ useInfiniteScroll(
 }
 
 // Clear Filters button styling
-:deep(.clear-filters-th .clear-filters-btn),
-:deep(.clear-filters-th .ui-button) {
+:deep(.clear-filters-th .clear-filters-btn) {
+  &, & * {
+    color: var(--color-primary, #2563eb) !important;
+  }
   padding-left: 0.5rem !important;
   padding-right: 0.5rem !important;
   font-size: 0.875rem !important;
   height: 38px !important;
-  color: var(--color-primary, #2563eb) !important;
-
-  * {
-    color: var(--color-primary, #2563eb) !important;
-  }
-
-  span,
-  label {
-    color: var(--color-primary, #2563eb) !important;
-  }
 }
 
 :deep(.header-short-name) {

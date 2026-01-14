@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { useSearch } from '~/composables/dashboard/useSearch'
 import { useInfiniteScroll, useResizeObserver } from '@vueuse/core'
+import { useRoutingSlipStatusList, useChequeRefundStatusList } from '~/composables/common/useStatusList'
 
 const { t } = useI18n()
+
+const { list: routingSlipStatusList, mapFn: routingSlipMapFn } = await useRoutingSlipStatusList()
+const { list: chequeRefundStatusList, mapFn: chequeRefundMapFn } = useChequeRefundStatusList()
 
 const {
   searchRoutingSlipTableHeaders,
@@ -190,10 +194,11 @@ useResizeObserver(scrollEl, () => {
                 <th v-if="columnVisibility.status" class="text-left px-2 py-2 table-filter-input header-status">
                   <status-list
                     v-model="filters.status"
-                    column="status"
+                    :list="routingSlipStatusList"
+                    :map-fn="routingSlipMapFn"
+                    placeholder="Status"
                     class="text-input-style "
                     hide-details="auto"
-                    :placeholder="!filters.status ? 'Status' : ''"
                   />
                 </th>
                 <th
@@ -202,10 +207,11 @@ useResizeObserver(scrollEl, () => {
                 >
                   <status-list
                     v-model="filters.refundStatus"
-                    column="refundStatus"
+                    :list="chequeRefundStatusList"
+                    :map-fn="chequeRefundMapFn"
+                    placeholder="Refund Status"
                     class="text-input-style "
                     hide-details="auto"
-                    :placeholder="!filters.refundStatus ? 'Refund Status' : ''"
                   />
                 </th>
                 <th
@@ -674,22 +680,14 @@ useResizeObserver(scrollEl, () => {
 }
 
 // Clear Filters button styling
-:deep(.clear-filters-th .clear-filters-btn),
-:deep(.clear-filters-th .ui-button) {
+:deep(.clear-filters-th .clear-filters-btn) {
+  &, & * {
+    color: var(--color-primary, #2563eb) !important;
+  }
   padding-left: 0.5rem !important;
   padding-right: 0.5rem !important;
   font-size: 0.875rem !important;
   height: 38px !important;
-  color: var(--color-primary, #2563eb) !important;
-
-  * {
-    color: var(--color-primary, #2563eb) !important;
-  }
-
-  span,
-  label {
-    color: var(--color-primary, #2563eb) !important;
-  }
 }
 
 // Styles from search.scss - now scoped to Search component

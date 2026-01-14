@@ -1,13 +1,30 @@
 <script setup lang="ts">
-import { useStatusListSelect } from '~/composables/common/useStatusList'
+import type { SelectItem } from '@nuxt/ui'
 
-const props = defineProps<{
-  column: 'status' | 'refundStatus'
-}>()
+const props = withDefaults(defineProps<{
+  list: any[]
+  mapFn: (item: any) => SelectItem
+  label?: string
+  placeholder?: string
+}>(), {
+  mapFn: undefined,
+  label: undefined,
+  placeholder: undefined
+})
 
 const model = defineModel<string | null>({ required: true })
 
-const { items, placeholder } = useStatusListSelect(props)
+const items = computed<SelectItem[]>(() => {
+  if (!props.list || props.list.length === 0) {
+    return []
+  }
+
+  return props.list.map(props.mapFn)
+})
+
+const computedPlaceholder = computed(() => {
+  return props.placeholder || props.label || 'Select'
+})
 
 function clearSelection() {
   model.value = null
@@ -19,7 +36,7 @@ function clearSelection() {
     <USelect
       v-model="model"
       :items="items"
-      :placeholder
+      :placeholder="computedPlaceholder"
       size="md"
       class="input-text w-full"
       :class="{ '!pr-14': model }"
