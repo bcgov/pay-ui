@@ -6,6 +6,7 @@ import { RouteConfig } from 'vue-router'
 import SigninView from '@/views/auth/SigninView.vue'
 import SignoutView from '@/views/auth/SignoutView.vue'
 import ShortNameMappingView from '@/views/eft/ShortNameMappingView.vue'
+import EftMaintenanceView from '@/views/eft/EftMaintenanceView.vue'
 import Unauthorized from '@/views/Unauthorized.vue'
 import ViewRoutingSlip from '../views/ViewRoutingSlip.vue'
 import ShortNameRefundSelection from '@/components/eft/ShortNameRefundSelection.vue'
@@ -79,6 +80,15 @@ const routes: Array<RouteConfig> = [
     name: RouteNames.UNAUTHORIZED,
     component: Unauthorized,
     meta: { requiresAuth: false }
+  },
+  {
+    path: '/eft/maintenance',
+    name: RouteNames.EFT_MAINTENANCE,
+    component: EftMaintenanceView,
+    meta: {
+      requiresAuth: true,
+      allowedRoles: [Role.ManageEft]
+    }
   },
   {
     path: '/eft',

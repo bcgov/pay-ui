@@ -19,7 +19,8 @@ export enum SessionStorageKeys {
 export enum LDFlags {
   EnableDetailsFilter = 'enable-transactions-detail-filter',
   EnableEFTRefundByCheque = 'enable-eft-refund-by-cheque',
-  EnableUSDExchange = 'enable-usd-exchange'
+  EnableUSDExchange = 'enable-usd-exchange',
+  EftMaintenance = 'eft-maintenance'
 }
 
 export enum RouteNames {
@@ -36,7 +37,8 @@ export enum RouteNames {
   SHORTNAME_REFUND = 'shortnamerefund',
   SHORTNAME_REFUND_SELECTION = 'shortnamerefundselection',
   TRANSACTION_VIEW = 'transaction-view',
-  TRANSACTION_LIST = 'transactions'
+  TRANSACTION_LIST = 'transactions',
+  EFT_MAINTENANCE = 'eft-maintenance'
 }
 
 export enum DateFilterCodes {

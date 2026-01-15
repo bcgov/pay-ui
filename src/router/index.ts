@@ -1,7 +1,8 @@
 import KeyCloakService from 'sbc-common-components/src/services/keycloak.services'
+import LaunchDarklyService from 'sbc-common-components/src/services/launchdarkly.services'
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import { SessionStorageKeys } from '@/util/constants'
+import { LDFlags, RouteNames, SessionStorageKeys } from '@/util/constants'
 import routes from './routes'
 
 Vue.use(VueRouter)
@@ -24,6 +25,13 @@ router.beforeEach((to, from, next) => {
       })
     }
   }
+
+  // Check if EFT maintenance mode is enabled and redirect EFT routes to maintenance page
+  const isEftMaintenanceEnabled = LaunchDarklyService.getFlag(LDFlags.EftMaintenance, false)
+  if (isEftMaintenanceEnabled && to.path.startsWith('/eft') && to.name !== RouteNames.EFT_MAINTENANCE) {
+    return next({ name: RouteNames.EFT_MAINTENANCE })
+  }
+
   next()
 })
 
