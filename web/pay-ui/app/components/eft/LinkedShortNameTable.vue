@@ -147,11 +147,13 @@ async function loadTableData(col?: string, val?: string | number, appendResults 
       value => value !== '' && value !== null && value !== undefined
     )
 
+    const { accountNumber, ...restFilters } = state.filters.filterPayload
     const payload = {
       page: state.filters.pageNumber,
       limit: state.filters.pageLimit,
       state: 'LINKED',
-      ...state.filters.filterPayload,
+      ...restFilters,
+      accountId: accountNumber,
       shortNameType: state.filters.filterPayload.shortNameType || ''
     }
 

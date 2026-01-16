@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import type { EFTShortnameResponse } from '@/interfaces/eft-short-name'
 import { useEftStore } from '@/stores/eft-store'
+import { useEftTabCounts } from '@/composables/eft/useEftTabCounts'
 
 const config = useRuntimeConfig()
 const authWebUrl = (config.public as { authWebUrl?: string }).authWebUrl || ''
 const eftStore = useEftStore()
+const { summaries, linked, fetchTabCounts } = useEftTabCounts()
 
 definePageMeta({
   layout: 'connect-auth',
@@ -32,8 +34,6 @@ const tab = computed({
   set: (value: number) => eftStore.setTabIndex(value)
 })
 
-const summaries = ref(0)
-const linked = ref(0)
 const linkedAccount = ref<EFTShortnameResponse | undefined>(undefined)
 
 function onLinkAccount(account: unknown) {
@@ -44,6 +44,10 @@ function onLinkAccount(account: unknown) {
 function onTabChange() {
   eftStore.setTabIndex(tab.value)
 }
+
+onMounted(() => {
+  fetchTabCounts()
+})
 </script>
 
 <template>
