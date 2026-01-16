@@ -358,12 +358,6 @@ useInfiniteScroll(
 <template>
   <div>
     <div class="bg-white rounded shadow-sm border border-[var(--color-divider)] overflow-hidden">
-      <div class="short-names-header px-4 py-3.5 border-b border-[var(--color-divider)]">
-        <h2 class="font-bold text-gray-900">
-          All Short Names ({{ state.totalResults }})
-        </h2>
-      </div>
-
       <div
         ref="scrollEl"
         class="w-full overflow-x-auto overflow-y-auto"
@@ -381,54 +375,56 @@ useInfiniteScroll(
         >
           <template #body-top>
             <tr class="sticky-row header-row-2 bg-[var(--color-white)]">
-              <th class="text-left px-1 py-1 table-filter-input header-short-name">
+              <th class="text-left table-filter-input">
                 <UInput
                   id="short-name-filter"
                   v-model="state.filters.filterPayload.shortName"
                   name="short-name-filter"
                   placeholder="Bank Short Name"
                   size="md"
-                  class="w-full pt-0"
+                  class="w-full"
                   @update:model-value="debouncedUpdateFilter('shortName', $event)"
                 />
               </th>
-              <th class="text-left px-1 py-1 table-filter-input header-type">
+              <th class="text-left table-filter-input">
                 <StatusList
                   v-model="shortNameTypeModel"
                   :list="shortNameTypeList"
                   :map-fn="shortNameTypeMapFn"
                   placeholder="Type"
+                  class="w-full"
                 />
               </th>
-              <th class="text-left px-1 py-1 table-filter-input">
+              <th class="text-left table-filter-input">
                 <DateRangeFilter
                   v-model="dateRangeModel"
                   placeholder="Last Payment Received Date"
+                  class="w-full"
                 />
               </th>
-              <th class="text-left px-1 py-1 table-filter-input">
+              <th class="text-left table-filter-input">
                 <UInput
                   id="credits-remaining-filter"
                   v-model="state.filters.filterPayload.creditsRemaining"
                   name="credits-remaining-filter"
                   placeholder="Unsettled Amount"
                   size="md"
-                  class="pt-0"
+                  class="w-full"
                   @update:model-value="debouncedUpdateFilter('creditsRemaining', $event)"
                 />
               </th>
-              <th class="text-left px-1 py-1 table-filter-input">
+              <th class="text-left table-filter-input">
                 <UInput
                   id="linked-accounts-count-filter"
                   v-model="state.filters.filterPayload.linkedAccountsCount"
                   name="linked-accounts-count-filter"
                   placeholder="Linked Accounts"
                   size="md"
-                  class="pt-0"
+                  class="w-full"
                   @update:model-value="debouncedUpdateFilter('linkedAccountsCount', $event)"
                 />
               </th>
-              <th class="text-right px-1 py-1 clear-filters-th">
+              <th class="text-right clear-filters-th">
                 <UButton
                   v-if="state.filters.isActive"
                   label="Clear Filters"
@@ -529,12 +525,29 @@ useInfiniteScroll(
   @use '~/assets/scss/table.scss';
   @use '~/assets/scss/colors.scss' as *;
 
+  // Equal width columns for this 6-column table
+  :deep(table) {
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  :deep(table th),
+  :deep(table td) {
+    width: 16.666% !important;
+  }
+
+  // Force inputs to fill cell width
+  :deep(.sticky-row th .w-full),
+  :deep(.sticky-row th > div),
+  :deep(.sticky-row th input),
+  :deep(.sticky-row th .ui-input),
+  :deep(.sticky-row th [class*="UInput"]) {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
 .search-header-bg {
   background-color: var(--color-bg-light-blue) !important;
   opacity: 1 !important;
-}
-
-.short-names-header {
-  background-color: var(--color-bg-light-blue);
 }
 </style>

@@ -60,39 +60,29 @@ function onTabChange() {
         </p>
       </div>
 
-      <div class="w-full flex">
+      <div class="tab-container">
         <button
-          :class="[
-            'flex-1 px-6 py-3 font-semibold text-base transition-colors rounded-t-lg',
-            tab === 0
-              ? 'text-gray-900 bg-white'
-              : 'text-white bg-blue-800 hover:bg-blue-900'
-          ]"
+          :class="['tab-button', { active: tab === 0 }]"
           @click="tab = 0; onTabChange()"
         >
           All Short Names
-          <span class="font-normal">
+          <span class="tab-count">
             ({{ summaries }})
           </span>
         </button>
         <button
-          :class="[
-            'flex-1 px-6 py-3 font-semibold text-base transition-colors rounded-t-lg',
-            tab === 1
-              ? 'text-gray-900 bg-white'
-              : 'text-white bg-blue-800 hover:bg-blue-900'
-          ]"
+          :class="['tab-button', { active: tab === 1 }]"
           @click="tab = 1; onTabChange()"
         >
           EFT Enabled Accounts
-          <span class="font-normal">
+          <span class="tab-count">
             ({{ linked }})
           </span>
         </button>
       </div>
     </div>
 
-    <div class="bg-white pb-6">
+    <div class="tab-content">
       <div v-if="tab === 0">
         <ShortNameSummaryTable
           :linked-account="linkedAccount"
@@ -114,5 +104,62 @@ function onTabChange() {
 <style lang="scss" scoped>
 :deep(.shortname-summary) {
   overflow: visible;
+}
+
+.tab-container {
+  display: flex;
+  width: 100%;
+  background-color: #003366;
+  border-radius: 12px;
+}
+
+.tab-button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  border: none;
+  border-radius: 0;
+
+  // Inactive state - solid dark blue
+  background-color: #003366;
+  color: white;
+
+  // Round outer corners for first and last tabs
+  &:first-child {
+    border-radius: 12px 0 0 12px;
+  }
+
+  &:last-child {
+    border-radius: 0 12px 12px 0;
+  }
+
+  &:hover:not(.active) {
+    background-color: #002244;
+  }
+
+  // Active state - white background with thin border, fully rounded
+  &.active {
+    background-color: white;
+    color: #212529;
+    border: 2px solid #1a1a1a;
+    border-radius: 12px;
+    margin: 4px;
+  }
+
+  .tab-count {
+    font-weight: 400;
+  }
+}
+
+.tab-content {
+  background-color: white;
+  padding-bottom: 1.5rem;
 }
 </style>
