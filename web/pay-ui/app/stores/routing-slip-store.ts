@@ -6,10 +6,11 @@ import type { getSearchRoutingSlipTableHeaders } from '@/utils/constants'
 import { PaymentTypes } from '@/enums/payment-types'
 import type { RoutingSlipSchema } from '~/types/create-routing-slip'
 import { createEmptyCRSState, createEmptyPaymentItem } from '~/utils/create-routing-slip'
+import { UI_CONSTANTS } from '@/utils/constants'
 
 const defaultParams: SearchRoutingSlipParams = {
   page: 1,
-  limit: 50
+  limit: UI_CONSTANTS.DEFAULT_PAGE_LIMIT
 }
 
 export const defaultFilters: SearchFilterState = {

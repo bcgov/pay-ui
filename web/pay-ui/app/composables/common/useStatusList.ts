@@ -73,11 +73,17 @@ export async function useRoutingSlipStatusList() {
   }
 }
 
+interface ChequeRefundStatusItem {
+  code: string
+  text: string
+  display: boolean
+}
+
 // Helper to get cheque refund status list
 export function useChequeRefundStatusList() {
   const list = computed(() => ChequeRefundStatus)
 
-  const mapFn = (item: any): SelectItem => ({
+  const mapFn = (item: ChequeRefundStatusItem): SelectItem => ({
     label: item.text,
     value: item.code
   })
@@ -88,11 +94,16 @@ export function useChequeRefundStatusList() {
   }
 }
 
+interface ShortNameTypeItem {
+  label: string
+  value: string
+}
+
 // Helper to get short name type list
 export function useShortNameTypeList() {
   const list = computed(() => ShortNameUtils.ShortNameTypeItems)
 
-  const mapFn = (item: any): SelectItem => ({
+  const mapFn = (item: ShortNameTypeItem): SelectItem => ({
     label: item.label,
     value: item.value
   })

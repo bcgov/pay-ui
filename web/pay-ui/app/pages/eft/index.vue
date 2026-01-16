@@ -54,12 +54,10 @@ onMounted(() => {
   <div class="w-full bg-white">
     <div class="bg-[var(--color-bg-shade)]">
       <div class="px-4 pt-7">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+        <h1 class="text-gray-900">
           Electronic Funds Transfer Received Payments
         </h1>
-      </div>
-      <div class="px-4 pt-2 pb-6">
-        <p class="text-gray-800">
+        <p class="text-lg text-[var(--color-text-secondary)]">
           Manage received Electronic Funds Transfers
         </p>
       </div>

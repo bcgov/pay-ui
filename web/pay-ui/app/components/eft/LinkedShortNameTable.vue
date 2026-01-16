@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
-import { useInfiniteScroll, useDebounceFn, useResizeObserver } from '@vueuse/core'
+import type { LinkedShortNameItem, LinkedShortNameState } from '@/interfaces/eft-short-name'
+import { useDebounceFn, useInfiniteScroll } from '@vueuse/core'
+import { useLinkedShortNameTable } from '@/composables/eft/useLinkedShortNameTable'
+import { useStickyHeader } from '@/composables/common/useStickyHeader'
 import CommonUtils from '@/utils/common-util'
 import ShortNameUtils from '@/utils/short-name-util'
-import { ShortNameType } from '@/utils/constants'
+import { UI_CONSTANTS } from '@/utils/constants'
+import type { ShortNameType } from '@/utils/constants'
 import { useShortNameTypeList } from '@/composables/common/useStatusList'
+import { useEftStore } from '@/stores/eft-store'
 
 interface Props {
   currentTab?: number
@@ -18,52 +23,7 @@ const emit = defineEmits<{
   'shortname-state-total': [total: number]
 }>()
 
-interface LinkedShortNameItem {
-  accountBranch: string | null
-  accountId: string
-  accountName: string
-  amountOwing: number
-  casSupplierNumber: string | null
-  casSupplierSite: string | null
-  cfsAccountStatus: string | null
-  createdOn: string
-  email: string | null
-  id: number
-  shortName: string
-  shortNameType: string
-  statementId: number | null
-  statusCode: string
-}
-
-interface LinkedShortNameResponse {
-  items: LinkedShortNameItem[]
-  limit: number
-  page: number
-  stateTotal: number
-  total: number
-}
-
-interface LinkedShortNameState {
-  results: LinkedShortNameItem[]
-  totalResults: number
-  filters: {
-    isActive: boolean
-    pageNumber: number
-    pageLimit: number
-    filterPayload: {
-      shortName: string
-      shortNameType: string
-      accountName: string
-      accountNumber: string
-      branchName: string
-      amountOwing: string
-      statementId: string
-    }
-  }
-  loading: boolean
-}
-
-const dateDisplayFormat = 'MMMM dd, yyyy'
+const _dateDisplayFormat = 'MMMM dd, yyyy'
 
 const state = reactive<LinkedShortNameState>({
   results: [],
@@ -87,9 +47,19 @@ const state = reactive<LinkedShortNameState>({
 
 const { list: shortNameTypeList, mapFn: shortNameTypeMapFn } = useShortNameTypeList()
 
+const eftStore = useEftStore()
+
+const {
+  loadTableData,
+  updateFilter,
+  getNext,
+  resetReachedEnd,
+  loadState
+} = useLinkedShortNameTable(state)
+
 const debouncedUpdateFilter = useDebounceFn((col: string, val: string | number) => {
   updateFilter(col, val)
-}, 300)
+}, UI_CONSTANTS.DEBOUNCE_DELAY_MS)
 
 const shortNameTypeModel = computed({
   get: () => {
@@ -122,112 +92,54 @@ function defaultFilterPayload() {
   }
 }
 
-function formatAmount(amount: number) {
-  return amount !== undefined ? CommonUtils.formatAmount(amount) : ''
-}
-
-async function loadTableData(col?: string, val?: string | number, appendResults = false) {
-  if (state.loading) { return }
-
-  state.loading = true
-
-  try {
-    if (col && val !== undefined && col !== 'page') {
-      state.filters.filterPayload = {
-        ...state.filters.filterPayload,
-        [col]: val as string
-      }
-      state.filters.pageNumber = 1
-      appendResults = false
-    } else if (col === 'page') {
-      state.filters.pageNumber = val as number
-    }
-
-    state.filters.isActive = Object.values(state.filters.filterPayload).some(
-      value => value !== '' && value !== null && value !== undefined
-    )
-
-    const { accountNumber, ...restFilters } = state.filters.filterPayload
-    const payload = {
-      page: state.filters.pageNumber,
-      limit: state.filters.pageLimit,
-      state: 'LINKED',
-      ...restFilters,
-      accountId: accountNumber,
-      shortNameType: state.filters.filterPayload.shortNameType || ''
-    }
-
-    const cleanedPayload = CommonUtils.cleanObject(payload as Record<string, unknown>)
-    const response = await getLinkedShortNames(cleanedPayload)
-
-    if (response) {
-      state.results = appendResults
-        ? [...state.results, ...(response.items || [])]
-        : (response.items || [])
-      state.totalResults = response.total || 0
-    }
-  } catch (error) {
-    console.error('Error loading linked short names:', error)
-  } finally {
-    state.loading = false
-  }
-}
-
-async function getLinkedShortNames(payload: Record<string, unknown>) {
-  const nuxtApp = useNuxtApp()
-  const $payApi = (nuxtApp.$payApiWithErrorHandling || nuxtApp.$payApi) as typeof nuxtApp.$payApi
-
-  const filteredParams = Object.fromEntries(
-    Object.entries(payload).filter(([, value]) => value !== '' && value !== null && value !== undefined)
-  ) as Record<string, string>
-
-  const queryString = CommonUtils.createQueryParams(filteredParams)
-
-  return $payApi<LinkedShortNameResponse>(
-    `/eft-shortnames${queryString ? `?${queryString}` : ''}`,
-    { method: 'GET' }
-  )
-}
-
-async function infiniteScrollCallback(): Promise<void> {
-  if (state.loading) { return }
-  if (state.results.length >= state.totalResults) { return }
-
-  state.filters.pageNumber++
-  await loadTableData('page', state.filters.pageNumber, true)
-}
-
-function updateFilter(col: string, val: string | number) {
-  state.filters.pageNumber = 1
-  loadTableData(col, val)
-}
-
 async function clearFilters() {
+  resetReachedEnd()
   state.filters.filterPayload = defaultFilterPayload()
   state.filters.isActive = false
+  eftStore.setLinkedTableSettings(null)
   await loadTableData()
+}
+
+function saveTableSettings() {
+  eftStore.setLinkedTableSettings({
+    filterPayload: { ...state.filters.filterPayload },
+    pageNumber: state.filters.pageNumber
+  })
+}
+
+function navigateToDetails(shortNameId: number) {
+  saveTableSettings()
+  navigateTo(`/eft/shortname-details/${shortNameId}`)
 }
 
 const scrollEl = useTemplateRef<HTMLElement>('scrollEl')
-const hasLoadedData = ref(false)
+const table = useTemplateRef<HTMLElement>('table')
 
-const updateStickyHeaderHeight = () => {
-  const el = scrollEl.value
-  if (!el) { return }
+const { updateStickyHeaderHeight } = useStickyHeader(scrollEl)
 
-  const thead = el.querySelector('thead')
-  const height = thead?.getBoundingClientRect().height ?? 0
-  el.style.setProperty('--search-sticky-header-height', `${Math.ceil(height)}px`)
-}
+useInfiniteScroll(
+  table,
+  async () => {
+    await getNext(loadState.isInitialLoad)
+  },
+  { distance: 200 }
+)
 
 onMounted(async () => {
+  // Restore saved settings if navigating back
+  const savedSettings = eftStore.linkedTableSettings
+  if (savedSettings) {
+    const payload = savedSettings.filterPayload as typeof state.filters.filterPayload
+    state.filters.filterPayload = { ...state.filters.filterPayload, ...payload }
+    state.filters.pageNumber = savedSettings.pageNumber
+    state.filters.isActive = Object.values(payload).some(
+      value => value !== '' && value !== null && value !== undefined
+    )
+    // Clear the saved settings after restoring
+    eftStore.setLinkedTableSettings(null)
+  }
   await loadTableData()
-  hasLoadedData.value = true
   await nextTick()
-  updateStickyHeaderHeight()
-})
-
-useResizeObserver(scrollEl, () => {
   updateStickyHeaderHeight()
 })
 
@@ -325,22 +237,6 @@ const columns = computed<TableColumn<LinkedShortNameItem>[]>(() => {
     }
   ]
 })
-
-useInfiniteScroll(
-  scrollEl,
-  async () => {
-    // Only allow infinite scroll to trigger after initial data load is complete
-    if (!hasLoadedData.value) { return }
-
-    const reachedEnd = state.results.length >= state.totalResults
-    if (!state.loading && !reachedEnd) {
-      await infiniteScrollCallback()
-    }
-  },
-  {
-    distance: 20
-  }
-)
 </script>
 
 <template>
@@ -352,6 +248,7 @@ useInfiniteScroll(
         style="max-height: calc(100vh - 300px);"
       >
         <UTable
+          ref="table"
           :data="state.results"
           :columns="columns"
           :loading="state.loading"
@@ -359,86 +256,94 @@ useInfiniteScroll(
           class="sticky-table"
         >
           <template #body-top>
-            <tr class="sticky-row header-row-2 bg-[var(--color-white)]">
-              <th class="text-left table-filter-input">
+            <tr class="sticky-row header-row-2 bg-[var(--color-white)]" role="row">
+              <th class="text-left table-filter-input" scope="col">
                 <UInput
                   id="short-name-filter"
                   v-model="state.filters.filterPayload.shortName"
                   name="short-name-filter"
                   placeholder="Bank Short Name"
+                  aria-label="Filter by bank short name"
                   size="md"
                   class="w-full"
                   @update:model-value="debouncedUpdateFilter('shortName', $event)"
                 />
               </th>
-              <th class="text-left table-filter-input">
+              <th class="text-left table-filter-input" scope="col">
                 <StatusList
                   v-model="shortNameTypeModel"
                   :list="shortNameTypeList"
                   :map-fn="shortNameTypeMapFn"
                   placeholder="Type"
+                  aria-label="Filter by short name type"
                   class="w-full"
                 />
               </th>
-              <th class="text-left table-filter-input">
+              <th class="text-left table-filter-input" scope="col">
                 <UInput
                   id="account-name-filter"
                   v-model="state.filters.filterPayload.accountName"
                   name="account-name-filter"
                   placeholder="Account Name"
+                  aria-label="Filter by account name"
                   size="md"
                   class="w-full"
                   @update:model-value="debouncedUpdateFilter('accountName', $event)"
                 />
               </th>
-              <th class="text-left table-filter-input">
+              <th class="text-left table-filter-input" scope="col">
                 <UInput
                   id="branch-name-filter"
                   v-model="state.filters.filterPayload.branchName"
                   name="branch-name-filter"
                   placeholder="Branch Name"
+                  aria-label="Filter by branch name"
                   size="md"
                   class="w-full"
                   @update:model-value="debouncedUpdateFilter('branchName', $event)"
                 />
               </th>
-              <th class="text-left table-filter-input">
+              <th class="text-left table-filter-input" scope="col">
                 <UInput
                   id="account-number-filter"
                   v-model="state.filters.filterPayload.accountNumber"
                   name="account-number-filter"
                   placeholder="Account Number"
+                  aria-label="Filter by account number"
                   size="md"
                   class="w-full"
                   @update:model-value="debouncedUpdateFilter('accountNumber', $event)"
                 />
               </th>
-              <th class="text-left table-filter-input">
+              <th class="text-left table-filter-input" scope="col">
                 <UInput
                   id="amount-owing-filter"
                   v-model="state.filters.filterPayload.amountOwing"
                   name="amount-owing-filter"
                   placeholder="Total Amount Owing"
+                  aria-label="Filter by total amount owing"
                   size="md"
                   class="w-full"
                   @update:model-value="debouncedUpdateFilter('amountOwing', $event)"
                 />
               </th>
-              <th class="text-left table-filter-input">
+              <th class="text-left table-filter-input" scope="col">
                 <UInput
                   id="statement-id-filter"
                   v-model="state.filters.filterPayload.statementId"
                   name="statement-id-filter"
                   placeholder="Latest Statement Number"
+                  aria-label="Filter by statement number"
                   size="md"
                   class="w-full"
                   @update:model-value="debouncedUpdateFilter('statementId', $event)"
                 />
               </th>
-              <th class="text-right clear-filters-th">
+              <th class="clear-filters-th" scope="col">
                 <UButton
                   v-if="state.filters.isActive"
                   label="Clear Filters"
+                  aria-label="Clear all filters"
                   variant="outline"
                   color="primary"
                   trailing-icon="i-mdi-close"
@@ -471,7 +376,7 @@ useInfiniteScroll(
           </template>
 
           <template #amountOwing-cell="{ row }">
-            <span>{{ formatAmount(row.original.amountOwing) }}</span>
+            <span>{{ CommonUtils.formatAmount(row.original.amountOwing) }}</span>
           </template>
 
           <template #statementId-cell="{ row }">
@@ -479,12 +384,12 @@ useInfiniteScroll(
           </template>
 
           <template #actions-cell="{ row }">
-            <div class="flex items-center justify-center gap-2">
+            <div class="flex items-center justify-end gap-2">
               <UButton
                 label="View Detail"
                 color="primary"
                 class="btn-table font-normal"
-                @click="navigateTo(`/eft/shortname-details/${row.original.id}`)"
+                @click="navigateToDetails(row.original.shortNameId)"
               />
             </div>
           </template>

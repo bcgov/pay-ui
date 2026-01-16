@@ -18,9 +18,9 @@ function formatDisplayDate(
   }
 
   if (format === 'start') {
-    return dateTime.startOf('day').toISO() || ''
+    return dateTime.startOf('day').toUTC().toISO() || ''
   } else if (format === 'end') {
-    return dateTime.endOf('day').toISO() || ''
+    return dateTime.endOf('day').toUTC().toISO() || ''
   } else {
     return dateTime.toFormat(format)
   }

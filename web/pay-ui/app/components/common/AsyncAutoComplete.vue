@@ -15,8 +15,7 @@ defineEmits<{
   focus: []
 }>()
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const selectedModel = defineModel<any>({ required: true, default: undefined })
+const selectedModel = defineModel<T | null>({ required: true, default: undefined })
 
 const selected = computed({
   get: () => selectedModel.value,
@@ -59,11 +58,14 @@ const { data: items, status } = await useAsyncData<T[]>(
 
 const slots = useSlots()
 const hasResultHeaderSlot = computed(() => !!slots.resultHeader)
-const itemsWithHeader = computed(() => {
+
+type ItemWithHeader = T | { __isHeader: true }
+
+const itemsWithHeader = computed<ItemWithHeader[] | null>(() => {
   if (!hasResultHeaderSlot.value || !items.value || items.value.length === 0) {
     return items.value
   }
-  return [{ __isHeader: true } as unknown as T, ...items.value]
+  return [{ __isHeader: true }, ...items.value]
 })
 </script>
 

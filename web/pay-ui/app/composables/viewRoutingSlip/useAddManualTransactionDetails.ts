@@ -63,9 +63,10 @@ export default function useAddManualTransactionDetails(
       }
       const result = await getFeeByCorpTypeAndFilingType(getFeeRequestParams)
       state.manualTransactionDetails.total = result ?? 0
-    } catch (error: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+    } catch (error: unknown) {
       state.manualTransactionDetails.total = 0
-      console.error('error', error?.response?.data)
+      const apiError = error as { response?: { data?: unknown } }
+      console.error('error', apiError?.response?.data)
     } finally {
       emitManualTransactionDetails()
     }

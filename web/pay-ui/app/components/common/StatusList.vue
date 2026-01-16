@@ -2,8 +2,8 @@
 import type { SelectItem } from '@nuxt/ui'
 
 const props = withDefaults(defineProps<{
-  list: any[]
-  mapFn: (item: any) => SelectItem
+  list: unknown[]
+  mapFn?: (item: unknown) => SelectItem
   label?: string
   placeholder?: string
 }>(), {

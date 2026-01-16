@@ -2,18 +2,19 @@ import type { Invoice } from '~/interfaces/invoice'
 import type { SearchRoutingSlipParams, RoutingSlip } from '~/interfaces/routing-slip'
 import type { TableColumn } from '@nuxt/ui'
 import { debounce } from 'es-toolkit'
-import { useLoader } from '@/composables/common/useLoader'
 import { useStatusList } from '@/composables/common/useStatusList'
 import {
   chequeRefundCodes,
   ChequeRefundStatus,
   PaymentMethods,
-  getSearchRoutingSlipTableHeaders
+  getSearchRoutingSlipTableHeaders,
+  UI_CONSTANTS
 } from '@/utils/constants'
 import { SlipStatus } from '~/enums/slip-status'
 import CommonUtils from '@/utils/common-util'
 import { usePayApi } from '@/composables/pay-api'
 import { defaultFilters } from '@/stores/routing-slip-store'
+import { useInfiniteScroll } from '@/composables/eft/useEftTable'
 
 type ExtendedTableColumn = TableColumn<Record<string, unknown>> & {
   display?: boolean
@@ -28,10 +29,9 @@ export async function useSearch() {
   const searchRoutingSlipResult = store.searchRoutingSlipResult
   const defaultParams: SearchRoutingSlipParams = {
     page: 1,
-    limit: 50
+    limit: UI_CONSTANTS.DEFAULT_PAGE_LIMIT
   }
   const { statusLabel } = await useStatusList(reactive({ value: '' }), { emit: () => {} })
-  const { isLoading, toggleLoading } = useLoader()
 
   const searchParamsExist = computed<boolean>(() => {
     const params = searchRoutingSlipParams as Record<string, unknown>
@@ -71,24 +71,23 @@ export async function useSearch() {
     }
   }
 
-  async function infiniteScrollCallback(isInitialLoad: boolean): Promise<boolean> {
-    searchRoutingSlipParams.page = !isInitialLoad && searchRoutingSlipParams.page
-      ? searchRoutingSlipParams.page + 1
-      : 1
-    const itemsReturned = await searchRoutingSlip(true)
-    return itemsReturned === 0 || itemsReturned < (searchRoutingSlipParams.limit || 50)
-  }
+  const { loadState, getNext, reset: resetScroll } = useInfiniteScroll<RoutingSlip>({
+    fetchPage: async (page, appendResults) => {
+      searchRoutingSlipParams.page = page
+      const itemsReturned = await searchRoutingSlip(appendResults)
+      const limit = searchRoutingSlipParams.limit || UI_CONSTANTS.DEFAULT_PAGE_LIMIT
+      const hasMore = itemsReturned > 0 && itemsReturned >= limit
+      return { items: [], hasMore }
+    }
+  })
 
   const showExpandedFolio = ref<string[]>([])
   const showExpandedCheque = ref<string[]>([])
   const searchParamsChanged = ref(false)
-  const reachedEnd = ref(false)
 
   const columnPinning = ref({
     right: ['actions']
   })
-
-  const isInitialLoad = ref(true)
 
   const filters = store.searchFilters
 
@@ -113,14 +112,15 @@ export async function useSearch() {
       ...updates
     })
     searchParamsChanged.value = true
-    reachedEnd.value = false
+    resetScroll()
   }
 
   async function searchNow() {
-    toggleLoading(true)
-    reachedEnd.value = await searchRoutingSlip() === 0
+    loadState.isLoading = true
+    const itemsReturned = await searchRoutingSlip()
+    loadState.reachedEnd = itemsReturned === 0
     searchParamsChanged.value = false
-    toggleLoading(false)
+    loadState.isLoading = false
   }
 
   const search = async () => {
@@ -130,18 +130,19 @@ export async function useSearch() {
 
   const debouncedSearch = debounce(() => {
     searchNow()
-  }, 500)
+  }, UI_CONSTANTS.SEARCH_DEBOUNCE_DELAY_MS)
 
   function getStatusLabel(code: string) {
     return statusLabel(code)
   }
 
   async function clearFilter() {
-    toggleLoading(true)
+    loadState.isLoading = true
     resetSearchParams()
-    reachedEnd.value = await searchRoutingSlip() === 0
+    const itemsReturned = await searchRoutingSlip()
+    loadState.reachedEnd = itemsReturned === 0
     searchParamsChanged.value = false
-    toggleLoading(false)
+    loadState.isLoading = false
   }
 
   function toggleArrayItem(array: Ref<string[]>, id: string) {
@@ -176,15 +177,6 @@ export async function useSearch() {
     const refundStatus = ChequeRefundStatus
       .find(item => item.code === statusCode)?.text || chequeRefundCodes.PROCESSING || null
     return refundStatus
-  }
-
-  const getNext = async (isInitialLoadParam = false) => {
-    if (isLoading.value) {
-      return
-    }
-    if (!reachedEnd.value) {
-      reachedEnd.value = await infiniteScrollCallback(isInitialLoadParam)
-    }
   }
 
   const routingSlips = computed(() => {
@@ -300,7 +292,7 @@ export async function useSearch() {
     showExpandedCheque,
     toggleFolio,
     toggleCheque,
-    isLoading,
+    isLoading: computed(() => loadState.isLoading),
     getNext,
     getRefundStatusText,
     getStatusFromRefundStatus,
@@ -309,12 +301,12 @@ export async function useSearch() {
     filters,
     routingSlips,
     columnPinning,
-    isInitialLoad,
+    isInitialLoad: computed(() => loadState.isInitialLoad),
     columnVisibility,
     resetSearchFilters,
     hasActiveFilters,
     search,
     resetSearchParams,
-    reachedEnd // Expose reachedEnd
+    reachedEnd: computed(() => loadState.reachedEnd)
   }
 }

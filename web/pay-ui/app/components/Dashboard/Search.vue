@@ -51,11 +51,8 @@ useInfiniteScroll(
   table,
   async () => {
     await getNext(isInitialLoad.value)
-    isInitialLoad.value = false
   },
-  {
-    distance: 200
-  }
+  { distance: 200 }
 )
 
 onMounted(async () => {

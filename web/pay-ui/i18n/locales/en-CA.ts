@@ -154,6 +154,45 @@ export default {
       h1: 'FAS Staff Dashboard',
       h1Info: 'Search, add and manage routing slips'
     },
+    eft: {
+      title: 'BC Business Registry EFT',
+      shortNameDetails: {
+        title: 'BC Business Registry EFT - Short Name Details',
+        breadcrumb: {
+          staffDashboard: 'Staff Dashboard',
+          eftReceivedPayments: 'EFT Received Payments'
+        },
+        label: {
+          unsettledAmount: 'Unsettled Amount',
+          type: 'Type',
+          casSupplierNumber: 'CAS Supplier Number',
+          casSupplierSite: 'CAS Supplier Site',
+          email: 'Email',
+          edit: 'Edit',
+          na: 'N/A',
+          refund: 'Refund',
+          refundPlaceholder: 'Refund functionality will be available here.',
+          accountsLinkedTo: 'Accounts Linked to {shortName}',
+          linkedAccounts: 'Linked accounts',
+          accountLinkPlaceholder: 'Account linking functionality will be available here.',
+          paymentHistory: 'Short Name Payment History',
+          paymentHistoryPlaceholder: 'Payment history will be displayed here.'
+        },
+        caution: {
+          message: 'Please verify if the unsettled amount of {amount} on the short name can be refunded '
+            + 'or linked to a new account. If it\'s insufficient to settle an outstanding statement, the '
+            + 'settlement process will be on hold until full payment is received.'
+        },
+        snackbar: {
+          linkSuccess: 'Bank short name {shortName} was successfully linked.'
+        },
+        notFound: {
+          title: 'Short Name Not Found',
+          message: 'The short name you are looking for does not exist or has been removed.',
+          backButton: 'Back to EFT Payments'
+        }
+      }
+    },
     createRoutingSlip: {
       title: 'Add Routing Slip - BC Business Registry FAS',
       h1: 'Add Routing Slip'

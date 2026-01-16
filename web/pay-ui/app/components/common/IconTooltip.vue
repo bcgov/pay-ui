@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { UI_CONSTANTS } from '@/utils/constants'
+
 const {
   icon = 'i-mdi-information-outline',
   iconClass = 'text-primary shrink-0 size-6'
@@ -13,7 +15,7 @@ const {
   <UTooltip
     arrow
     :text
-    :delay-duration="300"
+    :delay-duration="UI_CONSTANTS.TOOLTIP_DELAY_MS"
   >
     <UIcon
       :name="icon"

@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import type { EFTShortnameResponse, ShortNameSummaryState } from '@/interfaces/eft-short-name'
-import { ShortNameRefundLabel, ShortNameRefundStatus } from '@/utils/constants'
+import type { ShortNameType } from '@/utils/constants'
+import { ShortNameRefundLabel, ShortNameRefundStatus, UI_CONSTANTS } from '@/utils/constants'
 import { useEftStore } from '@/stores/eft-store'
 import CommonUtils from '@/utils/common-util'
 import ShortNameUtils from '@/utils/short-name-util'
 import { useShortNameTable } from '@/composables/eft/useShortNameTable'
 import { usePayModals } from '@/composables/pay-modals'
-import { DateTime } from 'luxon'
 import type { TableColumn } from '@nuxt/ui'
-import { useInfiniteScroll, useDebounceFn, useResizeObserver } from '@vueuse/core'
-import { ShortNameType } from '@/utils/constants'
+import { useDebounceFn, useInfiniteScroll } from '@vueuse/core'
+import { useStickyHeader } from '@/composables/common/useStickyHeader'
 import { useShortNameTypeList } from '@/composables/common/useStatusList'
 
 interface Props {
@@ -28,7 +28,6 @@ const emit = defineEmits<{
 }>()
 
 const dateDisplayFormat = 'MMMM dd, yyyy'
-const dateRangeFormat = 'YYYY-MM-DD'
 
 const state = reactive<ShortNameSummaryState>({
   results: [],
@@ -50,24 +49,20 @@ const state = reactive<ShortNameSummaryState>({
   actionDropdown: [],
   options: {},
   shortNameLookupKey: 0,
-  dateRangeReset: 0,
   clearFiltersTrigger: 0,
   selectedShortName: {},
-  showDatePicker: false,
-  dateRangeSelected: false,
-  dateRangeText: '',
   accountLinkingErrorDialogTitle: '',
   accountLinkingErrorDialogText: '',
   isShortNameLinkingDialogOpen: false,
-  startDate: '',
-  endDate: '',
   highlightIndex: -1
 })
 
 const {
-  infiniteScrollCallback,
   loadTableSummaryData,
-  updateFilter
+  updateFilter,
+  getNext,
+  resetReachedEnd,
+  loadState
 } = useShortNameTable(state)
 
 const eftStore = useEftStore()
@@ -76,7 +71,7 @@ const { list: shortNameTypeList, mapFn: shortNameTypeMapFn } = useShortNameTypeL
 
 const debouncedUpdateFilter = useDebounceFn((col: string, val: string | number) => {
   updateFilter(col, val)
-}, 300)
+}, UI_CONSTANTS.DEBOUNCE_DELAY_MS)
 
 const shortNameTypeModel = computed({
   get: () => {
@@ -112,14 +107,10 @@ function defaultFilterPayload() {
   }
 }
 
-function formatAmount(amount: number) {
-  return amount !== undefined ? CommonUtils.formatAmount(amount) : ''
-}
-
 const payModals = usePayModals()
 
 async function openAccountLinkingDialog(item: EFTShortnameResponse) {
-  // @ts-ignore
+  // @ts-expect-error shortNameLinkingModal types not fully defined
   await payModals.shortNameLinkingModal.open({
     selectedShortName: item,
     onLinkAccount: async (account: unknown) => {
@@ -128,45 +119,36 @@ async function openAccountLinkingDialog(item: EFTShortnameResponse) {
   })
 }
 
-function setDateRangeText(startDate: string, endDate: string) {
-  if (!startDate || !endDate) {
-    return ''
-  }
-  state.startDate = DateTime.fromISO(startDate).toFormat(dateRangeFormat)
-  state.endDate = DateTime.fromISO(endDate).toFormat(dateRangeFormat)
-  return `${state.startDate} - ${state.endDate}`
-}
-
 async function onLinkAccount(account: unknown) {
   emit('on-link-account', account)
   await loadTableSummaryData('page', 1)
 }
 
-async function updateDateRange({ endDate, startDate }: { endDate?: string, startDate?: string }) {
-  state.showDatePicker = false
-  state.dateRangeSelected = !!(endDate && startDate)
-  if (!state.dateRangeSelected) {
-    endDate = ''
-    startDate = ''
-  }
-  const startDateString = CommonUtils.formatDisplayDate(startDate || '', 'start')
-  const endDateString = CommonUtils.formatDisplayDate(endDate || '', 'end')
-  state.dateRangeText = state.dateRangeSelected ? setDateRangeText(startDateString, endDateString) : ''
-  state.filters.filterPayload.paymentReceivedStartDate = startDateString
-  state.filters.filterPayload.paymentReceivedEndDate = endDateString
+async function onDateRangeChange() {
   eftStore.setSummaryFilter({ ...state.filters.filterPayload })
   await loadTableSummaryData('page', 1)
 }
 
 async function clearFilters() {
   state.clearFiltersTrigger++
-  state.dateRangeReset++
   state.filters.filterPayload = defaultFilterPayload()
   state.filters.isActive = false
-  state.dateRangeText = ''
-  state.dateRangeSelected = false
   eftStore.clearSummaryFilter()
+  eftStore.setSummaryTableSettings(null)
+  resetReachedEnd()
   await loadTableSummaryData()
+}
+
+function saveTableSettings() {
+  eftStore.setSummaryTableSettings({
+    filterPayload: { ...state.filters.filterPayload },
+    pageNumber: state.filters.pageNumber
+  })
+}
+
+function navigateToDetails(id: number) {
+  saveTableSettings()
+  navigateTo(`/eft/shortname-details/${id}`)
 }
 
 function onLinkedAccount(account: EFTShortnameResponse) {
@@ -206,42 +188,42 @@ watch(() => state.totalResults, (total) => {
 })
 
 const scrollEl = useTemplateRef<HTMLElement>('scrollEl')
-const isInitialLoad = ref(true)
-const hasLoadedData = ref(false)
+const table = useTemplateRef<HTMLElement>('table')
 
-const updateStickyHeaderHeight = () => {
-  const el = scrollEl.value
-  if (!el) { return }
+const { updateStickyHeaderHeight } = useStickyHeader(scrollEl)
 
-  const thead = el.querySelector('thead')
-  const height = thead?.getBoundingClientRect().height ?? 0
-  el.style.setProperty('--search-sticky-header-height', `${Math.ceil(height)}px`)
-}
+useInfiniteScroll(
+  table,
+  async () => {
+    await getNext(loadState.isInitialLoad)
+  },
+  { distance: 200 }
+)
 
 onMounted(async () => {
   await loadData()
-  hasLoadedData.value = true
-  isInitialLoad.value = false
   await nextTick()
   updateStickyHeaderHeight()
 })
 
-useResizeObserver(scrollEl, () => {
-  updateStickyHeaderHeight()
-})
-
 async function loadData() {
-  const savedFilter = eftStore.summaryFilter
-  if (savedFilter) {
-    const payload = { ...savedFilter }
-    // Convert 'ALL' or empty string to null for shortNameType
+  const savedSettings = eftStore.summaryTableSettings
+  if (savedSettings) {
+    const payload = { ...savedSettings.filterPayload } as typeof state.filters.filterPayload
     if (payload.shortNameType === 'ALL' || payload.shortNameType === '') {
       payload.shortNameType = ''
     }
     state.filters.filterPayload = { ...state.filters.filterPayload, ...payload }
-    if (payload.paymentReceivedStartDate) {
-      state.dateRangeText = setDateRangeText(payload.paymentReceivedStartDate, payload.paymentReceivedEndDate)
-      state.dateRangeSelected = true
+    state.filters.pageNumber = savedSettings.pageNumber
+    eftStore.setSummaryTableSettings(null)
+  } else {
+    const savedFilter = eftStore.summaryFilter
+    if (savedFilter) {
+      const payload = { ...savedFilter }
+      if (payload.shortNameType === 'ALL' || payload.shortNameType === '') {
+        payload.shortNameType = ''
+      }
+      state.filters.filterPayload = { ...state.filters.filterPayload, ...payload }
     }
   }
   await loadTableSummaryData()
@@ -257,17 +239,8 @@ const dateRangeModel = computed({
     endDate: state.filters.filterPayload.paymentReceivedEndDate || null
   }),
   set: (value: { startDate: string | null, endDate: string | null }) => {
-    if (value.startDate && value.endDate) {
-      updateDateRange({
-        startDate: value.startDate,
-        endDate: value.endDate
-      })
-    } else if (!value.startDate && !value.endDate) {
-      updateDateRange({
-        startDate: '',
-        endDate: ''
-      })
-    }
+    state.filters.filterPayload.paymentReceivedStartDate = value.startDate || ''
+    state.filters.filterPayload.paymentReceivedEndDate = value.endDate || ''
   }
 })
 
@@ -337,22 +310,6 @@ const columns = computed<TableColumn<EFTShortnameResponse>[]>(() => {
     }
   ]
 })
-
-useInfiniteScroll(
-  scrollEl,
-  async () => {
-    // Only allow infinite scroll to trigger after initial data load is complete
-    if (!hasLoadedData.value) { return }
-
-    const reachedEnd = state.results.length >= state.totalResults
-    if (!state.loading && !reachedEnd) {
-      await infiniteScrollCallback(false)
-    }
-  },
-  {
-    distance: 20
-  }
-)
 </script>
 
 <template>
@@ -364,6 +321,7 @@ useInfiniteScroll(
         style="max-height: calc(100vh - 300px);"
       >
         <UTable
+          ref="table"
           :data="state.results"
           :columns="columns"
           :loading="state.loading"
@@ -374,60 +332,67 @@ useInfiniteScroll(
           ]"
         >
           <template #body-top>
-            <tr class="sticky-row header-row-2 bg-[var(--color-white)]">
-              <th class="text-left table-filter-input">
+            <tr class="sticky-row header-row-2 bg-[var(--color-white)]" role="row">
+              <th class="text-left table-filter-input" scope="col">
                 <UInput
                   id="short-name-filter"
                   v-model="state.filters.filterPayload.shortName"
                   name="short-name-filter"
                   placeholder="Bank Short Name"
+                  aria-label="Filter by bank short name"
                   size="md"
                   class="w-full"
                   @update:model-value="debouncedUpdateFilter('shortName', $event)"
                 />
               </th>
-              <th class="text-left table-filter-input">
+              <th class="text-left table-filter-input" scope="col">
                 <StatusList
                   v-model="shortNameTypeModel"
                   :list="shortNameTypeList"
                   :map-fn="shortNameTypeMapFn"
                   placeholder="Type"
+                  aria-label="Filter by short name type"
                   class="w-full"
                 />
               </th>
-              <th class="text-left table-filter-input">
+              <th class="text-left table-filter-input" scope="col">
                 <DateRangeFilter
                   v-model="dateRangeModel"
                   placeholder="Last Payment Received Date"
+                  aria-label="Filter by payment received date range"
                   class="w-full"
+                  @change="onDateRangeChange"
                 />
               </th>
-              <th class="text-left table-filter-input">
+              <th class="text-left table-filter-input" scope="col">
                 <UInput
                   id="credits-remaining-filter"
                   v-model="state.filters.filterPayload.creditsRemaining"
                   name="credits-remaining-filter"
                   placeholder="Unsettled Amount"
+                  aria-label="Filter by unsettled amount"
                   size="md"
                   class="w-full"
                   @update:model-value="debouncedUpdateFilter('creditsRemaining', $event)"
                 />
               </th>
-              <th class="text-left table-filter-input">
+              <th class="text-left table-filter-input" scope="col">
                 <UInput
                   id="linked-accounts-count-filter"
                   v-model="state.filters.filterPayload.linkedAccountsCount"
                   name="linked-accounts-count-filter"
                   placeholder="Linked Accounts"
+                  aria-label="Filter by linked accounts count"
                   size="md"
                   class="w-full"
                   @update:model-value="debouncedUpdateFilter('linkedAccountsCount', $event)"
                 />
               </th>
-              <th class="text-right clear-filters-th">
+              <th class="clear-filters-th" scope="col">
                 <UButton
                   v-if="state.filters.isActive"
                   label="Clear Filters"
+                  aria-label="Clear all filters"
                   variant="outline"
                   color="primary"
                   trailing-icon="i-mdi-close"
@@ -451,7 +416,7 @@ useInfiniteScroll(
           </template>
 
           <template #shortNameType-cell="{ row }">
-            <span>{{ getShortNameTypeDescription(row.original.shortNameType as any) }}</span>
+            <span>{{ getShortNameTypeDescription(row.original.shortNameType) }}</span>
           </template>
 
           <template #lastPaymentReceivedDate-cell="{ row }">
@@ -460,7 +425,7 @@ useInfiniteScroll(
 
           <template #creditsRemaining-cell="{ row }">
             <div class="flex items-center justify-start gap-2">
-              <span>{{ formatAmount(row.original.creditsRemaining) }}</span>
+              <span>{{ CommonUtils.formatAmount(row.original.creditsRemaining) }}</span>
               <UBadge
                 v-if="row.original.refundStatus === ShortNameRefundStatus.PENDING_APPROVAL"
                 color="primary"
@@ -477,12 +442,12 @@ useInfiniteScroll(
           </template>
 
           <template #actions-cell="{ row }">
-            <div class="flex items-center justify-center gap-2">
+            <div class="flex items-center justify-end gap-2">
               <UButton
                 label="View Details"
                 color="primary"
                 class="btn-table font-normal"
-                @click="navigateTo(`/eft/shortname-details/${row.original.id}`)"
+                @click="navigateToDetails(row.original.id)"
               />
               <UDropdownMenu
                 :items="[
