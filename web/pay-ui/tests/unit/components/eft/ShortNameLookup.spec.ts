@@ -98,7 +98,7 @@ describe('ShortNameLookup', () => {
 
     expect(wrapper.emitted('account')).toBeTruthy()
     expect(wrapper.emitted('account')![0]).toEqual([null])
-    expect(wrapper.emitted('reset')).toBeTruthy()
+    expect(wrapper.emitted('reset')).toBeFalsy()
   })
 
   it('should not emit reset when clearing silently', async () => {

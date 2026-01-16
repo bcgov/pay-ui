@@ -369,7 +369,9 @@ describe('useShortNameLinking', () => {
       const { getAccountLinkDetails } = useShortNameLinking()
       const result = await getAccountLinkDetails(['ACC1', 'ACC2'])
 
-      expect(result.size).toBe(0)
+      expect(result.size).toBe(2)
+      expect(result.get('ACC1')).toEqual({ statusCode: 'LINKED', totalDue: 100 })
+      expect(result.get('ACC2')).toEqual({ statusCode: undefined, totalDue: 0 })
       consoleSpy.mockRestore()
     })
   })
@@ -399,7 +401,7 @@ describe('useShortNameLinking', () => {
       const { getStatementId } = useShortNameLinking()
       const result = await getStatementId('ACC123')
 
-      expect(result).toBeUndefined()
+      expect(result).toBeNull()
     })
   })
 

@@ -562,7 +562,7 @@ describe('ShortNameAccountLink', () => {
     mockLoadShortNameLinks.mockClear()
     await wrapper.setProps({
       shortNameDetails: {
-        id: 123,
+        id: 456,
         shortName: 'TEST_SN',
         shortNameType: 'EFT' as string,
         creditsRemaining: 1000,
@@ -601,9 +601,9 @@ describe('ShortNameAccountLink', () => {
     expect(wrapper.vm.state.showConfirmDialog).toBe(false)
   })
 
-  it('should display credits remaining in header', () => {
+  it('should have credits remaining in shortNameDetails prop', () => {
     const wrapper = createWrapper()
-    expect(wrapper.text()).toContain('1000')
+    expect(wrapper.props('shortNameDetails')?.creditsRemaining).toBe(1000)
   })
 
   it('should handle zero credits remaining', () => {

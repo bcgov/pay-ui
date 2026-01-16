@@ -32,6 +32,7 @@ export function useInfiniteScroll<T>(options: UseInfiniteScrollOptions<T>) {
       loadState.reachedEnd = !hasMore
     } catch (error) {
       console.error('Error loading data:', error)
+      loadState.reachedEnd = true
     } finally {
       loadState.isLoading = false
       onLoadEnd?.()

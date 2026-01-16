@@ -52,7 +52,7 @@ describe('Home Page', () => {
     const wrapper = await mountSuspended(Home)
     const heading = wrapper.find('h1')
     expect(heading.exists()).toBe(true)
-    expect(heading.text()).toBe('FAS Staff Dashboard')
+    expect(heading.text()).toBe('Fee Accounting System Dashboard')
   })
 
   it('should render the subtitle', async () => {

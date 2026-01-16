@@ -46,7 +46,9 @@ vi.mock('@vueuse/core', () => ({
 vi.mock('~/utils/common-util', () => ({
   default: {
     formatDisplayDate: vi.fn((date: string) => date ? 'January 1, 2024' : ''),
-    formatAmount: vi.fn((amount: number) => `$${amount.toFixed(2)}`),
+    formatAmount: vi.fn((amount: number | undefined) =>
+      amount !== undefined && amount !== null ? `$${amount.toFixed(2)}` : '$0.00'
+    ),
     formatAccountDisplayName: vi.fn(() => 'Test Account')
   }
 }))

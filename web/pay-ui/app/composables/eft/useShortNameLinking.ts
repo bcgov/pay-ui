@@ -27,7 +27,7 @@ export function useShortNameLinking() {
         `/accounts/${accountId}/statements/summary`,
         { method: 'GET' }
       )
-      return data.totalDue || 0
+      return data?.totalDue || 0
     } catch (error) {
       console.error('Failed to get statements summary:', error)
       return 0

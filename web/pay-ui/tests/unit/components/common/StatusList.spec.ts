@@ -1,37 +1,21 @@
-import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { StatusList } from '#components'
-import { nextTick } from 'vue'
 import { ChequeRefundStatus } from '~/utils/constants'
-
-const mockGetCodes = vi.fn()
-mockNuxtImport('usePayApi', () => {
-  return () => ({
-    getCodes: mockGetCodes
-  })
-})
-
-mockNuxtImport('useI18n', () => () => ({
-  t: (key: string) => {
-    if (key === 'label.status') {
-      return 'Status'
-    }
-    if (key === 'label.refundStatus') {
-      return 'Refund Status'
-    }
-    return key
-  }
-}))
+import type { SelectItem } from '@nuxt/ui'
 
 describe('StatusList', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  describe('when column is "refundStatus"', () => {
+  describe('when using refund status list', () => {
     it('should render with the correct options and props', async () => {
+      const mapFn = (item: { code: string, text: string }): SelectItem => ({
+        label: item.text,
+        value: item.code
+      })
+
       const wrapper = await mountSuspended(StatusList, {
         props: {
-          column: 'refundStatus',
+          list: ChequeRefundStatus,
+          mapFn,
+          placeholder: 'Refund Status',
           modelValue: ''
         },
         global: { stubs: { USelect: true } }
@@ -48,35 +32,33 @@ describe('StatusList', () => {
       }))
 
       expect(select.props('items')).toEqual(expectedItems)
-
-      expect(mockGetCodes).not.toHaveBeenCalled()
     })
   })
 
-  describe('when column is "status"', () => {
+  describe('when using routing slip status list', () => {
     const mockCodes = [
       { code: 'ACTIVE', description: 'Active Status' },
       { code: 'HOLD', description: 'On Hold' }
     ]
 
-    it('should render options returned from pay api', async () => {
-      mockGetCodes.mockResolvedValue(mockCodes)
+    it('should render options from status list', async () => {
+      const mapFn = (item: { code: string, description: string }): SelectItem => ({
+        label: item.description,
+        value: item.code
+      })
 
       const wrapper = await mountSuspended(StatusList, {
         props: {
-          column: 'status',
+          list: mockCodes,
+          mapFn,
+          placeholder: 'Status',
           modelValue: ''
         },
         global: { stubs: { USelect: true } }
       })
 
-      await nextTick()
-
       const select = wrapper.findComponent({ name: 'USelect' })
       expect(select.exists()).toBe(true)
-
-      expect(mockGetCodes).toHaveBeenCalledOnce()
-      expect(mockGetCodes).toHaveBeenCalledWith('routing_slip_statuses')
 
       expect(select.props('placeholder')).toBe('Status')
 

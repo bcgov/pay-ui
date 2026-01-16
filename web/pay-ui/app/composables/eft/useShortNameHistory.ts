@@ -66,6 +66,7 @@ export function useShortNameHistory(shortNameId: number, state: ShortNameHistory
     loadState.isInitialLoad = true
     loadState.currentPage = 1
     state.results = []
+    state.totalResults = 0
   }
 
   return {

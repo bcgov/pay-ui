@@ -1,5 +1,5 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
-import { useStatusList, useStatusListSelect } from '~/composables/common/useStatusList'
+import { useStatusList, useRoutingSlipStatusList, useChequeRefundStatusList } from '~/composables/common/useStatusList'
 import type { Code } from '~/interfaces/code'
 
 const mockGetCodes = vi.fn()
@@ -68,7 +68,7 @@ describe('useStatusList', () => {
   })
 })
 
-describe('useStatusListSelect', () => {
+describe('useRoutingSlipStatusList', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockGetCodes.mockImplementation(() => Promise.resolve([
@@ -77,54 +77,51 @@ describe('useStatusListSelect', () => {
     ]))
   })
 
-  it('should be defined and return all expected properties with correct placeholders', () => {
-    const statusComposable = useStatusListSelect({ column: 'status' })
-    expect(statusComposable).toBeDefined()
-    expect(statusComposable.items).toBeDefined()
-    expect(statusComposable.placeholder).toBeDefined()
-    expect(statusComposable.routingSlipStatusList).toBeDefined()
-    expect(statusComposable.placeholder).toBe('label.status')
-
-    const refundComposable = useStatusListSelect({ column: 'refundStatus' })
-    expect(refundComposable.placeholder).toBe('label.refundStatus')
+  it('should be defined and return all expected properties', async () => {
+    const composable = await useRoutingSlipStatusList()
+    expect(composable).toBeDefined()
+    expect(composable.list).toBeDefined()
+    expect(composable.mapFn).toBeDefined()
+    expect(composable.load).toBeDefined()
   })
 
-  it('should return correct items for status and refundStatus columns', async () => {
-    const statusComposable = useStatusListSelect({ column: 'status' })
-    statusComposable.routingSlipStatusList.value = [
-      { code: 'ACTIVE', description: 'Active' },
-      { code: 'COMPLETED', description: 'Completed' }
-    ] as Code[]
+  it('should return correct items with mapFn', async () => {
+    const composable = await useRoutingSlipStatusList()
     await nextTick()
 
-    expect(statusComposable.items.value.length).toBeGreaterThan(0)
-    expect(statusComposable.items.value[0]).toHaveProperty('label')
-    expect(statusComposable.items.value[0]).toHaveProperty('value')
+    expect(composable.list.value.length).toBeGreaterThan(0)
 
-    const refundComposable = useStatusListSelect({ column: 'refundStatus' })
-    expect(refundComposable.items.value.length).toBeGreaterThan(0)
-    expect(refundComposable.items.value[0]).toHaveProperty('label')
-    expect(refundComposable.items.value[0]).toHaveProperty('value')
+    const mapped = composable.mapFn(composable.list.value[0])
+    expect(mapped).toHaveProperty('label')
+    expect(mapped).toHaveProperty('value')
+    expect(mapped.label).toBe('Active')
+    expect(mapped.value).toBe('ACTIVE')
   })
 
-  it('should load status list when empty and not load if already loaded', async () => {
+  it('should load status list on initialization', async () => {
     vi.clearAllMocks()
-    const composable1 = useStatusListSelect({ column: 'status' })
-
-    if (composable1.routingSlipStatusList.value.length === 0) {
-      composable1.routingSlipStatusList.value = await mockGetCodes('routing_slip_statuses')
-    }
-
+    await useRoutingSlipStatusList()
     expect(mockGetCodes).toHaveBeenCalledWith('routing_slip_statuses')
+  })
+})
 
-    vi.clearAllMocks()
-    const composable2 = useStatusListSelect({ column: 'status' })
-    composable2.routingSlipStatusList.value = [{ code: 'TEST', description: 'Test' }] as Code[]
+describe('useChequeRefundStatusList', () => {
+  it('should be defined and return all expected properties', () => {
+    const composable = useChequeRefundStatusList()
+    expect(composable).toBeDefined()
+    expect(composable.list).toBeDefined()
+    expect(composable.mapFn).toBeDefined()
+  })
 
-    if (composable2.routingSlipStatusList.value.length === 0) {
-      await mockGetCodes('routing_slip_statuses')
-    }
+  it('should return correct items with mapFn', () => {
+    const composable = useChequeRefundStatusList()
+    expect(composable.list.value.length).toBeGreaterThan(0)
 
-    expect(mockGetCodes).not.toHaveBeenCalled()
+    const firstItem = composable.list.value[0]
+    const mapped = composable.mapFn(firstItem)
+    expect(mapped).toHaveProperty('label')
+    expect(mapped).toHaveProperty('value')
+    expect(mapped.label).toBe(firstItem.text)
+    expect(mapped.value).toBe(firstItem.code)
   })
 })

@@ -49,7 +49,8 @@ vi.mock('~/composables/common/useStickyHeader', () => ({
 
 vi.mock('@vueuse/core', () => ({
   useDebounceFn: (fn: () => void) => fn,
-  useInfiniteScroll: vi.fn()
+  useInfiniteScroll: vi.fn(),
+  createSharedComposable: (fn: () => unknown) => fn
 }))
 
 vi.mock('~/utils/common-util', () => ({

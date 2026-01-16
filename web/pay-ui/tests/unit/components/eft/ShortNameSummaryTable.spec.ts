@@ -75,7 +75,8 @@ vi.mock('~/composables/common/useStickyHeader', () => ({
 
 vi.mock('@vueuse/core', () => ({
   useDebounceFn: (fn: () => void) => fn,
-  useInfiniteScroll: vi.fn()
+  useInfiniteScroll: vi.fn(),
+  createSharedComposable: (fn: () => unknown) => fn
 }))
 
 vi.mock('~/utils/common-util', () => ({
@@ -116,7 +117,17 @@ describe('ShortNameSummaryTable', () => {
                 <slot name="empty" />
               </div>
             `,
-            props: ['data', 'columns', 'loading', 'sticky']
+            props: ['data', 'columns', 'loading', 'sticky'],
+            data: () => ({
+              mockRow: {
+                id: 1,
+                shortName: 'TEST',
+                shortNameType: 'EFT',
+                lastPaymentReceivedDate: '2024-01-01',
+                creditsRemaining: 1000,
+                linkedAccountsCount: 2
+              }
+            })
           },
           UInput: {
             template: '<input :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',

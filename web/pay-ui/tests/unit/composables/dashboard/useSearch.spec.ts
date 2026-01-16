@@ -54,10 +54,11 @@ describe('useSearch', () => {
 
   it('should handle search operations, loading, results, params reset, and filter updates', async () => {
     const composable = await useSearch()
-    await composable.searchNow()
+    const searchPromise = composable.searchNow()
+    expect(composable.isLoading.value).toBe(true)
+    await searchPromise
     expect(mockPostSearchRoutingSlip).toHaveBeenCalled()
-    expect(mockToggleLoading).toHaveBeenCalledWith(true)
-    expect(mockToggleLoading).toHaveBeenCalledWith(false)
+    expect(composable.isLoading.value).toBe(false)
 
     const mockItems = [
       { number: '123', status: 'ACTIVE' },
@@ -151,11 +152,17 @@ describe('useSearch', () => {
 
   it('should not call getNext if isLoading is true', async () => {
     const composable = await useSearch()
-    mockIsLoading.value = true
 
-    await composable.getNext()
+    mockPostSearchRoutingSlip.mockImplementation(() =>
+      new Promise(resolve => setTimeout(() => resolve({ items: [], total: 0 }), 100))
+    )
 
-    expect(mockPostSearchRoutingSlip).not.toHaveBeenCalled()
+    const promise1 = composable.getNext(false)
+    const promise2 = composable.getNext(false)
+
+    await Promise.all([promise1, promise2])
+
+    expect(mockPostSearchRoutingSlip).toHaveBeenCalledTimes(1)
   })
 
   it('should append results when getNext is called', async () => {
