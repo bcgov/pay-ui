@@ -388,364 +388,41 @@ useResizeObserver(scrollEl, () => {
 </template>
 
 <style lang="scss" scoped>
+@use '~/assets/scss/table.scss';
 @use '~/assets/scss/colors.scss' as *;
+
 .search-header-bg {
   background-color: var(--color-bg-light-blue) !important;
   opacity: 1 !important;
 }
 
-:deep(table td) {
-  color: var(--color-text-secondary);
-}
-
-:deep(.sticky-row) {
-  position: sticky;
-  top: var(--search-sticky-header-height, 48px);
-  z-index: 19;
-  background-color: var(--color-white) !important;
-  background: var(--color-white) !important;
-  margin: 0 !important;
-  transform: none !important;
-}
-
+// Search-specific: reduce vertical padding on filter row
 :deep(.sticky-row th) {
-  background-color: var(--color-white) !important;
-  background: var(--color-white) !important;
-  border-top: none !important;
-  border-left: none !important;
-  border-right: none !important;
-  border-bottom: 1px solid var(--color-divider) !important;
-  padding-left: 0.25rem !important;
-  padding-right: 0.25rem !important;
-  padding-top: 1rem !important;
-  padding-bottom: 1rem !important;
-  vertical-align: middle;
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
 }
 
-:deep(.sticky-row th:first-child) {
-  border-left: none !important;
-}
-
-:deep(.sticky-row th:last-child) {
-  border-right: none !important;
-}
-
-:deep(.sticky-row td) {
-  background-color: white !important;
-  background: white !important;
-  opacity: 1 !important;
-}
-
-:deep(.sticky-row th *),
-:deep(.table-filter-input) {
-  &,
-  & *,
-  & input::placeholder,
-  & .placeholder::placeholder,
-  & [placeholder]::placeholder {
-    font-weight: 400 !important;
-    color: var(--color-text-secondary) !important;
-  }
-}
-
-:deep(.ui-select button) {
-  padding-left: 0.75rem !important;
-}
-
-// Set 14px font size for DateRangeFilter and StatusList - override global button font size
-:deep(.table-filter-input:is(.date, .status-list-wrapper, status-list)),
-:deep(.table-filter-input:is(.date, .status-list-wrapper, status-list) *),
-:deep(.table-filter-input :is(.date, .status-list-wrapper, status-list, .date-range-filter-button,
-  .date-range-placeholder)),
-:deep(.table-filter-input :is(.date, .status-list-wrapper, status-list, .date-range-filter-button,
-  .date-range-placeholder) *) {
-  font-size: 14px !important;
-}
-
-:deep(.overflow-x-auto) {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background-color: var(--color-white) !important;
-  margin: 0 !important;
-  transform: none !important;
-  position: relative;
-}
-
-:deep(.overflow-x-auto > *) {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.columns-to-show-btn {
-  background-color: var(--color-white) !important;
-}
-
-.columns-to-show-btn:hover,
-.columns-to-show-btn:focus,
-.columns-to-show-btn:active {
-  background-color: var(--color-white) !important;
-}
-
-:deep(.columns-to-show-btn) {
-  background-color: var(--color-white) !important;
-}
-
-:deep(.columns-to-show-btn:hover),
-:deep(.columns-to-show-btn:focus),
-:deep(.columns-to-show-btn:active) {
-  background-color: var(--color-white) !important;
-}
-
-.table-scroll {
-  max-height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  position: relative;
-  height: 100%;
-}
-
-.table-scroll,
-.table-scroll * {
-  transform: none !important;
-  will-change: auto !important;
-}
-
-:deep(.sticky-table thead th) {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: var(--ui-bg, #ffffff);
-}
-
-:deep(.sticky-table .relative) {
-  overflow: visible !important;
-}
-
-:deep(.sticky-table table) {
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
+// Equal width columns
 :deep(table) {
-  border-spacing: 0;
-  margin: 0 !important;
-  padding: 0 !important;
-  transform: none !important;
-  position: relative;
+  table-layout: fixed;
+  width: 100%;
 }
 
-:deep(table),
-:deep(table thead),
-:deep(table thead tr),
-:deep(table thead tr th) {
-  background-color: var(--color-white) !important;
-  background: var(--color-white) !important;
+:deep(table thead tr th),
+:deep(table tbody tr td),
+:deep(.sticky-row th) {
+  width: 9.09%; // 100% / 11 columns
 }
 
-:deep(table thead) {
-  background-color: var(--color-white) !important;
-  background: var(--color-white) !important;
-  margin: 0 !important;
-  transform: none !important;
-}
-
-:deep(table tbody) {
-  margin: 0 !important;
-  padding: 0 !important;
-  transform: none !important;
-}
-
-:deep(table tbody tr) {
-  background-color: transparent;
-  margin: 0 !important;
-  transform: none !important;
-}
-
-:deep(table thead tr th) {
-  color: var(--color-text-primary);
-  padding-left: 0.25rem !important;
-  padding-right: 0.25rem !important;
-  font-weight: 700 !important;
-  background-color: var(--color-white) !important;
-  background: var(--color-white) !important;
-  border-top: 1px solid var(--color-divider) !important;
-  border-bottom: 1px solid var(--color-divider) !important;
-  border-left: none !important;
-  border-right: none !important;
-}
-
-:deep(table thead tr th::before),
-:deep(table thead tr th::after) {
-  display: none !important;
-}
-
-:deep(table thead tr th:first-child) {
-  padding-left: 1rem !important;
-}
-
-:deep(table thead tr th:last-child) {
-  padding-right: 1rem !important;
-  text-align: right !important;
-  border-right: none !important;
-  border-left: none !important;
-}
-
-:deep(table tbody tr td:first-child) {
-  padding-left: 1rem !important;
-}
-
-:deep(table tbody tr td:last-child) {
-  padding-right: 1rem !important;
-  border-right: none !important;
-  border-left: none !important;
-  min-width: 130px !important;
-}
-
-:deep(table thead tr th.header-action),
-:deep(table tbody tr td:has(.btn-table)) {
-  border-right: none !important;
-  border-left: none !important;
-  min-width: 130px !important;
-}
-
-:deep(table thead tr th:last-child) {
-  border-top: 1px solid var(--color-divider) !important;
-  border-bottom: 1px solid var(--color-divider) !important;
-  border-left: none !important;
-  border-right: none !important;
-  min-width: 130px !important;
-}
-
-:deep(.sticky-row th:first-child) {
-  padding-left: 1rem !important;
-}
-
-:deep(.sticky-row th:last-child) {
-  padding-right: 1rem !important;
-  border-right: none !important;
-  border-bottom: 1px solid var(--color-divider) !important;
-}
-
-:deep(.header-receipt-number),
-:deep(table thead tr th.header-receipt-number) {
-  min-width: 100px !important;
-  max-width: 100px !important;
-  width: 100px !important;
-}
-
-:deep(table tbody tr td) {
-  word-wrap: break-word !important;
-  overflow-wrap: break-word !important;
-  white-space: normal !important;
-  border-bottom: 1px solid var(--color-divider) !important;
-  border-left: none !important;
-  border-right: none !important;
-}
-
-:deep(table tbody tr td:nth-of-type(2)) {
-  min-width: 100px !important;
-  max-width: 100px !important;
-  width: 100px !important;
-  word-wrap: break-word !important;
-  overflow-wrap: break-word !important;
-  white-space: normal !important;
-  overflow: visible !important;
-}
-
-:deep(.sticky-row) {
-  :is(.ui-select, status-list, .input-text) {
-    &, * {
-      font-weight: 400 !important;
-    }
-
-    .ui-select button {
-      padding-left: 0.75rem !important;
-    }
-  }
-
-  :is(.ui-input, input:is([type="text"], [type="number"])) {
-    &, & input {
-      padding-left: 0.75rem !important;
-    }
-  }
-}
-
-// Make table divider thicker
-:deep(tr.absolute.z-\[1\].left-0.w-full.h-px),
-:deep(tr[class*="absolute"][class*="z-[1]"][class*="h-px"]) {
-  height: 2px !important;
-}
-
-// Clear Filters button styling
-:deep(.clear-filters-th .clear-filters-btn) {
-  &, & * {
-    color: var(--color-primary, #2563eb) !important;
-  }
-  padding-left: 0.5rem !important;
-  padding-right: 0.5rem !important;
-  font-size: 0.875rem !important;
-  height: 38px !important;
-}
-
-// Styles from search.scss - now scoped to Search component
 .fas-search {
-  // column width
-  .header {
-    &-routing-slip {
-      min-width: 195px;
-    }
-    &-receipt-number {
-      min-width: 174px !important;
-    }
-    &-account-name {
-      min-width: 171px !important;
-    }
-    &-created-name {
-      min-width: 130px !important;
-    }
-    &-date {
-      min-width: 170px;
-    }
-    &-status {
-      min-width: 150px !important;
-    }
-    &-refund-status {
-      min-width: 160px !important;
-    }
-    &-business-identifier {
-      min-width: 160px !important;
-    }
-    &-cheque-receipt-number {
-      min-width: 185px;
-    }
-    &-total {
-      min-width: 121px !important;
-    }
-    &-remaining-amount {
-      min-width: 121px !important;
-    }
-    &-action {
-      min-width: 130px !important;
-      text-align: right;
-    }
-  }
-
-  .sticky {
-    background-color: white;
-  }
-
   .header-row-2 {
     th > div {
       width: 100%;
     }
-    .date button {
+    :deep(.date button) {
       padding: 6px 10px !important;
       overflow: hidden;
       white-space: nowrap;
-      width: 170px;
       background-color: var(--color-bg-shade) !important;
     }
     .placeholder {
@@ -755,38 +432,6 @@ useResizeObserver(scrollEl, () => {
     .input-text {
       font-weight: 400 !important;
       color: var(--color-text-secondary);
-    }
-  }
-}
-
-.wide-dropdown {
-  width: 200px !important;
-}
-
-// Override global label font size for search page
-:deep(label),
-:deep(.ui-form-label) {
-  font-size: inherit;
-}
-
-:deep(.date-range-placeholder, .date-range-result) {
-    font-size: 14px !important;
-  }
-// Exclude DateRangeFilter and StatusList from 16px font size
-.fas-search {
-  :deep(:is(.date, .date-range-filter-button, .status-list-wrapper, .table-filter-input,
-    .table-filter-input *)) {
-    :is(label, .ui-form-label) {
-      font-size: inherit !important;
-    }
-    :is(span) {
-      font-size: 14px !important;
-    }
-  }
-
-  :deep(.date-range-filter-button) {
-    ::is(span) {
-      font-size: 14px !important;
     }
   }
 }
