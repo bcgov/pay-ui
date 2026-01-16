@@ -151,7 +151,7 @@ export default {
   page: {
     dashboard: {
       title: 'Staff Dashboard - BC Business Registry FAS',
-      h1: 'FAS Staff Dashboard',
+      h1: 'Fee Accounting System Dashboard',
       h1Info: 'Search, add and manage routing slips'
     },
     eft: {

@@ -386,10 +386,10 @@ const columns = computed<TableColumn<LinkedShortNameItem>[]>(() => {
           <template #actions-cell="{ row }">
             <div class="flex items-center justify-end gap-2">
               <UButton
-                label="View Detail"
+                label="View Details"
                 color="primary"
                 class="btn-table font-normal"
-                @click="navigateToDetails(row.original.shortNameId)"
+                @click="navigateToDetails(row.original.id)"
               />
             </div>
           </template>
