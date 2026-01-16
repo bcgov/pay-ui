@@ -53,7 +53,7 @@ onMounted(() => {
 <template>
   <div class="w-full bg-white">
     <div class="bg-[var(--color-bg-shade)]">
-      <div class="pt-7">
+      <div class="pt-7 pb-4">
         <h1 class="text-gray-900">
           Electronic Funds Transfer Received Payments
         </h1>

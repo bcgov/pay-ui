@@ -6,7 +6,6 @@ import { useEftStore } from '@/stores/eft-store'
 import CommonUtils from '@/utils/common-util'
 import ShortNameUtils from '@/utils/short-name-util'
 import { useShortNameTable } from '@/composables/eft/useShortNameTable'
-import { usePayModals } from '@/composables/pay-modals'
 import type { TableColumn } from '@nuxt/ui'
 import { useDebounceFn, useInfiniteScroll } from '@vueuse/core'
 import { useStickyHeader } from '@/composables/common/useStickyHeader'
@@ -69,6 +68,9 @@ const eftStore = useEftStore()
 
 const { list: shortNameTypeList, mapFn: shortNameTypeMapFn } = useShortNameTypeList()
 
+const linkingDialogOpen = ref(false)
+const selectedShortNameForLinking = ref<EFTShortnameResponse | null>(null)
+
 const debouncedUpdateFilter = useDebounceFn((col: string, val: string | number) => {
   updateFilter(col, val)
 }, UI_CONSTANTS.DEBOUNCE_DELAY_MS)
@@ -107,16 +109,9 @@ function defaultFilterPayload() {
   }
 }
 
-const payModals = usePayModals()
-
-async function openAccountLinkingDialog(item: EFTShortnameResponse) {
-  // @ts-expect-error shortNameLinkingModal types not fully defined
-  await payModals.shortNameLinkingModal.open({
-    selectedShortName: item,
-    onLinkAccount: async (account: unknown) => {
-      await onLinkAccount(account)
-    }
-  })
+function openAccountLinkingDialog(item: EFTShortnameResponse) {
+  selectedShortNameForLinking.value = item
+  linkingDialogOpen.value = true
 }
 
 async function onLinkAccount(account: unknown) {
@@ -483,6 +478,12 @@ const columns = computed<TableColumn<EFTShortnameResponse>[]>(() => {
         </UTable>
       </div>
     </div>
+
+    <ShortNameLinkingDialog
+      v-model:open="linkingDialogOpen"
+      :short-name="selectedShortNameForLinking"
+      @link-account="onLinkAccount"
+    />
   </div>
 </template>
 
