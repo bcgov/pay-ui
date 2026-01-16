@@ -155,3 +155,11 @@ body.table-wide-active {
     max-width: calc(100vw - 15rem) !important;
   }
 }
+
+// ============================================
+// Modal Styles
+// ============================================
+
+[data-slot="content"] {
+  max-width: 720px !important;
+}

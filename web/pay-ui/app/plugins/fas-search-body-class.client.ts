@@ -7,9 +7,11 @@ export default defineNuxtPlugin((nuxtApp) => {
     const route = useRoute()
 
     const wideTablePaths = ['/home', '/eft']
+    const excludedPaths = ['/eft/shortname-details']
 
     watch(() => route.path, (newPath) => {
-      const isWideTablePage = wideTablePaths.some(path => newPath.includes(path))
+      const isExcluded = excludedPaths.some(path => newPath.includes(path))
+      const isWideTablePage = !isExcluded && wideTablePaths.some(path => newPath.includes(path))
       if (isWideTablePage) {
         document.body.classList.add('table-wide-active')
       } else {

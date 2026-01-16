@@ -98,7 +98,10 @@ watch(() => props.open, (open) => {
 
 <template>
   <div>
-    <UModal v-model:open="isOpen" :ui="{ content: 'sm:max-w-[700px] sm:w-[700px]', body: 'overflow-visible' }">
+    <UModal
+      v-model:open="isOpen"
+      :ui="{ content: 'sm:max-w-[700px] sm:w-[700px] overflow-visible', body: 'overflow-visible' }"
+    >
       <template #header>
         <div class="flex items-center justify-between w-full pr-2">
           <h2 class="text-xl font-bold text-gray-900">
@@ -115,7 +118,7 @@ watch(() => props.open, (open) => {
       </template>
 
       <template #body>
-        <div class="space-y-4 py-2 overflow-visible relative z-10">
+        <div class="space-y-4 py-2 overflow-visible relative z-[60]">
           <div>
             <p class="text-gray-700">
               Short Name Type: {{ shortNameTypeDescription }}

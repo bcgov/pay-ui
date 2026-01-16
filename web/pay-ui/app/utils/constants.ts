@@ -180,7 +180,9 @@ export enum ShortNameHistoryType {
   STATEMENT_REVERSE = 'STATEMENT_REVERSE',
   SN_REFUND_PENDING_APPROVAL = 'SN_REFUND_PENDING_APPROVAL',
   SN_REFUND_APPROVED = 'SN_REFUND_APPROVED',
-  SN_REFUND_DECLINED = 'SN_REFUND_DECLINED'
+  SN_REFUND_DECLINED = 'SN_REFUND_DECLINED',
+  SN_TRANSFER_SENT = 'SN_TRANSFER_SENT',
+  SN_TRANSFER_RECEIVED = 'SN_TRANSFER_RECEIVED'
 }
 
 export enum ShortNameHistoryTypeDescription {
@@ -193,7 +195,9 @@ export enum ShortNameHistoryTypeDescription {
   // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   SN_REFUND_APPROVED = 'Short Name Refund Request',
   // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
-  SN_REFUND_DECLINED = 'Short Name Refund Request'
+  SN_REFUND_DECLINED = 'Short Name Refund Request',
+  SN_TRANSFER_SENT = 'Transfer Sent',
+  SN_TRANSFER_RECEIVED = 'Transfer Received'
 }
 
 export enum ShortNameReversePaymentErrors {
@@ -415,6 +419,13 @@ export enum ChequeRefundCode {
   PROCESSING = 'PROCESSING',
   PROCESSED = 'PROCESSED',
   CHEQUE_UNDELIVERABLE = 'CHEQUE_UNDELIVERABLE'
+}
+
+export enum RefundStatusText {
+  PROCESSING = 'Processing',
+  REFUND_REQUESTED = 'Refund Requested',
+  REQUEST_APPROVED = 'Request Approved',
+  REFUND_DECLINED = 'Refund Declined'
 }
 
 export const chequeRefundCodes = {

@@ -385,7 +385,7 @@ useResizeObserver(scrollEl, () => {
 </template>
 
 <style lang="scss" scoped>
-@use '~/assets/scss/table.scss';
+@use '~/assets/scss/search-table.scss';
 @use '~/assets/scss/colors.scss' as *;
 
 .search-header-bg {

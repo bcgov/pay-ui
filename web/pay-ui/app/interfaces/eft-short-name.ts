@@ -93,3 +93,47 @@ export interface EftTableSettings {
   filterPayload: ShortNameFilterPayload | LinkedShortNameFilterPayload | null
   pageNumber: number
 }
+
+export interface ShortNameHistoryItem {
+  id?: number
+  historicalId?: number
+  transactionDate: string
+  createdOn?: string
+  transactionType: string
+  amount: number
+  shortNameBalance?: number
+  creditsRemaining?: number
+  statementNumber?: number | null
+  relatedStatementNumber?: number | null
+  invoiceId?: number | null
+  isProcessing?: boolean
+  isReversible?: boolean
+  eftRefundId?: number | null
+  shortNameRefundId?: number | null
+  eftRefundMethod?: string
+  refundMethod?: string
+  eftRefundChequeStatus?: string | null
+  refundStatus?: string
+  status?: string
+  depositDate?: string
+  paymentDate?: string
+  refundAmount?: number
+  comment?: string | null
+  accountBranch?: string | null
+  accountId?: string | null
+  accountName?: string | null
+  shortNameId?: number
+}
+
+export interface ShortNameHistoryResponse {
+  items: ShortNameHistoryItem[]
+  limit: number
+  page: number
+  total: number
+}
+
+export interface ShortNameHistoryState {
+  results: ShortNameHistoryItem[]
+  totalResults: number
+  loading: boolean
+}

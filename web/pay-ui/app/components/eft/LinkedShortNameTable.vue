@@ -412,7 +412,7 @@ const columns = computed<TableColumn<LinkedShortNameItem>[]>(() => {
 </template>
 
 <style lang="scss" scoped>
-  @use '~/assets/scss/table.scss';
+  @use '~/assets/scss/search-table.scss';
   @use '~/assets/scss/colors.scss' as *;
 
   // Equal width columns for this 8-column table

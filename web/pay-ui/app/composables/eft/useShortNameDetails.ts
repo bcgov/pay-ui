@@ -67,12 +67,34 @@ export function useShortNameDetails(shortNameId: Ref<number>) {
     }
   }
 
+  async function patchShortName(data: Partial<Pick<EftShortName, 'casSupplierNumber' | 'casSupplierSite' | 'email'>>) {
+    if (!shortNameDetails.value?.id) {
+      return { success: false }
+    }
+
+    try {
+      await $payApi(
+        `/eft-shortnames/${shortNameDetails.value.id}`,
+        {
+          method: 'PATCH',
+          body: data
+        }
+      )
+      await refreshShortName()
+      return { success: true }
+    } catch (error) {
+      console.error('Failed to update short name:', error)
+      return { success: false, error }
+    }
+  }
+
   return {
     shortNameDetails,
     shortName,
     loading,
     notFound,
     loadShortname,
-    refreshShortName
+    refreshShortName,
+    patchShortName
   }
 }

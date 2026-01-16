@@ -109,14 +109,12 @@ onMounted(() => {
 }
 
 .tab-container {
-  display: flex;
-  width: 100%;
+  display: inline-flex;
   background-color: #003366;
   border-radius: 12px;
 }
 
 .tab-button {
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;

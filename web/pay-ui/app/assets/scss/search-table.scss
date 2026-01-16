@@ -1,6 +1,6 @@
 @use '~/assets/scss/colors.scss' as *;
 
-// Common table styling for EFT short name tables
+// Common table styling for search based tables.
 
 :deep(table td) {
   color: var(--color-text-secondary);

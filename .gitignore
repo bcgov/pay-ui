@@ -84,6 +84,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+*.env.*
 
 # Spyder project settings
 .spyderproject
@@ -126,3 +127,4 @@ lib/lib.umd.js
 lib/lib.umd.js.map
 
 .history
+

@@ -488,7 +488,7 @@ const columns = computed<TableColumn<EFTShortnameResponse>[]>(() => {
 </template>
 
 <style lang="scss" scoped>
-  @use '~/assets/scss/table.scss';
+  @use '~/assets/scss/search-table.scss';
   @use '~/assets/scss/colors.scss' as *;
 
   // Equal width columns for this 6-column table

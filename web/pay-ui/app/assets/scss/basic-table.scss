@@ -1,0 +1,20 @@
+// Basic table styling for simple data tables
+
+:deep(table) {
+  width: 100%;
+  background-color: white;
+}
+
+:deep(th) {
+  padding: 12px 16px;
+  background-color: white;
+  color: #495057;
+  font-weight: 700;
+}
+
+:deep(td) {
+  padding: 12px 16px;
+  background-color: white;
+  color: #495057;
+  font-weight: 400;
+}

@@ -16,7 +16,7 @@ const {
   loading,
   notFound,
   loadShortname,
-  refreshShortName
+  patchShortName
 } = useShortNameDetails(shortNameId)
 
 definePageMeta({
@@ -34,7 +34,22 @@ const state = reactive({
   snackbar: false,
   snackbarText: '',
   displayShortNameFinancialDialog: false,
-  shortNameFinancialDialogType: ''
+  shortNameFinancialDialogType: '' as 'CAS_SUPPLIER_NUMBER' | 'CAS_SUPPLIER_SITE' | 'EMAIL' | ''
+})
+
+const financialDialogRef = useTemplateRef<{ onSaveComplete: () => void }>('financialDialogRef')
+
+const currentDialogValue = computed(() => {
+  switch (state.shortNameFinancialDialogType) {
+    case 'CAS_SUPPLIER_NUMBER':
+      return shortName.value?.casSupplierNumber || ''
+    case 'CAS_SUPPLIER_SITE':
+      return shortName.value?.casSupplierSite || ''
+    case 'EMAIL':
+      return shortName.value?.email || ''
+    default:
+      return ''
+  }
 })
 
 const unsettledAmount = computed(() => {
@@ -61,8 +76,18 @@ function openShortNameSupplierSiteDialog() {
   state.displayShortNameFinancialDialog = true
 }
 
-async function _onShortNamePatch() {
-  await refreshShortName()
+async function onFinancialDialogSave(data: { casSupplierNumber?: string, casSupplierSite?: string, email?: string }) {
+  const result = await patchShortName(data)
+  financialDialogRef.value?.onSaveComplete()
+
+  if (result.success) {
+    const toast = useToast()
+    toast.add({
+      description: 'Short name updated successfully.',
+      icon: 'i-mdi-check-circle',
+      color: 'success'
+    })
+  }
 }
 
 async function _onRefund() {
@@ -101,7 +126,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="w-full bg-white min-h-screen">
+  <div class="w-full min-h-screen">
     <div v-if="loading" class="flex justify-center items-center min-h-[400px]">
       <UIcon name="i-mdi-loading" class="animate-spin text-4xl text-primary" />
     </div>
@@ -131,7 +156,7 @@ onMounted(async () => {
       </div>
 
       <!-- Header Section -->
-      <div class="header-section bg-white px-6 py-8">
+      <div class="header-section bg-white py-8">
         <div class="flex flex-col lg:flex-row lg:justify-between gap-6">
           <!-- Left: Short Name Title -->
           <div class="shortname-title">
@@ -188,7 +213,7 @@ onMounted(async () => {
       </div>
 
       <!-- Caution Alert -->
-      <div v-if="canEFTRefund" class="px-6">
+      <div v-if="canEFTRefund" class="pb-6 bg-[var(--color-bg-shade)]">
         <div class="caution-alert">
           <UIcon name="i-mdi-alert" class="caution-icon" />
           <p class="text-gray-700">
@@ -198,44 +223,37 @@ onMounted(async () => {
       </div>
 
       <!-- Content Sections -->
-      <div class="px-6 py-8 space-y-12">
-        <!-- Placeholder for ShortNameRefund component -->
-        <div v-if="canEFTRefund" class="bg-white rounded shadow-sm border border-gray-200 p-6">
-          <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <UIcon name="i-mdi-cash-refund" class="text-primary" />
-            {{ t('page.eft.shortNameDetails.label.refund') }}
-          </h2>
-          <p class="text-gray-600">
-            {{ t('page.eft.shortNameDetails.label.refundPlaceholder') }}
-          </p>
-        </div>
+      <div class="flex flex-col gap-8 content-sections">
+        <!-- ShortNameRefund component -->
+        <ShortNameRefund
+          v-if="canEFTRefund"
+          :short-name-details="shortNameDetails"
+          :short-name="shortName"
+          :unsettled-amount="unsettledAmount"
+          @on-short-name-refund="_onRefund"
+        />
 
-        <!-- Placeholder for ShortNameAccountLink component -->
-        <div class="bg-white rounded shadow-sm border border-gray-200 p-6">
-          <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <UIcon name="i-mdi-bank-transfer" class="text-primary" />
-            {{ t('page.eft.shortNameDetails.label.accountsLinkedTo', { shortName: shortNameDetails?.shortName }) }}
-          </h2>
-          <p class="text-gray-600">
-            {{ t('page.eft.shortNameDetails.label.linkedAccounts') }}: {{ shortNameDetails?.linkedAccountsCount || 0 }}
-          </p>
-          <p class="text-gray-500 mt-2">
-            {{ t('page.eft.shortNameDetails.label.accountLinkPlaceholder') }}
-          </p>
-        </div>
+        <ShortNameAccountLink
+          :short-name-details="shortNameDetails"
+          :short-name="shortName"
+          @on-link-account="_onLinkAccount"
+          @on-payment-action="_onPaymentAction"
+        />
 
-        <!-- Placeholder for ShortNamePaymentHistory component -->
-        <div class="bg-white rounded shadow-sm border border-gray-200 p-6">
-          <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <UIcon name="i-mdi-format-list-bulleted" class="text-primary" />
-            {{ t('page.eft.shortNameDetails.label.paymentHistory') }}
-          </h2>
-          <p class="text-gray-600">
-            {{ t('page.eft.shortNameDetails.label.paymentHistoryPlaceholder') }}
-          </p>
-        </div>
+        <ShortNamePaymentHistory
+          :short-name-id="shortNameId"
+          @payment-action="_onPaymentAction"
+        />
       </div>
     </div>
+
+    <ShortNameFinancialDialog
+      ref="financialDialogRef"
+      v-model:open="state.displayShortNameFinancialDialog"
+      :type="state.shortNameFinancialDialogType"
+      :current-value="currentDialogValue"
+      @save="onFinancialDialogSave"
+    />
   </div>
 </template>
 
@@ -248,23 +266,11 @@ onMounted(async () => {
 
 .header-section {
   position: relative;
+  background-color: var(--color-bg-shade) !important;
+}
 
-  &::after {
-    content: '';
-    display: block;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    z-index: 0;
-    background-color: var(--color-white);
-  }
-
-  > div {
-    position: relative;
-    z-index: 1;
-  }
+.content-sections {
+  background-color: var(--color-bg-shade);
 }
 
 .caution-alert {

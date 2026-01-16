@@ -140,7 +140,7 @@ defineExpose({ clearSelection: clearSelectionSilent })
 
     <div
       v-if="showResults"
-      class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg
+      class="absolute z-[100] w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg
         max-h-80 overflow-y-auto overscroll-contain"
     >
       <div
