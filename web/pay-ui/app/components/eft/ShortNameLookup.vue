@@ -140,9 +140,13 @@ defineExpose({ clearSelection: clearSelectionSilent })
 
     <div
       v-if="showResults"
-      class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-80 overflow-y-auto overscroll-contain"
+      class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg
+        max-h-80 overflow-y-auto overscroll-contain"
     >
-      <div class="sticky top-0 bg-gray-50 border-b border-gray-200 px-4 py-2 flex justify-between text-sm font-medium text-gray-600">
+      <div
+        class="sticky top-0 bg-gray-50 border-b border-gray-200 px-4 py-2 flex justify-between
+          text-sm font-medium text-gray-600"
+      >
         <span class="flex-1">Accounts with EFT Payment Method Selected</span>
         <span v-if="detailsLoaded" class="w-32 text-right">Amount Owing</span>
       </div>
@@ -154,7 +158,8 @@ defineExpose({ clearSelection: clearSelectionSilent })
       <div
         v-for="account in searchResults"
         :key="account.accountId"
-        class="px-4 py-3 flex items-center justify-between hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+        class="px-4 py-3 flex items-center justify-between hover:bg-gray-50 cursor-pointer
+          border-b border-gray-100 last:border-b-0"
         :class="{ 'opacity-50 cursor-not-allowed': isAccountDisabled(account) }"
         @click="selectAccount(account)"
       >

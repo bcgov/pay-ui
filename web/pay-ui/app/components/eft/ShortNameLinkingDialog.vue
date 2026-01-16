@@ -19,7 +19,7 @@ const emit = defineEmits<{
 
 const { getStatementId, linkShortNameToAccount, isAlreadyMappedError } = useShortNameLinking()
 
-const shortNameLookupRef = ref<{ clearSelection: () => void } | null>(null)
+const shortNameLookupRef = useTemplateRef<{ clearSelection: () => void }>('shortNameLookupRef')
 const selectedAccount = ref<EftAccount | null>(null)
 const statementId = ref<number | null>(null)
 const isLinking = ref(false)

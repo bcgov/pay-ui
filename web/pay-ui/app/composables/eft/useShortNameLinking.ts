@@ -70,7 +70,9 @@ export function useShortNameLinking() {
     }
   }
 
-  async function getAccountLinkDetails(accountIds: string[]): Promise<Map<string, { statusCode?: string, totalDue: number }>> {
+  async function getAccountLinkDetails(
+    accountIds: string[]
+  ): Promise<Map<string, { statusCode?: string, totalDue: number }>> {
     const detailsMap = new Map<string, { statusCode?: string, totalDue: number }>()
 
     try {
