@@ -7,9 +7,6 @@ export default defineAppConfig({
     login: {
       redirect: '/home'
     },
-    logout: {
-      redirect: '/auth/login'
-    }
   },
   ui: {
     container: {
