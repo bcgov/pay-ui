@@ -407,22 +407,45 @@ watch(routingSlips, () => {
   opacity: 1 !important;
 }
 
-// Search-specific: reduce vertical padding on filter row
+//Fix the shifting
+:deep(table) {
+  table-layout: auto;
+  width: 100%;
+}
+
+:deep(table thead) {
+  width: 100%;
+}
+
+:deep(table tbody) {
+  width: 100%;
+}
+
+:deep(.sticky-row),
+:deep(table thead tr) {
+  width: 100%;
+}
+
+:deep(table thead tr:first-child th),
 :deep(.sticky-row th) {
+  width: 150px;
+  min-width: 150px;
   padding-top: 0.75rem !important;
   padding-bottom: 0.75rem !important;
 }
 
-// Equal width columns
-:deep(table) {
-  table-layout: fixed;
-  width: 100%;
+//Fix clear filters size
+:deep(.sticky-row th.clear-filters-th) {
+  text-align: right !important;
 }
 
-:deep(table thead tr th),
-:deep(table tbody tr td),
+:deep(.clear-filters-btn) {
+  max-width: 150px !important;
+}
+
 :deep(.sticky-row th) {
-  width: 9.09%; // 100% / 11 columns
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
 }
 
 .fas-search {
