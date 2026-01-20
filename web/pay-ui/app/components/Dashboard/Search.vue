@@ -79,6 +79,12 @@ onMounted(async () => {
 useResizeObserver(scrollEl, () => {
   updateStickyHeaderHeight()
 })
+
+watch(columnVisibility, () => {
+  nextTick(() => {
+    updateStickyHeaderHeight()
+  })
+})
 </script>
 
 <template>
