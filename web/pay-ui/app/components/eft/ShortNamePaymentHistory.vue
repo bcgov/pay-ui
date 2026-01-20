@@ -28,7 +28,22 @@ const state = reactive<ShortNameHistoryState>({
   loading: false
 })
 
-const { loadState, getNext, resetState } = useShortNameHistory(props.shortNameId, state)
+const {
+  loadState,
+  getNext,
+  resetState,
+  reversePayment,
+  canReversePayment,
+  getReversalTooltip
+} = useShortNameHistory(props.shortNameId, state)
+
+const confirmDialog = reactive({
+  show: false,
+  title: '',
+  message: '',
+  statementId: 0,
+  accountId: ''
+})
 
 function formatDate(date: string | undefined) {
   return date ? CommonUtils.formatDisplayDate(date, dateDisplayFormat) : ''
@@ -191,6 +206,40 @@ function navigateToRefundDetail(item: ShortNameHistoryItem) {
   })
 }
 
+function canShowReverseButton(item: ShortNameHistoryItem): boolean {
+  return item.transactionType === ShortNameHistoryType.STATEMENT_PAID
+    && !!item.statementNumber
+    && canReversePayment(item.transactionDate, item.paymentDate)
+}
+
+function showConfirmReverseModal(item: ShortNameHistoryItem) {
+  confirmDialog.title = 'Reverse Payment'
+  confirmDialog.message = [
+    `Are you sure you want to reverse the payment for Statement ${item.statementNumber}?`,
+    'This action cannot be undone.'
+  ].join(' ')
+  confirmDialog.statementId = item.statementNumber || 0
+  confirmDialog.accountId = item.accountId || ''
+  confirmDialog.show = true
+}
+
+async function handleReversePayment() {
+  const success = await reversePayment(confirmDialog.statementId, confirmDialog.accountId)
+  confirmDialog.show = false
+
+  if (success) {
+    resetConfirmDialog()
+  }
+}
+
+function resetConfirmDialog() {
+  confirmDialog.show = false
+  confirmDialog.title = ''
+  confirmDialog.message = ''
+  confirmDialog.statementId = 0
+  confirmDialog.accountId = ''
+}
+
 const scrollEl = useTemplateRef<HTMLElement>('scrollEl')
 
 const { updateStickyHeaderHeight } = useStickyHeader(scrollEl)
@@ -246,6 +295,50 @@ const columns = computed<TableColumn<ShortNameHistoryItem>[]>(() => [
 
 <template>
   <div class="bg-gray-50 border-y border-gray-200 mb-4">
+    <UModal v-model:open="confirmDialog.show" :ui="{ content: 'sm:max-w-[720px]' }">
+      <template #header>
+        <div class="flex items-center justify-between w-full pr-2">
+          <h2 class="text-xl font-bold text-gray-900">
+            {{ confirmDialog.title }}
+          </h2>
+          <UButton
+            icon="i-mdi-close"
+            color="primary"
+            variant="ghost"
+            size="lg"
+            @click.stop="resetConfirmDialog"
+          />
+        </div>
+      </template>
+
+      <template #body>
+        <p class="py-4 text-gray-700">
+          {{ confirmDialog.message }}
+        </p>
+      </template>
+
+      <template #footer>
+        <div class="flex items-center justify-center gap-3 w-full py-2">
+          <UButton
+            label="Cancel"
+            color="primary"
+            variant="outline"
+            size="lg"
+            class="min-w-[100px]"
+            @click.stop="resetConfirmDialog"
+          />
+          <UButton
+            label="Confirm"
+            color="primary"
+            size="lg"
+            class="min-w-[100px]"
+            :loading="state.loading"
+            @click="handleReversePayment"
+          />
+        </div>
+      </template>
+    </UModal>
+
     <div class="card-title flex items-center px-6 py-5 bg-bcgov-lightblue">
       <UIcon name="i-mdi-format-list-bulleted" class="text-primary text-3xl mr-4" />
       <h2 class="text-lg font-bold text-gray-900">
@@ -310,13 +403,29 @@ const columns = computed<TableColumn<ShortNameHistoryItem>[]>(() => [
         </template>
 
         <template #actions-cell="{ row }">
-          <UButton
-            v-if="canShowRefundDetail(row.original)"
-            label="Refund Detail"
-            color="primary"
-            class="btn-table font-normal"
-            @click="navigateToRefundDetail(row.original)"
-          />
+          <div class="flex items-center justify-end gap-2">
+            <UButton
+              v-if="canShowRefundDetail(row.original)"
+              label="Refund Detail"
+              color="primary"
+              class="btn-table font-normal"
+              @click="navigateToRefundDetail(row.original)"
+            />
+
+            <UTooltip
+              v-if="row.original.transactionType === ShortNameHistoryType.STATEMENT_PAID
+                && row.original.statementNumber"
+              :text="getReversalTooltip(row.original.transactionDate, row.original.paymentDate)"
+            >
+              <UButton
+                label="Reverse"
+                color="primary"
+                class="btn-table font-normal"
+                :disabled="!canShowReverseButton(row.original)"
+                @click="showConfirmReverseModal(row.original)"
+              />
+            </UTooltip>
+          </div>
         </template>
 
         <template #loading>

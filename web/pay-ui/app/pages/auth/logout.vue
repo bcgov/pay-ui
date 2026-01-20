@@ -1,6 +1,5 @@
 <script setup lang="ts">
 const route = useRoute()
-const ac = useAppConfig().connect
 const { logout } = useConnectAuth()
 
 const redirectUrl = computed(() => {

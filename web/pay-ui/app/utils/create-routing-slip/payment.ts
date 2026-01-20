@@ -13,6 +13,7 @@ export function getRoutingSlipAmountSchema() {
   return z.string()
     .min(1, t('validation.payment.paidAmount.required'))
     .regex(/^\d+(\.\d{1,2})?$/, { message: t('validation.payment.paidAmount.decimal') })
+    .refine(val => parseFloat(val) > 0, { message: t('validation.payment.paidAmount.minimum') })
 }
 
 export function getRoutingSlipPaymentItemSchema() {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Comment } from '@/interfaces/routing-slip'
 import { DateTime } from 'luxon'
+import { getFASErrorMessage } from '@/utils/api-error-handler'
 
 interface Props {
   identifier?: string
@@ -11,8 +12,7 @@ interface Props {
 
 const payApi = usePayApi()
 const { $sanitize } = useNuxtApp()
-const modal = usePayModals()
-const { t } = useI18n()
+const toast = useToast()
 
 const props = withDefaults(defineProps<Props>(), {
   identifier: '',
@@ -117,10 +117,19 @@ async function save(): Promise<void> {
     await payApi.updateRoutingSlipComments(data, props.identifier)
     state.comment = ''
     state.errorMessage = ''
+    toast.add({
+      description: 'Comment saved successfully.',
+      icon: 'i-mdi-check-circle',
+      color: 'success'
+    })
     await fetchStaffComments()
   } catch (error) {
     console.error('save() error =', error)
-    await modal.openErrorDialog(t('error.saveComment.title'), t('error.saveComment.description'))
+    toast.add({
+      description: getFASErrorMessage(error),
+      icon: 'i-mdi-alert-circle',
+      color: 'error'
+    })
   } finally {
     state.isSaving = false
   }

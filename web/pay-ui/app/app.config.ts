@@ -6,7 +6,7 @@ export default defineAppConfig({
     },
     login: {
       redirect: '/home'
-    },
+    }
   },
   ui: {
     container: {

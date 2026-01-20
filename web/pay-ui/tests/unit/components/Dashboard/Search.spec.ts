@@ -7,6 +7,25 @@ mockNuxtImport('useI18n', () => () => ({
   t: (key: string) => key
 }))
 
+const mockPayApi = vi.fn((url: string) => {
+  if (url.includes('/codes/routing_slip_statuses')) {
+    return Promise.resolve({
+      codes: [
+        { code: 'ACTIVE', description: 'Active' },
+        { code: 'COMPLETE', description: 'Complete' }
+      ]
+    })
+  }
+  if (url.includes('/codes/')) {
+    return Promise.resolve({ codes: [] })
+  }
+  return Promise.resolve({})
+})
+
+mockNuxtImport('usePayApi', () => () => ({
+  getCodes: mockPayApi
+}))
+
 const {
   mockSearchRoutingSlipTableHeaders,
   _mockDebouncedSearch,

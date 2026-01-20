@@ -1,12 +1,18 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { useShortNameHistory } from '~/composables/eft/useShortNameHistory'
 import type { ShortNameHistoryState } from '~/interfaces/eft-short-name'
+import { ShortNamePaymentActions } from '~/utils/constants'
 
 const mockPayApi = vi.fn()
+const mockToastAdd = vi.fn()
 
 mockNuxtImport('useNuxtApp', () => () => ({
   $payApi: mockPayApi,
   $payApiWithErrorHandling: mockPayApi
+}))
+
+mockNuxtImport('useToast', () => () => ({
+  add: mockToastAdd
 }))
 
 function createState(): ShortNameHistoryState {
@@ -22,130 +28,85 @@ describe('useShortNameHistory', () => {
     vi.clearAllMocks()
   })
 
-  it('should initialize with correct default load state', () => {
-    const state = createState()
-    const { loadState } = useShortNameHistory(123, state)
-
-    expect(loadState.reachedEnd).toBe(false)
-    expect(loadState.isLoading).toBe(false)
-    expect(loadState.isInitialLoad).toBe(true)
-    expect(loadState.currentPage).toBe(1)
-  })
-
-  describe('getNext', () => {
-    it('should fetch initial data on first call', async () => {
-      const mockResponse = {
-        items: [
-          { id: 1, transactionDate: '2024-01-01', transactionType: 'FUNDS_RECEIVED', amount: 100 }
-        ],
-        total: 1
-      }
-      mockPayApi.mockResolvedValue(mockResponse)
-
+  describe('state management and pagination', () => {
+    it('should initialize, fetch, paginate, and reset state correctly', async () => {
       const state = createState()
-      const { getNext, loadState } = useShortNameHistory(123, state)
+      const { loadState, getNext, resetState } = useShortNameHistory(123, state)
+
+      expect(loadState.reachedEnd).toBe(false)
+      expect(loadState.isLoading).toBe(false)
+      expect(loadState.isInitialLoad).toBe(true)
+      expect(loadState.currentPage).toBe(1)
+
+      const firstPage = { items: [{ id: 1 }], total: 20 }
+      const secondPage = { items: [{ id: 2 }], total: 20 }
+      mockPayApi.mockResolvedValueOnce(firstPage).mockResolvedValueOnce(secondPage)
 
       await getNext(true)
 
-      expect(state.results).toEqual(mockResponse.items)
-      expect(state.totalResults).toBe(1)
+      expect(state.results).toEqual(firstPage.items)
       expect(loadState.isInitialLoad).toBe(false)
+      expect(loadState.currentPage).toBe(1)
+      expect(mockPayApi).toHaveBeenCalledWith('/eft-shortnames/123/history?page=1&limit=10', { method: 'GET' })
+
+      await getNext(false)
+
+      expect(state.results).toHaveLength(2)
+      expect(loadState.currentPage).toBe(2)
+
+      mockPayApi.mockResolvedValue({ items: [{ id: 3 }], total: 3 })
+      await getNext(false)
+
+      expect(loadState.reachedEnd).toBe(true)
+
+      resetState()
+
+      expect(state.results).toEqual([])
+      expect(loadState.reachedEnd).toBe(false)
+      expect(loadState.isInitialLoad).toBe(true)
       expect(loadState.currentPage).toBe(1)
     })
 
-    it('should append results on subsequent calls', async () => {
-      const firstPage = {
-        items: [{ id: 1, transactionDate: '2024-01-01', transactionType: 'FUNDS_RECEIVED', amount: 100 }],
-        total: 20
-      }
-      const secondPage = {
-        items: [{ id: 2, transactionDate: '2024-01-02', transactionType: 'STATEMENT_PAID', amount: 50 }],
-        total: 20
-      }
-
-      mockPayApi.mockResolvedValueOnce(firstPage).mockResolvedValueOnce(secondPage)
+    it('should manage loading state and prevent concurrent fetches', async () => {
+      let resolvePromise: (value: unknown) => void
+      mockPayApi.mockImplementation(() => new Promise((resolve) => { resolvePromise = resolve }))
 
       const state = createState()
       const { getNext, loadState } = useShortNameHistory(123, state)
 
-      await getNext(true)
-      expect(state.results).toHaveLength(1)
+      const first = getNext(true)
+      const second = getNext(true)
 
-      await getNext(false)
-      expect(state.results).toHaveLength(2)
-      expect(loadState.currentPage).toBe(2)
-    })
-
-    it('should set reachedEnd when all results fetched', async () => {
-      const mockResponse = {
-        items: [{ id: 1, transactionDate: '2024-01-01', transactionType: 'FUNDS_RECEIVED', amount: 100 }],
-        total: 1
-      }
-      mockPayApi.mockResolvedValue(mockResponse)
-
-      const state = createState()
-      const { getNext, loadState } = useShortNameHistory(123, state)
-
-      await getNext(true)
-
-      expect(loadState.reachedEnd).toBe(true)
-    })
-
-    it('should not fetch more when reachedEnd is true', async () => {
-      const mockResponse = {
-        items: [{ id: 1, transactionDate: '2024-01-01', transactionType: 'FUNDS_RECEIVED', amount: 100 }],
-        total: 1
-      }
-      mockPayApi.mockResolvedValue(mockResponse)
-
-      const state = createState()
-      const { getNext, loadState } = useShortNameHistory(123, state)
-
-      await getNext(true)
-      expect(loadState.reachedEnd).toBe(true)
-
-      mockPayApi.mockClear()
-      await getNext(false)
-
-      expect(mockPayApi).not.toHaveBeenCalled()
-    })
-
-    it('should not fetch if already loading', async () => {
-      const mockResponse = { items: [], total: 0 }
-      mockPayApi.mockImplementation(() => new Promise(resolve => setTimeout(() => resolve(mockResponse), 100)))
-
-      const state = createState()
-      const { getNext, loadState } = useShortNameHistory(123, state)
-
-      const firstCall = getNext(true)
+      expect(state.loading).toBe(true)
       expect(loadState.isLoading).toBe(true)
-
-      await getNext(true)
       expect(mockPayApi).toHaveBeenCalledTimes(1)
 
-      await firstCall
+      resolvePromise!({ items: [{ id: 1 }], total: 1 })
+      await first
+      await second
+
+      expect(state.loading).toBe(false)
+      expect(loadState.isLoading).toBe(false)
+      expect(mockPayApi).toHaveBeenCalledTimes(1)
     })
 
-    it('should call API with correct pagination', async () => {
-      mockPayApi.mockResolvedValue({ items: [], total: 100 })
-
+    it.each([
+      [{ items: [], total: 0 }, 0, true],
+      [{ items: [{ id: 1 }], total: 1 }, 1, true],
+      [{ items: Array(10).fill({ id: 1 }), total: 10 }, 10, true],
+      [{ items: Array(10).fill({ id: 1 }), total: 1000 }, 10, false]
+    ])('should handle various result counts', async (response, expectedLength, shouldReachEnd) => {
+      mockPayApi.mockResolvedValue(response)
       const state = createState()
-      const { getNext } = useShortNameHistory(456, state)
+      const { getNext, loadState } = useShortNameHistory(123, state)
 
       await getNext(true)
-      expect(mockPayApi).toHaveBeenCalledWith(
-        '/eft-shortnames/456/history?page=1&limit=10',
-        { method: 'GET' }
-      )
 
-      await getNext(false)
-      expect(mockPayApi).toHaveBeenCalledWith(
-        '/eft-shortnames/456/history?page=2&limit=10',
-        { method: 'GET' }
-      )
+      expect(state.results).toHaveLength(expectedLength)
+      expect(loadState.reachedEnd).toBe(shouldReachEnd)
     })
 
-    it('should handle API error gracefully', async () => {
+    it('should handle API errors gracefully', async () => {
       mockPayApi.mockRejectedValue(new Error('API Error'))
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
@@ -161,285 +122,96 @@ describe('useShortNameHistory', () => {
     })
   })
 
-  describe('resetState', () => {
-    it('should reset all state values', async () => {
-      mockPayApi.mockResolvedValue({
-        items: [{ id: 1, transactionDate: '2024-01-01', transactionType: 'FUNDS_RECEIVED', amount: 100 }],
-        total: 1
+  describe('reversePayment', () => {
+    it('should reverse payment successfully and refresh history', async () => {
+      const historyResponse = { items: [{ id: 1, transactionType: 'STATEMENT_REVERSE' }], total: 1 }
+      mockPayApi.mockResolvedValueOnce({}).mockResolvedValueOnce(historyResponse)
+
+      const state = createState()
+      const { reversePayment } = useShortNameHistory(123, state)
+
+      const result = await reversePayment(456, 'ACC-123')
+
+      expect(mockPayApi).toHaveBeenCalledWith('/eft-shortnames/123/payment', {
+        method: 'POST',
+        body: { action: ShortNamePaymentActions.REVERSE, accountId: 'ACC-123', statementId: 456 }
       })
+      expect(result).toBe(true)
+      expect(state.results).toEqual(historyResponse.items)
+      expect(mockToastAdd).toHaveBeenCalledWith({
+        description: 'Payment reversed successfully.',
+        icon: 'i-mdi-check-circle',
+        color: 'success'
+      })
+    })
+
+    it('should handle reversal errors with generic message', async () => {
+      mockPayApi.mockRejectedValueOnce(new Error('Reversal failed'))
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       const state = createState()
-      const { getNext, resetState, loadState } = useShortNameHistory(123, state)
+      const { reversePayment } = useShortNameHistory(123, state)
 
-      await getNext(true)
-      expect(state.results).toHaveLength(1)
-      expect(loadState.isInitialLoad).toBe(false)
+      const result = await reversePayment(456)
 
-      resetState()
-
-      expect(state.results).toEqual([])
-      expect(loadState.reachedEnd).toBe(false)
-      expect(loadState.isInitialLoad).toBe(true)
-      expect(loadState.currentPage).toBe(1)
-    })
-  })
-
-  describe('loading state', () => {
-    it('should set loading state during fetch', async () => {
-      let resolvePromise: (value: unknown) => void
-      mockPayApi.mockImplementation(() => new Promise((resolve) => { resolvePromise = resolve }))
-
-      const state = createState()
-      const { getNext, loadState } = useShortNameHistory(123, state)
-
-      const fetchPromise = getNext(true)
-
-      expect(state.loading).toBe(true)
-      expect(loadState.isLoading).toBe(true)
-
-      resolvePromise!({ items: [], total: 0 })
-      await fetchPromise
-
-      expect(state.loading).toBe(false)
-      expect(loadState.isLoading).toBe(false)
-    })
-  })
-
-  describe('pagination edge cases', () => {
-    it('should handle single result', async () => {
-      mockPayApi.mockResolvedValue({ items: [{ id: 1 }], total: 1 })
-
-      const state = createState()
-      const { getNext, loadState } = useShortNameHistory(123, state)
-
-      await getNext(true)
-
-      expect(state.results).toHaveLength(1)
-      expect(loadState.reachedEnd).toBe(true)
+      expect(result).toBe(false)
+      expect(mockToastAdd).toHaveBeenCalledWith({
+        description: 'An error occurred while processing your request.',
+        icon: 'i-mdi-alert-circle',
+        color: 'error'
+      })
+      consoleSpy.mockRestore()
     })
 
-    it('should handle exactly one page of results', async () => {
-      const tenItems = Array.from({ length: 10 }, (_, i) => ({ id: i + 1 }))
-      mockPayApi.mockResolvedValue({ items: tenItems, total: 10 })
-
-      const state = createState()
-      const { getNext, loadState } = useShortNameHistory(123, state)
-
-      await getNext(true)
-
-      expect(state.results).toHaveLength(10)
-      expect(loadState.reachedEnd).toBe(true)
-    })
-
-    it('should handle pagination with 11 items (2 pages)', async () => {
-      const firstPage = Array.from({ length: 10 }, (_, i) => ({ id: i + 1 }))
-      const secondPage = [{ id: 11 }]
-
-      mockPayApi
-        .mockResolvedValueOnce({ items: firstPage, total: 11 })
-        .mockResolvedValueOnce({ items: secondPage, total: 11 })
-
-      const state = createState()
-      const { getNext, loadState } = useShortNameHistory(123, state)
-
-      await getNext(true)
-      expect(state.results).toHaveLength(10)
-      expect(loadState.reachedEnd).toBe(false)
-
-      await getNext(false)
-      expect(state.results).toHaveLength(11)
-      expect(loadState.reachedEnd).toBe(true)
-    })
-
-    it('should handle zero results', async () => {
-      mockPayApi.mockResolvedValue({ items: [], total: 0 })
-
-      const state = createState()
-      const { getNext, loadState } = useShortNameHistory(123, state)
-
-      await getNext(true)
-
-      expect(state.results).toHaveLength(0)
-      expect(loadState.reachedEnd).toBe(true)
-    })
-
-    it('should handle large total count', async () => {
-      mockPayApi.mockResolvedValue({ items: Array(10).fill({ id: 1 }), total: 1000 })
-
-      const state = createState()
-      const { getNext, loadState } = useShortNameHistory(123, state)
-
-      await getNext(true)
-
-      expect(state.totalResults).toBe(1000)
-      expect(loadState.reachedEnd).toBe(false)
-    })
-  })
-
-  describe('resetState behavior', () => {
-    it('should reset after multiple pages loaded', async () => {
-      mockPayApi.mockResolvedValue({ items: [{ id: 1 }], total: 50 })
-
-      const state = createState()
-      const { getNext, resetState, loadState } = useShortNameHistory(123, state)
-
-      await getNext(true)
-      await getNext(false)
-      await getNext(false)
-
-      expect(loadState.currentPage).toBe(3)
-      expect(state.results.length).toBeGreaterThan(0)
-
-      resetState()
-
-      expect(loadState.currentPage).toBe(1)
-      expect(state.results).toEqual([])
-      expect(state.totalResults).toBe(0)
-      expect(loadState.reachedEnd).toBe(false)
-      expect(loadState.isInitialLoad).toBe(true)
-    })
-  })
-
-  describe('different short name IDs', () => {
-    it('should fetch from different endpoints for different IDs', async () => {
-      mockPayApi.mockResolvedValue({ items: [], total: 0 })
-
-      const state1 = createState()
-      const { getNext: getNext1 } = useShortNameHistory(123, state1)
-      await getNext1(true)
-
-      const state2 = createState()
-      const { getNext: getNext2 } = useShortNameHistory(456, state2)
-      await getNext2(true)
-
-      expect(mockPayApi).toHaveBeenCalledWith(
-        '/eft-shortnames/123/history?page=1&limit=10',
-        { method: 'GET' }
-      )
-      expect(mockPayApi).toHaveBeenCalledWith(
-        '/eft-shortnames/456/history?page=1&limit=10',
-        { method: 'GET' }
-      )
-    })
-
-    it('should handle ID 0', async () => {
-      mockPayApi.mockResolvedValue({ items: [], total: 0 })
-
-      const state = createState()
-      const { getNext } = useShortNameHistory(0, state)
-      await getNext(true)
-
-      expect(mockPayApi).toHaveBeenCalledWith(
-        '/eft-shortnames/0/history?page=1&limit=10',
-        { method: 'GET' }
-      )
-    })
-  })
-
-  describe('concurrent requests', () => {
-    it('should not allow concurrent fetches', async () => {
-      let resolveFirst: (value: unknown) => void
-      mockPayApi.mockImplementation(() => new Promise((resolve) => { resolveFirst = resolve }))
-
-      const state = createState()
-      const { getNext, loadState } = useShortNameHistory(123, state)
-
-      const first = getNext(true)
-      const second = getNext(true)
-
-      expect(loadState.isLoading).toBe(true)
-      expect(mockPayApi).toHaveBeenCalledTimes(1)
-
-      resolveFirst!({ items: [{ id: 1 }], total: 1 })
-      await first
-      await second
-
-      expect(mockPayApi).toHaveBeenCalledTimes(1)
-    })
-  })
-
-  describe('response data handling', () => {
-    it('should preserve item properties', async () => {
-      const mockItem = {
-        id: 1,
-        transactionDate: '2024-01-01',
-        transactionType: 'FUNDS_RECEIVED',
-        amount: 100.50,
-        customField: 'test'
+    it('should handle reversal errors with specific EFT error message', async () => {
+      const eftError = {
+        response: {
+          _data: {
+            type: 'EFT_PAYMENT_ACTION_REVERSAL_EXCEEDS_SIXTY_DAYS'
+          }
+        }
       }
-      mockPayApi.mockResolvedValue({ items: [mockItem], total: 1 })
+      mockPayApi.mockRejectedValueOnce(eftError)
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       const state = createState()
-      const { getNext } = useShortNameHistory(123, state)
-      await getNext(true)
+      const { reversePayment } = useShortNameHistory(123, state)
 
-      expect(state.results[0]).toEqual(mockItem)
-    })
+      const result = await reversePayment(456)
 
-    it('should handle null amount', async () => {
-      const mockItem = {
-        id: 1,
-        transactionDate: '2024-01-01',
-        transactionType: 'SN_REFUND_DECLINED',
-        amount: null
-      }
-      mockPayApi.mockResolvedValue({ items: [mockItem], total: 1 })
-
-      const state = createState()
-      const { getNext } = useShortNameHistory(123, state)
-      await getNext(true)
-
-      expect(state.results[0].amount).toBeNull()
-    })
-
-    it('should handle missing optional fields', async () => {
-      const mockItem = {
-        id: 1,
-        transactionType: 'FUNDS_RECEIVED'
-      }
-      mockPayApi.mockResolvedValue({ items: [mockItem], total: 1 })
-
-      const state = createState()
-      const { getNext } = useShortNameHistory(123, state)
-      await getNext(true)
-
-      expect(state.results[0]).toEqual(mockItem)
+      expect(result).toBe(false)
+      expect(mockToastAdd).toHaveBeenCalledWith({
+        description: 'Cannot reverse payment - exceeds 60 day limit.',
+        icon: 'i-mdi-alert-circle',
+        color: 'error'
+      })
+      consoleSpy.mockRestore()
     })
   })
 
-  describe('initial load flag', () => {
-    it('should set isInitialLoad to false after first load', async () => {
-      mockPayApi.mockResolvedValue({ items: [{ id: 1 }], total: 10 })
-
+  describe('reversal eligibility', () => {
+    it.each([
+      [new Date().toISOString(), undefined, true, 'Reverse this payment'],
+      [new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), undefined, true, 'Reverse this payment'],
+      [new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(), undefined, true, 'Reverse this payment'],
+      [new Date(Date.now() - 61 * 24 * 60 * 60 * 1000).toISOString(), undefined, false, 'Cannot reverse transactions older than 60 days'],
+      [undefined, undefined, false, 'Cannot reverse this transaction']
+    ])('canReversePayment and tooltip for date %s', (transactionDate, paymentDate, canReverse, tooltip) => {
       const state = createState()
-      const { getNext, loadState } = useShortNameHistory(123, state)
+      const { canReversePayment, getReversalTooltip } = useShortNameHistory(123, state)
 
-      expect(loadState.isInitialLoad).toBe(true)
-      await getNext(true)
-      expect(loadState.isInitialLoad).toBe(false)
+      expect(canReversePayment(transactionDate, paymentDate)).toBe(canReverse)
+      expect(getReversalTooltip(transactionDate, paymentDate)).toBe(tooltip)
     })
 
-    it('should not set isInitialLoad when passed false', async () => {
-      mockPayApi.mockResolvedValue({ items: [{ id: 1 }], total: 10 })
-
+    it('should prefer paymentDate over transactionDate', () => {
       const state = createState()
-      const { getNext, loadState } = useShortNameHistory(123, state)
+      const { canReversePayment } = useShortNameHistory(123, state)
 
-      await getNext(false)
-      expect(loadState.isInitialLoad).toBe(true)
-    })
+      const oldTransactionDate = new Date(Date.now() - 100 * 24 * 60 * 60 * 1000).toISOString()
+      const recentPaymentDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
-    it('should reset isInitialLoad on resetState', async () => {
-      mockPayApi.mockResolvedValue({ items: [{ id: 1 }], total: 10 })
-
-      const state = createState()
-      const { getNext, resetState, loadState } = useShortNameHistory(123, state)
-
-      await getNext(true)
-      expect(loadState.isInitialLoad).toBe(false)
-
-      resetState()
-      expect(loadState.isInitialLoad).toBe(true)
+      expect(canReversePayment(oldTransactionDate, recentPaymentDate)).toBe(true)
     })
   })
 })

@@ -32,3 +32,16 @@ vi.mock('keycloak-js', () => {
     }))
   }
 })
+
+afterEach(() => {
+  vi.clearAllMocks()
+  vi.clearAllTimers()
+
+  if (document.body.innerHTML) {
+    document.body.innerHTML = ''
+  }
+
+  if (global.gc) {
+    global.gc()
+  }
+})

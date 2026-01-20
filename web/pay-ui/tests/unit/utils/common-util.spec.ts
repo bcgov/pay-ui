@@ -13,107 +13,76 @@ describe('common-util', () => {
   })
 
   describe('formatDisplayDate', () => {
-    it('should format Date objects and strings with default and custom formats, '
-      + 'and handle invalid/null/undefined', () => {
-      const date = new Date('2025-09-26T10:00:00.000Z')
-      expect(commonUtil.formatDisplayDate(date)).toBe('Sep 26, 2025')
+    it.each([
+      [new Date('2025-09-26T10:00:00.000Z'), undefined, 'Sep 26, 2025'],
+      [new Date('2025-09-26T10:00:00.000Z'), 'yyyy-MM-dd', '2025-09-26'],
+      ['invalid-date', undefined, ''],
+      [null as unknown as Date | string, undefined, ''],
+      [undefined as unknown as Date | string, undefined, '']
+    ])('should format %p with format %p to %p', (input, format, expected) => {
+      expect(commonUtil.formatDisplayDate(input, format)).toBe(expected)
+    })
 
+    it('should format string dates', () => {
       const stringResult = commonUtil.formatDisplayDate('2025-09-26T00:00:00.000Z')
       expect(stringResult).toContain('Sep')
       expect(stringResult).toContain('2025')
-
-      expect(commonUtil.formatDisplayDate(date, 'yyyy-MM-dd')).toBe('2025-09-26')
-      expect(commonUtil.formatDisplayDate('invalid-date')).toBe('')
-      expect(commonUtil.formatDisplayDate(null as unknown as Date | string)).toBe('')
-      expect(commonUtil.formatDisplayDate(undefined as unknown as Date | string)).toBe('')
     })
   })
 
   describe('statusListColor', () => {
-    it('should return correct colors for various statuses and handle unknown statuses', () => {
-      expect(commonUtil.statusListColor(SlipStatus.ACTIVE)).toBe('text-success')
-      expect(commonUtil.statusListColor(SlipStatus.ACTIVE, false)).toBe('success')
-      expect(commonUtil.statusListColor(SlipStatus.COMPLETE)).toBe('text-success')
-      expect(commonUtil.statusListColor(SlipStatus.NSF)).toBe('text-error')
-      expect(commonUtil.statusListColor(SlipStatus.VOID)).toBe('text-error')
-      expect(commonUtil.statusListColor('UNKNOWN_STATUS')).toBe('text-')
-      expect(commonUtil.statusListColor('UNKNOWN_STATUS', false)).toBe('')
+    it.each([
+      [SlipStatus.ACTIVE, true, 'text-success'],
+      [SlipStatus.ACTIVE, false, 'success'],
+      [SlipStatus.COMPLETE, true, 'text-success'],
+      [SlipStatus.NSF, true, 'text-error'],
+      [SlipStatus.VOID, true, 'text-error'],
+      [SlipStatus.REFUNDPROCESSED, true, 'text-success'],
+      [SlipStatus.REFUNDPROCESSED, false, 'success'],
+      [SlipStatus.WRITEOFFCOMPLETED, true, 'text-success'],
+      [SlipStatus.LINKED, true, 'text-error'],
+      [SlipStatus.REFUNDREQUEST, true, 'text-error'],
+      [SlipStatus.REFUNDAUTHORIZED, true, 'text-error'],
+      [SlipStatus.WRITEOFFAUTHORIZED, true, 'text-error'],
+      [SlipStatus.WRITEOFFREQUESTED, true, 'text-error'],
+      ['UNKNOWN_STATUS', true, 'text-'],
+      ['UNKNOWN_STATUS', false, '']
+    ])('should return %s for status %s with prependText=%s', (status, prependText, expected) => {
+      expect(commonUtil.statusListColor(status, prependText)).toBe(expected)
     })
   })
 
-  describe('appendCurrencySymbol', () => {
-    it('should append dollar sign to numbers and strings', () => {
-      expect(commonUtil.appendCurrencySymbol(100)).toBe('$100')
-      expect(commonUtil.appendCurrencySymbol('50.50')).toBe('$50.50')
+  describe('string formatting', () => {
+    it.each([
+      [100, '$100'],
+      ['50.50', '$50.50']
+    ])('appendCurrencySymbol should format %p as %s', (input, expected) => {
+      expect(commonUtil.appendCurrencySymbol(input)).toBe(expected)
+    })
+
+    it.each([
+      [{ name: 'John', email: '', age: null, city: 'Vancouver' }, { name: 'John', city: 'Vancouver' }],
+      [{ remainingAmount: '$1,234.56', name: 'Test' }, { remainingAmount: '1234.56', name: 'Test' }]
+    ])('cleanObject should clean %p', (input, expected) => {
+      expect(commonUtil.cleanObject(input)).toEqual(expected)
+    })
+
+    it.each([
+      [{ name: 'John Doe', age: '30' }, 'name=John%20Doe&age=30'],
+      [{ name: '', age: '30' }, 'name=&age=30']
+    ])('createQueryParams should create query string from %p', (params, expected) => {
+      expect(commonUtil.createQueryParams(params)).toBe(expected)
+    })
+
+    it.each([
+      ['https://example.com', { query: { name: 'John', age: '30' } }, 'https://example.com?name=John&age=30'],
+      ['https://example.com', { query: {} }, 'https://example.com']
+    ])('appendQueryParamsIfNeeded should append params to %s', (url, route, expected) => {
+      expect(commonUtil.appendQueryParamsIfNeeded(url, route)).toBe(expected)
     })
   })
 
-  describe('cleanObject', () => {
-    it('should remove empty strings and null values', () => {
-      const obj = {
-        name: 'John',
-        email: '',
-        age: null,
-        city: 'Vancouver'
-      }
-      const result = commonUtil.cleanObject(obj)
-      expect(result).toEqual({ name: 'John', city: 'Vancouver' })
-    })
-
-    it('should clean remainingAmount string', () => {
-      const obj = {
-        remainingAmount: '$1,234.56',
-        name: 'Test'
-      }
-      const result = commonUtil.cleanObject(obj)
-      expect(result.remainingAmount).toBe('1234.56')
-    })
-  })
-
-  describe('createQueryParams', () => {
-    it('should create query string from object', () => {
-      const params = {
-        name: 'John Doe',
-        age: '30'
-      }
-      const result = commonUtil.createQueryParams(params)
-      expect(result).toBe('name=John%20Doe&age=30')
-    })
-
-    it('should handle empty values', () => {
-      const params = {
-        name: '',
-        age: '30'
-      }
-      const result = commonUtil.createQueryParams(params)
-      expect(result).toBe('name=&age=30')
-    })
-  })
-
-  describe('appendQueryParamsIfNeeded', () => {
-    it('should append query params to URL', () => {
-      const targetUrl = 'https://example.com'
-      const route = {
-        query: {
-          name: 'John',
-          age: '30'
-        }
-      }
-      const result = commonUtil.appendQueryParamsIfNeeded(targetUrl, route)
-      expect(result).toBe('https://example.com?name=John&age=30')
-    })
-
-    it('should return URL without query params if query is empty', () => {
-      const targetUrl = 'https://example.com'
-      const route = {
-        query: {}
-      }
-      const result = commonUtil.appendQueryParamsIfNeeded(targetUrl, route)
-      expect(result).toBe('https://example.com')
-    })
-  })
-
-  describe('convertAddressForComponent', () => {
+  describe('address conversion', () => {
     it('should convert Address to BaseAddressModel', () => {
       const address = {
         city: 'Vancouver',
@@ -136,17 +105,6 @@ describe('common-util', () => {
       })
     })
 
-    it('should handle missing fields with empty strings', () => {
-      const address = {
-        city: 'Vancouver'
-      }
-      const result = commonUtil.convertAddressForComponent(address as Partial<Address>)
-      expect(result.addressCity).toBe('Vancouver')
-      expect(result.addressCountry).toBe('')
-    })
-  })
-
-  describe('convertAddressForAuth', () => {
     it('should convert BaseAddressModel to Address', () => {
       const baseAddress = {
         addressCity: 'Vancouver',
@@ -168,147 +126,121 @@ describe('common-util', () => {
         streetAdditional: 'Suite 100'
       })
     })
+
+    it('should handle missing fields with empty strings', () => {
+      const address = { city: 'Vancouver' }
+      const result = commonUtil.convertAddressForComponent(address as Partial<Address>)
+      expect(result.addressCity).toBe('Vancouver')
+      expect(result.addressCountry).toBe('')
+    })
   })
 
-  describe('isRefundProcessStatus, isRefundRequestStatus, and isEditEnabledBystatus', () => {
-    it('should return correct boolean values for various status checks', () => {
-      expect(commonUtil.isRefundProcessStatus(SlipStatus.REFUNDREQUEST)).toBe(true)
-      expect(commonUtil.isRefundProcessStatus(SlipStatus.REFUNDAUTHORIZED)).toBe(true)
-      expect(commonUtil.isRefundProcessStatus(SlipStatus.REFUNDPROCESSED)).toBe(true)
-      expect(commonUtil.isRefundProcessStatus(SlipStatus.ACTIVE)).toBe(false)
-
-      expect(commonUtil.isRefundRequestStatus(SlipStatus.REFUNDREQUEST)).toBe(true)
-      expect(commonUtil.isRefundRequestStatus(SlipStatus.ACTIVE)).toBe(false)
-      expect(commonUtil.isRefundRequestStatus(SlipStatus.REFUNDPROCESSED)).toBe(false)
-
-      expect(commonUtil.isEditEnabledBystatus(SlipStatus.REFUNDPROCESSED)).toBe(false)
-      expect(commonUtil.isEditEnabledBystatus(SlipStatus.NSF)).toBe(false)
-      expect(commonUtil.isEditEnabledBystatus(SlipStatus.ACTIVE)).toBe(true)
+  describe('status helpers', () => {
+    it.each([
+      ['isRefundProcessStatus', SlipStatus.REFUNDREQUEST, true],
+      ['isRefundProcessStatus', SlipStatus.REFUNDAUTHORIZED, true],
+      ['isRefundProcessStatus', SlipStatus.REFUNDPROCESSED, true],
+      ['isRefundProcessStatus', SlipStatus.REFUNDREJECTED, true],
+      ['isRefundProcessStatus', SlipStatus.REFUNDUPLOADED, true],
+      ['isRefundProcessStatus', SlipStatus.ACTIVE, false],
+      ['isRefundRequestStatus', SlipStatus.REFUNDREQUEST, true],
+      ['isRefundRequestStatus', SlipStatus.ACTIVE, false],
+      ['isRefundRequestStatus', SlipStatus.REFUNDPROCESSED, false],
+      ['isEditEnabledBystatus', SlipStatus.REFUNDPROCESSED, false],
+      ['isEditEnabledBystatus', SlipStatus.NSF, false],
+      ['isEditEnabledBystatus', SlipStatus.REFUNDAUTHORIZED, false],
+      ['isEditEnabledBystatus', SlipStatus.LINKED, false],
+      ['isEditEnabledBystatus', SlipStatus.ACTIVE, true],
+      ['isEditEnabledBystatus', SlipStatus.COMPLETE, true],
+      ['isEditEnabledBystatus', SlipStatus.VOID, true]
+    ])('%s(%s) should return %s', (method, status, expected) => {
+      expect(commonUtil[method](status)).toBe(expected)
     })
   })
 
   describe('isDeepEqual', () => {
-    it('should return true for equal objects', () => {
-      const obj1 = { name: 'John', age: 30 }
-      const obj2 = { name: 'John', age: 30 }
-      expect(commonUtil.isDeepEqual(obj1, obj2)).toBe(true)
-    })
-
-    it('should return false for different objects', () => {
-      const obj1 = { name: 'John', age: 30 }
-      const obj2 = { name: 'Jane', age: 30 }
-      expect(commonUtil.isDeepEqual(obj1, obj2)).toBe(false)
-    })
-
-    it('should return false for objects with different lengths', () => {
-      const obj1 = { name: 'John' }
-      const obj2 = { name: 'John', age: 30 }
-      expect(commonUtil.isDeepEqual(obj1, obj2)).toBe(false)
-    })
-
-    it('should handle nested objects', () => {
-      const obj1 = { user: { name: 'John', age: 30 } }
-      const obj2 = { user: { name: 'John', age: 30 } }
-      expect(commonUtil.isDeepEqual(obj1, obj2)).toBe(true)
+    it.each([
+      [{ name: 'John', age: 30 }, { name: 'John', age: 30 }, true, 'equal objects'],
+      [{ name: 'John', age: 30 }, { name: 'Jane', age: 30 }, false, 'different values'],
+      [{ name: 'John' }, { name: 'John', age: 30 }, false, 'different lengths'],
+      [{ user: { name: 'John', age: 30 } }, { user: { name: 'John', age: 30 } }, true, 'nested objects'],
+      [{ name: null }, { name: null }, true, 'null values'],
+      [{ name: undefined }, { name: undefined }, true, 'undefined values'],
+      [{ items: [1, 2, 3] }, { items: [1, 2, 3] }, true, 'arrays as values'],
+      [{ name: null }, { name: undefined }, false, 'null vs undefined']
+    ])('should handle %s', (obj1, obj2, expected) => {
+      expect(commonUtil.isDeepEqual(obj1, obj2)).toBe(expected)
     })
   })
 
-  describe('formatAmount and formatToTwoDecimals', () => {
-    it('should format amounts and numbers correctly', () => {
-      expect(commonUtil.formatAmount(1234.56)).toBe('$1,234.56')
-      expect(commonUtil.formatAmount(1000)).toBe('$1,000.00')
-      expect(commonUtil.formatAmount(0)).toBe('$0.00')
-
-      expect(commonUtil.formatToTwoDecimals(1234.5)).toBe('1,234.50')
-      expect(commonUtil.formatToTwoDecimals(1000)).toBe('1,000.00')
-      expect(commonUtil.formatToTwoDecimals('1234.5')).toBe('1,234.50')
+  describe('number formatting', () => {
+    it.each([
+      ['formatAmount', 1234.56, '$1,234.56'],
+      ['formatAmount', 1000, '$1,000.00'],
+      ['formatAmount', 0, '$0.00'],
+      ['formatAmount', -1234.56, '-$1,234.56'],
+      ['formatAmount', 999999999.99, '$999,999,999.99'],
+      ['formatAmount', 123.456, '$123.46'],
+      ['formatToTwoDecimals', 1234.5, '1,234.50'],
+      ['formatToTwoDecimals', 1000, '1,000.00'],
+      ['formatToTwoDecimals', '1234.5', '1,234.50'],
+      ['formatToTwoDecimals', -1234.5, '-1,234.50'],
+      ['formatToTwoDecimals', 0, '0.00'],
+      ['formatToTwoDecimals', 0.1, '0.10']
+    ])('%s(%p) should return %s', (method, input, expected) => {
+      expect(commonUtil[method](input)).toBe(expected)
     })
   })
 
-  describe('requiredFieldRule', () => {
-    it('should return validation rule that requires value', () => {
-      const rules = commonUtil.requiredFieldRule()
+  describe('validation rules', () => {
+    it.each([
+      ['test', 'This field is required', true],
+      ['', 'This field is required', 'This field is required'],
+      [null, 'This field is required', 'This field is required'],
+      ['', 'Custom error', 'Custom error']
+    ])('requiredFieldRule should validate %p with message %s', (value, message, expected) => {
+      const rules = commonUtil.requiredFieldRule(message === 'This field is required' ? undefined : message)
       const rule = rules[0]
-      expect(rule).toBeDefined()
-      if (rule) {
-        expect(rule('test')).toBe(true)
-        expect(rule('')).toBe('This field is required')
-        expect(rule(null)).toBe('This field is required')
-      }
+      expect(rule(value)).toBe(expected)
     })
 
-    it('should use custom error message', () => {
-      const rules = commonUtil.requiredFieldRule('Custom error')
-      const rule = rules[0]
-      expect(rule).toBeDefined()
-      if (rule) {
-        expect(rule('')).toBe('Custom error')
-      }
-    })
-  })
-
-  describe('emailRules', () => {
-    it('should validate email when not optional', () => {
+    it('should validate required email', () => {
       const rules = commonUtil.emailRules(false)
-      const rule1 = rules[0]
-      const rule2 = rules[1]
-      expect(rule1('test@example.com')).toBe(true)
-      expect(rule1('')).toBe('Email address is required')
-      expect(rule2).toBeDefined()
-      if (rule2) {
-        expect(rule2('invalid-email')).toBe('Valid email is required')
-      }
+      expect(rules[0]('test@example.com')).toBe(true)
+      expect(rules[0]('')).toBe('Email address is required')
+      expect(rules[1]('invalid-email')).toBe('Valid email is required')
     })
 
-    it('should allow empty email when optional', () => {
+    it('should validate optional email', () => {
       const rules = commonUtil.emailRules(true)
-      const rule1 = rules[0]
-      expect(rule1).toBeDefined()
-      if (rule1) {
-        expect(rule1('')).toBe(true)
-        expect(rule1('test@example.com')).toBe(true)
-        expect(rule1('invalid')).toBe('Valid email is required')
-      }
+      expect(rules[0]('')).toBe(true)
+      expect(rules[0]('test@example.com')).toBe(true)
+      expect(rules[0]('invalid')).toBe('Valid email is required')
     })
   })
 
-  describe('formatAccountDisplayName', () => {
-    it('should format account display name', () => {
-      const item = { accountId: '123', accountName: 'Test Account' }
-      expect(commonUtil.formatAccountDisplayName(item)).toBe('123 Test Account')
+  describe('helper utilities', () => {
+    it.each([
+      [{ accountId: '123', accountName: 'Test Account' }, '123 Test Account'],
+      [{}, 'undefined undefined'],
+      [{ accountId: 123 }, '123 undefined']
+    ])('formatAccountDisplayName should format %p', (item, expected) => {
+      expect(commonUtil.formatAccountDisplayName(item)).toBe(expected)
     })
 
-    it('should handle missing fields', () => {
-      expect(commonUtil.formatAccountDisplayName({})).toBe('undefined undefined')
-      expect(commonUtil.formatAccountDisplayName({ accountId: 123 })).toBe('123 undefined')
-    })
-  })
-
-  describe('getRefundMethodText', () => {
-    it('should return text for matching value', () => {
-      const methods = [
-        { value: 'EFT', text: 'Direct Deposit' },
-        { value: 'CHEQUE', text: 'Cheque' }
-      ]
-      expect(commonUtil.getRefundMethodText(methods, 'EFT')).toBe('Direct Deposit')
+    it.each([
+      [[{ value: 'EFT', text: 'Direct Deposit' }, { value: 'CHEQUE', text: 'Cheque' }], 'EFT', 'Direct Deposit'],
+      [[{ value: 'EFT', text: 'Direct Deposit' }], 'CHEQUE', undefined]
+    ])('getRefundMethodText should return text for value', (methods, value, expected) => {
+      expect(commonUtil.getRefundMethodText(methods, value)).toBe(expected)
     })
 
-    it('should return undefined for non-matching value', () => {
-      const methods = [
-        { value: 'EFT', text: 'Direct Deposit' }
-      ]
-      expect(commonUtil.getRefundMethodText(methods, 'CHEQUE')).toBeUndefined()
-    })
-  })
-
-  describe('extractAndConvertStringToNumber', () => {
-    it('should extract numbers from string', () => {
-      expect(commonUtil.extractAndConvertStringToNumber('$1,234.56')).toBe(123456)
-      expect(commonUtil.extractAndConvertStringToNumber('abc123def')).toBe(123)
-    })
-
-    it('should return 0 for string with no numbers', () => {
-      expect(commonUtil.extractAndConvertStringToNumber('abc')).toBe(0)
+    it.each([
+      ['$1,234.56', 123456],
+      ['abc123def', 123],
+      ['abc', 0]
+    ])('extractAndConvertStringToNumber should extract from %s', (input, expected) => {
+      expect(commonUtil.extractAndConvertStringToNumber(input)).toBe(expected)
     })
   })
 
@@ -347,78 +279,15 @@ describe('common-util', () => {
       vi.restoreAllMocks()
     })
 
-    it('should create blob and trigger download', () => {
+    it('should create blob, trigger download, and revoke URL', async () => {
       commonUtil.fileDownload('test data', 'test.txt')
 
       expect(mockCreateObjectURL).toHaveBeenCalled()
       expect(document.body.appendChild).toHaveBeenCalled()
-    })
-
-    it('should revoke object URL after download', async () => {
-      commonUtil.fileDownload('data', 'file.txt')
 
       await vi.advanceTimersByTimeAsync(200)
 
       expect(mockRevokeObjectURL).toHaveBeenCalled()
-    })
-  })
-
-  describe('statusListColor, isRefundProcessStatus, and isEditEnabledBystatus - additional statuses', () => {
-    it('should return correct colors and boolean values for additional statuses', () => {
-      expect(commonUtil.statusListColor(SlipStatus.REFUNDPROCESSED)).toBe('text-success')
-      expect(commonUtil.statusListColor(SlipStatus.REFUNDPROCESSED, false)).toBe('success')
-      expect(commonUtil.statusListColor(SlipStatus.WRITEOFFCOMPLETED)).toBe('text-success')
-      expect(commonUtil.statusListColor(SlipStatus.LINKED)).toBe('text-error')
-      expect(commonUtil.statusListColor(SlipStatus.REFUNDREQUEST)).toBe('text-error')
-      expect(commonUtil.statusListColor(SlipStatus.REFUNDAUTHORIZED)).toBe('text-error')
-      expect(commonUtil.statusListColor(SlipStatus.WRITEOFFAUTHORIZED)).toBe('text-error')
-      expect(commonUtil.statusListColor(SlipStatus.WRITEOFFREQUESTED)).toBe('text-error')
-
-      expect(commonUtil.isRefundProcessStatus(SlipStatus.REFUNDREJECTED)).toBe(true)
-      expect(commonUtil.isRefundProcessStatus(SlipStatus.REFUNDUPLOADED)).toBe(true)
-
-      expect(commonUtil.isEditEnabledBystatus(SlipStatus.REFUNDAUTHORIZED)).toBe(false)
-      expect(commonUtil.isEditEnabledBystatus(SlipStatus.LINKED)).toBe(false)
-      expect(commonUtil.isEditEnabledBystatus(SlipStatus.COMPLETE)).toBe(true)
-      expect(commonUtil.isEditEnabledBystatus(SlipStatus.VOID)).toBe(true)
-    })
-  })
-
-  describe('isDeepEqual - edge cases', () => {
-    it('should handle null values', () => {
-      const obj1 = { name: null }
-      const obj2 = { name: null }
-      expect(commonUtil.isDeepEqual(obj1, obj2)).toBe(true)
-    })
-
-    it('should handle undefined values', () => {
-      const obj1 = { name: undefined }
-      const obj2 = { name: undefined }
-      expect(commonUtil.isDeepEqual(obj1, obj2)).toBe(true)
-    })
-
-    it('should handle arrays as objects', () => {
-      const obj1 = { items: [1, 2, 3] }
-      const obj2 = { items: [1, 2, 3] }
-      expect(commonUtil.isDeepEqual(obj1, obj2)).toBe(true)
-    })
-
-    it('should handle different null vs undefined', () => {
-      const obj1 = { name: null }
-      const obj2 = { name: undefined }
-      expect(commonUtil.isDeepEqual(obj1, obj2)).toBe(false)
-    })
-  })
-
-  describe('formatAmount and formatToTwoDecimals - edge cases', () => {
-    it('should handle negative amounts, large amounts, decimal precision, zero, and small numbers', () => {
-      expect(commonUtil.formatAmount(-1234.56)).toBe('-$1,234.56')
-      expect(commonUtil.formatAmount(999999999.99)).toBe('$999,999,999.99')
-      expect(commonUtil.formatAmount(123.456)).toBe('$123.46')
-
-      expect(commonUtil.formatToTwoDecimals(-1234.5)).toBe('-1,234.50')
-      expect(commonUtil.formatToTwoDecimals(0)).toBe('0.00')
-      expect(commonUtil.formatToTwoDecimals(0.1)).toBe('0.10')
     })
   })
 })

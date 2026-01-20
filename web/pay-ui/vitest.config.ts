@@ -7,7 +7,7 @@ export default defineVitestConfig({
     include: ['**/*.test.ts', '**/*.spec.ts'],
     environmentOptions: {
       nuxt: {
-        domEnvironment: 'happy-dom', // 'happy-dom' (default) or 'jsdom'
+        domEnvironment: 'happy-dom',
         overrides: {
           // other Nuxt config you want to pass
         }
@@ -31,6 +31,9 @@ export default defineVitestConfig({
       ]
     },
     setupFiles: './tests/unit/setup.ts',
-    globals: true
+    globals: true,
+    clearMocks: true,
+    mockReset: true,
+    restoreMocks: true,
   }
 })

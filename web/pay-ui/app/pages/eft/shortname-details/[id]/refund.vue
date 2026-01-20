@@ -9,6 +9,7 @@ import {
   ChequeRefundStatus,
   ChequeRefundCode
 } from '@/utils/constants'
+import { getEFTErrorMessage } from '@/utils/api-error-handler'
 import { useShortNameDetails } from '@/composables/eft/useShortNameDetails'
 import { useEftRefund } from '@/composables/eft/useEftRefund'
 import type { EftRefund, EftRefundRequest } from '@/composables/eft/useEftRefund'
@@ -48,6 +49,7 @@ const state = reactive({
   isInitialLoading: true,
   isLoading: false,
   isSubmitted: false,
+  hasError: false,
   refundDetails: null as EftRefund | null,
   readOnly: false,
   refundMethod: '' as string,
@@ -99,6 +101,7 @@ const buttonText = computed(() => {
 })
 
 const buttonColor = computed(() => {
+  if (state.hasError) { return 'error' as const }
   if (state.isSubmitted) { return 'success' as const }
   return 'primary' as const
 })
@@ -177,6 +180,7 @@ async function submitRefundRequest() {
   if (!isFormValid.value) { return }
 
   state.isLoading = true
+  state.hasError = false
 
   const payload: EftRefundRequest = {
     shortNameId: shortNameId.value,
@@ -215,8 +219,10 @@ async function submitRefundRequest() {
     }, 2000)
   } catch (error) {
     console.error('Failed to submit refund request:', error)
+    state.hasError = true
+
     toast.add({
-      description: 'Failed to submit refund request.',
+      description: getEFTErrorMessage(error),
       icon: 'i-mdi-alert-circle',
       color: 'error'
     })

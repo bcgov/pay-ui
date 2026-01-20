@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import CommonUtils from '@/utils/common-util'
 import { EFTRefundMethodDescription } from '@/utils/constants'
+import { getEFTErrorMessage } from '@/utils/api-error-handler'
 import { useEftRefund } from '@/composables/eft/useEftRefund'
 import type { EftRefund } from '@/composables/eft/useEftRefund'
 import type { ShortNameDetails, EftShortName } from '@/composables/eft/useShortNameDetails'
@@ -18,6 +19,7 @@ const emit = defineEmits<{
 }>()
 
 const router = useRouter()
+const toast = useToast()
 const { getPendingRefunds, approveRefund: apiApproveRefund, declineRefund: apiDeclineRefund } = useEftRefund()
 
 const isEftRefundApprover = CommonUtils.isEftRefundApprover()
@@ -61,9 +63,19 @@ async function approveRefund(item: EftRefund) {
     if (props.shortNameDetails?.id) {
       await loadTransactions(props.shortNameDetails.id)
     }
+    toast.add({
+      description: 'Refund approved successfully.',
+      icon: 'i-mdi-check-circle',
+      color: 'success'
+    })
     emit('on-short-name-refund', item.id)
   } catch (error) {
     console.error('Failed to approve refund.', error)
+    toast.add({
+      description: getEFTErrorMessage(error),
+      icon: 'i-mdi-alert-circle',
+      color: 'error'
+    })
   } finally {
     state.loading = false
   }
@@ -84,9 +96,19 @@ async function dialogDecline() {
     if (props.shortNameDetails?.id) {
       await loadTransactions(props.shortNameDetails.id)
     }
+    toast.add({
+      description: 'Refund declined successfully.',
+      icon: 'i-mdi-check-circle',
+      color: 'success'
+    })
     emit('on-short-name-refund', state.currentEftRefund.id)
   } catch (error) {
     console.error('Failed to decline refund.', error)
+    toast.add({
+      description: getEFTErrorMessage(error),
+      icon: 'i-mdi-alert-circle',
+      color: 'error'
+    })
   } finally {
     state.loading = false
     state.showDeclineDialog = false

@@ -1,4 +1,5 @@
 import { ShortNameLinkStatus, ShortNamePaymentActions } from '@/utils/constants'
+import { getEFTErrorMessage } from '@/utils/api-error-handler'
 
 export interface ShortNameLink {
   id: number
@@ -40,6 +41,7 @@ export interface AccountLinkRow {
 export function useShortNameAccountLink(shortNameId: Ref<number>, creditsRemaining: Ref<number>) {
   const nuxtApp = useNuxtApp()
   const $payApi = (nuxtApp.$payApiWithErrorHandling || nuxtApp.$payApi) as typeof nuxtApp.$payApi
+  const toast = useToast()
 
   const links = ref<ShortNameLink[]>([])
   const loading = ref(false)
@@ -72,9 +74,19 @@ export function useShortNameAccountLink(shortNameId: Ref<number>, creditsRemaini
         }
       )
       await loadShortNameLinks()
+      toast.add({
+        description: 'Account unlinked successfully.',
+        icon: 'i-mdi-check-circle',
+        color: 'success'
+      })
       return true
     } catch (error) {
       console.error('Failed to unlink account.', error)
+      toast.add({
+        description: getEFTErrorMessage(error),
+        icon: 'i-mdi-alert-circle',
+        color: 'error'
+      })
       return false
     } finally {
       loading.value = false
@@ -98,9 +110,20 @@ export function useShortNameAccountLink(shortNameId: Ref<number>, creditsRemaini
           body
         }
       )
+      await loadShortNameLinks()
+      toast.add({
+        description: 'Payment applied successfully.',
+        icon: 'i-mdi-check-circle',
+        color: 'success'
+      })
       return true
     } catch (error) {
       console.error('An error occurred applying payments.', error)
+      toast.add({
+        description: getEFTErrorMessage(error),
+        icon: 'i-mdi-alert-circle',
+        color: 'error'
+      })
       return false
     } finally {
       loading.value = false
@@ -121,9 +144,20 @@ export function useShortNameAccountLink(shortNameId: Ref<number>, creditsRemaini
           }
         }
       )
+      await loadShortNameLinks()
+      toast.add({
+        description: 'Payment cancelled successfully.',
+        icon: 'i-mdi-check-circle',
+        color: 'success'
+      })
       return true
     } catch (error) {
       console.error('An error occurred cancelling payments.', error)
+      toast.add({
+        description: getEFTErrorMessage(error),
+        icon: 'i-mdi-alert-circle',
+        color: 'error'
+      })
       return false
     } finally {
       loading.value = false

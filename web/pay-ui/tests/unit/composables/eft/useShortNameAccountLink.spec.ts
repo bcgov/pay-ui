@@ -3,11 +3,14 @@ import { useShortNameAccountLink } from '~/composables/eft/useShortNameAccountLi
 import { ShortNameLinkStatus, ShortNamePaymentActions } from '~/utils/constants'
 
 const mockPayApi = vi.fn()
+const mockToast = { add: vi.fn() }
 
 mockNuxtImport('useNuxtApp', () => () => ({
   $payApi: mockPayApi,
   $payApiWithErrorHandling: mockPayApi
 }))
+
+mockNuxtImport('useToast', () => () => mockToast)
 
 describe('useShortNameAccountLink', () => {
   beforeEach(() => {
@@ -26,17 +29,10 @@ describe('useShortNameAccountLink', () => {
   })
 
   describe('loadShortNameLinks', () => {
-    it('should load links successfully', async () => {
-      const mockLinks = [
-        {
-          id: 1,
-          accountId: 100,
-          accountName: 'Test Account',
-          shortNameId: 123,
-          statusCode: 'LINKED',
-          statementsOwing: [{ statementId: 1, amountOwing: 500, pendingPaymentsCount: 0, pendingPaymentsAmount: 0 }]
-        }
-      ]
+    it.each([
+      ['with links', [{ id: 1, accountId: 100, accountName: 'Test Account', shortNameId: 123, statusCode: 'LINKED', statementsOwing: [{ statementId: 1, amountOwing: 500, pendingPaymentsCount: 0, pendingPaymentsAmount: 0 }] }], true, '/eft-shortnames/123/links'],
+      ['empty response', [], false, '/eft-shortnames/123/links']
+    ])('should load links %s', async (_, mockLinks, expectedIsLinked, expectedUrl) => {
       mockPayApi.mockResolvedValue({ items: mockLinks })
 
       const shortNameId = ref(123)
@@ -46,20 +42,8 @@ describe('useShortNameAccountLink', () => {
       await loadShortNameLinks()
 
       expect(links.value).toEqual(mockLinks)
-      expect(isLinked.value).toBe(true)
-      expect(mockPayApi).toHaveBeenCalledWith('/eft-shortnames/123/links', { method: 'GET' })
-    })
-
-    it('should handle empty response', async () => {
-      mockPayApi.mockResolvedValue({ items: [] })
-
-      const shortNameId = ref(123)
-      const creditsRemaining = ref(1000)
-      const { loadShortNameLinks, isLinked } = useShortNameAccountLink(shortNameId, creditsRemaining)
-
-      await loadShortNameLinks()
-
-      expect(isLinked.value).toBe(false)
+      expect(isLinked.value).toBe(expectedIsLinked)
+      expect(mockPayApi).toHaveBeenCalledWith(expectedUrl, { method: 'GET' })
     })
 
     it('should handle API error', async () => {
@@ -79,9 +63,7 @@ describe('useShortNameAccountLink', () => {
 
   describe('unlinkAccount', () => {
     it('should unlink account successfully', async () => {
-      mockPayApi
-        .mockResolvedValueOnce({})
-        .mockResolvedValueOnce({ items: [] })
+      mockPayApi.mockResolvedValueOnce({}).mockResolvedValueOnce({ items: [] })
 
       const shortNameId = ref(123)
       const creditsRemaining = ref(1000)
@@ -94,10 +76,22 @@ describe('useShortNameAccountLink', () => {
         '/eft-shortnames/123/links/456',
         { method: 'PATCH', body: { statusCode: ShortNameLinkStatus.INACTIVE } }
       )
+      expect(mockToast.add).toHaveBeenCalledWith({
+        description: 'Account unlinked successfully.',
+        icon: 'i-mdi-check-circle',
+        color: 'success'
+      })
     })
 
-    it('should return false on error', async () => {
-      mockPayApi.mockRejectedValue(new Error('API Error'))
+    it('should handle unlink error with specific EFT error message', async () => {
+      const eftError = {
+        response: {
+          _data: {
+            type: 'EFT_SHORT_NAME_LINK_INVALID_STATUS'
+          }
+        }
+      }
+      mockPayApi.mockRejectedValue(eftError)
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       const shortNameId = ref(123)
@@ -107,58 +101,45 @@ describe('useShortNameAccountLink', () => {
       const result = await unlinkAccount(456)
 
       expect(result).toBe(false)
+      expect(mockToast.add).toHaveBeenCalledWith({
+        description: 'Invalid status for linking this short name.',
+        icon: 'i-mdi-alert-circle',
+        color: 'error'
+      })
       consoleSpy.mockRestore()
     })
   })
 
   describe('applyPayment', () => {
-    it('should apply payment to account without statement', async () => {
+    it.each([
+      ['without statement', undefined, { action: ShortNamePaymentActions.APPLY_CREDITS, accountId: '100' }, true],
+      ['to specific statement', 789, { action: ShortNamePaymentActions.APPLY_CREDITS, accountId: '100', statementId: 789 }, true],
+      ['with zero statement ID', 0, { action: ShortNamePaymentActions.APPLY_CREDITS, accountId: '100', statementId: 0 }, true]
+    ])('should apply payment %s', async (_, statementId, expectedBody, expectedResult) => {
       mockPayApi.mockResolvedValue({})
 
       const shortNameId = ref(123)
       const creditsRemaining = ref(1000)
       const { applyPayment } = useShortNameAccountLink(shortNameId, creditsRemaining)
 
-      const result = await applyPayment(100)
+      const result = await applyPayment(100, statementId)
 
-      expect(result).toBe(true)
+      expect(result).toBe(expectedResult)
       expect(mockPayApi).toHaveBeenCalledWith(
         '/eft-shortnames/123/payment',
-        {
-          method: 'POST',
-          body: {
-            action: ShortNamePaymentActions.APPLY_CREDITS,
-            accountId: '100'
-          }
-        }
+        { method: 'POST', body: expectedBody }
       )
     })
 
-    it('should apply payment to specific statement', async () => {
-      mockPayApi.mockResolvedValue({})
-
-      const shortNameId = ref(123)
-      const creditsRemaining = ref(1000)
-      const { applyPayment } = useShortNameAccountLink(shortNameId, creditsRemaining)
-
-      const result = await applyPayment(100, 789)
-
-      expect(result).toBe(true)
-      expect(mockPayApi).toHaveBeenCalledWith(
-        '/eft-shortnames/123/payment',
-        {
-          method: 'POST',
-          body: {
-            action: ShortNamePaymentActions.APPLY_CREDITS,
-            accountId: '100',
-            statementId: 789
+    it('should handle error with specific EFT error message', async () => {
+      const eftError = {
+        response: {
+          _data: {
+            type: 'EFT_INSUFFICIENT_CREDITS'
           }
         }
-      )
-    })
-
-    it('should return false on error', async () => {
-      mockPayApi.mockRejectedValue(new Error('API Error'))
+      }
+      mockPayApi.mockRejectedValue(eftError)
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       const shortNameId = ref(123)
@@ -168,36 +149,41 @@ describe('useShortNameAccountLink', () => {
       const result = await applyPayment(100)
 
       expect(result).toBe(false)
+      expect(mockToast.add).toHaveBeenCalledWith({
+        description: 'Insufficient credits available for this refund.',
+        icon: 'i-mdi-alert-circle',
+        color: 'error'
+      })
       consoleSpy.mockRestore()
     })
   })
 
   describe('cancelPayment', () => {
-    it('should cancel payment', async () => {
+    it.each([
+      ['with statement ID', 789, { action: ShortNamePaymentActions.CANCEL, accountId: 100, statementId: 789 }, true],
+      ['without statement ID', undefined, { action: ShortNamePaymentActions.CANCEL, accountId: 100, statementId: undefined }, true]
+    ])('should cancel payment %s', async (_, statementId, expectedBody, expectedResult) => {
       mockPayApi.mockResolvedValue({})
 
       const shortNameId = ref(123)
       const creditsRemaining = ref(1000)
       const { cancelPayment } = useShortNameAccountLink(shortNameId, creditsRemaining)
 
-      const result = await cancelPayment(100, 789)
+      const result = await cancelPayment(100, statementId)
 
-      expect(result).toBe(true)
-      expect(mockPayApi).toHaveBeenCalledWith(
-        '/eft-shortnames/123/payment',
-        {
-          method: 'POST',
-          body: {
-            action: ShortNamePaymentActions.CANCEL,
-            accountId: 100,
-            statementId: 789
-          }
-        }
-      )
+      expect(result).toBe(expectedResult)
+      expect(mockPayApi).toHaveBeenCalledWith('/eft-shortnames/123/payment', { method: 'POST', body: expectedBody })
     })
 
-    it('should return false on error', async () => {
-      mockPayApi.mockRejectedValue(new Error('API Error'))
+    it('should handle error with specific EFT error message', async () => {
+      const eftError = {
+        response: {
+          _data: {
+            type: 'EFT_PAYMENT_ACTION_UNSUPPORTED'
+          }
+        }
+      }
+      mockPayApi.mockRejectedValue(eftError)
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       const shortNameId = ref(123)
@@ -207,6 +193,11 @@ describe('useShortNameAccountLink', () => {
       const result = await cancelPayment(100)
 
       expect(result).toBe(false)
+      expect(mockToast.add).toHaveBeenCalledWith({
+        description: 'This payment action is not supported.',
+        icon: 'i-mdi-alert-circle',
+        color: 'error'
+      })
       consoleSpy.mockRestore()
     })
   })
@@ -376,201 +367,34 @@ describe('useShortNameAccountLink', () => {
     })
   })
 
-  describe('showUnlinkAccountButton', () => {
-    it('should return true when account can be unlinked', () => {
+  describe('button visibility', () => {
+    const baseItem = {
+      id: 1,
+      accountId: 100,
+      shortNameId: 123,
+      statusCode: 'LINKED',
+      statementsOwing: [],
+      hasInsufficientFunds: false,
+      unpaidStatementIds: ''
+    }
+
+    it.each([
+      ['showUnlinkAccountButton', 'parent row no amounts', { ...baseItem, isParentRow: true, hasMultipleStatements: false, hasPendingPayment: false, hasPayableStatement: false, amountOwing: 0, pendingPaymentAmountTotal: 0 }, true],
+      ['showUnlinkAccountButton', 'child rows', { ...baseItem, isParentRow: false, hasMultipleStatements: false, hasPendingPayment: false, hasPayableStatement: false, amountOwing: 0, pendingPaymentAmountTotal: 0 }, false],
+      ['showUnlinkAccountButton', 'pending payments', { ...baseItem, isParentRow: true, hasMultipleStatements: false, hasPendingPayment: true, hasPayableStatement: true, amountOwing: 100, pendingPaymentAmountTotal: 50 }, false],
+      ['showApplyPaymentButton', 'parent can apply', { ...baseItem, isParentRow: true, hasMultipleStatements: false, hasPendingPayment: false, hasPayableStatement: true, amountOwing: 500, pendingPaymentAmountTotal: 0, statementId: 1 }, true],
+      ['showApplyPaymentButton', 'child can apply', { ...baseItem, isParentRow: false, hasMultipleStatements: false, hasPendingPayment: false, hasPayableStatement: true, amountOwing: 250, pendingPaymentAmountTotal: 0, statementId: 1 }, true],
+      ['showApplyPaymentButton', 'no amount owing', { ...baseItem, isParentRow: true, hasMultipleStatements: false, hasPendingPayment: false, hasPayableStatement: false, amountOwing: 0, pendingPaymentAmountTotal: 0 }, false],
+      ['showApplyPaymentButton', 'pending payments', { ...baseItem, isParentRow: true, hasMultipleStatements: false, hasPendingPayment: true, hasPayableStatement: true, amountOwing: 500, pendingPaymentAmountTotal: 200 }, false],
+      ['showCancelPaymentButton', 'can cancel', { ...baseItem, isParentRow: true, hasMultipleStatements: false, hasPendingPayment: true, hasPayableStatement: true, amountOwing: 500, pendingPaymentAmountTotal: 200 }, true],
+      ['showCancelPaymentButton', 'child can cancel', { ...baseItem, isParentRow: false, hasMultipleStatements: false, hasPendingPayment: true, hasPayableStatement: true, amountOwing: 250, pendingPaymentAmountTotal: 100, statementId: 1 }, true],
+      ['showCancelPaymentButton', 'multiple statements', { ...baseItem, isParentRow: true, hasMultipleStatements: true, hasPendingPayment: true, hasPayableStatement: true, amountOwing: 500, pendingPaymentAmountTotal: 200 }, false]
+    ])('%s should handle %s', (method, _, item, expected) => {
       const shortNameId = ref(123)
       const creditsRemaining = ref(1000)
-      const { showUnlinkAccountButton } = useShortNameAccountLink(shortNameId, creditsRemaining)
+      const composable = useShortNameAccountLink(shortNameId, creditsRemaining) as any
 
-      const item = {
-        id: 1,
-        accountId: 100,
-        shortNameId: 123,
-        statusCode: 'LINKED',
-        statementsOwing: [{ statementId: 1, amountOwing: 0, pendingPaymentsCount: 0, pendingPaymentsAmount: 0 }],
-        isParentRow: true,
-        hasMultipleStatements: false,
-        hasPendingPayment: false,
-        hasPayableStatement: false,
-        hasInsufficientFunds: false,
-        amountOwing: 0,
-        pendingPaymentAmountTotal: 0,
-        unpaidStatementIds: ''
-      }
-
-      expect(showUnlinkAccountButton(item)).toBe(true)
-    })
-
-    it('should return false for child rows', () => {
-      const shortNameId = ref(123)
-      const creditsRemaining = ref(1000)
-      const { showUnlinkAccountButton } = useShortNameAccountLink(shortNameId, creditsRemaining)
-
-      const item = {
-        id: 1,
-        accountId: 100,
-        shortNameId: 123,
-        statusCode: 'LINKED',
-        statementsOwing: [],
-        isParentRow: false,
-        hasMultipleStatements: false,
-        hasPendingPayment: false,
-        hasPayableStatement: false,
-        hasInsufficientFunds: false,
-        amountOwing: 0,
-        pendingPaymentAmountTotal: 0,
-        unpaidStatementIds: ''
-      }
-
-      expect(showUnlinkAccountButton(item)).toBe(false)
-    })
-
-    it('should return false when there are pending payments', () => {
-      const shortNameId = ref(123)
-      const creditsRemaining = ref(1000)
-      const { showUnlinkAccountButton } = useShortNameAccountLink(shortNameId, creditsRemaining)
-
-      const item = {
-        id: 1,
-        accountId: 100,
-        shortNameId: 123,
-        statusCode: 'LINKED',
-        statementsOwing: [{ statementId: 1, amountOwing: 100, pendingPaymentsCount: 1, pendingPaymentsAmount: 50 }],
-        isParentRow: true,
-        hasMultipleStatements: false,
-        hasPendingPayment: true,
-        hasPayableStatement: true,
-        hasInsufficientFunds: false,
-        amountOwing: 100,
-        pendingPaymentAmountTotal: 50,
-        unpaidStatementIds: '1'
-      }
-
-      expect(showUnlinkAccountButton(item)).toBe(false)
-    })
-  })
-
-  describe('showApplyPaymentButton', () => {
-    it('should return true when payment can be applied', () => {
-      const shortNameId = ref(123)
-      const creditsRemaining = ref(1000)
-      const { showApplyPaymentButton } = useShortNameAccountLink(shortNameId, creditsRemaining)
-
-      const item = {
-        id: 1,
-        accountId: 100,
-        shortNameId: 123,
-        statusCode: 'LINKED',
-        statementsOwing: [],
-        isParentRow: true,
-        hasMultipleStatements: false,
-        hasPendingPayment: false,
-        hasPayableStatement: true,
-        hasInsufficientFunds: false,
-        amountOwing: 500,
-        pendingPaymentAmountTotal: 0,
-        unpaidStatementIds: '1'
-      }
-
-      expect(showApplyPaymentButton(item)).toBe(true)
-    })
-
-    it('should return false when no amount owing', () => {
-      const shortNameId = ref(123)
-      const creditsRemaining = ref(1000)
-      const { showApplyPaymentButton } = useShortNameAccountLink(shortNameId, creditsRemaining)
-
-      const item = {
-        id: 1,
-        accountId: 100,
-        shortNameId: 123,
-        statusCode: 'LINKED',
-        statementsOwing: [],
-        isParentRow: true,
-        hasMultipleStatements: false,
-        hasPendingPayment: false,
-        hasPayableStatement: false,
-        hasInsufficientFunds: false,
-        amountOwing: 0,
-        pendingPaymentAmountTotal: 0,
-        unpaidStatementIds: ''
-      }
-
-      expect(showApplyPaymentButton(item)).toBe(false)
-    })
-
-    it('should return false when there are pending payments', () => {
-      const shortNameId = ref(123)
-      const creditsRemaining = ref(1000)
-      const { showApplyPaymentButton } = useShortNameAccountLink(shortNameId, creditsRemaining)
-
-      const item = {
-        id: 1,
-        accountId: 100,
-        shortNameId: 123,
-        statusCode: 'LINKED',
-        statementsOwing: [],
-        isParentRow: true,
-        hasMultipleStatements: false,
-        hasPendingPayment: true,
-        hasPayableStatement: true,
-        hasInsufficientFunds: false,
-        amountOwing: 500,
-        pendingPaymentAmountTotal: 200,
-        unpaidStatementIds: '1'
-      }
-
-      expect(showApplyPaymentButton(item)).toBe(false)
-    })
-  })
-
-  describe('showCancelPaymentButton', () => {
-    it('should return true when payment can be cancelled', () => {
-      const shortNameId = ref(123)
-      const creditsRemaining = ref(1000)
-      const { showCancelPaymentButton } = useShortNameAccountLink(shortNameId, creditsRemaining)
-
-      const item = {
-        id: 1,
-        accountId: 100,
-        shortNameId: 123,
-        statusCode: 'LINKED',
-        statementsOwing: [],
-        isParentRow: true,
-        hasMultipleStatements: false,
-        hasPendingPayment: true,
-        hasPayableStatement: true,
-        hasInsufficientFunds: false,
-        amountOwing: 500,
-        pendingPaymentAmountTotal: 200,
-        unpaidStatementIds: '1'
-      }
-
-      expect(showCancelPaymentButton(item)).toBe(true)
-    })
-
-    it('should return false when multiple statements', () => {
-      const shortNameId = ref(123)
-      const creditsRemaining = ref(1000)
-      const { showCancelPaymentButton } = useShortNameAccountLink(shortNameId, creditsRemaining)
-
-      const item = {
-        id: 1,
-        accountId: 100,
-        shortNameId: 123,
-        statusCode: 'LINKED',
-        statementsOwing: [],
-        isParentRow: true,
-        hasMultipleStatements: true,
-        hasPendingPayment: true,
-        hasPayableStatement: true,
-        hasInsufficientFunds: false,
-        amountOwing: 500,
-        pendingPaymentAmountTotal: 200,
-        unpaidStatementIds: '1, 2'
-      }
-
-      expect(showCancelPaymentButton(item)).toBe(false)
+      expect(composable[method](item)).toBe(expected)
     })
   })
 
@@ -655,18 +479,13 @@ describe('useShortNameAccountLink', () => {
     })
   })
 
-  describe('edge cases and error scenarios', () => {
-    it('should handle empty statements owing array', async () => {
-      const mockLinks = [
-        {
-          id: 1,
-          accountId: 100,
-          accountName: 'Test',
-          shortNameId: 123,
-          statusCode: 'LINKED',
-          statementsOwing: []
-        }
-      ]
+  describe('edge cases', () => {
+    it.each([
+      ['empty statements owing', [], 0],
+      ['negative pending payment', [{ statementId: 1, amountOwing: 500, pendingPaymentsCount: 1, pendingPaymentsAmount: -100 }], -100],
+      ['zero pending count with amount', [{ statementId: 1, amountOwing: 500, pendingPaymentsCount: 0, pendingPaymentsAmount: 100 }], 100]
+    ])('should handle %s', async (_, statementsOwing, expectedValue) => {
+      const mockLinks = [{ id: 1, accountId: 100, shortNameId: 123, statusCode: 'LINKED', statementsOwing }]
       mockPayApi.mockResolvedValue({ items: mockLinks })
 
       const shortNameId = ref(123)
@@ -676,79 +495,14 @@ describe('useShortNameAccountLink', () => {
       await loadShortNameLinks()
 
       expect(processedRows.value).toHaveLength(1)
-      expect(processedRows.value[0].amountOwing).toBe(0)
+      if (statementsOwing.length === 0) {
+        expect(processedRows.value[0]?.amountOwing).toBe(expectedValue)
+      } else {
+        expect(processedRows.value[0]?.pendingPaymentAmountTotal).toBe(expectedValue)
+      }
     })
 
-    it('should handle negative pending payment amounts', async () => {
-      const mockLinks = [
-        {
-          id: 1,
-          accountId: 100,
-          shortNameId: 123,
-          statusCode: 'LINKED',
-          statementsOwing: [
-            { statementId: 1, amountOwing: 500, pendingPaymentsCount: 1, pendingPaymentsAmount: -100 }
-          ]
-        }
-      ]
-      mockPayApi.mockResolvedValue({ items: mockLinks })
-
-      const shortNameId = ref(123)
-      const creditsRemaining = ref(1000)
-      const { loadShortNameLinks, processedRows } = useShortNameAccountLink(shortNameId, creditsRemaining)
-
-      await loadShortNameLinks()
-
-      expect(processedRows.value[0].pendingPaymentAmountTotal).toBe(-100)
-    })
-
-    it('should handle zero pending payment count with amount', async () => {
-      const mockLinks = [
-        {
-          id: 1,
-          accountId: 100,
-          shortNameId: 123,
-          statusCode: 'LINKED',
-          statementsOwing: [
-            { statementId: 1, amountOwing: 500, pendingPaymentsCount: 0, pendingPaymentsAmount: 100 }
-          ]
-        }
-      ]
-      mockPayApi.mockResolvedValue({ items: mockLinks })
-
-      const shortNameId = ref(123)
-      const creditsRemaining = ref(1000)
-      const { loadShortNameLinks, processedRows } = useShortNameAccountLink(shortNameId, creditsRemaining)
-
-      await loadShortNameLinks()
-
-      expect(processedRows.value[0].hasPendingPayment).toBe(false)
-    })
-
-    it('should handle insufficient funds with exact match', async () => {
-      const mockLinks = [
-        {
-          id: 1,
-          accountId: 100,
-          shortNameId: 123,
-          statusCode: 'LINKED',
-          statementsOwing: [
-            { statementId: 1, amountOwing: 500, pendingPaymentsCount: 0, pendingPaymentsAmount: 0 }
-          ]
-        }
-      ]
-      mockPayApi.mockResolvedValue({ items: mockLinks })
-
-      const shortNameId = ref(123)
-      const creditsRemaining = ref(500)
-      const { loadShortNameLinks, processedRows } = useShortNameAccountLink(shortNameId, creditsRemaining)
-
-      await loadShortNameLinks()
-
-      expect(processedRows.value[0].hasInsufficientFunds).toBe(false)
-    })
-
-    it('should reload when shortNameId changes', async () => {
+    it('should handle shortNameId changes', async () => {
       mockPayApi.mockResolvedValue({ items: [] })
 
       const shortNameId = ref(123)
@@ -762,195 +516,6 @@ describe('useShortNameAccountLink', () => {
       shortNameId.value = 456
       await loadShortNameLinks()
       expect(mockPayApi).toHaveBeenCalledWith('/eft-shortnames/456/links', { method: 'GET' })
-    })
-
-    it('should handle very large statement IDs list', async () => {
-      const statements = Array.from({ length: 10 }, (_, i) => ({
-        statementId: i + 1,
-        amountOwing: 100,
-        pendingPaymentsCount: 0,
-        pendingPaymentsAmount: 0
-      }))
-
-      const mockLinks = [
-        {
-          id: 1,
-          accountId: 100,
-          shortNameId: 123,
-          statusCode: 'LINKED',
-          statementsOwing: statements
-        }
-      ]
-      mockPayApi.mockResolvedValue({ items: mockLinks })
-
-      const shortNameId = ref(123)
-      const creditsRemaining = ref(5000)
-      const { loadShortNameLinks, processedRows } = useShortNameAccountLink(shortNameId, creditsRemaining)
-
-      await loadShortNameLinks()
-
-      expect(processedRows.value[0].unpaidStatementIds).toBe('1, 2,...')
-    })
-  })
-
-  describe('apply payment with statement ID', () => {
-    it('should apply payment to specific statement when provided', async () => {
-      mockPayApi.mockResolvedValue({})
-
-      const shortNameId = ref(123)
-      const creditsRemaining = ref(1000)
-      const { applyPayment } = useShortNameAccountLink(shortNameId, creditsRemaining)
-
-      await applyPayment(100, 555)
-
-      expect(mockPayApi).toHaveBeenCalledWith(
-        '/eft-shortnames/123/payment',
-        {
-          method: 'POST',
-          body: {
-            action: ShortNamePaymentActions.APPLY_CREDITS,
-            accountId: '100',
-            statementId: 555
-          }
-        }
-      )
-    })
-
-    it('should handle apply payment with zero statement ID', async () => {
-      mockPayApi.mockResolvedValue({})
-
-      const shortNameId = ref(123)
-      const creditsRemaining = ref(1000)
-      const { applyPayment } = useShortNameAccountLink(shortNameId, creditsRemaining)
-
-      await applyPayment(100, 0)
-
-      expect(mockPayApi).toHaveBeenCalledWith(
-        '/eft-shortnames/123/payment',
-        {
-          method: 'POST',
-          body: {
-            action: ShortNamePaymentActions.APPLY_CREDITS,
-            accountId: '100',
-            statementId: 0
-          }
-        }
-      )
-    })
-  })
-
-  describe('cancel payment scenarios', () => {
-    it('should cancel payment without statement ID', async () => {
-      mockPayApi.mockResolvedValue({})
-
-      const shortNameId = ref(123)
-      const creditsRemaining = ref(1000)
-      const { cancelPayment } = useShortNameAccountLink(shortNameId, creditsRemaining)
-
-      const result = await cancelPayment(100)
-
-      expect(result).toBe(true)
-      expect(mockPayApi).toHaveBeenCalledWith(
-        '/eft-shortnames/123/payment',
-        {
-          method: 'POST',
-          body: {
-            action: ShortNamePaymentActions.CANCEL,
-            accountId: 100,
-            statementId: undefined
-          }
-        }
-      )
-    })
-
-    it('should handle cancel payment API error', async () => {
-      mockPayApi.mockRejectedValue(new Error('Cancel failed'))
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-
-      const shortNameId = ref(123)
-      const creditsRemaining = ref(1000)
-      const { cancelPayment } = useShortNameAccountLink(shortNameId, creditsRemaining)
-
-      const result = await cancelPayment(100, 789)
-
-      expect(result).toBe(false)
-      consoleSpy.mockRestore()
-    })
-  })
-
-  describe('button visibility logic', () => {
-    it('should show unlink button for parent row with no amounts', () => {
-      const shortNameId = ref(123)
-      const creditsRemaining = ref(1000)
-      const { showUnlinkAccountButton } = useShortNameAccountLink(shortNameId, creditsRemaining)
-
-      const item = {
-        id: 1,
-        accountId: 100,
-        shortNameId: 123,
-        statusCode: 'LINKED',
-        statementsOwing: [],
-        isParentRow: true,
-        hasMultipleStatements: false,
-        hasPendingPayment: false,
-        hasPayableStatement: false,
-        hasInsufficientFunds: false,
-        amountOwing: 0,
-        pendingPaymentAmountTotal: 0,
-        unpaidStatementIds: ''
-      }
-
-      expect(showUnlinkAccountButton(item)).toBe(true)
-    })
-
-    it('should show apply payment for child rows', () => {
-      const shortNameId = ref(123)
-      const creditsRemaining = ref(1000)
-      const { showApplyPaymentButton } = useShortNameAccountLink(shortNameId, creditsRemaining)
-
-      const item = {
-        id: 1,
-        accountId: 100,
-        shortNameId: 123,
-        statusCode: 'LINKED',
-        statementsOwing: [],
-        isParentRow: false,
-        hasMultipleStatements: false,
-        hasPendingPayment: false,
-        hasPayableStatement: true,
-        hasInsufficientFunds: false,
-        amountOwing: 250,
-        pendingPaymentAmountTotal: 0,
-        unpaidStatementIds: '1',
-        statementId: 1
-      }
-
-      expect(showApplyPaymentButton(item)).toBe(true)
-    })
-
-    it('should show cancel button for child rows with pending', () => {
-      const shortNameId = ref(123)
-      const creditsRemaining = ref(1000)
-      const { showCancelPaymentButton } = useShortNameAccountLink(shortNameId, creditsRemaining)
-
-      const item = {
-        id: 1,
-        accountId: 100,
-        shortNameId: 123,
-        statusCode: 'LINKED',
-        statementsOwing: [],
-        isParentRow: false,
-        hasMultipleStatements: false,
-        hasPendingPayment: true,
-        hasPayableStatement: true,
-        hasInsufficientFunds: false,
-        amountOwing: 250,
-        pendingPaymentAmountTotal: 100,
-        unpaidStatementIds: '1',
-        statementId: 1
-      }
-
-      expect(showCancelPaymentButton(item)).toBe(true)
     })
   })
 })

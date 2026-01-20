@@ -185,14 +185,14 @@ describe('useSearch', () => {
 
   it('should stop infinite scroll if searchRoutingSlip encounters an error', async () => {
     const composable = await useSearch()
-    mockPostSearchRoutingSlip.mockImplementation(() => {
-      throw new Error('API error')
-    })
+    mockPostSearchRoutingSlip.mockRejectedValue(new Error('API error'))
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     await composable.getNext(false)
     await nextTick()
 
     expect(composable.isLoading.value).toBe(false)
     expect(composable.reachedEnd.value).toBe(true)
+    consoleSpy.mockRestore()
   })
 })

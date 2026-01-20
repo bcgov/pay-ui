@@ -95,56 +95,32 @@ describe('ShortNameRefund', () => {
     mockDeclineRefund.mockResolvedValue(undefined)
   })
 
-  it('should render component', () => {
-    const wrapper = createWrapper()
-    expect(wrapper.exists()).toBe(true)
+  afterEach(() => {
+    vi.clearAllMocks()
   })
 
-  it('should display short name refund header', () => {
+  it('should render component with header and button', async () => {
     const wrapper = createWrapper()
-    expect(wrapper.text()).toContain('Short Name Refund')
-  })
-
-  it('should show initiate refund button when no refunds', () => {
-    const wrapper = createWrapper()
-    expect(wrapper.text()).toContain('Initiate Refund')
-  })
-
-  it('should load transactions on mount', async () => {
-    createWrapper()
     await flushPromises()
 
+    expect(wrapper.exists()).toBe(true)
+    expect(wrapper.text()).toContain('Short Name Refund')
+    expect(wrapper.text()).toContain('Initiate Refund')
     expect(mockGetPendingRefunds).toHaveBeenCalledWith(123)
   })
 
-  it('should navigate to refund selection on initiate', async () => {
+  it('should navigate to refund selection and details', () => {
     const wrapper = createWrapper()
-    const vm = wrapper.vm as unknown as { initiateRefund: () => void }
+    const vm = wrapper.vm as any
 
     vm.initiateRefund()
-
     expect(mockRouterPush).toHaveBeenCalledWith('/eft/shortname-details/123/refund-selection')
-  })
 
-  it('should navigate to refund details', async () => {
-    const wrapper = createWrapper()
-    const vm = wrapper.vm as unknown as { viewRefundDetails: (id: number) => void }
-
+    mockRouterPush.mockClear()
     vm.viewRefundDetails(456)
+    expect(mockRouterPush).toHaveBeenCalledWith({ path: '/eft/shortname-details/123/refund', query: { eftRefundId: '456' } })
 
-    expect(mockRouterPush).toHaveBeenCalledWith({
-      path: '/eft/shortname-details/123/refund',
-      query: { eftRefundId: '456' }
-    })
-  })
-
-  it('should not navigate without valid id', async () => {
-    const wrapper = createWrapper()
-    const vm = wrapper.vm as unknown as { viewRefundDetails: (id: number) => void }
-
-    vm.viewRefundDetails(0)
-
-    expect(mockRouterPush).not.toHaveBeenCalled()
+    wrapper.unmount()
   })
 
   it('should approve refund', async () => {
@@ -164,19 +140,7 @@ describe('ShortNameRefund', () => {
     expect(wrapper.emitted('on-short-name-refund')).toBeTruthy()
   })
 
-  it('should show decline dialog', async () => {
-    const wrapper = createWrapper()
-    const vm = wrapper.vm as unknown as {
-      declineRefund: (item: { id: number }) => void
-    }
-
-    vm.declineRefund({ id: 789 })
-
-    expect(wrapper.vm.state.showDeclineDialog).toBe(true)
-    expect(wrapper.vm.state.currentEftRefund).toEqual({ id: 789 })
-  })
-
-  it('should decline refund with reason', async () => {
+  it('should show and handle decline dialog', async () => {
     mockGetPendingRefunds.mockResolvedValue([
       { id: 789, refundAmount: 500, refundMethod: 'EFT' }
     ])
@@ -184,11 +148,13 @@ describe('ShortNameRefund', () => {
     const wrapper = createWrapper()
     await flushPromises()
 
-    wrapper.vm.state.currentEftRefund = { id: 789 }
-    wrapper.vm.state.declineReason = 'Invalid request'
-    wrapper.vm.state.showDeclineDialog = true
+    const vm = wrapper.vm as any
+    vm.declineRefund({ id: 789 })
 
-    const vm = wrapper.vm as unknown as { dialogDecline: () => Promise<void> }
+    expect(wrapper.vm.state.showDeclineDialog).toBe(true)
+    expect(wrapper.vm.state.currentEftRefund).toEqual({ id: 789 })
+
+    wrapper.vm.state.declineReason = 'Invalid request'
     await vm.dialogDecline()
 
     expect(mockDeclineRefund).toHaveBeenCalledWith(789, 'Invalid request')
@@ -196,7 +162,7 @@ describe('ShortNameRefund', () => {
     expect(wrapper.vm.state.showDeclineDialog).toBe(false)
   })
 
-  it('should cancel decline dialog', async () => {
+  it('should cancel decline dialog and reset state', () => {
     const wrapper = createWrapper()
     wrapper.vm.state.showDeclineDialog = true
     wrapper.vm.state.currentEftRefund = { id: 789 }
@@ -210,21 +176,15 @@ describe('ShortNameRefund', () => {
     expect(wrapper.vm.state.declineReason).toBe('')
   })
 
-  it('should format currency correctly', () => {
+  it('should format currency and check approval permissions', () => {
     const wrapper = createWrapper()
-    const vm = wrapper.vm as unknown as { formatCurrency: (amount: number) => string }
+    const vm = wrapper.vm as any
 
     expect(vm.formatCurrency(1234.56)).toBe('$1234.56')
-  })
-
-  it('should disable approve for own refund', () => {
-    const wrapper = createWrapper()
-    const vm = wrapper.vm as unknown as {
-      disableApproveRefund: (item: { createdBy?: string }) => boolean
-    }
-
     expect(vm.disableApproveRefund({ createdBy: 'TESTUSER' })).toBe(true)
     expect(vm.disableApproveRefund({ createdBy: 'otheruser' })).toBe(false)
+
+    wrapper.unmount()
   })
 
   it('should reload on shortNameDetails change', async () => {

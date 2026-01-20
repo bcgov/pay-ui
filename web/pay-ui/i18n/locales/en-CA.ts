@@ -6,6 +6,9 @@ export default {
     },
     header: {
       title: 'BC Registries and Online Services' // header component title text
+    },
+    label: {
+      regionOpt: 'Region'
     }
   },
   enum: {
@@ -287,7 +290,8 @@ export default {
       },
       paidAmount: {
         required: 'Paid Amount is required',
-        decimal: 'Paid Amount can only be up to 2 decimal places'
+        decimal: 'Paid Amount can only be up to 2 decimal places',
+        minimum: 'Paid Amount must be greater than zero'
       },
       receiptNumber: {
         required: 'A Receipt number is required'

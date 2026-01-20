@@ -10,6 +10,7 @@ import { ApiErrors } from '~/enums/api-errors'
 import CommonUtils from '@/utils/common-util'
 import { createRoutingSlipPayload } from '~/utils/create-routing-slip'
 import { useLoader } from '@/composables/common/useLoader'
+import { getFASErrorMessage } from '@/utils/api-error-handler'
 
 interface StatusDetails {
   status: string
@@ -62,7 +63,6 @@ export const useRoutingSlip = () => {
   async function createRoutingSlip() {
     const crsStore = useCreateRoutingSlipStore()
     const payApi = usePayApi()
-    const t = useNuxtApp().$i18n.t
     const toast = useToast()
     const { toggleLoading } = useLoader()
 
@@ -70,12 +70,16 @@ export const useRoutingSlip = () => {
       toggleLoading(true)
       const payload = createRoutingSlipPayload(crsStore.state)
       const res = await payApi.postRoutingSlip(payload)
+      toast.add({
+        description: 'Routing slip created successfully.',
+        icon: 'i-mdi-check-circle',
+        color: 'success'
+      })
       await navigateTo(`/view-routing-slip/${res.number}`)
       crsStore.$reset()
     } catch (e) {
-      const status = getErrorStatus(e)
       toast.add({
-        description: t('error.createRoutingSlip.generic', { status: status ? `${status}: ` : '' }),
+        description: getFASErrorMessage(e),
         icon: 'i-mdi-alert',
         color: 'error',
         progress: false
@@ -126,10 +130,10 @@ export const useRoutingSlip = () => {
     statusDetails: string | StatusDetails
   ) => {
     const slipNumber = store.routingSlip.number
-    // update status
+    const toast = useToast()
+
     try {
       let response
-      // Global Exception handler will handle this one.
       if (CommonUtils.isRefundProcessStatus((statusDetails as StatusDetails)?.status as SlipStatus)) {
         response = await usePayApi().updateRoutingSlipRefund(
           statusDetails as string,
@@ -148,10 +152,20 @@ export const useRoutingSlip = () => {
           const getRoutingSlipRequestPayload: GetRoutingSlipRequestPayload = { routingSlipNumber: slipNumber }
           getRoutingSlip(getRoutingSlipRequestPayload)
         }
+        toast.add({
+          description: 'Routing slip status updated successfully.',
+          icon: 'i-mdi-check-circle',
+          color: 'success'
+        })
         return response
       }
     } catch (error) {
       console.error('error ', error)
+      toast.add({
+        description: getFASErrorMessage(error),
+        icon: 'i-mdi-alert-circle',
+        color: 'error'
+      })
       return null
     }
   }
@@ -186,17 +200,27 @@ export const useRoutingSlip = () => {
   }
 
   const adjustRoutingSlip = async (payments: Payment[]): Promise<RoutingSlip | null> => {
-    // build the RoutingSlip Request JSON object that needs to be sent.
     const slipNumber = store.routingSlip.number
+    const toast = useToast()
+
     try {
-      // TODO: Update error handling for REST call
       const response = await usePayApi().adjustRoutingSlip(
         payments,
         slipNumber
       )
+      toast.add({
+        description: 'Routing slip adjusted successfully.',
+        icon: 'i-mdi-check-circle',
+        color: 'success'
+      })
       return response
     } catch (error) {
       console.error('error adjust routing slip:', error)
+      toast.add({
+        description: getFASErrorMessage(error),
+        icon: 'i-mdi-alert-circle',
+        color: 'error'
+      })
       return null
     }
   }
@@ -212,24 +236,37 @@ export const useRoutingSlip = () => {
 
   const saveLinkRoutingSlip = async (
     parentRoutingSlipNumber: string
-  ): Promise<{ error: boolean, details?: unknown } | undefined> => {
+  ): Promise<{ error: boolean, message?: string, details?: unknown } | undefined> => {
     const childRoutingSlipNumber: string = store.routingSlip.number ?? ''
-
+    const toast = useToast()
     const linkParams = { childRoutingSlipNumber, parentRoutingSlipNumber }
 
     try {
-      // TODO: Update error handling for REST call
       await usePayApi().saveLinkRoutingSlip(linkParams)
+      toast.add({
+        description: 'Routing slips linked successfully.',
+        icon: 'i-mdi-check-circle',
+        color: 'success'
+      })
       return {
         error: false
       }
     } catch (error) {
       const errorResponse = error as { response?: { status?: number, data?: unknown } }
+      const errorMessage = getFASErrorMessage(error)
+
+      toast.add({
+        description: errorMessage,
+        icon: 'i-mdi-alert-circle',
+        color: 'error'
+      })
+
       if (errorResponse.response?.status === 400) {
-        return { error: true, details: errorResponse.response?.data }
+        return { error: true, message: errorMessage, details: errorResponse.response?.data }
       }
 
       console.error('error ', errorResponse.response?.data)
+      return { error: true, message: errorMessage }
     }
   }
 

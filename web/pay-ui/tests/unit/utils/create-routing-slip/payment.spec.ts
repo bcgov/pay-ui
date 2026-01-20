@@ -2,23 +2,15 @@ describe('Create Routing Slip - Payment', () => {
   describe('getRoutingSlipDateSchema', () => {
     const dateSchema = getRoutingSlipDateSchema()
 
-    it('should pass for an ISO date', () => {
-      expect(dateSchema.safeParse('2025-01-01').success).toBe(true)
-    })
-
-    it('should fail an empty string', () => {
-      const result = dateSchema.safeParse('')
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.issues[0]!.message).toBe('Cheque date is required')
-      }
-    })
-
-    it('should fail a null value', () => {
-      const result = dateSchema.safeParse(null)
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.issues[0]!.message).toBe('Cheque date is required')
+    it.each([
+      ['2025-01-01', true, undefined],
+      ['', false, 'Cheque date is required'],
+      [null, false, 'Cheque date is required']
+    ])('should validate %s', (input, shouldPass, errorMessage) => {
+      const result = dateSchema.safeParse(input)
+      expect(result.success).toBe(shouldPass)
+      if (!shouldPass && !result.success) {
+        expect(result.error.issues[0]!.message).toBe(errorMessage)
       }
     })
   })
@@ -26,27 +18,19 @@ describe('Create Routing Slip - Payment', () => {
   describe('getRoutingSlipAmountSchema', () => {
     const amountSchema = getRoutingSlipAmountSchema()
 
-    it('should pass no decimal places', () => {
-      expect(amountSchema.safeParse('100').success).toBe(true)
-    })
-
-    it('should pass two decimal places', () => {
-      expect(amountSchema.safeParse('99.99').success).toBe(true)
-    })
-
-    it('should fail more than two decimal places', () => {
-      const result = amountSchema.safeParse('10.123')
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.issues[0]!.message).toBe('Paid Amount can only be up to 2 decimal places')
-      }
-    })
-
-    it('should fail an empty string', () => {
-      const result = amountSchema.safeParse('')
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.issues[0]!.message).toBe('Paid Amount is required')
+    it.each([
+      ['100', true, undefined],
+      ['99.99', true, undefined],
+      ['0.01', true, undefined],
+      ['10.123', false, 'Paid Amount can only be up to 2 decimal places'],
+      ['', false, 'Paid Amount is required'],
+      ['0', false, 'Paid Amount must be greater than zero'],
+      ['0.00', false, 'Paid Amount must be greater than zero']
+    ])('should validate %s', (input, shouldPass, errorMessage) => {
+      const result = amountSchema.safeParse(input)
+      expect(result.success).toBe(shouldPass)
+      if (!shouldPass && !result.success) {
+        expect(result.error.issues[0]!.message).toBe(errorMessage)
       }
     })
   })
@@ -63,51 +47,23 @@ describe('Create Routing Slip - Payment', () => {
       ...overrides
     })
 
-    it('should not require amountUSD when isUSD = false', () => {
+    it.each([
+      [PaymentTypes.CASH, false, { amountUSD: '' }, true, undefined, undefined],
+      [PaymentTypes.CASH, true, { amountUSD: '' }, false, ['paymentItems', '123', 'amountUSD'], 'Paid Amount is required'],
+      [PaymentTypes.CASH, false, { date: '' }, true, undefined, undefined],
+      [PaymentTypes.CHEQUE, false, { date: '' }, false, ['paymentItems', '123', 'date'], 'Cheque date is required']
+    ])('should validate %s payment with isUSD=%s', (paymentType, isUSD, overrides, shouldPass, errorPath, errorMessage) => {
       const result = paymentSchema.safeParse({
-        paymentType: PaymentTypes.CASH,
-        isUSD: false,
-        paymentItems: { 123: createItem({ amountUSD: '' }) }
-      })
-      expect(result.success).toBe(true)
-    })
-
-    it('should require amountUSD when isUSD = true', () => {
-      const result = paymentSchema.safeParse({
-        paymentType: PaymentTypes.CASH,
-        isUSD: true,
-        paymentItems: { 123: createItem({ amountUSD: '' }) }
+        paymentType,
+        isUSD,
+        paymentItems: { 123: createItem(overrides) }
       })
 
-      expect(result.success).toBe(false)
-      if (!result.success) {
+      expect(result.success).toBe(shouldPass)
+      if (!shouldPass && !result.success) {
         const issue = result.error.issues[0]!
-        expect(issue.path).toEqual(['paymentItems', '123', 'amountUSD'])
-        expect(issue.message).toBe('Paid Amount is required')
-      }
-    })
-
-    it('should not require a date for cash payment', () => {
-      const result = paymentSchema.safeParse({
-        paymentType: PaymentTypes.CASH,
-        isUSD: false,
-        paymentItems: { 123: createItem({ date: '' }) }
-      })
-      expect(result.success).toBe(true)
-    })
-
-    it('should require a date for cheque payment', () => {
-      const result = paymentSchema.safeParse({
-        paymentType: PaymentTypes.CHEQUE,
-        isUSD: false,
-        paymentItems: { 123: createItem({ date: '' }) }
-      })
-
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        const issue = result.error.issues[0]!
-        expect(issue.path).toEqual(['paymentItems', '123', 'date'])
-        expect(issue.message).toBe('Cheque date is required')
+        expect(issue.path).toEqual(errorPath)
+        expect(issue.message).toBe(errorMessage)
       }
     })
   })
