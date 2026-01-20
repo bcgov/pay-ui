@@ -3,6 +3,7 @@ export default defineNuxtPlugin(() => {
 
   if (config.public.isPreviewBuild) {
     const requestUrl = useRequestURL()
+    console.log('PREVIEW BUILD DETECTED.')
     config.public.baseUrl = requestUrl.origin + '/'
   }
 })
