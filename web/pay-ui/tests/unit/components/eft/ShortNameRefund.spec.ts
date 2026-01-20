@@ -111,6 +111,7 @@ describe('ShortNameRefund', () => {
 
   it('should navigate to refund selection and details', () => {
     const wrapper = createWrapper()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const vm = wrapper.vm as any
 
     vm.initiateRefund()
@@ -118,7 +119,10 @@ describe('ShortNameRefund', () => {
 
     mockRouterPush.mockClear()
     vm.viewRefundDetails(456)
-    expect(mockRouterPush).toHaveBeenCalledWith({ path: '/eft/shortname-details/123/refund', query: { eftRefundId: '456' } })
+    expect(mockRouterPush).toHaveBeenCalledWith({
+      path: '/eft/shortname-details/123/refund',
+      query: { eftRefundId: '456' }
+    })
 
     wrapper.unmount()
   })
@@ -148,6 +152,7 @@ describe('ShortNameRefund', () => {
     const wrapper = createWrapper()
     await flushPromises()
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const vm = wrapper.vm as any
     vm.declineRefund({ id: 789 })
 
@@ -178,6 +183,7 @@ describe('ShortNameRefund', () => {
 
   it('should format currency and check approval permissions', () => {
     const wrapper = createWrapper()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const vm = wrapper.vm as any
 
     expect(vm.formatCurrency(1234.56)).toBe('$1234.56')

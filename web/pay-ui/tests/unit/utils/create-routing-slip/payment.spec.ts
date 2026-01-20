@@ -49,10 +49,31 @@ describe('Create Routing Slip - Payment', () => {
 
     it.each([
       [PaymentTypes.CASH, false, { amountUSD: '' }, true, undefined, undefined],
-      [PaymentTypes.CASH, true, { amountUSD: '' }, false, ['paymentItems', '123', 'amountUSD'], 'Paid Amount is required'],
+      [
+        PaymentTypes.CASH,
+        true,
+        { amountUSD: '' },
+        false,
+        ['paymentItems', '123', 'amountUSD'],
+        'Paid Amount is required'
+      ],
       [PaymentTypes.CASH, false, { date: '' }, true, undefined, undefined],
-      [PaymentTypes.CHEQUE, false, { date: '' }, false, ['paymentItems', '123', 'date'], 'Cheque date is required']
-    ])('should validate %s payment with isUSD=%s', (paymentType, isUSD, overrides, shouldPass, errorPath, errorMessage) => {
+      [
+        PaymentTypes.CHEQUE,
+        false,
+        { date: '' },
+        false,
+        ['paymentItems', '123', 'date'],
+        'Cheque date is required'
+      ]
+    ])('should validate %s payment with isUSD=%s', (
+      paymentType,
+      isUSD,
+      overrides,
+      shouldPass,
+      errorPath,
+      errorMessage
+    ) => {
       const result = paymentSchema.safeParse({
         paymentType,
         isUSD,

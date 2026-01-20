@@ -150,8 +150,20 @@ describe('useShortNameLinking', () => {
     })
 
     it.each([
-      ['already mapped', { response: { data: { type: ShortNameResponseStatus.EFT_SHORT_NAME_ALREADY_MAPPED } } }, ShortNameResponseStatus.EFT_SHORT_NAME_ALREADY_MAPPED],
-      ['different error', { response: { data: { type: 'DIFFERENT_ERROR' } } }, 'DIFFERENT_ERROR'],
+      [
+        'already mapped',
+        {
+          response: {
+            data: { type: ShortNameResponseStatus.EFT_SHORT_NAME_ALREADY_MAPPED }
+          }
+        },
+        ShortNameResponseStatus.EFT_SHORT_NAME_ALREADY_MAPPED
+      ],
+      [
+        'different error',
+        { response: { data: { type: 'DIFFERENT_ERROR' } } },
+        'DIFFERENT_ERROR'
+      ],
       ['unknown error', new Error('Network error'), 'UNKNOWN_ERROR'],
       ['network timeout', { code: 'ECONNABORTED' }, 'UNKNOWN_ERROR']
     ])('should handle %s', async (_, mockError, expectedErrorType) => {

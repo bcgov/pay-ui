@@ -23,6 +23,12 @@ function createState(): ShortNameHistoryState {
   }
 }
 
+const BASE_DATE = '2024-01-15T00:00:00.000Z'
+const DAYS_30_AGO = '2023-12-16T00:00:00.000Z'
+const DAYS_60_AGO = '2023-11-16T00:00:00.000Z'
+const DAYS_61_AGO = '2023-11-15T00:00:00.000Z'
+const DAYS_100_AGO = '2023-10-07T00:00:00.000Z'
+
 describe('useShortNameHistory', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -191,27 +197,39 @@ describe('useShortNameHistory', () => {
 
   describe('reversal eligibility', () => {
     it.each([
-      [new Date().toISOString(), undefined, true, 'Reverse this payment'],
-      [new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), undefined, true, 'Reverse this payment'],
-      [new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(), undefined, true, 'Reverse this payment'],
-      [new Date(Date.now() - 61 * 24 * 60 * 60 * 1000).toISOString(), undefined, false, 'Cannot reverse transactions older than 60 days'],
+      [BASE_DATE, undefined, true, 'Reverse this payment'],
+      [DAYS_30_AGO, undefined, true, 'Reverse this payment'],
+      [DAYS_60_AGO, undefined, true, 'Reverse this payment'],
+      [
+        DAYS_61_AGO,
+        undefined,
+        false,
+        'Cannot reverse transactions older than 60 days'
+      ],
       [undefined, undefined, false, 'Cannot reverse this transaction']
     ])('canReversePayment and tooltip for date %s', (transactionDate, paymentDate, canReverse, tooltip) => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date(BASE_DATE))
+
       const state = createState()
       const { canReversePayment, getReversalTooltip } = useShortNameHistory(123, state)
 
       expect(canReversePayment(transactionDate, paymentDate)).toBe(canReverse)
       expect(getReversalTooltip(transactionDate, paymentDate)).toBe(tooltip)
+
+      vi.useRealTimers()
     })
 
     it('should prefer paymentDate over transactionDate', () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date(BASE_DATE))
+
       const state = createState()
       const { canReversePayment } = useShortNameHistory(123, state)
 
-      const oldTransactionDate = new Date(Date.now() - 100 * 24 * 60 * 60 * 1000).toISOString()
-      const recentPaymentDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+      expect(canReversePayment(DAYS_100_AGO, DAYS_30_AGO)).toBe(true)
 
-      expect(canReversePayment(oldTransactionDate, recentPaymentDate)).toBe(true)
+      vi.useRealTimers()
     })
   })
 })

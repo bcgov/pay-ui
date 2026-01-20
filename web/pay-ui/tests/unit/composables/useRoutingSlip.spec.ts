@@ -431,7 +431,11 @@ describe('useRoutingSlip', () => {
     }
     mockUsePayApi.saveLinkRoutingSlip.mockRejectedValue(mockError)
     result = await composable.saveLinkRoutingSlip('987654')
-    expect(result).toEqual({ error: true, message: 'An error occurred while processing your request.', details: { message: 'Invalid link' } })
+    expect(result).toEqual({
+      error: true,
+      message: 'An error occurred while processing your request.',
+      details: { message: 'Invalid link' }
+    })
 
     const mockError2 = {
       response: {

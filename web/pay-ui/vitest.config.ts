@@ -34,6 +34,6 @@ export default defineVitestConfig({
     globals: true,
     clearMocks: true,
     mockReset: true,
-    restoreMocks: true,
+    restoreMocks: true
   }
 })

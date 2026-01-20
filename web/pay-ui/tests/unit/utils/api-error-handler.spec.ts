@@ -13,7 +13,7 @@ describe('api-error-handler', () => {
     it.each([
       ['response._data.type', { response: { _data: { type: 'TEST_ERROR' } } }, 'TEST_ERROR'],
       ['response.data.type', { response: { data: { type: 'TEST_ERROR' } } }, 'TEST_ERROR'],
-      ['data.type', { data: { type: 'TEST_ERROR' } } , 'TEST_ERROR'],
+      ['data.type', { data: { type: 'TEST_ERROR' } }, 'TEST_ERROR'],
       ['null', null, undefined],
       ['undefined', undefined, undefined],
       ['empty object', {}, undefined],

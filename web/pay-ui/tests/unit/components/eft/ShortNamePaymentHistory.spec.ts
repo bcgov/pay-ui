@@ -128,6 +128,7 @@ describe('ShortNamePaymentHistory', () => {
 
   describe('helper methods', () => {
     let wrapper: ReturnType<typeof createWrapper>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let vm: any
 
     beforeEach(() => {
@@ -215,9 +216,24 @@ describe('ShortNamePaymentHistory', () => {
     })
 
     it.each([
-      ['with eftRefundId', { eftRefundId: 456 }, { path: '/eft/shortname-details/123/refund', query: { eftRefundId: '456' } }, true],
-      ['with shortNameRefundId', { shortNameRefundId: 789 }, { path: '/eft/shortname-details/123/refund', query: { eftRefundId: '789' } }, true],
-      ['with both IDs', { eftRefundId: 111, shortNameRefundId: 222 }, { path: '/eft/shortname-details/123/refund', query: { eftRefundId: '111' } }, true],
+      [
+        'with eftRefundId',
+        { eftRefundId: 456 },
+        { path: '/eft/shortname-details/123/refund', query: { eftRefundId: '456' } },
+        true
+      ],
+      [
+        'with shortNameRefundId',
+        { shortNameRefundId: 789 },
+        { path: '/eft/shortname-details/123/refund', query: { eftRefundId: '789' } },
+        true
+      ],
+      [
+        'with both IDs',
+        { eftRefundId: 111, shortNameRefundId: 222 },
+        { path: '/eft/shortname-details/123/refund', query: { eftRefundId: '111' } },
+        true
+      ],
       ['without refund ID', {}, null, false]
     ])('navigateToRefundDetail should handle %s', (_, item, expectedCall, shouldNavigate) => {
       vm.navigateToRefundDetail(item)

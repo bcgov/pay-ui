@@ -30,7 +30,24 @@ describe('useShortNameAccountLink', () => {
 
   describe('loadShortNameLinks', () => {
     it.each([
-      ['with links', [{ id: 1, accountId: 100, accountName: 'Test Account', shortNameId: 123, statusCode: 'LINKED', statementsOwing: [{ statementId: 1, amountOwing: 500, pendingPaymentsCount: 0, pendingPaymentsAmount: 0 }] }], true, '/eft-shortnames/123/links'],
+      [
+        'with links',
+        [{
+          id: 1,
+          accountId: 100,
+          accountName: 'Test Account',
+          shortNameId: 123,
+          statusCode: 'LINKED',
+          statementsOwing: [{
+            statementId: 1,
+            amountOwing: 500,
+            pendingPaymentsCount: 0,
+            pendingPaymentsAmount: 0
+          }]
+        }],
+        true,
+        '/eft-shortnames/123/links'
+      ],
       ['empty response', [], false, '/eft-shortnames/123/links']
     ])('should load links %s', async (_, mockLinks, expectedIsLinked, expectedUrl) => {
       mockPayApi.mockResolvedValue({ items: mockLinks })
@@ -112,9 +129,24 @@ describe('useShortNameAccountLink', () => {
 
   describe('applyPayment', () => {
     it.each([
-      ['without statement', undefined, { action: ShortNamePaymentActions.APPLY_CREDITS, accountId: '100' }, true],
-      ['to specific statement', 789, { action: ShortNamePaymentActions.APPLY_CREDITS, accountId: '100', statementId: 789 }, true],
-      ['with zero statement ID', 0, { action: ShortNamePaymentActions.APPLY_CREDITS, accountId: '100', statementId: 0 }, true]
+      [
+        'without statement',
+        undefined,
+        { action: ShortNamePaymentActions.APPLY_CREDITS, accountId: '100' },
+        true
+      ],
+      [
+        'to specific statement',
+        789,
+        { action: ShortNamePaymentActions.APPLY_CREDITS, accountId: '100', statementId: 789 },
+        true
+      ],
+      [
+        'with zero statement ID',
+        0,
+        { action: ShortNamePaymentActions.APPLY_CREDITS, accountId: '100', statementId: 0 },
+        true
+      ]
     ])('should apply payment %s', async (_, statementId, expectedBody, expectedResult) => {
       mockPayApi.mockResolvedValue({})
 
@@ -160,8 +192,18 @@ describe('useShortNameAccountLink', () => {
 
   describe('cancelPayment', () => {
     it.each([
-      ['with statement ID', 789, { action: ShortNamePaymentActions.CANCEL, accountId: 100, statementId: 789 }, true],
-      ['without statement ID', undefined, { action: ShortNamePaymentActions.CANCEL, accountId: 100, statementId: undefined }, true]
+      [
+        'with statement ID',
+        789,
+        { action: ShortNamePaymentActions.CANCEL, accountId: 100, statementId: 789 },
+        true
+      ],
+      [
+        'without statement ID',
+        undefined,
+        { action: ShortNamePaymentActions.CANCEL, accountId: 100, statementId: undefined },
+        true
+      ]
     ])('should cancel payment %s', async (_, statementId, expectedBody, expectedResult) => {
       mockPayApi.mockResolvedValue({})
 
@@ -239,8 +281,18 @@ describe('useShortNameAccountLink', () => {
           shortNameId: 123,
           statusCode: 'LINKED',
           statementsOwing: [
-            { statementId: 1, amountOwing: 300, pendingPaymentsCount: 0, pendingPaymentsAmount: 0 },
-            { statementId: 2, amountOwing: 200, pendingPaymentsCount: 0, pendingPaymentsAmount: 0 }
+            {
+              statementId: 1,
+              amountOwing: 300,
+              pendingPaymentsCount: 0,
+              pendingPaymentsAmount: 0
+            },
+            {
+              statementId: 2,
+              amountOwing: 200,
+              pendingPaymentsCount: 0,
+              pendingPaymentsAmount: 0
+            }
           ]
         }
       ]
@@ -340,8 +392,18 @@ describe('useShortNameAccountLink', () => {
           shortNameId: 123,
           statusCode: 'LINKED',
           statementsOwing: [
-            { statementId: 1, amountOwing: 300, pendingPaymentsCount: 0, pendingPaymentsAmount: 0 },
-            { statementId: 2, amountOwing: 200, pendingPaymentsCount: 0, pendingPaymentsAmount: 0 }
+            {
+              statementId: 1,
+              amountOwing: 300,
+              pendingPaymentsCount: 0,
+              pendingPaymentsAmount: 0
+            },
+            {
+              statementId: 2,
+              amountOwing: 200,
+              pendingPaymentsCount: 0,
+              pendingPaymentsAmount: 0
+            }
           ]
         }
       ]
@@ -350,7 +412,10 @@ describe('useShortNameAccountLink', () => {
       const shortNameId = ref(123)
       const creditsRemaining = ref(1000)
       const {
-        loadShortNameLinks, processedRows, toggleStatementsView, isStatementsExpanded
+        loadShortNameLinks,
+        processedRows,
+        toggleStatementsView,
+        isStatementsExpanded
       } = useShortNameAccountLink(shortNameId, creditsRemaining)
 
       await loadShortNameLinks()
@@ -379,19 +444,153 @@ describe('useShortNameAccountLink', () => {
     }
 
     it.each([
-      ['showUnlinkAccountButton', 'parent row no amounts', { ...baseItem, isParentRow: true, hasMultipleStatements: false, hasPendingPayment: false, hasPayableStatement: false, amountOwing: 0, pendingPaymentAmountTotal: 0 }, true],
-      ['showUnlinkAccountButton', 'child rows', { ...baseItem, isParentRow: false, hasMultipleStatements: false, hasPendingPayment: false, hasPayableStatement: false, amountOwing: 0, pendingPaymentAmountTotal: 0 }, false],
-      ['showUnlinkAccountButton', 'pending payments', { ...baseItem, isParentRow: true, hasMultipleStatements: false, hasPendingPayment: true, hasPayableStatement: true, amountOwing: 100, pendingPaymentAmountTotal: 50 }, false],
-      ['showApplyPaymentButton', 'parent can apply', { ...baseItem, isParentRow: true, hasMultipleStatements: false, hasPendingPayment: false, hasPayableStatement: true, amountOwing: 500, pendingPaymentAmountTotal: 0, statementId: 1 }, true],
-      ['showApplyPaymentButton', 'child can apply', { ...baseItem, isParentRow: false, hasMultipleStatements: false, hasPendingPayment: false, hasPayableStatement: true, amountOwing: 250, pendingPaymentAmountTotal: 0, statementId: 1 }, true],
-      ['showApplyPaymentButton', 'no amount owing', { ...baseItem, isParentRow: true, hasMultipleStatements: false, hasPendingPayment: false, hasPayableStatement: false, amountOwing: 0, pendingPaymentAmountTotal: 0 }, false],
-      ['showApplyPaymentButton', 'pending payments', { ...baseItem, isParentRow: true, hasMultipleStatements: false, hasPendingPayment: true, hasPayableStatement: true, amountOwing: 500, pendingPaymentAmountTotal: 200 }, false],
-      ['showCancelPaymentButton', 'can cancel', { ...baseItem, isParentRow: true, hasMultipleStatements: false, hasPendingPayment: true, hasPayableStatement: true, amountOwing: 500, pendingPaymentAmountTotal: 200 }, true],
-      ['showCancelPaymentButton', 'child can cancel', { ...baseItem, isParentRow: false, hasMultipleStatements: false, hasPendingPayment: true, hasPayableStatement: true, amountOwing: 250, pendingPaymentAmountTotal: 100, statementId: 1 }, true],
-      ['showCancelPaymentButton', 'multiple statements', { ...baseItem, isParentRow: true, hasMultipleStatements: true, hasPendingPayment: true, hasPayableStatement: true, amountOwing: 500, pendingPaymentAmountTotal: 200 }, false]
+      [
+        'showUnlinkAccountButton',
+        'parent row no amounts',
+        {
+          ...baseItem,
+          isParentRow: true,
+          hasMultipleStatements: false,
+          hasPendingPayment: false,
+          hasPayableStatement: false,
+          amountOwing: 0,
+          pendingPaymentAmountTotal: 0
+        },
+        true
+      ],
+      [
+        'showUnlinkAccountButton',
+        'child rows',
+        {
+          ...baseItem,
+          isParentRow: false,
+          hasMultipleStatements: false,
+          hasPendingPayment: false,
+          hasPayableStatement: false,
+          amountOwing: 0,
+          pendingPaymentAmountTotal: 0
+        },
+        false
+      ],
+      [
+        'showUnlinkAccountButton',
+        'pending payments',
+        {
+          ...baseItem,
+          isParentRow: true,
+          hasMultipleStatements: false,
+          hasPendingPayment: true,
+          hasPayableStatement: true,
+          amountOwing: 100,
+          pendingPaymentAmountTotal: 50
+        },
+        false
+      ],
+      [
+        'showApplyPaymentButton',
+        'parent can apply',
+        {
+          ...baseItem,
+          isParentRow: true,
+          hasMultipleStatements: false,
+          hasPendingPayment: false,
+          hasPayableStatement: true,
+          amountOwing: 500,
+          pendingPaymentAmountTotal: 0,
+          statementId: 1
+        },
+        true
+      ],
+      [
+        'showApplyPaymentButton',
+        'child can apply',
+        {
+          ...baseItem,
+          isParentRow: false,
+          hasMultipleStatements: false,
+          hasPendingPayment: false,
+          hasPayableStatement: true,
+          amountOwing: 250,
+          pendingPaymentAmountTotal: 0,
+          statementId: 1
+        },
+        true
+      ],
+      [
+        'showApplyPaymentButton',
+        'no amount owing',
+        {
+          ...baseItem,
+          isParentRow: true,
+          hasMultipleStatements: false,
+          hasPendingPayment: false,
+          hasPayableStatement: false,
+          amountOwing: 0,
+          pendingPaymentAmountTotal: 0
+        },
+        false
+      ],
+      [
+        'showApplyPaymentButton',
+        'pending payments',
+        {
+          ...baseItem,
+          isParentRow: true,
+          hasMultipleStatements: false,
+          hasPendingPayment: true,
+          hasPayableStatement: true,
+          amountOwing: 500,
+          pendingPaymentAmountTotal: 200
+        },
+        false
+      ],
+      [
+        'showCancelPaymentButton',
+        'can cancel',
+        {
+          ...baseItem,
+          isParentRow: true,
+          hasMultipleStatements: false,
+          hasPendingPayment: true,
+          hasPayableStatement: true,
+          amountOwing: 500,
+          pendingPaymentAmountTotal: 200
+        },
+        true
+      ],
+      [
+        'showCancelPaymentButton',
+        'child can cancel',
+        {
+          ...baseItem,
+          isParentRow: false,
+          hasMultipleStatements: false,
+          hasPendingPayment: true,
+          hasPayableStatement: true,
+          amountOwing: 250,
+          pendingPaymentAmountTotal: 100,
+          statementId: 1
+        },
+        true
+      ],
+      [
+        'showCancelPaymentButton',
+        'multiple statements',
+        {
+          ...baseItem,
+          isParentRow: true,
+          hasMultipleStatements: true,
+          hasPendingPayment: true,
+          hasPayableStatement: true,
+          amountOwing: 500,
+          pendingPaymentAmountTotal: 200
+        },
+        false
+      ]
     ])('%s should handle %s', (method, _, item, expected) => {
       const shortNameId = ref(123)
       const creditsRemaining = ref(1000)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const composable = useShortNameAccountLink(shortNameId, creditsRemaining) as any
 
       expect(composable[method](item)).toBe(expected)
@@ -482,8 +681,26 @@ describe('useShortNameAccountLink', () => {
   describe('edge cases', () => {
     it.each([
       ['empty statements owing', [], 0],
-      ['negative pending payment', [{ statementId: 1, amountOwing: 500, pendingPaymentsCount: 1, pendingPaymentsAmount: -100 }], -100],
-      ['zero pending count with amount', [{ statementId: 1, amountOwing: 500, pendingPaymentsCount: 0, pendingPaymentsAmount: 100 }], 100]
+      [
+        'negative pending payment',
+        [{
+          statementId: 1,
+          amountOwing: 500,
+          pendingPaymentsCount: 1,
+          pendingPaymentsAmount: -100
+        }],
+        -100
+      ],
+      [
+        'zero pending count with amount',
+        [{
+          statementId: 1,
+          amountOwing: 500,
+          pendingPaymentsCount: 0,
+          pendingPaymentsAmount: 100
+        }],
+        100
+      ]
     ])('should handle %s', async (_, statementsOwing, expectedValue) => {
       const mockLinks = [{ id: 1, accountId: 100, shortNameId: 123, statusCode: 'LINKED', statementsOwing }]
       mockPayApi.mockResolvedValue({ items: mockLinks })
