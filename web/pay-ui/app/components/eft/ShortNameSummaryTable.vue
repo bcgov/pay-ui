@@ -198,9 +198,7 @@ useInfiniteScroll(
 onMounted(async () => {
   await loadData()
   await nextTick()
-  setTimeout(() => {
-    updateStickyHeaderHeight()
-  }, 100)
+  updateStickyHeaderHeight()
 })
 
 async function loadData() {

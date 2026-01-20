@@ -76,9 +76,6 @@ onMounted(async () => {
   await search()
 
   await nextTick()
-  setTimeout(() => {
-    updateStickyHeaderHeight()
-  }, 100)
 })
 
 useResizeObserver(scrollEl, () => {
@@ -90,6 +87,12 @@ watch(columnVisibility, () => {
     updateStickyHeaderHeight()
   })
 })
+
+watch(routingSlips, () => {
+  nextTick(() => {
+    updateStickyHeaderHeight()
+  })
+}, { immediate: true })
 </script>
 
 <template>
