@@ -27,15 +27,17 @@ useHead({
       </p>
     </div>
     <div class="flex justify-between items-center mb-4 flex-shrink-0">
-      <UButton
-        color="primary"
-        size="lg"
-        leading-icon="i-mdi-plus"
-        class="rounded-lg font-semibold text-white add-routing-slip-btn"
-        @click="navigateTo('/create-routing-slip')"
-      >
-        Add New Routing Slip
-      </UButton>
+      <div v-can:fas_create.hide>
+        <UButton
+          color="primary"
+          size="lg"
+          leading-icon="i-mdi-plus"
+          class="rounded-lg font-semibold text-white add-routing-slip-btn"
+          @click="navigateTo('/create-routing-slip')"
+        >
+          Add New Routing Slip
+        </UButton>
+      </div>
       <DailyReport />
     </div>
     <div class="flex-1 min-h-0">

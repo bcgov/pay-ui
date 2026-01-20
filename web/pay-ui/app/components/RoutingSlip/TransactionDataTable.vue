@@ -95,6 +95,11 @@ const appendCurrencySymbol = commonUtil.appendCurrencySymbol
           </div>
         </template>
       </template>
+      <template #empty>
+        <div class="flex items-center justify-center py-6 text-gray-500">
+          No data available
+        </div>
+      </template>
     </UTable>
   </div>
 </template>

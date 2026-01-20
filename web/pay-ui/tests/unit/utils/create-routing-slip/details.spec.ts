@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { FetchError } from 'ofetch'
+import { FASErrorCode } from '~/enums/api-errors'
 
 const mockPayApi = {
   getRoutingSlip: vi.fn()
@@ -47,7 +48,7 @@ describe('Create Routing Slip - Details', () => {
       const fetchError = new FetchError('Bad Request')
       fetchError.response = {
         status: 400,
-        _data: { type: ApiErrors.FAS_INVALID_ROUTING_SLIP_DIGITS }
+        _data: { type: FASErrorCode.FAS_INVALID_ROUTING_SLIP_DIGITS }
       } as any
       mockPayApi.getRoutingSlip.mockRejectedValue(fetchError)
 

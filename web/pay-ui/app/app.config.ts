@@ -65,7 +65,7 @@ export default defineAppConfig({
     },
     button: {
       slots: {
-        base: 'h-[44px] px-[19px]'
+        base: 'h-[44px] px-[19px] disabled:opacity-40 disabled:cursor-not-allowed'
       },
       default: {
         padding: 'px-[19px]'

@@ -51,7 +51,7 @@ export default {
       WRITE_OFF_AUTHORIZED: 'Write Off Authorized',
       WRITE_OFF_REQUESTED: 'Write Off Requested',
       WRITE_OFF_COMPLETED: 'Write Off Completed',
-      VOID: 'Void',
+      VOID: 'Voided',
       CORRECTION: 'Correction'
     },
     SlipStatusDropdown: {

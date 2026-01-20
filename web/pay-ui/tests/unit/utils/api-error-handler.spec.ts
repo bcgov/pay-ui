@@ -6,7 +6,7 @@ import {
   isEFTError,
   isFASError
 } from '~/utils/api-error-handler'
-import { EFTErrorCode, FASErrorCode } from '~/utils/constants'
+import { EFTErrorCode, FASErrorCode } from '~/enums/api-errors'
 
 describe('api-error-handler', () => {
   describe('extractErrorType', () => {
@@ -95,7 +95,7 @@ describe('api-error-handler', () => {
       [FASErrorCode.RS_DOESNT_EXIST, 'The routing slip does not exist.'],
       [FASErrorCode.RS_NOT_ACTIVE, 'The routing slip is not active.'],
       [FASErrorCode.FAS_INVALID_PAYMENT_METHOD, 'Invalid payment method for routing slip.'],
-      [FASErrorCode.FAS_INVALID_ROUTING_SLIP_NUMBER, 'Invalid routing slip number format.'],
+      [FASErrorCode.FAS_INVALID_ROUTING_SLIP_NUMBER, 'Invalid routing slip number.'],
       [FASErrorCode.FAS_INVALID_ROUTING_SLIP_DIGITS, 'Routing slip number must have valid digits.'],
       [FASErrorCode.FAS_INVALID_RS_STATUS_CHANGE, 'Invalid routing slip status change.']
     ])('should return message for %s', (errorCode, expectedMessage) => {

@@ -3,7 +3,7 @@ import { useRoutingSlip } from '~/composables/useRoutingSlip'
 import { createPinia, setActivePinia } from 'pinia'
 import { SlipStatus } from '~/enums/slip-status'
 import { CreateRoutingSlipStatus } from '~/utils/constants'
-import { ApiErrors } from '~/enums/api-errors'
+import { FASErrorCode } from '~/enums/api-errors'
 import type { RoutingSlip } from '~/interfaces/routing-slip'
 import type { Invoice } from '~/interfaces/invoice'
 
@@ -274,7 +274,7 @@ describe('useRoutingSlip', () => {
     const mockError = {
       response: {
         status: 400,
-        data: { type: ApiErrors.FAS_INVALID_ROUTING_SLIP_DIGITS }
+        data: { type: FASErrorCode.FAS_INVALID_ROUTING_SLIP_DIGITS }
       }
     }
     mockUsePayApi.getRoutingSlip.mockRejectedValue(mockError)

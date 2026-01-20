@@ -7,6 +7,7 @@ type PayApiFunction = <T = unknown>(
     body?: unknown
     headers?: Record<string, string>
     showErrorToast?: boolean
+    hide400ErrorToast?: boolean
   }
 ) => Promise<T>
 
@@ -21,9 +22,11 @@ export default defineNuxtPlugin((nuxtApp) => {
       body?: unknown
       headers?: Record<string, string>
       showErrorToast?: boolean
+      hide400ErrorToast?: boolean
     }
   ): Promise<T> => {
     const showErrorToast = options?.showErrorToast !== false
+    const hide400ErrorToast = options?.hide400ErrorToast !== false
 
     try {
       return await originalPayApi<T>(url, options)
@@ -38,7 +41,9 @@ export default defineNuxtPlugin((nuxtApp) => {
         errorObject: error
       })
 
-      if (showErrorToast) {
+      const shouldShowToast = showErrorToast && !(hide400ErrorToast && status === 400)
+
+      if (shouldShowToast) {
         const toast = useToast()
         const t = (nuxtApp.$i18n as { t: (key: string, params?: Record<string, unknown>) => string }).t
 

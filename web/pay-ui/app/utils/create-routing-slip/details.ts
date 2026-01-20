@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { FetchError } from 'ofetch'
+import { FASErrorCode } from '~/enums/api-errors'
 
 async function checkRoutingNumber(routingNumber: string): Promise<{ valid: boolean, message: string }> {
   const t = useNuxtApp().$i18n.t
@@ -7,7 +8,7 @@ async function checkRoutingNumber(routingNumber: string): Promise<{ valid: boole
   const validResponse = { valid: true, message: '' }
 
   try {
-    const res = await payApi.getRoutingSlip(routingNumber)
+    const res = await payApi.getRoutingSlip(routingNumber, { showErrorToast: false })
     if (res && res.id) {
       return { valid: false, message: t('validation.routingSlip.number.exists') }
     }
@@ -15,8 +16,8 @@ async function checkRoutingNumber(routingNumber: string): Promise<{ valid: boole
   } catch (error) {
     if (error instanceof FetchError) {
       const status = error.response?.status
-      const type = error.response?._data?.type
-      if (status === 400 && type === ApiErrors.FAS_INVALID_ROUTING_SLIP_DIGITS) {
+      const type = extractErrorType(error)
+      if (status === 400 && type === FASErrorCode.FAS_INVALID_ROUTING_SLIP_DIGITS) {
         return { valid: false, message: t('validation.routingSlip.number.invalidApi') }
       }
     }

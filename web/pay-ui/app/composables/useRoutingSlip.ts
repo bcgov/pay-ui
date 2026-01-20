@@ -6,7 +6,7 @@ import {
   CreateRoutingSlipStatus
 } from '@/utils/constants'
 import { SlipStatus } from '~/enums/slip-status'
-import { ApiErrors } from '~/enums/api-errors'
+import { FASErrorCode } from '~/enums/api-errors'
 import CommonUtils from '@/utils/common-util'
 import { createRoutingSlipPayload } from '~/utils/create-routing-slip'
 import { useLoader } from '@/composables/common/useLoader'
@@ -100,7 +100,7 @@ export const useRoutingSlip = () => {
     } catch (error) {
       const errorResponse = error as { response?: { status?: number, data?: { type?: string } } }
       if (errorResponse.response?.status === 400
-        && errorResponse.response?.data?.type === ApiErrors.FAS_INVALID_ROUTING_SLIP_DIGITS
+        && errorResponse.response?.data?.type === FASErrorCode.FAS_INVALID_ROUTING_SLIP_DIGITS
       ) {
         return CreateRoutingSlipStatus.INVALID_DIGITS
       }

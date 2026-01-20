@@ -12,8 +12,8 @@ export const usePayApi = () => {
     return res.codes
   }
 
-  async function getRoutingSlip(routingNumber: string): Promise<RoutingSlip | undefined> {
-    return $payApi(`/fas/routing-slips/${routingNumber}`)
+  async function getRoutingSlip(routingNumber: string, options?: { showErrorToast?: boolean }): Promise<RoutingSlip | undefined> {
+    return $payApi(`/fas/routing-slips/${routingNumber}`, options as any)
   }
 
   async function postRoutingSlip(payload: CreateRoutingSlipPayload): Promise<RoutingSlip> {
