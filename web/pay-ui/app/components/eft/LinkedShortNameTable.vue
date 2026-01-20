@@ -140,7 +140,9 @@ onMounted(async () => {
   }
   await loadTableData()
   await nextTick()
-  updateStickyHeaderHeight()
+  setTimeout(() => {
+    updateStickyHeaderHeight()
+  }, 100)
 })
 
 watch(() => props.currentTab, () => {

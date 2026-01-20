@@ -73,7 +73,12 @@ onMounted(async () => {
       remainingAmount: filters.remainingAmount
     })
   }
-  search()
+  await search()
+
+  await nextTick()
+  setTimeout(() => {
+    updateStickyHeaderHeight()
+  }, 100)
 })
 
 useResizeObserver(scrollEl, () => {
