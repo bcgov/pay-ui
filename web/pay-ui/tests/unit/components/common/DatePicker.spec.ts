@@ -88,11 +88,17 @@ describe('DatePicker', () => {
     expect(modelValue).toEqual(expected)
   })
 
-  // TODO: sort out why popover isnt closing in test after selection
-  it.skip('should close the popover when a date is selected', async () => {
+  it('should close the popover when a date is selected', async () => {
     const wrapper = await mountSuspended(DatePicker, {
       props: {
         modelValue: null
+      },
+      attrs: {
+        'onUpdate:modelValue': (e: unknown) => {
+          if (typeof e === 'string') {
+            wrapper.setProps({ modelValue: e })
+          }
+        }
       }
     })
 
@@ -108,6 +114,10 @@ describe('DatePicker', () => {
     const dayButton = days.find(day => day.textContent?.includes('15'))
     // @ts-expect-error - Property 'click' does not exist on type 'Element'
     dayButton!.click()
+
+    // Wait for the model value update and popover close
+    await nextTick()
+    await nextTick()
     await nextTick()
 
     popover = document.querySelector('[role="dialog"]')

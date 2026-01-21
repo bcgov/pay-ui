@@ -39,14 +39,16 @@ describe('usePayApi', () => {
     vi.clearAllMocks()
   })
 
-  describe('getCodes and getRoutingSlip', () => {
-    it('should call $payApi with correct urls and return appropriate responses', async () => {
+  describe('getCodes', () => {
+    it('should call $payApi with correct url and return codes', async () => {
       mockPayApi.mockResolvedValue({ codes: [] })
       const codeType = 'routing_slip_statuses'
 
       await payApi.getCodes(codeType)
       expect(mockPayApi).toHaveBeenCalledOnce()
       expect(mockPayApi).toHaveBeenCalledWith(`/codes/${codeType}`)
+
+      vi.clearAllMocks()
 
       const mockResponse = {
         codes: [
@@ -57,11 +59,17 @@ describe('usePayApi', () => {
       mockPayApi.mockResolvedValue(mockResponse)
       const result = await payApi.getCodes('some-type')
       expect(result).toEqual(mockResponse.codes)
+    })
+  })
 
+  describe('getRoutingSlip', () => {
+    it('should call $payApi with correct url and return routing slip', async () => {
       mockPayApi.mockResolvedValue({})
       const routingNumber = '123456789'
       await payApi.getRoutingSlip(routingNumber)
-      expect(mockPayApi).toHaveBeenCalledWith(`/fas/routing-slips/${routingNumber}`)
+      expect(mockPayApi).toHaveBeenCalledWith(`/fas/routing-slips/${routingNumber}`, undefined)
+
+      vi.clearAllMocks()
 
       const mockRoutingSlip = {
         id: 123,

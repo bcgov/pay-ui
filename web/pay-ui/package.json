@@ -8,6 +8,7 @@
     "build-check": "nuxt build",
     "build": "nuxt generate",
     "dev": "nuxt dev",
+    "dev-proxy": "nuxt dev --host 0.0.0.0",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",

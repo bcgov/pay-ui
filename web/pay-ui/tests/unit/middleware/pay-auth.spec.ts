@@ -44,7 +44,7 @@ describe('pay-auth middleware', () => {
     it('should redirect to login page if not authenticated', async () => {
       mockIsAuthenticated.value = false
       await middleware(createRoute(), from)
-      const expectedRedirectUrl = '/auth/login?return=http://localhost:3000/some-path'
+      const expectedRedirectUrl = '/auth/login?return=https://app.example.com/some-path'
       expect(mockNavigateTo).toHaveBeenCalledWith(expectedRedirectUrl)
     })
   })

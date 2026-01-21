@@ -163,7 +163,7 @@ describe('pay-api-error-handler.client.ts', () => {
     const mockError = { message: 'Custom error' }
     const mockToastAdd = vi.fn()
     mockOriginalPayApi.mockRejectedValue(mockError)
-    mockGetErrorStatus.mockReturnValue(400)
+    mockGetErrorStatus.mockReturnValue(500)
     mockUseToast.mockReturnValue({
       add: mockToastAdd
     })
@@ -180,12 +180,12 @@ describe('pay-api-error-handler.client.ts', () => {
 
     expect(consoleErrorSpy).toHaveBeenCalledWith('Pay API Error:', {
       url: '/test-url',
-      status: 400,
+      status: 500,
       error: 'An error occurred',
       errorObject: mockError
     })
     expect(mockToastAdd).toHaveBeenCalledWith({
-      description: '400: An error occurred',
+      description: '500: An error occurred',
       icon: 'i-mdi-alert',
       color: 'error'
     })

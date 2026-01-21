@@ -34,6 +34,11 @@ vi.mock('~/components/Dashboard/DailyReport.vue', () => ({
   }
 }))
 
+const vCanStub = {
+  mounted: () => {},
+  updated: () => {}
+}
+
 describe('Home Page', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -43,34 +48,42 @@ describe('Home Page', () => {
     mockT.mockImplementation((key: string) => key)
   })
 
+  const mountOptions = {
+    global: {
+      directives: {
+        can: vCanStub
+      }
+    }
+  }
+
   it('should render the page', async () => {
-    const wrapper = await mountSuspended(Home)
+    const wrapper = await mountSuspended(Home, mountOptions)
     expect(wrapper.exists()).toBe(true)
   })
 
   it('should render the heading', async () => {
-    const wrapper = await mountSuspended(Home)
+    const wrapper = await mountSuspended(Home, mountOptions)
     const heading = wrapper.find('h1')
     expect(heading.exists()).toBe(true)
     expect(heading.text()).toBe('Fee Accounting System Dashboard')
   })
 
   it('should render the subtitle', async () => {
-    const wrapper = await mountSuspended(Home)
+    const wrapper = await mountSuspended(Home, mountOptions)
     const subtitle = wrapper.find('.dashboard-subtitle')
     expect(subtitle.exists()).toBe(true)
     expect(subtitle.text()).toBe('Search, add and manage routing slips')
   })
 
   it('should render the Add New Routing Slip button', async () => {
-    const wrapper = await mountSuspended(Home)
+    const wrapper = await mountSuspended(Home, mountOptions)
     const button = wrapper.find('button')
     expect(button.exists()).toBe(true)
     expect(button.text()).toContain('Add New Routing Slip')
   })
 
   it('should navigate to create-routing-slip when button is clicked', async () => {
-    const wrapper = await mountSuspended(Home)
+    const wrapper = await mountSuspended(Home, mountOptions)
     const button = wrapper.find('button')
     await button.trigger('click')
 
@@ -78,24 +91,24 @@ describe('Home Page', () => {
   })
 
   it('should render Search component', async () => {
-    const wrapper = await mountSuspended(Home)
+    const wrapper = await mountSuspended(Home, mountOptions)
     const search = wrapper.find('[data-testid="search"]')
     expect(search.exists()).toBe(true)
   })
 
   it('should render DailyReport component', async () => {
-    const wrapper = await mountSuspended(Home)
+    const wrapper = await mountSuspended(Home, mountOptions)
     const dailyReport = wrapper.find('[data-testid="daily-report"]')
     expect(dailyReport.exists()).toBe(true)
   })
 
   it('should set page title', async () => {
-    await mountSuspended(Home)
+    await mountSuspended(Home, mountOptions)
     expect(mockT).toHaveBeenCalledWith('page.dashboard.title')
   })
 
   it('should have correct layout classes', async () => {
-    const wrapper = await mountSuspended(Home)
+    const wrapper = await mountSuspended(Home, mountOptions)
     const container = wrapper.find('.dashboard-container')
     expect(container.exists()).toBe(true)
     expect(container.classes()).toContain('flex')
