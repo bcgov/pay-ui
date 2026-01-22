@@ -83,6 +83,9 @@ function statusListColor(status: string, textColor: boolean = true) {
     case SlipStatus.VOID:
       color = 'error'
       break
+    case SlipStatus.CORRECTION:
+      color = 'orange-500'
+      break
   }
 
   return textColor ? `text-${color}` : color

@@ -100,7 +100,7 @@ function clearSelectionSilent() {
   clearSelection(false)
 }
 
-function isAccountDisabled(account: EftAccount): boolean {
+function isShortNameLinkedOrPending(account: EftAccount): boolean {
   return account.statusCode === ShortNameStatus.LINKED || account.statusCode === ShortNameStatus.PENDING
 }
 
@@ -160,7 +160,7 @@ defineExpose({ clearSelection: clearSelectionSilent })
         :key="account.accountId"
         class="px-4 py-3 flex items-center justify-between hover:bg-gray-50 cursor-pointer
           border-b border-gray-100 last:border-b-0"
-        :class="{ 'opacity-50 cursor-not-allowed': isAccountDisabled(account) }"
+        :class="{ 'opacity-50 cursor-not-allowed': isShortNameLinkedOrPending(account) }"
         @click="selectAccount(account)"
       >
         <div class="flex-1 flex items-center gap-4">
@@ -170,7 +170,7 @@ defineExpose({ clearSelection: clearSelectionSilent })
         <div v-if="detailsLoaded" class="flex items-center gap-4">
           <span class="w-28 text-right">{{ CommonUtils.formatAmount(account.totalDue) }}</span>
           <span
-            v-if="isAccountDisabled(account)"
+            v-if="isShortNameLinkedOrPending(account)"
             class="text-green-600 text-sm w-16 text-right"
           >
             Linked

@@ -131,7 +131,8 @@ export default {
     totalAmountReceived: 'Total Amount Received ($)',
     updateStatus: 'Update Status',
     balance: 'Balance',
-    actions: 'Actions'
+    actions: 'Actions',
+    authorize: 'Authorize'
   },
   modal: {
     leaveCreateRoutingSlip: {
@@ -149,6 +150,11 @@ export default {
       title: 'Void Routing Slip?',
       description: 'By placing status to void, this routing slip will not be usable, and this action cannot be undone.',
       confirmButton: 'Void Routing Slip'
+    },
+    authorizeWriteOff: {
+      title: 'Authorize Write-off?',
+      description: 'By approving write-off, the routing slip balance will close, and no further transactions may be made using this routing slip.',
+      confirmButton: 'Authorize Write off'
     }
   },
   page: {

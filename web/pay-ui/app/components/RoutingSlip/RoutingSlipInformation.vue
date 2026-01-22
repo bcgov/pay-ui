@@ -33,7 +33,11 @@ const {
   isRefundStatusUndeliverable,
   canUpdateRefundStatus,
   shouldShowRefundStatusSection,
-  shouldShowNameAndAddress
+  shouldShowNameAndAddress,
+  showRefundReview,
+  editableChequeAdvice,
+  handleRefundReviewAuthorize,
+  handleRefundReviewCancel
 } = useRoutingSlipInfo()
 
 const isRefundStatusProcessing = computed(() => {
@@ -50,7 +54,7 @@ const handleRefundStatusSelectWithComments = async (status: string) => {
 <template>
   <UCard>
     <div class="relative">
-      <div v-if="allowedStatuses && allowedStatuses.length > 0" class="absolute top-0 right-0">
+      <div v-if="allowedStatuses && allowedStatuses.length > 0 && !showRefundReview" class="absolute top-0 right-0">
         <StatusMenu
           :allowed-status-list="allowedStatuses"
           @select="handleStatusSelect"
@@ -149,7 +153,7 @@ const handleRefundStatusSelectWithComments = async (status: string) => {
         </div>
 
         <div
-          v-if="shouldShowRefundStatusSection"
+          v-if="shouldShowRefundStatusSection && !showRefundReview"
           class="border-t border-line-muted pt-4 mt-4"
         >
           <div class="flex flex-col sm:flex-row sm:items-center gap-2 relative">
@@ -186,6 +190,39 @@ const handleRefundStatusSelectWithComments = async (status: string) => {
             <div class="w-full sm:w-3/4 p-4">
               {{ chequeAdvice }}
             </div>
+          </div>
+        </div>
+
+        <div v-if="showRefundReview" class="border-t border-line-muted pt-4 mt-4">
+          <div class="flex flex-col sm:flex-row sm:items-start gap-2">
+            <div class="w-full sm:w-1/4 font-semibold p-4">
+              {{ $t('label.chequeAdvice') }}
+            </div>
+            <div class="w-full sm:w-3/4 p-4">
+              <UInput
+                v-model="editableChequeAdvice"
+                :placeholder="$t('label.chequeAdvicePlaceholder')"
+                size="lg"
+                class="w-full"
+              />
+              <p class="text-gray-500 text-sm mt-1">
+                {{ $t('text.chequeAdviceHelp') }}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex gap-4 justify-end border-t border-line-muted pt-4 mt-4">
+            <UButton
+              :label="$t('label.authorize')"
+              size="xl"
+              @click="handleRefundReviewAuthorize"
+            />
+            <UButton
+              :label="$t('label.cancel')"
+              variant="outline"
+              size="xl"
+              @click="handleRefundReviewCancel"
+            />
           </div>
         </div>
       </div>

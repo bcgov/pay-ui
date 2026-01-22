@@ -16,6 +16,8 @@ export function useRoutingSlipInfo() {
   const { toggleLoading } = useLoader()
 
   const showRefundForm = ref(false)
+  const showRefundReview = ref(false)
+  const editableChequeAdvice = ref('')
 
   function getRefundStatusText(statusCode: string | null): string {
     return ChequeRefundStatus.find(item => item.code === statusCode)?.text
@@ -131,7 +133,7 @@ export function useRoutingSlipInfo() {
         : store.routingSlip.contactName
       const mailingAddressValue = mailingAddress.value
       const hasContactName = !!contactNameValue
-      const hasMailingAddress = !!mailingAddressValue && (
+      const hasMailingAddress = !!mailingAddressValue && !!(
         mailingAddressValue.street
         || mailingAddressValue.city
         || mailingAddressValue.region
@@ -149,6 +151,9 @@ export function useRoutingSlipInfo() {
 
     if (status === SlipStatus.REFUNDREQUEST) {
       showRefundForm.value = true
+    } else if (status === SlipStatus.REFUNDAUTHORIZED) {
+      editableChequeAdvice.value = store.routingSlip.refunds?.[0]?.details?.chequeAdvice || ''
+      showRefundReview.value = true
     } else if (status === SlipStatus.NSF) {
       await modal.openPlaceRoutingSlipToNSFModal(async () => {
         await updateRoutingSlipStatusHandler(status)
@@ -162,6 +167,10 @@ export function useRoutingSlipInfo() {
         return
       }
       await modal.openVoidRoutingSlipModal(async () => {
+        await updateRoutingSlipStatusHandler(status)
+      })
+    } else if (status === SlipStatus.WRITEOFFAUTHORIZED) {
+      await modal.openAuthorizeWriteOffModal(async () => {
         await updateRoutingSlipStatusHandler(status)
       })
     } else {
@@ -195,6 +204,40 @@ export function useRoutingSlipInfo() {
 
   const handleRefundFormCancel = () => {
     showRefundForm.value = false
+  }
+
+  const handleRefundReviewAuthorize = async () => {
+    if (!store.routingSlip.number) {
+      return
+    }
+
+    await modal.openAuthorizeWriteOffModal(async () => {
+      try {
+        const refundDetails = store.routingSlip.refunds?.[0]?.details
+        const payload = {
+          details: {
+            ...refundDetails,
+            chequeAdvice: editableChequeAdvice.value?.trim() || undefined
+          },
+          status: SlipStatus.REFUNDAUTHORIZED
+        }
+        const detailsString = JSON.stringify(payload)
+        toggleLoading(true)
+        await usePayApi().updateRoutingSlipRefund(detailsString, store.routingSlip.number)
+        const routingSlipNumber = store.routingSlip.number
+        await getRoutingSlip({ routingSlipNumber })
+        toggleLoading(false)
+        showRefundReview.value = false
+      } catch (error) {
+        console.error('Error authorizing refund:', error)
+        toggleLoading(false)
+      }
+    })
+  }
+
+  const handleRefundReviewCancel = () => {
+    showRefundReview.value = false
+    editableChequeAdvice.value = ''
   }
 
   const updateRoutingSlipStatusHandler = async (status: SlipStatus) => {
@@ -252,6 +295,10 @@ export function useRoutingSlipInfo() {
     handleRefundStatusSelect,
     showRefundForm,
     handleRefundFormSubmit,
-    handleRefundFormCancel
+    handleRefundFormCancel,
+    showRefundReview,
+    editableChequeAdvice,
+    handleRefundReviewAuthorize,
+    handleRefundReviewCancel
   }
 }

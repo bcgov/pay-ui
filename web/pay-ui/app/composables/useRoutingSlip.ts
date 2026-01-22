@@ -113,7 +113,6 @@ export const useRoutingSlip = () => {
 
   const getRoutingSlip = async (getRoutingSlipRequestPayload: GetRoutingSlipRequestPayload) => {
     try {
-      store.routingSlip = {} as RoutingSlip
       // Global Exception handler will handle this one.
       const response = await usePayApi().getRoutingSlip(
         getRoutingSlipRequestPayload.routingSlipNumber

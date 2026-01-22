@@ -58,6 +58,28 @@ export const usePayModals = () => {
     })
   }
 
+  async function openAuthorizeWriteOffModal(onConfirm: () => Promise<void>) {
+    await baseModal.open({
+      title: t('modal.authorizeWriteOff.title'),
+      description: t('modal.authorizeWriteOff.description'),
+      dismissible: true,
+      buttons: [
+        {
+          label: t('modal.authorizeWriteOff.confirmButton'),
+          onClick: async () => {
+            await onConfirm()
+          },
+          shouldClose: true
+        },
+        {
+          label: t('label.cancel'),
+          variant: 'outline',
+          shouldClose: true
+        }
+      ]
+    })
+  }
+
   async function openCancelTransactionModal(onConfirm: () => Promise<void>) {
     await baseModal.open({
       title: 'Cancel Transaction?',
@@ -98,6 +120,7 @@ export const usePayModals = () => {
     openLeaveCreateRoutingSlipModal,
     openPlaceRoutingSlipToNSFModal,
     openVoidRoutingSlipModal,
+    openAuthorizeWriteOffModal,
     openCancelTransactionModal,
     openErrorDialog
   }

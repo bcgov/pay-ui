@@ -224,7 +224,6 @@ onMounted(async () => {
 
       <!-- Content Sections -->
       <div class="flex flex-col gap-8 content-sections">
-        <!-- ShortNameRefund component -->
         <ShortNameRefund
           v-if="canEFTRefund"
           :short-name-details="shortNameDetails"
