@@ -37,10 +37,6 @@ const debouncedSearch = useDebounceFn(async () => {
       return
     }
 
-    searchResults.value = accounts
-    detailsLoaded.value = false
-    state.value = LookupStates.SHOW_RESULTS
-
     const accountIds = accounts.map(a => a.accountId)
     const detailsMap = await getAccountLinkDetails(accountIds)
 
@@ -53,6 +49,7 @@ const debouncedSearch = useDebounceFn(async () => {
       }
     })
     detailsLoaded.value = true
+    state.value = LookupStates.SHOW_RESULTS
   } catch {
     searchResults.value = []
     state.value = LookupStates.NO_RESULTS
@@ -144,11 +141,11 @@ defineExpose({ clearSelection: clearSelectionSilent })
         max-h-80 overflow-y-auto overscroll-contain"
     >
       <div
-        class="sticky top-0 bg-gray-50 border-b border-gray-200 px-4 py-2 flex justify-between
+        class="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-2 flex justify-between
           text-sm font-medium text-gray-600"
       >
         <span class="flex-1">Accounts with EFT Payment Method Selected</span>
-        <span v-if="detailsLoaded" class="w-32 text-right">Amount Owing</span>
+        <span v-if="detailsLoaded" class="w-32 text-right mr-20">Amount Owing</span>
       </div>
 
       <div v-if="state === LookupStates.NO_RESULTS" class="px-4 py-3 text-gray-500">

@@ -200,10 +200,7 @@ function navigateToRefundDetail(item: ShortNameHistoryItem) {
   if (!refundId) {
     return
   }
-  navigateTo({
-    path: `/eft/shortname-details/${props.shortNameId}/refund`,
-    query: { eftRefundId: String(refundId) }
-  })
+  navigateTo(`/eft/shortname-details/${props.shortNameId}/refund/${refundId}`)
 }
 
 function canShowReverseButton(item: ShortNameHistoryItem): boolean {
