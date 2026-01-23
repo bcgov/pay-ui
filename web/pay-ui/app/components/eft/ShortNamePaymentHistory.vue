@@ -105,7 +105,7 @@ function getDescription(item: ShortNameHistoryItem): { title: string, subtitle: 
     case ShortNameHistoryType.STATEMENT_REVERSE:
       return {
         title: ShortNameHistoryTypeDescription.STATEMENT_REVERSE,
-        subtitle: item.relatedStatementNumber ? `Statement Number: ${item.relatedStatementNumber}` : ''
+        subtitle: item.accountName || ''
       }
 
     case ShortNameHistoryType.FUNDS_RECEIVED: {

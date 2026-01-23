@@ -196,8 +196,8 @@ export enum ShortNameHistoryTypeDescription {
   SN_REFUND_APPROVED = 'Short Name Refund Request',
   // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   SN_REFUND_DECLINED = 'Short Name Refund Request',
-  SN_TRANSFER_SENT = 'Transfer Sent',
-  SN_TRANSFER_RECEIVED = 'Transfer Received'
+  SN_TRANSFER_SENT = 'Short Name Transfer Sent',
+  SN_TRANSFER_RECEIVED = 'Short Name Transfer Received'
 }
 
 export enum ShortNameReversePaymentErrors {
