@@ -16,6 +16,7 @@ const {
   loading,
   notFound,
   loadShortname,
+  refreshSummary,
   patchShortName
 } = useShortNameDetails(shortNameId)
 
@@ -105,7 +106,8 @@ async function _onLinkAccount() {
 }
 
 async function _onPaymentAction() {
-  await loadShortname()
+  await refreshSummary()
+  await paymentHistoryRef.value?.refresh()
 }
 
 onMounted(async () => {

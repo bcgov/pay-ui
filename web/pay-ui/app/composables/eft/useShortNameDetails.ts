@@ -67,6 +67,20 @@ export function useShortNameDetails(shortNameId: Ref<number>) {
     }
   }
 
+  async function refreshSummary() {
+    try {
+      const summaryResponse = await $payApi<{ items: ShortNameDetails[] }>(
+        `/eft-shortnames/summaries?shortNameId=${shortNameId.value}`,
+        { method: 'GET' }
+      )
+      if (summaryResponse?.items?.[0]) {
+        shortNameDetails.value = summaryResponse.items[0]
+      }
+    } catch (error) {
+      console.error('Failed to refresh short name summary:', error)
+    }
+  }
+
   async function patchShortName(data: Partial<Pick<EftShortName, 'casSupplierNumber' | 'casSupplierSite' | 'email'>>) {
     if (!shortNameDetails.value?.id) {
       return { success: false }
@@ -95,6 +109,7 @@ export function useShortNameDetails(shortNameId: Ref<number>) {
     notFound,
     loadShortname,
     refreshShortName,
+    refreshSummary,
     patchShortName
   }
 }
