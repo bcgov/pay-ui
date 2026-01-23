@@ -15,8 +15,8 @@ function formatDisplayDate(
   }
 
   const dateTime = typeof date === 'string'
-    ? DateTime.fromISO(date, { zone: 'America/Vancouver' })
-    : DateTime.fromJSDate(date).setZone('America/Vancouver')
+    ? DateTime.fromISO(date, { zone: 'utc' }).setZone('America/Vancouver')
+    : DateTime.fromJSDate(date, { zone: 'utc' }).setZone('America/Vancouver')
 
   if (!dateTime.isValid) {
     return ''

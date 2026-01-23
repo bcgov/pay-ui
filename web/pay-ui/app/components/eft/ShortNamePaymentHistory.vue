@@ -192,7 +192,7 @@ function getDisplayAmount(item: ShortNameHistoryItem): number | null {
 }
 
 function canShowRefundDetail(item: ShortNameHistoryItem): boolean {
-  return isRefundType(item) && !!(item.eftRefundId || item.shortNameRefundId)
+  return CommonUtils.isEftRefundApprover() && isRefundType(item) && !!(item.eftRefundId || item.shortNameRefundId)
 }
 
 function navigateToRefundDetail(item: ShortNameHistoryItem) {
@@ -200,7 +200,7 @@ function navigateToRefundDetail(item: ShortNameHistoryItem) {
   if (!refundId) {
     return
   }
-  navigateTo(`/eft/shortname-details/${props.shortNameId}/refund/${refundId}`)
+  navigateTo(`/eft/shortname-details/${props.shortNameId}/refund?eftRefundId=${refundId}`)
 }
 
 function canShowReverseButton(item: ShortNameHistoryItem): boolean {
@@ -424,7 +424,7 @@ const columns = computed<TableColumn<ShortNameHistoryItem>[]>(() => [
               :text="getReversalTooltip(row.original.transactionDate, row.original.paymentDate)"
             >
               <UButton
-                label="Reverse"
+                label="Reverse Payment"
                 color="primary"
                 class="btn-table font-normal"
                 :disabled="!canShowReverseButton(row.original)"
