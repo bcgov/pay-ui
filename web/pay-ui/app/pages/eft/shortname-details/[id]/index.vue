@@ -38,6 +38,7 @@ const state = reactive({
 })
 
 const financialDialogRef = useTemplateRef<{ onSaveComplete: () => void }>('financialDialogRef')
+const paymentHistoryRef = useTemplateRef<{ refresh: () => Promise<void> }>('paymentHistoryRef')
 
 const currentDialogValue = computed(() => {
   switch (state.shortNameFinancialDialogType) {
@@ -92,6 +93,7 @@ async function onFinancialDialogSave(data: { casSupplierNumber?: string, casSupp
 
 async function _onRefund() {
   await loadShortname()
+  await paymentHistoryRef.value?.refresh()
 }
 
 async function _onLinkAccount() {
@@ -240,6 +242,7 @@ onMounted(async () => {
         />
 
         <ShortNamePaymentHistory
+          ref="paymentHistoryRef"
           :short-name-id="shortNameId"
           @payment-action="_onPaymentAction"
         />

@@ -260,6 +260,14 @@ watch(() => props.shortNameId, async (newId) => {
   }
 }, { immediate: true })
 
+async function refresh() {
+  loadState.reachedEnd = false
+  loadState.currentPage = 1
+  await getNext(true)
+}
+
+defineExpose({ refresh })
+
 onMounted(async () => {
   await nextTick()
   updateStickyHeaderHeight()
@@ -411,7 +419,8 @@ const columns = computed<TableColumn<ShortNameHistoryItem>[]>(() => [
 
             <UTooltip
               v-if="row.original.transactionType === ShortNameHistoryType.STATEMENT_PAID
-                && row.original.statementNumber"
+                && row.original.statementNumber
+                && CommonUtils.isReversable(row.original)"
               :text="getReversalTooltip(row.original.transactionDate, row.original.paymentDate)"
             >
               <UButton

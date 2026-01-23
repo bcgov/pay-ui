@@ -9,6 +9,11 @@ function formatDisplayDate(
     return ''
   }
 
+  // EFT Refund created on date.
+  if (typeof date === 'string') {
+    date = date.replace(' ', 'T')
+  }
+
   const dateTime = typeof date === 'string'
     ? DateTime.fromISO(date, { zone: 'America/Vancouver' })
     : DateTime.fromJSDate(date).setZone('America/Vancouver')
@@ -293,6 +298,10 @@ function getIndexedTag(tag: string, idx: number | undefined): string {
   return `${tag}-${idx}`
 }
 
+function isReversable(item: { isReversible?: boolean }): boolean {
+  return item.isReversible === true
+}
+
 export default {
   formatDisplayDate,
   fileDownload,
@@ -320,5 +329,6 @@ export default {
   isDeepEqual,
   isEditEnabledBystatus,
   requiredFieldRule,
-  getIndexedTag
+  getIndexedTag,
+  isReversable
 }
