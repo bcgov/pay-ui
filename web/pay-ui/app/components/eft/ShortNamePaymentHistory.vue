@@ -99,7 +99,7 @@ function getDescription(item: ShortNameHistoryItem): { title: string, subtitle: 
     case ShortNameHistoryType.STATEMENT_PAID:
       return {
         title: ShortNameHistoryTypeDescription.STATEMENT_PAID,
-        subtitle: item.statementNumber ? `Statement Number: ${item.statementNumber}` : ''
+        subtitle: item.accountName || ''
       }
 
     case ShortNameHistoryType.STATEMENT_REVERSE:
