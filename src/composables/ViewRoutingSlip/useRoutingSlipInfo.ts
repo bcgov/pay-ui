@@ -207,7 +207,7 @@ export default function useRoutingSlipInfo (props) {
         modalDialogClose()
       }
       addMoreDetails.value = false
-      if (response.status !== 200) {
+      if (![202, 200].includes(response.status)) {
         apiError.value = response?.data
         modalDialogRef.value.open()
       }
