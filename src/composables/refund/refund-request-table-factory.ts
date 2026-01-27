@@ -4,6 +4,8 @@ import { RefundRequestState } from '@/models/refund-request'
 
 export function useRefundRequestTable (tableState: RefundRequestState, emit) {
   const state = tableState
+  // Request counter to prevent stale responses from overwriting newer data
+  let requestCounter = 0
 
   function handleFilters (filterField?: string, value?: any): void {
     state.loading = true
@@ -29,22 +31,32 @@ export function useRefundRequestTable (tableState: RefundRequestState, emit) {
   * Parts of this is duplicated inside of the other datatable components.
   */
   async function loadTableData (filterField?: string, value?: any, appendToResults = false, isSummary = false): Promise<void> {
+    requestCounter++
+    const currentRequestNumber = requestCounter
     handleFilters(filterField, value)
     try {
       const response = await PaymentService.getRefundRequests(state.filters)
 
-      if (response?.data) {
-        state.items = response.data.items
-        state.total = response.data.total
-        emit('refund-status-total', response.data.statusTotal)
-      } else {
-        throw new Error('No response from getRefundRequests')
+      // Only process response if this is still the latest request
+      if (currentRequestNumber === requestCounter) {
+        if (response?.data) {
+          state.items = response.data.items
+          state.total = response.data.total
+          emit('refund-status-total', response.data.statusTotal)
+        } else {
+          throw new Error('No response from getRefundRequests')
+        }
       }
+      // Stale response - silently ignore
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Failed to getRefundRequests list.', error)
+      if (currentRequestNumber === requestCounter) {
+        // eslint-disable-next-line no-console
+        console.error('Failed to getRefundRequests list.', error)
+      }
     }
-    state.loading = false
+    if (currentRequestNumber === requestCounter) {
+      state.loading = false
+    }
   }
 
   /* This cannot be done inside of the BaseDataTable component because it manipulates the state outside of it. */
