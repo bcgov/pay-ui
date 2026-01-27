@@ -29,6 +29,9 @@ const transactions = (reactive({
 export const useTransactions = () => {
   const currentUser = CommonUtils.getUserInfo()
   const viewAll = ref(false)
+  // Request counter to prevent stale responses from overwriting newer data
+  let requestCounter = 0
+
   const setViewAll = (val: boolean) => {
     if (val) {
       // check authorized
@@ -43,6 +46,8 @@ export const useTransactions = () => {
   }
 
   const loadTransactionList = debounce(async (filterField?: string, value?: any) => {
+    requestCounter++
+    const currentRequestNumber = requestCounter
     transactions.loading = true
     if (filterField) {
       // new filter so set page number back to 1
@@ -70,13 +75,18 @@ export const useTransactions = () => {
     try {
       const response = await PaymentService.getTransactions(
         getAccountId(), transactions.filters, viewAll.value)
-      if (response?.data) {
-        transactions.results = response.data.items || []
-        transactions.totalResults = transactions.results.length * response.data.page + (response.data.hasMore ? 1 : 0)
-      } else throw new Error('No response from getTransactions')
+      // Only process response if this is still the latest request
+      if (currentRequestNumber === requestCounter) {
+        if (response?.data) {
+          transactions.results = response.data.items || []
+          transactions.totalResults = transactions.results.length * response.data.page + (response.data.hasMore ? 1 : 0)
+        } else throw new Error('No response from getTransactions')
+      }
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Failed to get transaction list.', error)
+      if (currentRequestNumber === requestCounter) {
+        // eslint-disable-next-line no-console
+        console.error('Failed to get transaction list.', error)
+      }
     }
     transactions.loading = false
   }, 2000, { leading: true, trailing: true }) as (filterField?: string, value?: any, viewAll?: boolean) => Promise<void>
