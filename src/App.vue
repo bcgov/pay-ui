@@ -102,7 +102,6 @@ export default defineComponent({
       return bannerText?.trim()
     })
 
-
     return {
       appStore,
       hasCallFailed,
