@@ -17,6 +17,7 @@ export enum SessionStorageKeys {
 }
 
 export enum LDFlags {
+  BannerText = 'banner-text',
   EnableDetailsFilter = 'enable-transactions-detail-filter',
   EnableEFTRefundByCheque = 'enable-eft-refund-by-cheque',
   EnableUSDExchange = 'enable-usd-exchange',

@@ -24,6 +24,15 @@
         :message="$t('errorAlertMessage')"
         v-if="hasCallFailed"
       ></ErrorAlertComponent>
+      <!-- Alert banner -->
+      <v-alert
+        v-if="bannerText"
+        tile
+        dense
+        type="warning"
+        class="mb-0 text-center colour-dk-text"
+        v-html="bannerText"
+      />
 
     </div>
     <!-- Global Snackbar -->
@@ -59,6 +68,8 @@ import SbcLoader from 'sbc-common-components/src/components/SbcLoader.vue'
 import { useLoader, useErrorAlert } from './composables/common'
 import BreadCrumb from '@/components/common/BreadCrumb.vue'
 import { useAppStore } from '@/store/app'
+import LaunchDarklyService from 'sbc-common-components/src/services/launchdarkly.services'
+import { LDFlags } from './util/constants'
 
 export default defineComponent({
   components: {
@@ -85,6 +96,11 @@ export default defineComponent({
     onMounted(() => {
       showLoading.value = false
     })
+    const bannerText = computed<string>(() => {
+      const bannerText: string = LaunchDarklyService.getFlag(LDFlags.BannerText)
+      // remove spaces so that " " becomes falsy
+      return bannerText?.trim()
+    })
 
     return {
       appStore,
@@ -93,7 +109,8 @@ export default defineComponent({
       aboutText,
       showLoading,
       logoutUrl,
-      appLoaded
+      appLoaded,
+      bannerText
     }
   }
 })
