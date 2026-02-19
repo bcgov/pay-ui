@@ -1,0 +1,29 @@
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/.auth.json
+/.auth-*.json
+
+# Allure Reports
+allure-results/
+allure-report/
+./test-automation/allure-results
+./test-automation/allure-report
+
+# Environment variables and secrets (NEVER commit credentials)
+env/
+.env
+.env.*
+.env.local
+.env.*.local
+
+# IDE
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo

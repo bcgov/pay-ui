@@ -1,0 +1,78 @@
+# ============================================================================
+# Playwright Test Automation Workflow
+# ============================================================================
+# 
+# Name: Pay UI Test Automation
+# Description: Automated end-to-end regression testing using Playwright
+# Created: February 17, 2026
+# Created By: Anish Batra
+#
+# Purpose:
+#   - Run automated regression tests on Pay UI application
+#   - Supports multiple login methods (BCSC and IDIR)
+#   - Generates Allure and Playwright HTML reports
+#   - Runs on schedule (Mon-Fri 11 AM EST) and manual trigger
+#
+# Triggers:
+#   - Push to main branch
+#   - Manual workflow dispatch
+#   - Scheduled: Mon-Fri 11:00 AM EST (16:00 UTC)
+# ============================================================================
+name: Pay UI Test Automation
+on:
+  push:
+    branches: [ feature-nuxt-v3-upgrade ]
+  workflow_dispatch: {}
+  schedule:
+    # Runs Mon-Fri at 11:00 AM Eastern Standard Time (fixed UTC-5 -> 16:00 UTC)
+    - cron: '0 16 * * 1-5'
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: test-automation
+    env:
+      TEST_USERNAME_BCSC: ${{ secrets.TEST_USERNAME_BCSC }}
+      TEST_PASSWORD_BCSC: ${{ secrets.TEST_PASSWORD_BCSC }}
+      TEST_USERNAME_IDIR: ${{ secrets.TEST_USERNAME_IDIR }}
+      TEST_PASSWORD_IDIR: ${{ secrets.TEST_PASSWORD_IDIR }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+    - name: Install dependencies
+      run: npm ci
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    - name: Run Playwright regression tests
+      run: npm run e2e:regression:test
+    - name: Generate Allure Report
+      if: ${{ !cancelled() }}
+      run: npm run allure:generate
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: allure-report
+        path: test-automation/allure-report/
+        retention-days: 30
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: playwright-html-report
+        path: test-automation/playwright-report/
+        retention-days: 30
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: test-results
+        path: test-automation/test-results/
+        retention-days: 30
+    - name: Publish HTML Report
+      if: ${{ !cancelled() }}
+      uses: daun/playwright-report-summary@v3
+      with:
+       report-file: test-automation/playwright-report/results.json
+       github-token: ${{ secrets.GITHUB_TOKEN }}. 
