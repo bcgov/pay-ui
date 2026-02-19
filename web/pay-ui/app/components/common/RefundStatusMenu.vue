@@ -17,11 +17,17 @@ const items = computed<DropdownMenuItem[]>(() => {
   let allowedCodes: string[] = []
 
   if (currentStatus === chequeRefundCodes.PROCESSED) {
-    allowedCodes = [chequeRefundCodes.CHEQUE_UNDELIVERABLE]
+    allowedCodes = [chequeRefundCodes.CHEQUE_UNCASHED, chequeRefundCodes.CHEQUE_UNDELIVERABLE]
+  } else if (currentStatus === chequeRefundCodes.CHEQUE_UNCASHED) {
+    allowedCodes = [chequeRefundCodes.PROCESSED]
   } else if (currentStatus === chequeRefundCodes.CHEQUE_UNDELIVERABLE) {
     allowedCodes = [chequeRefundCodes.PROCESSED]
   } else {
-    allowedCodes = [chequeRefundCodes.CHEQUE_UNDELIVERABLE, chequeRefundCodes.PROCESSED]
+    allowedCodes = [
+      chequeRefundCodes.CHEQUE_UNCASHED,
+      chequeRefundCodes.CHEQUE_UNDELIVERABLE,
+      chequeRefundCodes.PROCESSED
+    ]
   }
 
   return ChequeRefundStatus

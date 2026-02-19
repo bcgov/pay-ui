@@ -10,6 +10,11 @@ export const ChequeRefundStatus = [
     display: true
   },
   {
+    code: 'CHEQUE_UNCASHED',
+    text: 'Cheque Uncashed',
+    display: true
+  },
+  {
     code: 'CHEQUE_UNDELIVERABLE',
     text: 'Cheque Undeliverable',
     display: true

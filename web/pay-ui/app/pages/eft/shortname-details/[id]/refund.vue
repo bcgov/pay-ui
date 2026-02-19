@@ -168,6 +168,10 @@ function canUpdateChequeStatus(): boolean {
 function getEFTRefundStatusDescription(refundDetails: EftRefund | null): string {
   if (!refundDetails) { return '' }
 
+  if (refundDetails.chequeStatus === ChequeRefundCode.CHEQUE_UNCASHED) {
+    return 'Cheque Uncashed'
+  }
+
   if (refundDetails.chequeStatus === ChequeRefundCode.CHEQUE_UNDELIVERABLE) {
     return 'Cheque Undeliverable'
   }
@@ -522,7 +526,9 @@ onMounted(async () => {
                 <span class="font-bold text-gray-900">Refund Status</span>
                 <div class="sm:col-span-2 flex items-center gap-4">
                   <UBadge
-                    v-if="state.refundDetails?.chequeStatus === ChequeRefundCode.CHEQUE_UNDELIVERABLE"
+                    v-if="state.refundDetails?.chequeStatus
+                      && [ChequeRefundCode.CHEQUE_UNDELIVERABLE, ChequeRefundCode.CHEQUE_UNCASHED]
+                        .includes(state.refundDetails.chequeStatus as ChequeRefundCode)"
                     color="error"
                     size="lg"
                   >

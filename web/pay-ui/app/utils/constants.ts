@@ -394,6 +394,11 @@ export const ChequeRefundStatus = [
     display: true
   },
   {
+    code: 'CHEQUE_UNCASHED',
+    text: 'Cheque Uncashed',
+    display: true
+  },
+  {
     code: 'CHEQUE_UNDELIVERABLE',
     text: 'Cheque Undeliverable',
     display: true
@@ -418,6 +423,7 @@ export enum Product {
 export enum ChequeRefundCode {
   PROCESSING = 'PROCESSING',
   PROCESSED = 'PROCESSED',
+  CHEQUE_UNCASHED = 'CHEQUE_UNCASHED',
   CHEQUE_UNDELIVERABLE = 'CHEQUE_UNDELIVERABLE'
 }
 
@@ -431,6 +437,7 @@ export enum RefundStatusText {
 export const chequeRefundCodes = {
   PROCESSING: ChequeRefundCode.PROCESSING,
   PROCESSED: ChequeRefundCode.PROCESSED,
+  CHEQUE_UNCASHED: ChequeRefundCode.CHEQUE_UNCASHED,
   CHEQUE_UNDELIVERABLE: ChequeRefundCode.CHEQUE_UNDELIVERABLE
 } as const
 
