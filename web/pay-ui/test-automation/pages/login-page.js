@@ -29,7 +29,7 @@ export class LoginPage {
         this.termsOfUseCheckbox = page.getByText('I agree to the BC Login');  
     }
 
-    async loginwithbcsc(username, password) {
+    async loginWithBCSC(username, password) {
         await this.bcServiceCard.click();
         await this.usernamePasswordButton.click();
         await this.usernameInput.fill(username);
@@ -39,7 +39,7 @@ export class LoginPage {
         await this.continueButton.click();
     }
 
-      async loginwithidir(username, password) {
+      async loginWithIDIR(username, password) {
         await this.lgoinWithIDIR.click();
         await this.idirUsernameInput.fill(username);
         await this.idirPasswordInput.fill(password);

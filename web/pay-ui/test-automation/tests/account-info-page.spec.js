@@ -20,7 +20,6 @@ import { test } from '../fixtures.js';
 
 test.describe('Account Info Page Tests', () => {
     test('should display account info page correctly @regression', async ({ page, accountInfoPage }) => {
-        // Cookies from .auth.json are automatically loaded via storageState in config
         console.log('Test: Current URL before navigation:', page.url());
         console.log('Test: Cookies loaded:', (await page.context().cookies()).length);
         await accountInfoPage.accountInfo();

@@ -9,6 +9,8 @@ node_modules/
 /.auth-*.json
 
 # Allure Reports
+allure-results/
+allure-report/
 ./test-automation/allure-results
 ./test-automation/allure-report
 
