@@ -21,7 +21,7 @@
 name: Pay UI Test Automation
 on:
   push:
-    branches: [ main , feature-nuxt-v3-upgrade ]
+    branches: [ feature-nuxt-v3-upgrade ]
   workflow_dispatch: {}
   schedule:
     # Runs Mon-Fri at 11:00 AM Eastern Standard Time (fixed UTC-5 -> 16:00 UTC)
