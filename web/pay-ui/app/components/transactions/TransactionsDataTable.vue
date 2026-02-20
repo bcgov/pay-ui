@@ -258,7 +258,7 @@ interface DropdownItem {
   amount: string
   paymentMethod: string
   isRefund: boolean
-  status: string
+  statusCode: InvoiceStatus
   transactionId: string | number
   _isDropdown: true
 }
@@ -279,7 +279,7 @@ function createDropdownItem(
     amount: '',
     paymentMethod: '',
     isRefund: false,
-    status: '',
+    statusCode: InvoiceStatus.COMPLETED,
     transactionId: '',
     ...overrides
   }
@@ -304,7 +304,7 @@ function getAppliedCreditsItems(item: Transaction): DropdownItem[] {
       amount: `$${credit.amountApplied.toFixed(2)}`,
       paymentMethod: paymentTypeDisplay[PaymentTypes.CREDIT],
       isRefund: false,
-      status: invoiceStatusDisplay[InvoiceStatus.COMPLETED],
+      statusCode: InvoiceStatus.COMPLETED,
       transactionId: credit.id
     }))
   })
@@ -316,9 +316,9 @@ function getAppliedCreditsItems(item: Transaction): DropdownItem[] {
       date: credits[0]!.createdOn,
       time: true,
       amount: `$${remaining.toFixed(2)}`,
-      paymentMethod: item.paymentMethod,
+      paymentMethod: paymentTypeDisplay[item.paymentMethod] || item.paymentMethod,
       isRefund: false,
-      status: invoiceStatusDisplay[InvoiceStatus.COMPLETED],
+      statusCode: InvoiceStatus.COMPLETED,
       transactionId: item.id
     }))
   }
@@ -348,11 +348,11 @@ function getPartialRefundsItems(
     amount: `-$${totalRefundAmount.toFixed(2)}`,
     paymentMethod: refundAsCredits
       ? paymentTypeDisplay[PaymentTypes.CREDIT]
-      : item.paymentMethod,
+      : paymentTypeDisplay[item.paymentMethod] || item.paymentMethod,
     isRefund: true,
-    status: refundAsCredits
-      ? invoiceStatusDisplay[InvoiceStatus.PARTIALLY_CREDITED]
-      : invoiceStatusDisplay[InvoiceStatus.PARTIALLY_REFUNDED],
+    statusCode: refundAsCredits
+      ? InvoiceStatus.PARTIALLY_CREDITED
+      : InvoiceStatus.PARTIALLY_REFUNDED,
     createdName: refunds[0]!.createdName,
     transactionId: refundIds
   })]
@@ -377,11 +377,11 @@ function getFullRefundItems(item: Transaction): DropdownItem[] {
     amount: `-$${item.total.toFixed(2)}`,
     paymentMethod: refundAsCredits
       ? paymentTypeDisplay[PaymentTypes.CREDIT]
-      : item.paymentMethod,
+      : paymentTypeDisplay[item.paymentMethod] || item.paymentMethod,
     isRefund: true,
-    status: refundAsCredits
-      ? invoiceStatusDisplay[InvoiceStatus.CREDITED]
-      : invoiceStatusDisplay[InvoiceStatus.REFUNDED],
+    statusCode: refundAsCredits
+      ? InvoiceStatus.CREDITED
+      : InvoiceStatus.REFUNDED,
     transactionId: item.id
   })]
 }
@@ -879,7 +879,7 @@ watch(() => transactions.results, () => {
           </template>
 
           <template #createdOn-cell="{ row }">
-            <span v-if="isDropdownRow(row)" class="dropdown-child-cell">
+            <span v-if="isDropdownRow(row)">
               {{ asDropdownItem(row).date ? displayDate(String(asDropdownItem(row).date)) : '' }}
             </span>
             <span v-else>
@@ -891,7 +891,7 @@ watch(() => transactions.results, () => {
             <span
               v-if="isDropdownRow(row)"
               :class="[
-                'dropdown-child-cell',
+                'total-amount-cell',
                 { 'refund-amount': asDropdownItem(row).isRefund }
               ]"
             >
@@ -909,7 +909,7 @@ watch(() => transactions.results, () => {
           </template>
 
           <template #paymentMethod-cell="{ row }">
-            <span v-if="isDropdownRow(row)" class="dropdown-child-cell">
+            <span v-if="isDropdownRow(row)">
               {{ asDropdownItem(row).paymentMethod }}
             </span>
             <span v-else>
@@ -923,9 +923,16 @@ watch(() => transactions.results, () => {
           </template>
 
           <template #statusCode-cell="{ row }">
-            <span v-if="isDropdownRow(row)" class="dropdown-child-cell">
-              {{ asDropdownItem(row).status }}
-            </span>
+            <div v-if="isDropdownRow(row)" class="flex items-start gap-1">
+              <div class="flex items-center gap-1">
+                <UIcon
+                  v-if="isCompletedOrPaid(asDropdownItem(row).statusCode)"
+                  name="i-mdi-check"
+                  class="text-green-600"
+                />
+                <b>{{ getInvoiceStatusDisplayName(asDropdownItem(row).statusCode) }}</b>
+              </div>
+            </div>
             <div v-else class="flex items-start gap-1">
               <div>
                 <div class="flex items-center gap-1">
