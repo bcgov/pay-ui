@@ -57,7 +57,7 @@ jobs:
     - name: Build pay-ui
       if: steps.build-cache.outputs.cache-hit != 'true'
       working-directory: web/pay-ui
-      run: pnpm generate
+      run: cp .env.example .env && pnpm generate
     - uses: actions/upload-artifact@v4
       with:
         name: pay-ui-build
