@@ -69,9 +69,24 @@ jobs:
     - name: Install test dependencies
       working-directory: test-automation
       run: npm ci
+    - name: Get Playwright version
+      id: pw-version
+      working-directory: test-automation
+      run: echo "version=$(npx playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+    - name: Cache Playwright Browsers
+      id: pw-cache
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ steps.pw-version.outputs.version }}
     - name: Install Playwright Browsers
+      if: steps.pw-cache.outputs.cache-hit != 'true'
       working-directory: test-automation
       run: npx playwright install --with-deps
+    - name: Install Playwright OS deps
+      if: steps.pw-cache.outputs.cache-hit == 'true'
+      working-directory: test-automation
+      run: npx playwright install-deps
     - name: Run Playwright regression tests
       working-directory: test-automation
       run: npm run e2e:regression:test
