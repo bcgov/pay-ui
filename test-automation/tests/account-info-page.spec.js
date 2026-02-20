@@ -16,12 +16,12 @@
  * ============================================================================
  */
 
-import { test } from '../fixtures.js';
+import { test } from '../fixtures.js'
 
 test.describe('Account Info Page Tests', () => {
-    test('should display account info page correctly @regression', async ({ page, accountInfoPage }) => {
-        console.log('Test: Current URL before navigation:', page.url());
-        console.log('Test: Cookies loaded:', (await page.context().cookies()).length);
-        await accountInfoPage.accountInfo();
-    });
-});
+  test('should display account info page correctly @regression', async ({ page, accountInfoPage }) => {
+    console.log('Test: Current URL before navigation:', page.url())
+    console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
+    await accountInfoPage.accountInfo()
+  })
+})

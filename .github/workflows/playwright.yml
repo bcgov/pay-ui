@@ -1,7 +1,7 @@
 # ============================================================================
 # Playwright Test Automation Workflow
 # ============================================================================
-# 
+#
 # Name: Pay UI Test Automation
 # Description: Automated end-to-end regression testing using Playwright
 # Created: February 17, 2026
@@ -9,7 +9,7 @@
 #
 # Purpose:
 #   - Run automated regression tests on Pay UI application
-#   - Supports multiple login methods (BCSC and IDIR)
+#   - Supports multiple login methods (BCSC and mocked IDIR)
 #   - Generates Allure and Playwright HTML reports
 #   - Runs on schedule (Mon-Fri 11 AM EST) and manual trigger
 #
@@ -28,18 +28,79 @@ on:
   schedule:
     # Runs Mon-Fri at 11:00 AM Eastern Standard Time (fixed UTC-5 -> 16:00 UTC)
     - cron: '0 16 * * 1-5'
+permissions:
+  contents: read
 jobs:
+  build-app:
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Cache pay-ui build
+      id: build-cache
+      uses: actions/cache@v4
+      with:
+        path: web/pay-ui/.output/public
+        key: pay-ui-build-${{ hashFiles('web/pay-ui/**', '!web/pay-ui/node_modules/**') }}
+    - uses: actions/setup-node@v4
+      if: steps.build-cache.outputs.cache-hit != 'true'
+      with:
+        node-version: lts/*
+    - uses: pnpm/action-setup@v4
+      if: steps.build-cache.outputs.cache-hit != 'true'
+      with:
+        version: 10
+    - name: Install pay-ui dependencies
+      if: steps.build-cache.outputs.cache-hit != 'true'
+      working-directory: web/pay-ui
+      run: pnpm install --frozen-lockfile
+    - name: Build pay-ui
+      if: steps.build-cache.outputs.cache-hit != 'true'
+      working-directory: web/pay-ui
+      run: cp .env.example .env && pnpm generate
+    - uses: actions/upload-artifact@v4
+      with:
+        name: pay-ui-build
+        path: web/pay-ui/.output/public/
+        retention-days: 1
+
+  setup-playwright:
+    runs-on: ubuntu-latest
+    outputs:
+      pw-version: ${{ steps.pw-version.outputs.version }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+    - name: Install test dependencies
+      working-directory: test-automation
+      run: npm ci
+    - name: Get Playwright version
+      id: pw-version
+      working-directory: test-automation
+      run: echo "version=$(npx playwright --version | sed 's/Version //')" >> "$GITHUB_OUTPUT"
+    - name: Cache Playwright Browsers
+      id: pw-cache
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ steps.pw-version.outputs.version }}
+    - name: Install Playwright Browsers
+      if: steps.pw-cache.outputs.cache-hit != 'true'
+      working-directory: test-automation
+      run: npx playwright install --with-deps
+
   test:
+    needs: [build-app, setup-playwright]
+    if: always() && needs.setup-playwright.result == 'success' && (needs.build-app.result == 'success' || needs.build-app.result == 'skipped')
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: web/pay-ui/test-automation
     env:
       TEST_USERNAME_BCSC: ${{ secrets.TEST_USERNAME_BCSC }}
       TEST_PASSWORD_BCSC: ${{ secrets.TEST_PASSWORD_BCSC }}
-      TEST_USERNAME_IDIR: ${{ secrets.TEST_USERNAME_IDIR }}
-      TEST_PASSWORD_IDIR: ${{ secrets.TEST_PASSWORD_IDIR }}
+      TEST_USERNAME_BCSC_IDIR: ${{ secrets.TEST_USERNAME_BCSC_IDIR }}
+      TEST_PASSWORD_BCSC_IDIR: ${{ secrets.TEST_PASSWORD_BCSC_IDIR }}
       BASE_URL_DEV: ${{ secrets.BASE_URL_DEV }}
       BASE_URL_TEST: ${{ secrets.BASE_URL_TEST }}
     steps:
@@ -47,36 +108,46 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: lts/*
-    - name: Install dependencies
-      run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
+    - name: Restore Playwright Browsers
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ needs.setup-playwright.outputs.pw-version }}
+    - name: Install test dependencies
+      working-directory: test-automation
+      run: npm ci && npx playwright install
+    - name: Start pay-ui
+      if: needs.build-app.result == 'success'
+      uses: actions/download-artifact@v4
+      with:
+        name: pay-ui-build
+        path: pay-ui-build
+    - if: needs.build-app.result == 'success'
+      run: npx serve pay-ui-build -l 3000 &
+    - if: needs.build-app.result == 'success'
+      run: npx wait-on http://localhost:3000 --timeout 30000
     - name: Run Playwright regression tests
+      working-directory: test-automation
       run: npm run e2e:regression:test
+      env:
+        BASE_URL: ${{ needs.build-app.result == 'success' && 'http://localhost:3000' || '' }}
     - name: Generate Allure Report
       if: ${{ !cancelled() }}
+      working-directory: test-automation
       run: npm run allure:generate
-    - uses: actions/upload-artifact@v4
+    - name: Upload test artifacts
       if: ${{ !cancelled() }}
+      uses: actions/upload-artifact@v4
       with:
-        name: allure-report
-        path: web/pay-ui/test-automation/allure-report/
-        retention-days: 30
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
-      with:
-        name: playwright-html-report
-        path: web/pay-ui/test-automation/playwright-report/
-        retention-days: 30
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
-      with:
-        name: test-results
-        path: web/pay-ui/test-automation/test-results/
+        name: test-artifacts
+        path: |
+          test-automation/allure-report/
+          test-automation/playwright-report/
+          test-automation/test-results/
         retention-days: 30
     - name: Publish HTML Report
       if: ${{ !cancelled() }}
       uses: daun/playwright-report-summary@v3
       with:
-       report-file: web/pay-ui/test-automation/playwright-report/results.json
-       github-token: ${{ secrets.GITHUB_TOKEN }}. 
+       report-file: test-automation/playwright-report/results.json
+       github-token: ${{ secrets.GITHUB_TOKEN }}

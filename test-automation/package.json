@@ -9,18 +9,24 @@
     "e2e:regression:test": "cross-env ENV_NAME=test npx playwright test --grep regression",
     "allure:generate": "allure generate allure-results -o allure-report --clean",
     "allure:open": "allure open allure-report",
-    "allure:clean": "rm -rf allure-results allure-report"
+    "allure:clean": "rm -rf allure-results allure-report",
+    "lint": "eslint --fix .",
+    "lint:check": "eslint ."
   },
   "keywords": [],
   "author": "anish batra",
   "license": "ISC",
   "type": "module",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.58.2",
+    "@stylistic/eslint-plugin": "^5.9.0",
     "@types/node": "^25.2.3",
     "allure-commandline": "^2.25.0",
     "allure-playwright": "^2.13.0",
     "cross-env": "^10.1.0",
-    "dotenv": "^17.3.1"
+    "dotenv": "^17.3.1",
+    "eslint": "^10.0.1",
+    "globals": "^17.3.0"
   }
 }

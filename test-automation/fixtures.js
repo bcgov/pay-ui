@@ -14,20 +14,20 @@
  * ============================================================================
  */
 
-import { test as base, expect } from '@playwright/test';
-import { LoginPage } from './pages/login-page.js';
-import { AccountInfoPage } from './pages/account-info-page.js';
+import { test as base, expect } from '@playwright/test'
+import { LoginPage } from './pages/login-page.js'
+import { AccountInfoPage } from './pages/account-info-page.js'
 
 const test = base.extend({
-    loginPage: async ({ page }, use) => {
-        await use(new LoginPage(page));
-    },
-    accountInfoPage: async ({ page }, use) => {
-        await use(new AccountInfoPage(page));
-    }   
-});
+  loginPage: async ({ page }, use) => {
+    await use(new LoginPage(page))
+  },
+  accountInfoPage: async ({ page }, use) => {
+    await use(new AccountInfoPage(page))
+  }
+})
 
 export {
-    test,
-    expect
-};
+  test,
+  expect
+}

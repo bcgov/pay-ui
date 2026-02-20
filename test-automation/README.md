@@ -28,8 +28,8 @@ Set these in .env file for correspoding env (or configure in GitHub Secrets for 
 
 TEST_USERNAME_BCSC=your_bcsc_username
 TEST_PASSWORD_BCSC=your_bcsc_password
-TEST_USERNAME_IDIR=your_idir_username
-TEST_PASSWORD_IDIR=your_idir_password
+TEST_USERNAME_BCSC_IDIR=your_idir_username
+TEST_PASSWORD_BCSC_IDIR=your_idir_password
 
 
 ## Running Tests
@@ -75,8 +75,8 @@ Tests run automatically **Monday–Friday at 11 AM EST** and can also be trigger
 **Required GitHub Secrets:**
 - `TEST_USERNAME_BCSC`
 - `TEST_PASSWORD_BCSC`
-- `TEST_USERNAME_IDIR`
-- `TEST_PASSWORD_IDIR`
+- `TEST_USERNAME_BCSC_IDIR`
+- `TEST_PASSWORD_BCSC_IDIR`
 
 Go to **Settings → Secrets and variables → Actions** to add them.
 
