@@ -56,11 +56,11 @@ function getCredentials() {
   const loginType = (process.env.LOGIN_TYPE || 'idir').toLowerCase()
 
   const username = loginType === 'idir'
-    ? (process.env.TEST_USERNAME_IDIR || process.env.TEST_USERNAME)
+    ? (process.env.TEST_USERNAME_BCSC_IDIR || process.env.TEST_USERNAME)
     : (process.env.TEST_USERNAME_BCSC || process.env.TEST_USERNAME)
 
   const password = loginType === 'idir'
-    ? (process.env.TEST_PASSWORD_IDIR || process.env.TEST_PASSWORD)
+    ? (process.env.TEST_PASSWORD_BCSC_IDIR || process.env.TEST_PASSWORD)
     : (process.env.TEST_PASSWORD_BCSC || process.env.TEST_PASSWORD)
 
   return { username, password, loginType }
@@ -73,8 +73,8 @@ function validateCredentialsAreProvided(username, password, baseURL, loginType, 
     console.error(`  LOGIN_TYPE: ${loginType}`)
     console.error(`  TEST_USERNAME_BCSC: ${process.env.TEST_USERNAME_BCSC ? '✓' : '✗'}`)
     console.error(`  TEST_PASSWORD_BCSC: ${process.env.TEST_PASSWORD_BCSC ? '✓' : '✗'}`)
-    console.error(`  TEST_USERNAME_IDIR: ${process.env.TEST_USERNAME_IDIR ? '✓' : '✗'}`)
-    console.error(`  TEST_PASSWORD_IDIR: ${process.env.TEST_PASSWORD_IDIR ? '✓' : '✗'}`)
+    console.error(`  TEST_USERNAME_BCSC_IDIR: ${process.env.TEST_USERNAME_BCSC_IDIR ? '✓' : '✗'}`)
+    console.error(`  TEST_PASSWORD_BCSC_IDIR: ${process.env.TEST_PASSWORD_BCSC_IDIR ? '✓' : '✗'}`)
     throw new Error('Missing required environment variables for login')
   }
 }

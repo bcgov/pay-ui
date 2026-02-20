@@ -99,8 +99,8 @@ jobs:
     env:
       TEST_USERNAME_BCSC: ${{ secrets.TEST_USERNAME_BCSC }}
       TEST_PASSWORD_BCSC: ${{ secrets.TEST_PASSWORD_BCSC }}
-      TEST_USERNAME_IDIR: ${{ secrets.TEST_USERNAME_IDIR }}
-      TEST_PASSWORD_IDIR: ${{ secrets.TEST_PASSWORD_IDIR }}
+      TEST_USERNAME_BCSC_IDIR: ${{ secrets.TEST_USERNAME_BCSC_IDIR }}
+      TEST_PASSWORD_BCSC_IDIR: ${{ secrets.TEST_PASSWORD_BCSC_IDIR }}
       BASE_URL_DEV: ${{ secrets.BASE_URL_DEV }}
       BASE_URL_TEST: ${{ secrets.BASE_URL_TEST }}
     steps:
