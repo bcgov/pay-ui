@@ -147,12 +147,12 @@ describe('ShortNameLookup', () => {
     })
 
     const vm = wrapper.vm as unknown as {
-      isAccountDisabled: (account: { statusCode?: string }) => boolean
+      isShortNameLinkedOrPending: (account: { statusCode?: string }) => boolean
     }
 
-    expect(vm.isAccountDisabled({ statusCode: ShortNameStatus.LINKED })).toBe(true)
-    expect(vm.isAccountDisabled({ statusCode: ShortNameStatus.PENDING })).toBe(true)
-    expect(vm.isAccountDisabled({ statusCode: undefined })).toBe(false)
+    expect(vm.isShortNameLinkedOrPending({ statusCode: ShortNameStatus.LINKED })).toBe(true)
+    expect(vm.isShortNameLinkedOrPending({ statusCode: ShortNameStatus.PENDING })).toBe(true)
+    expect(vm.isShortNameLinkedOrPending({ statusCode: undefined })).toBe(false)
   })
 
   it('should not allow selecting linked accounts', () => {
