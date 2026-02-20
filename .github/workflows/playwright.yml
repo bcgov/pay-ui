@@ -130,7 +130,8 @@ jobs:
       working-directory: test-automation
       run: npm run e2e:regression:test
       env:
-        BASE_URL: ${{ needs.build-app.result == 'success' && 'http://localhost:3000' || '' }}
+        ENV_NAME: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && 'local' || 'test' }}
+        BASE_URL_LOCAL: 'http://localhost:3000'
     - name: Generate Allure Report
       if: ${{ !cancelled() }}
       working-directory: test-automation
