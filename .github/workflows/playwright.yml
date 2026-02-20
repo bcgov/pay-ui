@@ -9,7 +9,7 @@
 #
 # Purpose:
 #   - Run automated regression tests on Pay UI application
-#   - Supports multiple login methods (BCSC and IDIR)
+#   - Supports multiple login methods (BCSC and mocked IDIR)
 #   - Generates Allure and Playwright HTML reports
 #   - Runs on schedule (Mon-Fri 11 AM EST) and manual trigger
 #
