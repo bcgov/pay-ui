@@ -13,7 +13,7 @@ import { RolePattern } from '@/enums/fas-roles'
 import { useTransactionsTable } from '@/composables/transactions/useTransactionsTable'
 import { useTransactionsStore } from '@/stores/transactions-store'
 import { useStickyHeader } from '@/composables/common/useStickyHeader'
-import { usePaymentMethodsList } from '@/composables/common/useStatusList'
+import { usePaymentMethodsList, useProductList, useInvoiceStatusList } from '@/composables/common/useStatusList'
 import { useDebounceFn, useInfiniteScroll } from '@vueuse/core'
 import type {
   Transaction,
@@ -49,6 +49,16 @@ const {
   list: paymentMethodList,
   mapFn: paymentMethodMapFn
 } = usePaymentMethodsList()
+
+const {
+  list: productList,
+  mapFn: productMapFn
+} = useProductList()
+
+const {
+  list: invoiceStatusList,
+  mapFn: invoiceStatusMapFn
+} = useInvoiceStatusList()
 
 setViewAll(props.extended)
 
@@ -105,6 +115,22 @@ const paymentMethodModel = computed({
   set: (value: string) => {
     fp.value.paymentMethod = value || null
     loadTransactionList('paymentMethod', value || '')
+  }
+})
+
+const productModel = computed({
+  get: () => fp.value.product || '',
+  set: (value: string) => {
+    fp.value.product = value || null
+    loadTransactionList('product', value || '')
+  }
+})
+
+const statusCodeModel = computed({
+  get: () => fp.value.statusCode || '',
+  set: (value: string) => {
+    fp.value.statusCode = value || null
+    loadTransactionList('statusCode', value || '')
   }
 })
 
@@ -587,12 +613,12 @@ watch(() => transactions.results, () => {
                 class="text-left table-filter-input"
                 scope="col"
               >
-                <UInput
-                  v-model="fp.product"
+                <StatusList
+                  v-model="productModel"
+                  :list="productList"
+                  :map-fn="(productMapFn as any)"
                   placeholder="Application Type"
-                  size="md"
                   class="w-full"
-                  @update:model-value="debouncedLoadList('product', $event ?? '')"
                 />
               </th>
               <th
@@ -721,12 +747,12 @@ watch(() => transactions.results, () => {
                 class="text-left table-filter-input"
                 scope="col"
               >
-                <UInput
-                  v-model="fp.statusCode"
+                <StatusList
+                  v-model="statusCodeModel"
+                  :list="invoiceStatusList"
+                  :map-fn="(invoiceStatusMapFn as any)"
                   placeholder="Status"
-                  size="md"
                   class="w-full"
-                  @update:model-value="debouncedLoadList('statusCode', $event ?? '')"
                 />
               </th>
               <th

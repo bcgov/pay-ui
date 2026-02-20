@@ -218,7 +218,7 @@ export default {
           total: 'Total Amount',
           transactionId: 'Transaction ID',
           invoiceNumber: 'Invoice Reference Number',
-          paymentMethod: 'Payment method',
+          paymentMethod: 'Payment Method',
           paymentStatus: 'Payment Status',
           downloads: 'Downloads',
           actions: 'Actions'

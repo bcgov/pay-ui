@@ -3,6 +3,8 @@ import type { SelectItem } from '@nuxt/ui'
 import { ChequeRefundStatus } from '~/utils/constants'
 import ShortNameUtils from '~/utils/short-name-util'
 import { PaymentMethodSelectItems } from '~/enums'
+import { productDisplay } from '~/utils/product-util'
+import { PaymentStatusList } from '~/utils/invoice-status-util'
 
 interface StatusListProps {
   value?: string
@@ -127,6 +129,32 @@ export function usePaymentMethodsList() {
     label: item.text,
     value: item.value
   })
+
+  return {
+    list,
+    mapFn
+  }
+}
+
+// Helper to get invoice status list
+export function useInvoiceStatusList() {
+  const list = computed(() => PaymentStatusList)
+
+  const mapFn = (item: SelectItem): SelectItem => item
+
+  return {
+    list,
+    mapFn
+  }
+}
+
+// Helper to get product (Application Type) list
+export function useProductList() {
+  const list = computed(() =>
+    Object.entries(productDisplay).map(([value, label]) => ({ label, value }))
+  )
+
+  const mapFn = (item: SelectItem): SelectItem => item
 
   return {
     list,
