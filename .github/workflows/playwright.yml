@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: web/pay-ui/test-automation
+        working-directory: test-automation
     env:
       TEST_USERNAME_BCSC: ${{ secrets.TEST_USERNAME_BCSC }}
       TEST_PASSWORD_BCSC: ${{ secrets.TEST_PASSWORD_BCSC }}
@@ -58,23 +58,23 @@ jobs:
       if: ${{ !cancelled() }}
       with:
         name: allure-report
-        path: web/pay-ui/test-automation/allure-report/
+        path: test-automation/allure-report/
         retention-days: 30
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
         name: playwright-html-report
-        path: web/pay-ui/test-automation/playwright-report/
+        path: test-automation/playwright-report/
         retention-days: 30
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
         name: test-results
-        path: web/pay-ui/test-automation/test-results/
+        path: test-automation/test-results/
         retention-days: 30
     - name: Publish HTML Report
       if: ${{ !cancelled() }}
       uses: daun/playwright-report-summary@v3
       with:
-       report-file: web/pay-ui/test-automation/playwright-report/results.json
+       report-file: test-automation/playwright-report/results.json
        github-token: ${{ secrets.GITHUB_TOKEN }}. 
