@@ -26,7 +26,7 @@ const refundId = computed(() => details.value[1] ? Number(details.value[1]) : nu
 definePageMeta({
   layout: 'connect-auth',
   middleware: ['pay-auth'],
-  allowedRoles: [Role.ProductRefundViewer],
+  allowedRoles: [Role.ViewAllTransactions, Role.ProductRefundViewer],
   hideBreadcrumbs: false
 })
 

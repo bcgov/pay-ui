@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useTransactionsStore } from '@/stores/transactions-store'
+import CommonUtil from '~/utils/common-util'
 
 const { t } = useI18n()
 
@@ -70,6 +71,7 @@ onMounted(() => {
           All
         </button>
         <button
+          v-if="CommonUtil.isProductRefundViewer()"
           :class="['tab-button', { active: tab === 1 }]"
           @click="tab = 1; onTabChange()"
         >
@@ -82,12 +84,12 @@ onMounted(() => {
     </div>
 
     <div class="tab-content">
-      <div v-show="tab === 0">
+      <div v-if="tab === 0">
         <TransactionsDataTable
           :extended="true"
         />
       </div>
-      <div v-show="tab === 1">
+      <div v-else>
         <RefundRequestsTable />
       </div>
     </div>

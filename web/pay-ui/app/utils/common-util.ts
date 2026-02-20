@@ -178,6 +178,11 @@ function getUserInfo() {
   return auth.authUser.value
 }
 
+function isProductRefundViewer() {
+  const productRefundViewerRole: Role[] = [Role.ProductRefundViewer]
+  return verifyRoles(productRefundViewerRole)
+}
+
 function canInitiateProductRefund(productRole: string) {
   const validRoles = [Role.ProductRefundRequester, productRole]
   return verifyRoles(validRoles)
@@ -342,5 +347,6 @@ export default {
   getIndexedTag,
   isReversable,
   canInitiateProductRefund,
-  canApproveDeclineProductRefund
+  canApproveDeclineProductRefund,
+  isProductRefundViewer
 }
