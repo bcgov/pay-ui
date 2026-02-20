@@ -49,6 +49,8 @@ jobs:
     - name: Install pnpm
       if: github.event_name == 'pull_request' || github.event_name == 'push'
       uses: pnpm/action-setup@v4
+      with:
+        version: 10
     - name: Install pay-ui dependencies
       if: github.event_name == 'pull_request' || github.event_name == 'push'
       working-directory: web/pay-ui
