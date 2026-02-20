@@ -36,16 +36,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - name: Cache pay-ui build
+      id: build-cache
+      uses: actions/cache@v4
+      with:
+        path: web/pay-ui/.output/public
+        key: pay-ui-build-${{ hashFiles('web/pay-ui/**', '!web/pay-ui/node_modules/**') }}
     - uses: actions/setup-node@v4
+      if: steps.build-cache.outputs.cache-hit != 'true'
       with:
         node-version: lts/*
     - uses: pnpm/action-setup@v4
+      if: steps.build-cache.outputs.cache-hit != 'true'
       with:
         version: 10
     - name: Install pay-ui dependencies
+      if: steps.build-cache.outputs.cache-hit != 'true'
       working-directory: web/pay-ui
       run: pnpm install --frozen-lockfile
     - name: Build pay-ui
+      if: steps.build-cache.outputs.cache-hit != 'true'
       working-directory: web/pay-ui
       run: pnpm generate
     - uses: actions/upload-artifact@v4
