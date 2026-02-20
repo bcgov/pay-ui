@@ -34,6 +34,16 @@ function loadEnvironmentConfig() {
 
   console.log(`Global setup: Loading environment '${envName}'`)
 
+  // In CI, pick BASE_URL based on ENV_NAME
+  if (process.env.BASE_URL_TEST || process.env.BASE_URL_DEV) {
+    process.env.BASE_URL = envName === 'test'
+      ? process.env.BASE_URL_TEST
+      : process.env.BASE_URL_DEV
+    console.log(`Global setup: Using BASE_URL for '${envName}': ${process.env.BASE_URL}`)
+    return { envName, envFilePath }
+  }
+
+  // Locally, load from env file
   if (!fs.existsSync(envFilePath)) {
     throw new Error(`Environment file not found: ${envFilePath}`)
   }
@@ -78,7 +88,8 @@ async function launchBrowser() {
     return browser
   } catch (launchError) {
     console.error('Global setup: Failed to launch Chromium browser!', launchError.message)
-    throw new Error(`Browser launch failed: ${launchError.message}. Make sure to run: npx playwright install`, { cause: launchError })
+    throw new Error(`Browser launch failed: ${launchError.message}.
+      Make sure to run: npx playwright install`, { cause: launchError })
   }
 }
 

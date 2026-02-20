@@ -40,6 +40,8 @@ jobs:
       TEST_PASSWORD_BCSC: ${{ secrets.TEST_PASSWORD_BCSC }}
       TEST_USERNAME_IDIR: ${{ secrets.TEST_USERNAME_IDIR }}
       TEST_PASSWORD_IDIR: ${{ secrets.TEST_PASSWORD_IDIR }}
+      BASE_URL_DEV: ${{ secrets.BASE_URL_DEV }}
+      BASE_URL_TEST: ${{ secrets.BASE_URL_TEST }}
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
