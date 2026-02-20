@@ -23,7 +23,7 @@ describe('RefundStatusMenu', () => {
     expect(wrapper.exists()).toBe(true)
   })
 
-  it('should show only CHEQUE_UNDELIVERABLE when currentRefundStatus is PROCESSED', async () => {
+  it('should show Cheque Uncashed and Cheque Undeliverable when currentRefundStatus is PROCESSED', async () => {
     const wrapper = await mountSuspended(RefundStatusMenu, {
       props: {
         currentRefundStatus: chequeRefundCodes.PROCESSED
@@ -39,11 +39,32 @@ describe('RefundStatusMenu', () => {
     const dropdown = wrapper.findComponent({ name: 'UDropdownMenu' })
     const items = dropdown.props('items')
 
-    expect(items).toHaveLength(1)
-    expect(items[0].label).toBe('Cheque Undeliverable')
+    expect(items).toHaveLength(2)
+    expect(items[0].label).toBe('Cheque Uncashed')
+    expect(items[1].label).toBe('Cheque Undeliverable')
   })
 
-  it('should show only PROCESSED when currentRefundStatus is CHEQUE_UNDELIVERABLE', async () => {
+  it('should show only Cheque Issued when currentRefundStatus is CHEQUE_UNCASHED', async () => {
+    const wrapper = await mountSuspended(RefundStatusMenu, {
+      props: {
+        currentRefundStatus: chequeRefundCodes.CHEQUE_UNCASHED
+      },
+      global: {
+        stubs: {
+          UDropdownMenu: true,
+          UButton: true
+        }
+      }
+    })
+
+    const dropdown = wrapper.findComponent({ name: 'UDropdownMenu' })
+    const items = dropdown.props('items')
+
+    expect(items).toHaveLength(1)
+    expect(items[0].label).toBe('Cheque Issued')
+  })
+
+  it('should show only Cheque Issued when currentRefundStatus is CHEQUE_UNDELIVERABLE', async () => {
     const wrapper = await mountSuspended(RefundStatusMenu, {
       props: {
         currentRefundStatus: chequeRefundCodes.CHEQUE_UNDELIVERABLE

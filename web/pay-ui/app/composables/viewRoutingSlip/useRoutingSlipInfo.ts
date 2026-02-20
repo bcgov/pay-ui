@@ -114,10 +114,13 @@ export function useRoutingSlipInfo() {
     isRefundRequested: computed(() => store.routingSlip.status === SlipStatus.REFUNDREQUEST),
     isRefundStatusUndeliverable: computed(() =>
       store.routingSlip.refundStatus === chequeRefundCodes.CHEQUE_UNDELIVERABLE),
+    isRefundStatusUncashed: computed(() =>
+      store.routingSlip.refundStatus === chequeRefundCodes.CHEQUE_UNCASHED),
     canUpdateRefundStatus: computed(() => {
       const isProcessed = store.routingSlip.refundStatus === chequeRefundCodes.PROCESSED
+      const isUncashed = store.routingSlip.refundStatus === chequeRefundCodes.CHEQUE_UNCASHED
       const isUndeliverable = store.routingSlip.refundStatus === chequeRefundCodes.CHEQUE_UNDELIVERABLE
-      return isProcessed || isUndeliverable
+      return isProcessed || isUncashed || isUndeliverable
     }),
     shouldShowRefundStatusSection: computed(() => {
       const isRequested = store.routingSlip.status === SlipStatus.REFUNDREQUEST

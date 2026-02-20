@@ -2,7 +2,7 @@
 // This needs to be overriden because our base url doesn't work for /en-ca removal etc.
 import loginImage from '#auth/public/img/BCReg_Generic_Login_image.jpg'
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const { login } = useConnectAuth()
 const rtc = useRuntimeConfig().public
 const ac = useAppConfig().connect

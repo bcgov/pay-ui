@@ -153,7 +153,8 @@ export default {
     },
     authorizeWriteOff: {
       title: 'Authorize Write-off?',
-      description: 'By approving write-off, the routing slip balance will close, and no further transactions may be made using this routing slip.',
+      description: 'By approving write-off, the routing slip balance will close, '
+        + 'and no further transactions may be made using this routing slip.',
       confirmButton: 'Authorize Write off'
     }
   },

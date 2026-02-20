@@ -31,6 +31,7 @@ const {
   refundStatus,
   chequeAdvice,
   isRefundStatusUndeliverable,
+  isRefundStatusUncashed,
   canUpdateRefundStatus,
   shouldShowRefundStatusSection,
   shouldShowNameAndAddress,
@@ -165,8 +166,8 @@ const handleRefundStatusSelectWithComments = async (status: string) => {
                 <UBadge
                   v-if="refundStatus"
                   :label="refundStatus"
-                  :color="isRefundStatusUndeliverable ? 'error' : 'neutral'"
-                  :class="isRefundStatusUndeliverable
+                  :color="(isRefundStatusUndeliverable || isRefundStatusUncashed) ? 'error' : 'neutral'"
+                  :class="(isRefundStatusUndeliverable || isRefundStatusUncashed)
                     ? '!bg-red-600 !text-white'
                     : isRefundStatusProcessing
                       ? '!bg-gray-200 !text-gray-700'

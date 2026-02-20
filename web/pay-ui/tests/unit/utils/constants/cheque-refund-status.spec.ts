@@ -18,8 +18,9 @@ describe('ChequeRefundStatus', () => {
     const codes = ChequeRefundStatus.map(s => s.code)
     expect(codes).toContain('PROCESSING')
     expect(codes).toContain('PROCESSED')
+    expect(codes).toContain('CHEQUE_UNCASHED')
     expect(codes).toContain('CHEQUE_UNDELIVERABLE')
-    expect(codes.length).toBe(3)
+    expect(codes.length).toBe(4)
 
     const uniqueCodes = new Set(codes)
     expect(uniqueCodes.size).toBe(codes.length)
@@ -34,14 +35,19 @@ describe('ChequeRefundStatus', () => {
     expect(processedStatus?.text).toBe('Cheque Issued')
     expect(processedStatus?.display).toBe(true)
 
+    const uncashedStatus = ChequeRefundStatus.find(s => s.code === 'CHEQUE_UNCASHED')
+    expect(uncashedStatus).toBeDefined()
+    expect(uncashedStatus?.text).toBe('Cheque Uncashed')
+    expect(uncashedStatus?.display).toBe(true)
+
     const undeliverableStatus = ChequeRefundStatus.find(s => s.code === 'CHEQUE_UNDELIVERABLE')
     expect(undeliverableStatus).toBeDefined()
     expect(undeliverableStatus?.text).toBe('Cheque Undeliverable')
     expect(undeliverableStatus?.display).toBe(true)
 
     const displayableStatuses = ChequeRefundStatus.filter(s => s.display)
-    expect(displayableStatuses.length).toBe(2)
-    expect(displayableStatuses.map(s => s.code)).toEqual(['PROCESSED', 'CHEQUE_UNDELIVERABLE'])
+    expect(displayableStatuses.length).toBe(3)
+    expect(displayableStatuses.map(s => s.code)).toEqual(['PROCESSED', 'CHEQUE_UNCASHED', 'CHEQUE_UNDELIVERABLE'])
 
     const internalStatuses = ChequeRefundStatus.filter(s => !s.display)
     expect(internalStatuses.length).toBe(1)
