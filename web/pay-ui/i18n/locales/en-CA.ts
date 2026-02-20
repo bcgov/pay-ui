@@ -227,7 +227,10 @@ export default {
     },
     transactionView: {
       transactionRefundTitle: 'Transaction Refund',
-      transactionInformationTitle: 'Transaction Information'
+      transactionInformationTitle: 'Transaction Information',
+      breadcrumb: {
+        transactions: 'Transaction Records'
+      }
     },
     createRoutingSlip: {
       title: 'Add Routing Slip - BC Business Registry FAS',

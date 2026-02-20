@@ -369,6 +369,16 @@ onMounted(async () => {
   if (refundId.value) {
     await fetchRefundRequest(refundId.value)
   }
+
+  setBreadcrumbs([
+    {
+      label: t('page.transactionView.breadcrumb.transactions'),
+      to: '/transactions'
+    },
+    {
+      label: t(getTransactionPageTitle())
+    }
+  ])
 })
 </script>
 
