@@ -63,7 +63,7 @@ jobs:
       if: github.event_name == 'pull_request' || github.event_name == 'push'
       working-directory: web/pay-ui
       run: npx serve .output/public -l 3000 &
-    - name: Wait for pay-ui to be ready.
+    - name: Wait for pay-ui to be ready
       if: github.event_name == 'pull_request' || github.event_name == 'push'
       run: npx wait-on http://localhost:3000 --timeout 30000
     - name: Install test dependencies
