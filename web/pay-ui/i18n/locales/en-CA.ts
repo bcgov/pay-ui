@@ -203,6 +203,35 @@ export default {
         }
       }
     },
+    transactions: {
+      title: 'BC Business Registry Transactions',
+      search: {
+        label: {
+          accountName: 'Account Name',
+          applicationType: 'Application Type',
+          transactionType: 'Transaction Type',
+          transactionDetails: 'Transaction Details',
+          businessIdentifier: 'Number',
+          folioNumber: 'Folio #',
+          createdName: 'Initiated By',
+          createdOn: 'Date (Pacific Time)',
+          total: 'Total Amount',
+          transactionId: 'Transaction ID',
+          invoiceNumber: 'Invoice Reference Number',
+          paymentMethod: 'Payment Method',
+          paymentStatus: 'Payment Status',
+          downloads: 'Downloads',
+          actions: 'Actions'
+        }
+      }
+    },
+    transactionView: {
+      transactionRefundTitle: 'Transaction Refund',
+      transactionInformationTitle: 'Transaction Information',
+      breadcrumb: {
+        transactions: 'Transaction Records'
+      }
+    },
     createRoutingSlip: {
       title: 'Add Routing Slip - BC Business Registry FAS',
       h1: 'Add Routing Slip'

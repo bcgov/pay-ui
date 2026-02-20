@@ -42,7 +42,7 @@ function clearSelection() {
       :class="{ '!pr-14': model }"
       :ui="{
         placeholder: 'placeholder',
-        content: 'wide-dropdown',
+        content: 'wide-dropdown min-w-max',
         trailing: model ? '!pr-8' : ''
       }"
     />

@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import ShortNamePaymentHistory from '~/components/eft/ShortNamePaymentHistory.vue'
+import CommonUtils from '~/utils/common-util'
 import {
   ShortNameHistoryType,
   EFTRefundMethod,
@@ -52,7 +53,8 @@ vi.mock('~/utils/common-util', () => ({
     formatAmount: vi.fn((amount: number | undefined) =>
       amount !== undefined && amount !== null ? `$${amount.toFixed(2)}` : '$0.00'
     ),
-    formatAccountDisplayName: vi.fn(() => 'Test Account')
+    formatAccountDisplayName: vi.fn(() => 'Test Account'),
+    isEftRefundApprover: vi.fn(() => false)
   }
 }))
 
@@ -208,12 +210,15 @@ describe('ShortNamePaymentHistory', () => {
     })
 
     it.each([
-      [ShortNameHistoryType.SN_REFUND_APPROVED, { eftRefundId: 123 }, true],
-      [ShortNameHistoryType.FUNDS_RECEIVED, { eftRefundId: 123 }, false],
-      [ShortNameHistoryType.SN_REFUND_APPROVED, {}, false]
-    ])('canShowRefundDetail should handle %s', (transactionType, extraProps, expected) => {
-      expect(vm.canShowRefundDetail({ transactionType, ...extraProps })).toBe(expected)
-    })
+      [ShortNameHistoryType.SN_REFUND_APPROVED, { eftRefundId: 123 }, true, true],
+      [ShortNameHistoryType.SN_REFUND_APPROVED, { eftRefundId: 123 }, false, false],
+      [ShortNameHistoryType.FUNDS_RECEIVED, { eftRefundId: 123 }, true, false],
+      [ShortNameHistoryType.SN_REFUND_APPROVED, {}, true, false]
+    ])('canShowRefundDetail(%s) with isApprover=%s should return %s',
+      (transactionType, extraProps, isApprover, expected) => {
+        vi.mocked(CommonUtils.isEftRefundApprover).mockReturnValue(isApprover)
+        expect(vm.canShowRefundDetail({ transactionType, ...extraProps })).toBe(expected)
+      })
 
     it.each([
       [

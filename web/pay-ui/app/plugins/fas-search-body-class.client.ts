@@ -6,7 +6,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.hook('vue:setup', () => {
     const route = useRoute()
 
-    const wideTablePaths = ['/home', '/eft']
+    const wideTablePaths = ['/home', '/eft', '/transactions']
     const excludedPaths = ['/eft/shortname-details']
 
     watch(() => route.path, (newPath) => {

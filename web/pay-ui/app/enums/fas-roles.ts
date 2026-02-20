@@ -15,5 +15,14 @@ export enum Role {
   EftRefund = 'eft_refund',
   EftRefundApprover = 'eft_refund_approver',
   CreateCredits = 'create_credits',
-  ViewAllTransactions = 'view_all_transactions'
+  ViewAllTransactions = 'view_all_transactions',
+  ProductRefundViewer = 'product_refund_viewer',
+  ProductRefundRequester = 'product_refund_requester',
+  ProductRefundApprover = 'product_refund_approver'
+}
+
+export enum RolePattern {
+  ProductViewTransaction = '_view_transactions',
+  ProductRefundRequester = '_refund_requester',
+  ProductRefundApprover = '_refund_approver'
 }
