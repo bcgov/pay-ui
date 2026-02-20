@@ -34,13 +34,6 @@ function loadEnvironmentConfig() {
 
   console.log(`Global setup: Loading environment '${envName}'`)
 
-  // Local CI build: use BASE_URL_LOCAL directly
-  if (envName === 'local' && process.env.BASE_URL_LOCAL) {
-    process.env.BASE_URL = process.env.BASE_URL_LOCAL
-    console.log(`Global setup: Using BASE_URL_LOCAL: ${process.env.BASE_URL}`)
-    return { envName, envFilePath }
-  }
-
   // In CI, pick BASE_URL based on ENV_NAME
   if (process.env.BASE_URL_TEST || process.env.BASE_URL_DEV) {
     process.env.BASE_URL = envName === 'test'
