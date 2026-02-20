@@ -115,7 +115,7 @@ jobs:
         key: playwright-${{ needs.setup-playwright.outputs.pw-version }}
     - name: Install test dependencies
       working-directory: test-automation
-      run: npm ci && npx playwright install --with-deps
+      run: npm ci && npx playwright install
     - name: Start pay-ui
       if: needs.build-app.result == 'success'
       uses: actions/download-artifact@v4
