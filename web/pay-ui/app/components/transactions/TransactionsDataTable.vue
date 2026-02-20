@@ -541,8 +541,8 @@ watch(() => transactions.results, () => {
         <div class="flex flex-wrap justify-between">
           <div class="flex">
             <UIcon
-              name="i-mdi-view-list"
-              class="mr-2 size-6 text-primary"
+              name="i-mdi-format-list-bulleted"
+              class="text-primary text-3xl mr-3"
               style="margin-top: 5px;"
             />
             <h2 class="table-header-text font-bold">

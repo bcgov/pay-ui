@@ -90,7 +90,7 @@ onMounted(() => {
         />
       </div>
       <div v-else>
-        <RefundRequestsTable />
+        <RefundRequestsTable table-title="Pending Requests" />
       </div>
     </div>
   </div>

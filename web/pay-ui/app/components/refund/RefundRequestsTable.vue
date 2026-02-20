@@ -255,6 +255,18 @@ const columns = computed<TableColumn<RefundRequestResult>[]>(() => {
 <template>
   <div>
     <div class="bg-white rounded shadow-sm border border-[var(--color-divider)] overflow-hidden">
+      <div class="relative rounded-t-lg px-2 py-3.5 flex-shrink-0 search-header-bg">
+        <div class="flex">
+          <UIcon
+            name="i-mdi-format-list-bulleted"
+            class="text-primary text-3xl mr-3"
+            style="margin-top: 5px;"
+          />
+          <h2 class="table-header-text font-bold">
+            {{ tableTitle }} ({{ state.totalResults }})
+          </h2>
+        </div>
+      </div>
       <div
         ref="scrollEl"
         class="w-full overflow-x-auto overflow-y-auto"
