@@ -28,7 +28,7 @@
     "@bcrs-shared-components/mixins": "^1.1.21",
     "@bcrs-shared-components/staff-comments": "^1.3.34",
     "@vue/composition-api": "^1.7.1",
-    "axios": "^0.21.1",
+    "axios": "^1.0.0",
     "install": "^0.13.0",
     "keycloak-js": "^9.0.3",
     "moment": "^2.29.1",
