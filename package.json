@@ -83,6 +83,6 @@
   },
   "peerDependencies": {
     "@vue/composition-api": "^1.7.1",
-    "vue": "^2.6.11"
+    "vue": "^3.0.0"
   }
 }
