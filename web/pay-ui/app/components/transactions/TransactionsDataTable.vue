@@ -369,7 +369,7 @@ function getDropdownItems(item: Transaction): DropdownItem[] {
 }
 
 function displayDate(val: string | Date): string {
-  return CommonUtils.formatDisplayDate(val, 'MMMM dd, yyyy')
+  return CommonUtils.formatDisplayDate(val, 'MMM dd, yyyy h:mm a')
 }
 
 function isCompletedOrPaid(statusCode: InvoiceStatus): boolean {
