@@ -1,7 +1,7 @@
 # ============================================================================
 # Playwright Test Automation Workflow
 # ============================================================================
-# 
+#
 # Name: Pay UI Test Automation
 # Description: Automated end-to-end regression testing using Playwright
 # Created: February 17, 2026
@@ -34,9 +34,6 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: test-automation
     env:
       TEST_USERNAME_BCSC: ${{ secrets.TEST_USERNAME_BCSC }}
       TEST_PASSWORD_BCSC: ${{ secrets.TEST_PASSWORD_BCSC }}
@@ -49,14 +46,38 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: lts/*
-    - name: Install dependencies
+    - name: Install pnpm
+      if: github.event_name == 'pull_request'
+      uses: pnpm/action-setup@v4
+    - name: Install pay-ui dependencies
+      if: github.event_name == 'pull_request'
+      working-directory: web/pay-ui
+      run: pnpm install --frozen-lockfile
+    - name: Build pay-ui
+      if: github.event_name == 'pull_request'
+      working-directory: web/pay-ui
+      run: pnpm generate
+    - name: Serve pay-ui
+      if: github.event_name == 'pull_request'
+      working-directory: web/pay-ui
+      run: npx serve .output/public -l 3000 &
+    - name: Wait for pay-ui to be ready
+      if: github.event_name == 'pull_request'
+      run: npx wait-on http://localhost:3000 --timeout 30000
+    - name: Install test dependencies
+      working-directory: test-automation
       run: npm ci
     - name: Install Playwright Browsers
+      working-directory: test-automation
       run: npx playwright install --with-deps
     - name: Run Playwright regression tests
+      working-directory: test-automation
       run: npm run e2e:regression:test
+      env:
+        BASE_URL: ${{ github.event_name == 'pull_request' && 'http://localhost:3000' || '' }}
     - name: Generate Allure Report
       if: ${{ !cancelled() }}
+      working-directory: test-automation
       run: npm run allure:generate
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
@@ -81,4 +102,4 @@ jobs:
       uses: daun/playwright-report-summary@v3
       with:
        report-file: test-automation/playwright-report/results.json
-       github-token: ${{ secrets.GITHUB_TOKEN }}. 
+       github-token: ${{ secrets.GITHUB_TOKEN }}
