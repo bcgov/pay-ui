@@ -2,6 +2,7 @@ import type { Code } from '~/interfaces/code'
 import type { SelectItem } from '@nuxt/ui'
 import { ChequeRefundStatus } from '~/utils/constants'
 import ShortNameUtils from '~/utils/short-name-util'
+import { PaymentMethodSelectItems } from '~/enums'
 
 interface StatusListProps {
   value?: string
@@ -105,6 +106,25 @@ export function useShortNameTypeList() {
 
   const mapFn = (item: ShortNameTypeItem): SelectItem => ({
     label: item.label,
+    value: item.value
+  })
+
+  return {
+    list,
+    mapFn
+  }
+}
+
+interface PaymentMethodSelectItem {
+  text: string
+  value: string
+}
+
+// Helper to get payment methods list
+export function usePaymentMethodsList() {
+  const list = computed(() => PaymentMethodSelectItems)
+  const mapFn = (item: PaymentMethodSelectItem): SelectItem => ({
+    label: item.text,
     value: item.value
   })
 

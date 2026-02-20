@@ -178,6 +178,16 @@ function getUserInfo() {
   return auth.authUser.value
 }
 
+function canInitiateProductRefund (productRole: string) {
+  const validRoles = [Role.ProductRefundRequester, productRole]
+  return verifyRoles(validRoles)
+}
+
+function canApproveDeclineProductRefund (productRole: string) {
+  const validRoles = [Role.ProductRefundApprover, productRole]
+  return verifyRoles(validRoles)
+}
+
 /**
  * check its in refunc process
  * @param  {string} status
@@ -330,5 +340,7 @@ export default {
   isEditEnabledBystatus,
   requiredFieldRule,
   getIndexedTag,
-  isReversable
+  isReversable,
+  canInitiateProductRefund,
+  canApproveDeclineProductRefund
 }

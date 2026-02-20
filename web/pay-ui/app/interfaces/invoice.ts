@@ -36,6 +36,11 @@ export interface Invoice {
   statusCode?: string
   total?: number
   details?: Detail[]
+  latestRefundId?: number
+  latestRefundStatus?: string
+  partialRefundable?: boolean
+  fullRefundable?: boolean
+  product?: string
 }
 
 // For displaying transaction data table

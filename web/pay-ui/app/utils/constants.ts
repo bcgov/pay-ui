@@ -441,3 +441,21 @@ export const UI_CONSTANTS = {
   DEFAULT_PAGE_LIMIT: 50,
   INFINITE_SCROLL_DISTANCE: 200
 } as const
+
+export enum RefundApprovalStatus {
+  APPROVED = 'APPROVED',
+  PENDING_APPROVAL = 'PENDING_APPROVAL',
+  DECLINED = 'DECLINED',
+  APPROVAL_NOT_REQUIRED = 'APPROVAL_NOT_REQUIRED'
+}
+
+export enum PaymentTypeToRefundMethodMap {
+  DRAWDOWN = 'Refund back to BCOL Account',
+  DIRECT_PAY = 'Refund back to Credit Card',
+  EFT = 'Refund back to Short Name',
+  INTERNAL = 'Refund back to Routing Slip',
+  ONLINE_BANKING = 'Refund as Account Credits',
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
+  PAD = 'Refund as Account Credits',
+  EJV = 'EJV Refund'
+}
