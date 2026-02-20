@@ -106,7 +106,7 @@ function onRefundEntireItemRequestedChange(value: boolean, index: number) {
       lineItem.filingFeesRequested = CommonUtils.formatToTwoDecimals(Number(lineItem.filingFees))
       lineItem.serviceFeesRequested = null
       lineItem.priorityFeesRequested = CommonUtils.formatToTwoDecimals(Number(lineItem.priorityFees))
-      lineItem.futureEffectiveFeesRequested = CommonUtils.formatToTwoDecimals(Number(lineItem.futureEffectiveFees))  
+      lineItem.futureEffectiveFeesRequested = CommonUtils.formatToTwoDecimals(Number(lineItem.futureEffectiveFees))
     }
   }
   calculateTotalRequestedAmount()
@@ -201,7 +201,9 @@ watch(() => props.refundMethod, (newData) => {
           color="error"
           variant="outline"
           icon="i-mdi-alert-circle"
-          :description="`This invoice has already been refunded for an amount of ${CommonUtils.formatAmount(previousRefundedAmount)} previously.`"
+          :description="`This invoice has already been refunded for an amount of ${
+            CommonUtils.formatAmount(previousRefundedAmount)
+          } previously.`"
         />
 
         <form @submit.prevent="onReviewBtnClick">
@@ -213,8 +215,12 @@ watch(() => props.refundMethod, (newData) => {
                 <URadioGroup
                   v-model="refundFormData.refundType"
                   :items="[
-                    { label: 'Full Refund', value: RefundType.FULL_REFUND, disabled: formDisabled || !isFullRefundAllowed },
-                    { label: 'Partial Refund', value: RefundType.PARTIAL_REFUND, disabled: formDisabled || !isPartialRefundAllowed }
+                    { label: 'Full Refund',
+                      value: RefundType.FULL_REFUND,
+                      disabled: formDisabled || !isFullRefundAllowed },
+                    { label: 'Partial Refund',
+                      value: RefundType.PARTIAL_REFUND,
+                      disabled: formDisabled || !isPartialRefundAllowed }
                   ]"
                   @update:model-value="onRefundTypeChange"
                 />
@@ -320,10 +326,14 @@ watch(() => props.refundMethod, (newData) => {
                       Future Effective Fees / {{ CommonUtils.formatAmount(Number(lineItem.futureEffectiveFees)) }}
                     </p>
                     <p
-                      v-if="getAmountValidationError(lineItem.futureEffectiveFeesRequested, lineItem.futureEffectiveFees)"
+                      v-if="getAmountValidationError(
+                        lineItem.futureEffectiveFeesRequested,
+                        lineItem.futureEffectiveFees
+                      )"
                       class="text-xs text-red-500 mt-1"
                     >
-                      {{ getAmountValidationError(lineItem.futureEffectiveFeesRequested, lineItem.futureEffectiveFees) }}
+                      {{ getAmountValidationError(lineItem.futureEffectiveFeesRequested,
+                                                  lineItem.futureEffectiveFees) }}
                     </p>
                   </div>
                 </div>

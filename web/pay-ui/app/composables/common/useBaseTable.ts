@@ -98,7 +98,7 @@ export function useBaseTable<
   R,
   S extends BaseTableState<T, Record<string, string>> = BaseTableState<T>
 >(options: UseBaseTableOptions<T, R, S>) {
-  const { state, buildPayload, fetchData, extractItems, extractTotal, extractStateTotal, onLoadStart, 
+  const { state, buildPayload, fetchData, extractItems, extractTotal, extractStateTotal, onLoadStart,
     onLoadEnd } = options
 
   const { loadState, getNext, reset: resetReachedEnd, currentPage } = useInfiniteScroll<T>({

@@ -28,8 +28,8 @@ const isDeclineReasonValid = computed(() => {
 
 function canApproveOrDeclineRefund(): boolean {
   if (props.invoiceProduct) {
-    return CommonUtils.canApproveDeclineProductRefund(props.invoiceProduct.toLowerCase() +
-      RolePattern.ProductRefundApprover)
+    return CommonUtils.canApproveDeclineProductRefund(props.invoiceProduct.toLowerCase()
+      + RolePattern.ProductRefundApprover)
   }
   return false
 }

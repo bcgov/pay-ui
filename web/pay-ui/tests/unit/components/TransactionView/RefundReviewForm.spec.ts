@@ -1,6 +1,5 @@
 import { mount } from '@vue/test-utils'
 import RefundReviewForm from '~/pages/transaction-view/[id]/RefundReviewForm.vue'
-import CommonUtils from '~/utils/common-util'
 import type { RefundFormData } from '~/interfaces/transaction-view'
 
 vi.mock('~/utils/common-util', () => ({

@@ -257,7 +257,7 @@ function getRefundPayload() {
   const refundRevenues: RefundRevenueType[] = []
   if (state.refundFormData.refundType === RefundType.PARTIAL_REFUND) {
     const refundLineItems = state.refundFormData.refundLineItems
-    refundLineItems?.forEach(refundLineItem => {
+    refundLineItems?.forEach((refundLineItem) => {
       const feeTypes = [
         { key: 'filingFeesRequested', type: RefundLineTypes.BASE_FEES },
         { key: 'priorityFeesRequested', type: RefundLineTypes.PRIORITY_FEES },

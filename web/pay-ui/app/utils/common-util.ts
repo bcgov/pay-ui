@@ -178,12 +178,12 @@ function getUserInfo() {
   return auth.authUser.value
 }
 
-function canInitiateProductRefund (productRole: string) {
+function canInitiateProductRefund(productRole: string) {
   const validRoles = [Role.ProductRefundRequester, productRole]
   return verifyRoles(validRoles)
 }
 
-function canApproveDeclineProductRefund (productRole: string) {
+function canApproveDeclineProductRefund(productRole: string) {
   const validRoles = [Role.ProductRefundApprover, productRole]
   return verifyRoles(validRoles)
 }

@@ -1,5 +1,4 @@
 import CommonUtils from '@/utils/common-util'
-import { EFTRefundStatus } from '~/utils'
 
 export function useTransactionView() {
   const nuxtApp = useNuxtApp()

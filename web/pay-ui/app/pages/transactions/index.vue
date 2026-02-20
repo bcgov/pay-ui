@@ -1,6 +1,7 @@
 <script setup lang="ts">
-const { t } = useI18n()
 import { useTransactionsStore } from '@/stores/transactions-store'
+
+const { t } = useI18n()
 
 const config = useRuntimeConfig()
 const authWebUrl = (config.public as { authWebUrl?: string }).authWebUrl || ''

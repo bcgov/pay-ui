@@ -676,8 +676,7 @@ watch(() => transactions.results, () => {
                 v-if="columnVisibility.total"
                 class="text-left table-filter-input"
                 scope="col"
-              >
-              </th>
+              />
               <th
                 v-if="columnVisibility.id"
                 class="text-left table-filter-input"
@@ -751,8 +750,7 @@ watch(() => transactions.results, () => {
           </template>
 
           <template #accountName-cell="{ row }">
-            <template v-if="isDropdownRow(row)">
-            </template>
+            <template v-if="isDropdownRow(row)" />
             <span v-else>
               {{ asTransaction(row).paymentAccount?.accountName || '-' }}
             </span>

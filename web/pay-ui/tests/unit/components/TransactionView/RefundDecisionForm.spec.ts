@@ -74,7 +74,8 @@ describe('RefundDecisionForm', () => {
             props: ['color', 'variant', 'size']
           },
           UModal: {
-            template: '<div v-if="open" class="modal"><slot name="header" /><slot name="body" /><slot name="footer" /></div>',
+            template: '<div v-if="open" class="modal">'
+              + '<slot name="header" /><slot name="body" /><slot name="footer" /></div>',
             props: ['open']
           },
           UInput: true
