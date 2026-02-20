@@ -34,6 +34,7 @@ describe('InvoiceRefundHistory', () => {
       props: { refundHistoryData },
       global: {
         stubs: {
+          NuxtLink: { template: '<a><slot /></a>' },
           UIcon: true,
           UButton: {
             template: '<button @click="$emit(\'click\')">{{ label }}</button>',

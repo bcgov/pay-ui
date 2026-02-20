@@ -30,6 +30,7 @@ describe('RefundRequestForm', () => {
       props: { ...defaultProps, ...propsOverride },
       global: {
         stubs: {
+          NuxtLink: { template: '<a><slot /></a>' },
           UIcon: true,
           UAlert: {
             template: '<div class="alert"><slot />{{ description }}</div>',

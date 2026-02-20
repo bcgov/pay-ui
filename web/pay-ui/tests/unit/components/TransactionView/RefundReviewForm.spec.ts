@@ -36,6 +36,7 @@ describe('RefundReviewForm', () => {
       },
       global: {
         stubs: {
+          NuxtLink: { template: '<a><slot /></a>' },
           UIcon: true
         }
       }

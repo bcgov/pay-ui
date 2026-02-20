@@ -94,6 +94,7 @@ describe('RefundRequestsTable', () => {
       props: { ...props },
       global: {
         stubs: {
+          NuxtLink: { template: '<a><slot /></a>' },
           UTable: {
             template: `
               <div class="table">
