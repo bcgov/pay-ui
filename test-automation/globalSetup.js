@@ -111,7 +111,7 @@ async function performLoginAndSaveSession(page, context, baseURL, loginType, use
   try {
     await page.waitForURL('**/unauthorized', { timeout: 5000 })
   } catch (e) {
-    console.warning('waiting for unauthorized page failed - not all auth flows land on /unauthorized', e)
+    console.warn('waiting for unauthorized page failed - not all auth flows land on /unauthorized', e)
   }
 
   console.log('Global setup: Login completed, URL:', page.url())
