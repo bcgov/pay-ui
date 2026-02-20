@@ -31,7 +31,59 @@ on:
 permissions:
   contents: read
 jobs:
+  build-app:
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+    - uses: pnpm/action-setup@v4
+      with:
+        version: 10
+    - name: Install pay-ui dependencies
+      working-directory: web/pay-ui
+      run: pnpm install --frozen-lockfile
+    - name: Build pay-ui
+      working-directory: web/pay-ui
+      run: pnpm generate
+    - uses: actions/upload-artifact@v4
+      with:
+        name: pay-ui-build
+        path: web/pay-ui/.output/public/
+        retention-days: 1
+
+  setup-playwright:
+    runs-on: ubuntu-latest
+    outputs:
+      pw-version: ${{ steps.pw-version.outputs.version }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+    - name: Install test dependencies
+      working-directory: test-automation
+      run: npm ci
+    - name: Get Playwright version
+      id: pw-version
+      working-directory: test-automation
+      run: echo "version=$(npx playwright --version | sed 's/Version //')" >> "$GITHUB_OUTPUT"
+    - name: Cache Playwright Browsers
+      id: pw-cache
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ steps.pw-version.outputs.version }}
+    - name: Install Playwright Browsers
+      if: steps.pw-cache.outputs.cache-hit != 'true'
+      working-directory: test-automation
+      run: npx playwright install --with-deps
+
   test:
+    needs: [build-app, setup-playwright]
+    if: always() && needs.setup-playwright.result == 'success' && (needs.build-app.result == 'success' || needs.build-app.result == 'skipped')
     timeout-minutes: 60
     runs-on: ubuntu-latest
     env:
@@ -46,52 +98,34 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: lts/*
-    - name: Install pnpm
-      if: github.event_name == 'pull_request' || github.event_name == 'push'
-      uses: pnpm/action-setup@v4
-      with:
-        version: 10
-    - name: Install pay-ui dependencies
-      if: github.event_name == 'pull_request' || github.event_name == 'push'
-      working-directory: web/pay-ui
-      run: pnpm install --frozen-lockfile
-    - name: Build pay-ui
-      if: github.event_name == 'pull_request' || github.event_name == 'push'
-      working-directory: web/pay-ui
-      run: pnpm generate
-    - name: Serve pay-ui
-      if: github.event_name == 'pull_request' || github.event_name == 'push'
-      working-directory: web/pay-ui
-      run: npx serve .output/public -l 3000 &
-    - name: Wait for pay-ui to be ready
-      if: github.event_name == 'pull_request' || github.event_name == 'push'
-      run: npx wait-on http://localhost:3000 --timeout 30000
     - name: Install test dependencies
       working-directory: test-automation
       run: npm ci
-    - name: Get Playwright version
-      id: pw-version
-      working-directory: test-automation
-      run: echo "version=$(npx playwright --version)" >> "$GITHUB_OUTPUT"
-    - name: Cache Playwright Browsers
-      id: pw-cache
-      uses: actions/cache@v4
+    - name: Restore Playwright Browsers
+      uses: actions/cache/restore@v4
       with:
         path: ~/.cache/ms-playwright
-        key: playwright-${{ steps.pw-version.outputs.version }}
-    - name: Install Playwright Browsers
-      if: steps.pw-cache.outputs.cache-hit != 'true'
-      working-directory: test-automation
-      run: npx playwright install --with-deps
+        key: playwright-${{ needs.setup-playwright.outputs.pw-version }}
     - name: Install Playwright OS deps
-      if: steps.pw-cache.outputs.cache-hit == 'true'
       working-directory: test-automation
       run: npx playwright install-deps
+    - name: Download pay-ui build
+      if: needs.build-app.result == 'success'
+      uses: actions/download-artifact@v4
+      with:
+        name: pay-ui-build
+        path: pay-ui-build
+    - name: Serve pay-ui
+      if: needs.build-app.result == 'success'
+      run: npx serve pay-ui-build -l 3000 &
+    - name: Wait for pay-ui to be ready
+      if: needs.build-app.result == 'success'
+      run: npx wait-on http://localhost:3000 --timeout 30000
     - name: Run Playwright regression tests
       working-directory: test-automation
       run: npm run e2e:regression:test
       env:
-        BASE_URL: ${{ (github.event_name == 'pull_request' || github.event_name == 'push') && 'http://localhost:3000' || '' }}
+        BASE_URL: ${{ needs.build-app.result == 'success' && 'http://localhost:3000' || '' }}
     - name: Generate Allure Report
       if: ${{ !cancelled() }}
       working-directory: test-automation
