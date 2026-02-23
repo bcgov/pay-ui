@@ -101,7 +101,7 @@ function isShortNameLinkedOrPending(account: EftAccount): boolean {
   return account.statusCode === ShortNameStatus.LINKED || account.statusCode === ShortNameStatus.PENDING
 }
 
-defineExpose({ clearSelection: clearSelectionSilent })
+defineExpose({ clearSelection: clearSelectionSilent, isShortNameLinkedOrPending })
 </script>
 
 <template>
