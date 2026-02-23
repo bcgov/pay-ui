@@ -429,7 +429,7 @@ function saveTableSettings() {
 
 function viewDetails(item: Transaction) {
   saveTableSettings()
-  navigateTo(`/transaction-view/${item.id}`)
+  navigateTo(`/transaction-view/${item.id}/view`)
 }
 
 function initiateRefund(item: Transaction) {

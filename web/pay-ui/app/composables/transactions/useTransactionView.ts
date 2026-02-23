@@ -29,7 +29,7 @@ export function useTransactionView() {
   }
 
   async function patchRefundRequest(invoiceId: number, refundId: number, body: never): Promise<void> {
-    await $payApi(`/payment-requests/shortname-refund/${refundId}`, {
+    await $payApi(`/payment-requests/${invoiceId}/refunds/${refundId}`, {
       method: 'PATCH',
       body: body
     })
