@@ -83,7 +83,7 @@ export const cancelledInvoice: Invoice[] = [
       }
     ],
     total: 1000,
-    statusCode: InvoiceStatus.REFUNDREQUEST
+    statusCode: InvoiceStatus.REFUND_REQUESTED
   },
   {
     businessIdentifier: 'CP000140135',

@@ -136,7 +136,7 @@ export default function useTransactionDataTable (props) {
   })
 
   function isAlreadyCancelled (currentStatus) {
-    return [InvoiceStatus.REFUNDREQUEST, InvoiceStatus.REFUNDED].includes(currentStatus)
+    return [InvoiceStatus.REFUND_REQUESTED, InvoiceStatus.REFUNDED].includes(currentStatus)
   }
 
   return {
