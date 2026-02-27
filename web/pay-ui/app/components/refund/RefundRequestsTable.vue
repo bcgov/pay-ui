@@ -389,7 +389,7 @@ const columns = computed<TableColumn<RefundRequestResult>[]>(() => {
 
           <template #refundAmount-cell="{ row }">
             <div class="flex items-center justify-start gap-2">
-              <span>{{ formatAmount(row.original.transactionAmount) }}</span>
+              <span>{{ formatAmount(row.original.refundAmount) }}</span>
             </div>
           </template>
 
