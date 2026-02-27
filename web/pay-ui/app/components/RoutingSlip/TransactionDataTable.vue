@@ -2,6 +2,12 @@
 import type { Invoice } from '@/interfaces/invoice'
 import useTransactionDataTable from '@/composables/viewRoutingSlip/useTransactionDataTable'
 import commonUtil from '@/utils/common-util'
+import { RefundApprovalStatus, RefundApprovalStatusDisplay } from '~/utils'
+import { RolePattern } from '~/enums'
+import CommonUtils from '~/utils/common-util'
+
+const route = useRoute()
+const { getFeatureFlag } = useConnectLaunchDarkly()
 
 interface Props {
   invoices?: Invoice[]
@@ -20,8 +26,56 @@ const {
   isAlreadyCancelled
 } = useTransactionDataTable(toRef(props, 'invoices'))
 
+const enableRefundRequestFlow = await getFeatureFlag(LDFlags.EnableFasRefundRequestFlow, false, 'await')
+
 const formatDisplayDate = commonUtil.formatDisplayDate
 const appendCurrencySymbol = commonUtil.appendCurrencySymbol
+
+async function cancelTransaction(id: number) {
+  if (enableRefundRequestFlow) {
+    navigateTo({
+      path: `/transaction-view/${id}/initiateRefund`,
+      query: {
+        returnTo: route.path,
+        returnType: 'viewRoutingSlip',
+        returnToId: route.params.slipId
+      }
+    })
+  } else {
+    cancel(id)
+  }
+}
+
+async function viewRefundDetail(invoiceId: number, refundId: number) {
+  navigateTo({
+    path: `/transaction-view/${invoiceId}/refund-request/${refundId}`,
+    query: {
+      returnTo: route.path,
+      returnType: 'viewRoutingSlip',
+      returnToId: route.params.slipId
+    }
+  })
+}
+
+function showInitiateRefundButton(invoiceRow: Invoice) {
+  if (
+    !invoiceRow.latestRefundStatus
+    || RefundApprovalStatus.DECLINED === invoiceRow.latestRefundStatus
+  ) {
+    const productRole = (invoiceRow.product?.toLowerCase() ?? '')
+      + RolePattern.ProductRefundRequester
+    return (!!invoiceRow.partialRefundable || !!invoiceRow.fullRefundable)
+      && invoiceRow.total > 0
+      && CommonUtils.canInitiateProductRefund(productRole)
+  }
+  return false
+}
+
+function showRefundRequestBadge(invoiceRow: Invoice) {
+  return !!(invoiceRow.latestRefundStatus
+    && [RefundApprovalStatus.DECLINED, RefundApprovalStatus.PENDING_APPROVAL]
+      .includes(invoiceRow.latestRefundStatus as RefundApprovalStatus))
+}
 </script>
 
 <template>
@@ -58,6 +112,19 @@ const appendCurrencySymbol = commonUtil.appendCurrencySymbol
       <template #total-cell="{ row }">
         <div class="font-bold table-cell-text text-right">
           {{ appendCurrencySymbol(row.original.total?.toFixed(2) || '0.00') }}
+          <br>
+          <span v-if="row.original.refund > 0" class="font-normal">
+            Refunded ({{ appendCurrencySymbol(row.original.refund?.toFixed(2) || '0.00') }})
+          </span>
+          <UBadge
+            v-else-if="showRefundRequestBadge(row.original)"
+            color="neutral"
+            class="!bg-gray-200 !text-gray-700 font-bold"
+            variant="solid"
+            size="md"
+          >
+            {{ RefundApprovalStatusDisplay[row.original.latestRefundStatus as RefundApprovalStatus]?.toUpperCase() }}
+          </UBadge>
         </div>
       </template>
       <template #description-cell="{ row }">
@@ -73,7 +140,7 @@ const appendCurrencySymbol = commonUtil.appendCurrencySymbol
         </div>
       </template>
       <template #actions-cell="{ row }">
-        <template v-if="isAlreadyCancelled(row.original.statusCode)">
+        <template v-if="isAlreadyCancelled(row.original.statusCode) && !enableRefundRequestFlow">
           <span
             :data-test="commonUtil.getIndexedTag('text-cancel', row.index)"
             class="text-error font-bold"
@@ -81,16 +148,36 @@ const appendCurrencySymbol = commonUtil.appendCurrencySymbol
             Cancelled
           </span>
         </template>
+        <template v-else-if="enableRefundRequestFlow">
+          <UButton
+            :data-test="commonUtil.getIndexedTag('btn-invoice-cancel', row.index)"
+            label="View Refund Detail"
+            variant="outline"
+            color="primary"
+            class="btn-table"
+            @click="viewRefundDetail(row.original.id, row.original.latestRefundId)"
+          />
+        </template>
         <template v-else>
           <div v-can:fas_refund.hide>
             <UButton
+              v-if="enableRefundRequestFlow && showInitiateRefundButton(row.original)"
+              :data-test="commonUtil.getIndexedTag('btn-invoice-cancel', row.index)"
+              label="Request Refund"
+              variant="outline"
+              color="primary"
+              class="btn-table"
+              @click="cancelTransaction(row.original.id!)"
+            />
+            <UButton
+              v-else-if="!enableRefundRequestFlow"
               :data-test="commonUtil.getIndexedTag('btn-invoice-cancel', row.index)"
               label="Cancel"
               variant="outline"
               color="primary"
               class="btn-table"
               :disabled="disableCancelButton"
-              @click="cancel(row.original.id!)"
+              @click="cancelTransaction(row.original.id!)"
             />
           </div>
         </template>

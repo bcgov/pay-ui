@@ -23,6 +23,10 @@ const details = computed(() => {
 const mode = computed(() => details.value[0] || null)
 const refundId = computed(() => details.value[1] ? Number(details.value[1]) : null)
 
+const returnTo = route.query.returnTo as string | undefined
+const returnType = route.query.returnType as string | undefined
+const returnToId = route.query.returnToId as string | undefined
+
 definePageMeta({
   layout: 'connect-auth',
   middleware: ['pay-auth'],
@@ -239,7 +243,11 @@ async function onProceedToConfirm() {
       color: 'success'
     })
     if (state.refundFormStage === RefundRequestStage.DATA_VALIDATED) {
-      goToTransactionList()
+      if (returnTo) {
+        router.push(returnTo)
+      } else {
+        goToTransactionList()
+      }
     }
   } catch (error) {
     console.error(`Refund request failed: ${error}`)
@@ -360,7 +368,12 @@ function goToTransactionList() {
 }
 
 function onCancel() {
-  goToTransactionList()
+  const returnTo = route.query.returnTo as string | undefined
+  if (returnTo) {
+    router.push(returnTo)
+  } else {
+    goToTransactionList()
+  }
 }
 
 onMounted(async () => {
@@ -371,13 +384,14 @@ onMounted(async () => {
   }
 
   setBreadcrumbs([
-    {
-      label: t('page.transactionView.breadcrumb.transactions'),
-      to: '/transactions'
-    },
-    {
-      label: t(getTransactionPageTitle())
-    }
+    ...(returnType === 'viewRoutingSlip' && returnToId
+      ? [
+        { label: t('label.fasDashboard'), to: '/home' },
+        { label: t('page.viewRoutingSlip.h1', { id: returnToId }), to: returnTo }
+      ]
+      : [{ label: t('page.transactionView.breadcrumb.transactions'), to: '/transactions' }]
+    ),
+    { label: t(getTransactionPageTitle()) }
   ])
 })
 </script>

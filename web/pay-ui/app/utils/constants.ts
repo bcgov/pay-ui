@@ -1,6 +1,7 @@
 export enum LDFlags {
   EnableDetailsFilter = 'enable-transactions-detail-filter',
-  EnableEFTRefundByCheque = 'enable-eft-refund-by-cheque'
+  EnableEFTRefundByCheque = 'enable-eft-refund-by-cheque',
+  EnableFasRefundRequestFlow = 'enable-fas-refund-request-flow'
 }
 
 export enum RouteNames {
@@ -454,6 +455,13 @@ export enum RefundApprovalStatus {
   PENDING_APPROVAL = 'PENDING_APPROVAL',
   DECLINED = 'DECLINED',
   APPROVAL_NOT_REQUIRED = 'APPROVAL_NOT_REQUIRED'
+}
+
+export const RefundApprovalStatusDisplay = {
+  [RefundApprovalStatus.APPROVED]: 'Refund Approved',
+  [RefundApprovalStatus.PENDING_APPROVAL]: 'Refund Requested',
+  [RefundApprovalStatus.DECLINED]: 'Refund Declined',
+  [RefundApprovalStatus.APPROVAL_NOT_REQUIRED]: 'Approval Not Required'
 }
 
 export enum PaymentTypeToRefundMethodMap {
