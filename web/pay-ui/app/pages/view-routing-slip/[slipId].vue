@@ -10,6 +10,7 @@ import { useLoader } from '~/composables/common/useLoader'
 
 const route = useRoute()
 const { t } = useI18n()
+const { getFeatureFlag } = useConnectLaunchDarkly()
 
 definePageMeta({
   layout: 'connect-auth',
@@ -35,7 +36,7 @@ setBreadcrumbs([
 ])
 useViewRoutingSlip({ slipId })
 
-const { getRoutingSlip, getLinkedRoutingSlips } = useRoutingSlip()
+const { getRoutingSlip, getRoutingSlipV2, getLinkedRoutingSlips } = useRoutingSlip()
 const { store } = useRoutingSlipStore()
 const { isLoading, toggleLoading } = useLoader()
 
@@ -49,7 +50,12 @@ function handlePaymentAdjusted() {
 onMounted(async () => {
   toggleLoading(true)
   try {
-    await getRoutingSlip({ routingSlipNumber: slipId })
+    const enableRefundRequestFlow = await getFeatureFlag(LDFlags.EnableFasRefundRequestFlow, false, 'await')
+    if (enableRefundRequestFlow) {
+      await getRoutingSlipV2({ routingSlipNumber: slipId })
+    } else {
+      await getRoutingSlip({ routingSlipNumber: slipId })
+    }
     await getLinkedRoutingSlips(slipId)
   } finally {
     toggleLoading(false)

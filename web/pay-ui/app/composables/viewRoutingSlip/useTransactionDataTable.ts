@@ -31,7 +31,7 @@ export default function useTransactionDataTable(invoices: Ref<Invoice[]>) {
       }
 
       const invoiceNumber = invoice.references?.find(ref => ref.invoiceNumber)?.invoiceNumber
-        || invoice.references?.[0]?.invoiceNumber
+        || invoice.references?.[0]?.invoiceNumber || invoice.invoiceNumber
 
       return {
         id: invoice.id,
@@ -41,7 +41,13 @@ export default function useTransactionDataTable(invoices: Ref<Invoice[]>) {
         total: invoice.total,
         createdName: invoice.createdName,
         createdBy: invoice.createdBy,
-        description: descriptions.length > 0 ? descriptions : ['N/A']
+        description: descriptions.length > 0 ? descriptions : ['N/A'],
+        refund: invoice.refund,
+        latestRefundId: invoice.latestRefundId,
+        latestRefundStatus: invoice.latestRefundStatus,
+        partialRefundable: invoice.partialRefundable,
+        fullRefundable: invoice.fullRefundable,
+        product: invoice.product
       }
     })
   }

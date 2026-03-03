@@ -1,43 +1,40 @@
-import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { ref, computed } from 'vue'
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
+import { computed } from 'vue'
 import TransactionDataTable from '~/components/RoutingSlip/TransactionDataTable.vue'
-import type { Invoice } from '~/interfaces/invoice'
-import { InvoiceStatus } from '~/utils/constants'
+import type { Invoice, InvoiceDisplay } from '~/interfaces/invoice'
+import { InvoiceStatus, RefundApprovalStatus } from '~/utils/constants'
 
-const mockCancel = vi.fn()
+const {
+  mockCancel,
+  mockNavigateTo,
+  mockGetFeatureFlag,
+  mockDisplayData
+} = vi.hoisted(() => ({
+  mockCancel: vi.fn(),
+  mockNavigateTo: vi.fn(),
+  mockGetFeatureFlag: vi.fn(),
+  mockDisplayData: { list: [] as InvoiceDisplay[] }
+}))
 
 vi.mock('~/utils/common-util', async () => {
-  const actual = await vi.importActual('~/utils/common-util')
+  const actual = await vi.importActual<{ default: Record<string, unknown> }>('~/utils/common-util')
   return {
     default: {
       ...actual.default,
-      verifyRoles: () => true
+      verifyRoles: () => true,
+      canInitiateProductRefund: () => true
     }
   }
 })
 
+mockNuxtImport('navigateTo', () => mockNavigateTo)
+mockNuxtImport('useConnectLaunchDarkly', () => () => ({
+  getFeatureFlag: mockGetFeatureFlag
+}))
+
 vi.mock('~/composables/viewRoutingSlip/useTransactionDataTable', () => ({
   default: () => ({
-    invoiceDisplay: computed(() => [
-      {
-        id: 1,
-        createdOn: '2025-11-17T10:00:00Z',
-        invoiceNumber: 'REGUT00053322',
-        statusCode: InvoiceStatus.COMPLETED,
-        total: 30.00,
-        createdName: 'Travis Semple',
-        description: ['Name Request Renewal fee']
-      },
-      {
-        id: 2,
-        createdOn: '2025-11-18T10:00:00Z',
-        invoiceNumber: 'REGUT00053323',
-        statusCode: InvoiceStatus.CANCELLED,
-        total: 50.00,
-        createdName: 'John Doe',
-        description: ['Fee Type: Annual Report']
-      }
-    ]),
+    invoiceDisplay: computed(() => mockDisplayData.list),
     headerTransactions: computed(() => [
       { accessorKey: 'createdOn', header: 'Date' },
       { accessorKey: 'invoiceNumber', header: 'Invoice #' },
@@ -46,90 +43,244 @@ vi.mock('~/composables/viewRoutingSlip/useTransactionDataTable', () => ({
       { accessorKey: 'createdName', header: 'Initiator' },
       { accessorKey: 'actions', header: 'Actions' }
     ]),
-    invoiceCount: computed(() => 2),
+    invoiceCount: computed(() => mockDisplayData.list.length),
     transformInvoices: vi.fn(),
     cancel: mockCancel,
     getIndexedTag: (baseTag: string, index: number) => `${baseTag}-${index}`,
-    disableCancelButton: ref(false),
+    disableCancelButton: false,
     isAlreadyCancelled: (statusCode?: string) => statusCode === InvoiceStatus.CANCELLED
   })
 }))
 
+// InvoiceDisplay is the shaped type the composable returns to the template
+const baseInvoices: InvoiceDisplay[] = [
+  {
+    id: 1,
+    createdOn: '2025-11-17T10:00:00Z',
+    invoiceNumber: 'REGUT00053322',
+    statusCode: InvoiceStatus.COMPLETED,
+    total: 30.00,
+    createdName: 'Travis Semple',
+    description: ['Name Request Renewal fee']
+  },
+  {
+    id: 2,
+    createdOn: '2025-11-18T10:00:00Z',
+    invoiceNumber: 'REGUT00053323',
+    statusCode: InvoiceStatus.CANCELLED,
+    total: 50.00,
+    createdName: 'John Doe',
+    description: ['Fee Type: Annual Report']
+  }
+]
+
+const defaultDirectives = {
+  can: { mounted: () => {}, updated: () => {} }
+}
+
+// Stub renders the label prop as text so assertions like button.text() work
+const uButtonStub = {
+  template: '<button @click="$emit(\'click\')" :data-test="$props.dataTest">{{ label }}</button>',
+  props: ['label', 'variant', 'color', 'disabled', 'dataTest']
+}
+
+function mountTable() {
+  return mountSuspended(TransactionDataTable, {
+    props: { invoices: [] as Invoice[] },
+    global: {
+      directives: defaultDirectives,
+      stubs: { UButton: uButtonStub }
+    }
+  })
+}
+
 describe('TransactionDataTable', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockDisplayData.list = [...baseInvoices]
+    mockGetFeatureFlag.mockResolvedValue(false)
   })
 
-  it('renders component with title and invoice count', async () => {
-    const wrapper = await mountSuspended(TransactionDataTable, {
-      props: {
-        invoices: [] as Invoice[]
-      },
-      global: {
-        directives: {
-          can: { mounted: () => {}, updated: () => {} }
-        }
-      }
-    })
-
-    expect(wrapper.find('[data-test="title"]').exists()).toBe(true)
+  it('renders title and invoice count', async () => {
+    const wrapper = await mountTable()
     expect(wrapper.find('[data-test="title"]').text()).toBe('Transactions')
-    expect(wrapper.text()).toContain('(2)')
+    expect(wrapper.text()).toContain(`(${baseInvoices.length})`)
   })
 
-  it('displays cancelled status for cancelled invoices', async () => {
-    const wrapper = await mountSuspended(TransactionDataTable, {
-      props: {
-        invoices: [] as Invoice[]
-      },
-      global: {
-        directives: {
-          can: { mounted: () => {}, updated: () => {} }
-        }
-      }
+  describe('legacy flow (enableRefundRequestFlow = false)', () => {
+    it('shows "Cancelled" text for a cancelled invoice', async () => {
+      const wrapper = await mountTable()
+      const cancelText = wrapper.find('[data-test="text-cancel-1"]')
+      expect(cancelText.exists()).toBe(true)
+      expect(cancelText.text()).toBe('Cancelled')
     })
 
-    expect(wrapper.find('[data-test="text-cancel-1"]').exists()).toBe(true)
-    expect(wrapper.find('[data-test="text-cancel-1"]').text()).toBe('Cancelled')
+    it('shows "Cancel" button for an active invoice', async () => {
+      const wrapper = await mountTable()
+      const button = wrapper.find('[data-test="btn-invoice-cancel-0"]')
+      expect(button.exists()).toBe(true)
+      expect(button.text()).toBe('Cancel')
+    })
+
+    it('calls cancel() when the "Cancel" button is clicked, does not navigate', async () => {
+      const wrapper = await mountTable()
+      await wrapper.find('[data-test="btn-invoice-cancel-0"]').trigger('click')
+      expect(mockCancel).toHaveBeenCalledWith(1)
+      expect(mockNavigateTo).not.toHaveBeenCalled()
+    })
   })
 
-  it('displays cancel button for active invoices', async () => {
-    const wrapper = await mountSuspended(TransactionDataTable, {
-      props: {
-        invoices: [] as Invoice[]
-      },
-      global: {
-        directives: {
-          can: { mounted: () => {}, updated: () => {} }
-        }
-      }
+  describe('new flow (enableRefundRequestFlow = true)', () => {
+    beforeEach(() => {
+      mockGetFeatureFlag.mockResolvedValue(true)
     })
 
-    expect(wrapper.html()).toContain('btn-invoice-cancel-0')
+    describe('"View Refund Detail" button', () => {
+      it('shows for a cancelled invoice', async () => {
+        mockDisplayData.list = [
+          { id: 2, statusCode: InvoiceStatus.CANCELLED, total: 50.00, latestRefundId: 10, description: [] }
+        ]
+        const wrapper = await mountTable()
+        const button = wrapper.find('[data-test="btn-invoice-cancel-0"]')
+        expect(button.exists()).toBe(true)
+        expect(button.text()).toBe('View Refund Detail')
+      })
+
+      it('shows for a REFUND_REQUESTED invoice', async () => {
+        mockDisplayData.list = [{
+          id: 1,
+          statusCode: InvoiceStatus.REFUND_REQUESTED,
+          total: 30.00,
+          latestRefundStatus: RefundApprovalStatus.PENDING_APPROVAL,
+          latestRefundId: 5,
+          description: []
+        }]
+        const wrapper = await mountTable()
+        const button = wrapper.find('[data-test="btn-invoice-cancel-0"]')
+        expect(button.exists()).toBe(true)
+        expect(button.text()).toBe('View Refund Detail')
+      })
+
+      it.each([
+        RefundApprovalStatus.PENDING_APPROVAL,
+        RefundApprovalStatus.APPROVED,
+        RefundApprovalStatus.APPROVAL_NOT_REQUIRED
+      ])('shows for invoice with refund status "%s"', async (refundStatus) => {
+        mockDisplayData.list = [{
+          id: 1, statusCode: InvoiceStatus.COMPLETED, total: 30.00,
+          latestRefundStatus: refundStatus, latestRefundId: 5, description: []
+        }]
+
+        const wrapper = await mountTable()
+        const button = wrapper.find('[data-test="btn-invoice-cancel-0"]')
+        expect(button.exists()).toBe(true)
+        expect(button.text()).toBe('View Refund Detail')
+      })
+
+      it('navigates to the refund-request page with correct params on click', async () => {
+        const invoiceId = 1
+        const refundId = 5
+        mockDisplayData.list = [{
+          id: invoiceId, statusCode: InvoiceStatus.COMPLETED, total: 30.00,
+          latestRefundStatus: RefundApprovalStatus.PENDING_APPROVAL,
+          latestRefundId: refundId, description: []
+        }]
+
+        const wrapper = await mountTable()
+        await wrapper.find('[data-test="btn-invoice-cancel-0"]').trigger('click')
+
+        expect(mockNavigateTo).toHaveBeenCalledWith(expect.objectContaining({
+          path: `/transaction-view/${invoiceId}/refund-request/${refundId}`,
+          query: expect.objectContaining({ returnType: 'viewRoutingSlip' })
+        }))
+      })
+    })
+
+    describe('"Request Refund" button', () => {
+      it('shows for a refundable invoice with no prior refund', async () => {
+        mockDisplayData.list = [
+          { id: 1, statusCode: InvoiceStatus.COMPLETED, total: 30.00,
+            fullRefundable: true, product: 'NR', description: [] }
+        ]
+
+        const wrapper = await mountTable()
+        const button = wrapper.find('[data-test="btn-invoice-cancel-0"]')
+        expect(button.exists()).toBe(true)
+        expect(button.text()).toBe('Request Refund')
+      })
+
+      it('shows for a refundable invoice with a DECLINED refund (re-request)', async () => {
+        mockDisplayData.list = [{
+          id: 1, statusCode: InvoiceStatus.COMPLETED, total: 30.00,
+          fullRefundable: true, product: 'NR',
+          latestRefundStatus: RefundApprovalStatus.DECLINED, description: []
+        }]
+
+        const wrapper = await mountTable()
+        const button = wrapper.find('[data-test="btn-invoice-cancel-0"]')
+        expect(button.exists()).toBe(true)
+        expect(button.text()).toBe('Request Refund')
+      })
+
+      it('navigates to the initiateRefund page on click, does not call cancel()', async () => {
+        const invoiceId = 1
+        mockDisplayData.list = [{
+          id: invoiceId, statusCode: InvoiceStatus.COMPLETED, total: 30.00,
+          fullRefundable: true, product: 'NR', description: []
+        }]
+
+        const wrapper = await mountTable()
+        await wrapper.find('[data-test="btn-invoice-cancel-0"]').trigger('click')
+
+        expect(mockNavigateTo).toHaveBeenCalledWith(expect.objectContaining({
+          path: `/transaction-view/${invoiceId}/initiateRefund`,
+          query: expect.objectContaining({ returnType: 'viewRoutingSlip' })
+        }))
+        expect(mockCancel).not.toHaveBeenCalled()
+      })
+
+      it('does not show for a non-refundable invoice', async () => {
+        mockDisplayData.list = [{
+          id: 1, statusCode: InvoiceStatus.COMPLETED, total: 30.00,
+          fullRefundable: false, partialRefundable: false, description: []
+        }]
+
+        const wrapper = await mountTable()
+        expect(wrapper.find('[data-test="btn-invoice-cancel-0"]').exists()).toBe(false)
+      })
+
+      it('does not show for an invoice with $0 total', async () => {
+        mockDisplayData.list = [
+          { id: 1, statusCode: InvoiceStatus.COMPLETED, total: 0, fullRefundable: true, product: 'NR', description: [] }
+        ]
+
+        const wrapper = await mountTable()
+        expect(wrapper.find('[data-test="btn-invoice-cancel-0"]').exists()).toBe(false)
+      })
+    })
   })
 
-  it('calls cancel function when cancel button is clicked', async () => {
-    const wrapper = await mountSuspended(TransactionDataTable, {
-      props: {
-        invoices: [] as Invoice[]
-      },
-      global: {
-        directives: {
-          can: { mounted: () => {}, updated: () => {} }
-        },
-        stubs: {
-          UButton: {
-            template: '<button @click="$emit(\'click\')" :data-test="dataTest"><slot /></button>',
-            props: ['label', 'variant', 'color', 'disabled', 'dataTest']
-          }
-        }
-      }
+  describe('refund status badge in total column', () => {
+    it.each([
+      [RefundApprovalStatus.PENDING_APPROVAL, 'REFUND REQUESTED'],
+      [RefundApprovalStatus.DECLINED, 'REFUND DECLINED']
+    ])('shows badge for %s refund status', async (refundStatus, expectedText) => {
+      mockDisplayData.list = [
+        { id: 1, statusCode: InvoiceStatus.COMPLETED, total: 30.00, latestRefundStatus: refundStatus, description: [] }
+      ]
+
+      const wrapper = await mountTable()
+      expect(wrapper.text()).toContain(expectedText)
     })
 
-    const button = wrapper.find('[data-test="btn-invoice-cancel-0"]')
-    expect(button.exists()).toBe(true)
-    await button.trigger('click')
+    it('does not show badge for APPROVED status', async () => {
+      mockDisplayData.list = [{
+        id: 1, statusCode: InvoiceStatus.COMPLETED, total: 30.00,
+        latestRefundStatus: RefundApprovalStatus.APPROVED, description: []
+      }]
 
-    expect(mockCancel).toHaveBeenCalledWith(1)
+      const wrapper = await mountTable()
+      expect(wrapper.text()).not.toContain('REFUND APPROVED')
+    })
   })
 })

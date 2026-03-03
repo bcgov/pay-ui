@@ -40,7 +40,7 @@ function viewDetails(index: number) {
 function getStatusConfig(item: RefundHistoryItem) {
   if (item.refundStatus === RefundApprovalStatus.PENDING_APPROVAL) {
     return { label: 'REFUND REQUESTED', color: 'neutral' as const,
-      classes: '!bg-gray-200 !text-gray-700' }
+      classes: '!bg-gray-200 !text-gray-700 font-bold' }
   }
   if (item.refundStatus === RefundApprovalStatus.APPROVED && item.partialRefundLines?.length > 0) {
     return { label: 'PARTIALLY REFUNDED', color: 'primary' as const }
@@ -48,8 +48,12 @@ function getStatusConfig(item: RefundHistoryItem) {
   if (item.refundStatus === RefundApprovalStatus.APPROVED) {
     return { label: 'FULL REFUND APPROVED', color: 'primary' as const }
   }
+  if (item.refundStatus === RefundApprovalStatus.APPROVAL_NOT_REQUIRED) {
+    return { label: 'APPROVAL NOT REQUIRED', color: 'primary' as const }
+  }
   if (item.refundStatus === RefundApprovalStatus.DECLINED) {
-    return { label: 'REFUND DECLINED', color: 'red' as const }
+    return { label: 'REFUND DECLINED', color: 'neutral' as const,
+      classes: '!bg-gray-200 !text-gray-700 font-bold' }
   }
   return null
 }

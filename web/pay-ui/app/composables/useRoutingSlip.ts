@@ -125,6 +125,20 @@ export const useRoutingSlip = () => {
     }
   }
 
+  const getRoutingSlipV2 = async (getRoutingSlipRequestPayload: GetRoutingSlipRequestPayload) => {
+    try {
+      // Global Exception handler will handle this one.
+      const response = await usePayApi().getRoutingSlipV2(
+        getRoutingSlipRequestPayload.routingSlipNumber
+      )
+      if (response) {
+        store.routingSlip = response
+      }
+    } catch (error) {
+      console.error('error ', error) // 500 errors may not return data
+    }
+  }
+
   const updateRoutingSlipStatus = async (
     statusDetails: string | StatusDetails
   ) => {
@@ -385,6 +399,7 @@ export const useRoutingSlip = () => {
     createRoutingSlip,
     checkRoutingNumber,
     getRoutingSlip,
+    getRoutingSlipV2,
     updateRoutingSlipStatus,
     updateRoutingSlipRefundStatus,
     adjustRoutingSlip,

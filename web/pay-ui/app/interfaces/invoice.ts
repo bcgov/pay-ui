@@ -36,6 +36,7 @@ export interface Invoice {
   statusCode?: string
   total?: number
   details?: Detail[]
+  invoiceNumber?: string
   latestRefundId?: number
   latestRefundStatus?: string
   partialRefundable?: boolean
@@ -53,6 +54,11 @@ export interface InvoiceDisplay {
   createdBy?: string
   description?: string[]
   id?: number
+  latestRefundId?: number
+  latestRefundStatus?: string
+  partialRefundable?: boolean
+  fullRefundable?: boolean
+  product?: string
 }
 
 export interface LineItem {
