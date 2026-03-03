@@ -57,7 +57,7 @@ async function viewRefundDetail(invoiceId: number, refundId: number) {
   })
 }
 
-function showInitiateRefundButton(invoiceRow: Invoice) {
+function isRefundable(invoiceRow: Invoice): boolean {
   if (
     !invoiceRow.latestRefundStatus
     || RefundApprovalStatus.DECLINED === invoiceRow.latestRefundStatus
@@ -75,6 +75,15 @@ function showRefundRequestBadge(invoiceRow: Invoice) {
   return !!(invoiceRow.latestRefundStatus
     && [RefundApprovalStatus.DECLINED, RefundApprovalStatus.PENDING_APPROVAL]
       .includes(invoiceRow.latestRefundStatus as RefundApprovalStatus))
+}
+
+function showViewDetails(invoiceRow: Invoice) {
+  const isCancelled = isAlreadyCancelled(invoiceRow.statusCode)
+  const isRefund = invoiceRow.latestRefundStatus
+    && ![RefundApprovalStatus.DECLINED]
+      .includes(invoiceRow.latestRefundStatus as RefundApprovalStatus)
+
+  return isCancelled || isRefund
 }
 </script>
 
@@ -140,28 +149,19 @@ function showRefundRequestBadge(invoiceRow: Invoice) {
         </div>
       </template>
       <template #actions-cell="{ row }">
-        <template v-if="isAlreadyCancelled(row.original.statusCode) && !enableRefundRequestFlow">
-          <span
-            :data-test="commonUtil.getIndexedTag('text-cancel', row.index)"
-            class="text-error font-bold"
-          >
-            Cancelled
-          </span>
-        </template>
-        <template v-else-if="enableRefundRequestFlow">
-          <UButton
-            :data-test="commonUtil.getIndexedTag('btn-invoice-cancel', row.index)"
-            label="View Refund Detail"
-            variant="outline"
-            color="primary"
-            class="btn-table"
-            @click="viewRefundDetail(row.original.id, row.original.latestRefundId)"
-          />
-        </template>
-        <template v-else>
-          <div v-can:fas_refund.hide>
+        <template v-if="enableRefundRequestFlow">
+          <template v-if="showViewDetails(row.original)">
             <UButton
-              v-if="enableRefundRequestFlow && showInitiateRefundButton(row.original)"
+              :data-test="commonUtil.getIndexedTag('btn-invoice-cancel', row.index)"
+              label="View Refund Detail"
+              variant="outline"
+              color="primary"
+              class="btn-table"
+              @click="viewRefundDetail(row.original.id, row.original.latestRefundId)"
+            />
+          </template>
+          <template v-else-if="isRefundable(row.original)">
+            <UButton
               :data-test="commonUtil.getIndexedTag('btn-invoice-cancel', row.index)"
               label="Request Refund"
               variant="outline"
@@ -169,17 +169,30 @@ function showRefundRequestBadge(invoiceRow: Invoice) {
               class="btn-table"
               @click="cancelTransaction(row.original.id!)"
             />
-            <UButton
-              v-else-if="!enableRefundRequestFlow"
-              :data-test="commonUtil.getIndexedTag('btn-invoice-cancel', row.index)"
-              label="Cancel"
-              variant="outline"
-              color="primary"
-              class="btn-table"
-              :disabled="disableCancelButton"
-              @click="cancelTransaction(row.original.id!)"
-            />
-          </div>
+          </template>
+        </template>
+        <template v-else>
+          <template v-if="isAlreadyCancelled(row.original.statusCode)">
+            <span
+              :data-test="commonUtil.getIndexedTag('text-cancel', row.index)"
+              class="text-error font-bold"
+            >
+              Cancelled
+            </span>
+          </template>
+          <template v-else>
+            <div v-can:fas_refund.hide>
+              <UButton
+                :data-test="commonUtil.getIndexedTag('btn-invoice-cancel', row.index)"
+                label="Cancel"
+                variant="outline"
+                color="primary"
+                class="btn-table"
+                :disabled="disableCancelButton"
+                @click="cancelTransaction(row.original.id!)"
+              />
+            </div>
+          </template>
         </template>
       </template>
       <template #empty>
