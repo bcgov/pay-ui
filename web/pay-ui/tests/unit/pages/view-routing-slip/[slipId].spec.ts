@@ -10,7 +10,9 @@ const {
   mockT,
   mockSetBreadcrumbs,
   mockGetRoutingSlip,
+  mockGetRoutingSlipV2,
   mockGetLinkedRoutingSlips,
+  mockGetFeatureFlag,
   mockToggleLoading,
   mockIsLoading,
   mockUseViewRoutingSlip,
@@ -20,7 +22,9 @@ const {
   const _mockT = vi.fn()
   const _mockSetBreadcrumbs = vi.fn()
   const _mockGetRoutingSlip = vi.fn()
+  const _mockGetRoutingSlipV2 = vi.fn()
   const _mockGetLinkedRoutingSlips = vi.fn().mockResolvedValue({})
+  const _mockGetFeatureFlag = vi.fn()
   const _mockToggleLoading = vi.fn()
   const _mockIsLoading = { value: false }
   const _mockFetchStaffComments = vi.fn()
@@ -32,7 +36,9 @@ const {
     mockT: _mockT,
     mockSetBreadcrumbs: _mockSetBreadcrumbs,
     mockGetRoutingSlip: _mockGetRoutingSlip,
+    mockGetRoutingSlipV2: _mockGetRoutingSlipV2,
     mockGetLinkedRoutingSlips: _mockGetLinkedRoutingSlips,
+    mockGetFeatureFlag: _mockGetFeatureFlag,
     mockToggleLoading: _mockToggleLoading,
     mockIsLoading: _mockIsLoading,
     mockUseViewRoutingSlip: _mockUseViewRoutingSlip,
@@ -53,8 +59,17 @@ const mockRoutingSlip = { value: routingSlipMock }
 mockNuxtImport('useRoute', () => () => mockRoute)
 mockNuxtImport('useI18n', () => mockUseI18n)
 mockNuxtImport('setBreadcrumbs', () => mockSetBreadcrumbs)
+mockNuxtImport('useConnectLaunchDarkly', () => () => ({
+  getFeatureFlag: mockGetFeatureFlag
+}))
+
+mockNuxtImport('useRoutingSlipStore', () => () => ({
+  store: { routingSlip: mockRoutingSlip }
+}))
+
 mockNuxtImport('useRoutingSlip', () => () => ({
   getRoutingSlip: mockGetRoutingSlip,
+  getRoutingSlipV2: mockGetRoutingSlipV2,
   getLinkedRoutingSlips: mockGetLinkedRoutingSlips,
   routingSlip: mockRoutingSlip
 }))
@@ -132,7 +147,9 @@ describe('ViewRoutingSlip Page [slipId]', () => {
     mockIsLoading.value = false
     mockIsLoadingRef.value = false
     mockRoute.params.slipId = '123456789'
+    mockGetFeatureFlag.mockResolvedValue(false)
     mockGetRoutingSlip.mockResolvedValue(routingSlipMock)
+    mockGetRoutingSlipV2.mockResolvedValue(routingSlipMock)
     mockGetLinkedRoutingSlips.mockResolvedValue({})
     mockUseViewRoutingSlip.mockReturnValue({
       slipId: ref('123456789'),
@@ -164,8 +181,19 @@ describe('ViewRoutingSlip Page [slipId]', () => {
     await new Promise(resolve => setTimeout(resolve, 100))
     expect(mockToggleLoading).toHaveBeenCalledWith(true)
     expect(mockGetRoutingSlip).toHaveBeenCalledWith({ routingSlipNumber: '123456789' })
+    expect(mockGetRoutingSlipV2).not.toHaveBeenCalled()
     expect(mockGetLinkedRoutingSlips).toHaveBeenCalledWith('123456789')
     expect(mockToggleLoading).toHaveBeenCalledWith(false)
+  })
+
+  it('should call getRoutingSlipV2 instead of getRoutingSlip when feature flag is enabled', async () => {
+    mockGetFeatureFlag.mockResolvedValue(true)
+    await mountSuspended(ViewRoutingSlip)
+    await nextTick()
+    await new Promise(resolve => setTimeout(resolve, 100))
+    expect(mockGetRoutingSlipV2).toHaveBeenCalledWith({ routingSlipNumber: '123456789' })
+    expect(mockGetRoutingSlip).not.toHaveBeenCalled()
+    expect(mockGetLinkedRoutingSlips).toHaveBeenCalledWith('123456789')
   })
 
   it('should toggle loading to false even if getRoutingSlip fails', async () => {
