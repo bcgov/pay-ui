@@ -46,6 +46,20 @@ const refundTypeError = ref('')
 const notificationEmailError = ref('')
 const reasonsForRefundError = ref('')
 
+const hasLineItemErrors = computed(() => {
+  if (refundFormData.refundType !== RefundType.PARTIAL_REFUND) { return false }
+  return refundFormData.refundLineItems?.some(item =>
+    getAmountValidationError(item.filingFeesRequested, item.filingFees) !== ''
+    || getAmountValidationError(item.serviceFeesRequested, item.serviceFees) !== ''
+    || getAmountValidationError(item.priorityFeesRequested, item.priorityFees) !== ''
+    || getAmountValidationError(item.futureEffectiveFeesRequested, item.futureEffectiveFees) !== ''
+  ) ?? false
+})
+
+const isConfirmReviewDisabled = computed(() =>
+  (refundFormData.totalRefundAmount ?? 0) <= 0 || hasLineItemErrors.value
+)
+
 const formDisabled = computed(() => {
   return props.previousRefundedAmount > 0 || (!props.isFullRefundAllowed && !props.isPartialRefundAllowed)
 })
@@ -66,7 +80,14 @@ function getRequestedAmountRules(max?: number | null) {
     },
     (v: number | string | null | undefined) => v == null || v === '' || max == null || Number(v) <= Number(max)
       ? true
-      : `Refund amount exceeds ${CommonUtils.formatAmount(Number(max))}`
+      : `Refund amount exceeds ${CommonUtils.formatAmount(Number(max))}`,
+    (v: number | string | null | undefined) => {
+      if (v == null || v === '') { return true }
+      const decimalIndex = String(v).indexOf('.')
+      return decimalIndex === -1 || String(v).length - decimalIndex - 1 <= 2
+        ? true
+        : 'Maximum 2 decimal places allowed'
+    }
   ]
 }
 
@@ -432,7 +453,7 @@ watch(() => props.refundMethod, (newData) => {
         label="Review and Confirm"
         color="primary"
         size="lg"
-        :disabled="formDisabled || (refundFormData.totalRefundAmount ?? 0) <= 0"
+        :disabled="formDisabled || isConfirmReviewDisabled"
         @click="onReviewBtnClick"
       />
     </div>

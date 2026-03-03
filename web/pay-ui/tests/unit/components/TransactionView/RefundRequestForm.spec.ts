@@ -91,4 +91,39 @@ describe('RefundRequestForm', () => {
     const wrapper = createWrapper({ invoicePaymentMethod: 'DIRECT_PAY' })
     expect(wrapper.text()).toContain('Refund back to Credit Card')
   })
+
+  describe('getRequestedAmountRules', () => {
+    const lineItem: RefundLineItem = {
+      id: 1,
+      description: 'Test',
+      total: 100,
+      filingFees: 100,
+      serviceFees: 10,
+      priorityFees: 0,
+      futureEffectiveFees: 0,
+      filingFeesRequested: null,
+      serviceFeesRequested: null,
+      priorityFeesRequested: null,
+      futureEffectiveFeesRequested: null,
+      refundEntireItemRequested: false
+    }
+
+    it('should reject values with more than 2 decimal places', async () => {
+      const wrapper = createWrapper({ isPartialRefundAllowed: true, refundLineItems: [lineItem] })
+      const vm = wrapper.vm as unknown as { getAmountValidationError: (v: unknown, max?: unknown) => string }
+      expect(vm.getAmountValidationError(0.0001, 100)).toBe('Maximum 2 decimal places allowed')
+      expect(vm.getAmountValidationError('0.001', 100)).toBe('Maximum 2 decimal places allowed')
+      expect(vm.getAmountValidationError('1.123', 100)).toBe('Maximum 2 decimal places allowed')
+    })
+
+    it('should accept values with 2 or fewer decimal places', async () => {
+      const wrapper = createWrapper({ isPartialRefundAllowed: true, refundLineItems: [lineItem] })
+      const vm = wrapper.vm as unknown as { getAmountValidationError: (v: unknown, max?: unknown) => string }
+      expect(vm.getAmountValidationError(0.01, 100)).toBe('')
+      expect(vm.getAmountValidationError('50.50', 100)).toBe('')
+      expect(vm.getAmountValidationError(100, 100)).toBe('')
+      expect(vm.getAmountValidationError(null, 100)).toBe('')
+      expect(vm.getAmountValidationError('', 100)).toBe('')
+    })
+  })
 })
