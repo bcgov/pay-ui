@@ -29,26 +29,31 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 function loadEnvironmentConfig() {
-  const envName = process.env.ENV_NAME || 'dev'
+  const envName = process.env.ENV_NAME || 'test'
   const envFilePath = path.join(__dirname, 'env', `.env.${envName}`)
 
   console.log(`Global setup: Loading environment '${envName}'`)
 
-  // In CI, pick BASE_URL based on ENV_NAME
+  // Always load the env file first so all variables are available
+  if (fs.existsSync(envFilePath)) {
+    dotenv.config({ path: envFilePath, override: true })
+    console.log(`Global setup: Loaded environment file: ${envFilePath}`)
+  } else {
+    console.warn(`Global setup: Environment file not found: ${envFilePath}`)
+  }
+
+  // In CI, override BASE_URL based on ENV_NAME
   if (process.env.BASE_URL_TEST || process.env.BASE_URL_DEV) {
     process.env.BASE_URL = envName === 'test'
       ? process.env.BASE_URL_TEST
       : process.env.BASE_URL_DEV
     console.log(`Global setup: Using BASE_URL for '${envName}': ${process.env.BASE_URL}`)
-    return { envName, envFilePath }
   }
 
-  // Locally, load from env file
-  if (!fs.existsSync(envFilePath)) {
-    throw new Error(`Environment file not found: ${envFilePath}`)
+  if (!process.env.BASE_URL) {
+    throw new Error(`BASE_URL is not set. Ensure it is defined in ${envFilePath} or via CI environment variables.`)
   }
 
-  dotenv.config({ path: envFilePath })
   return { envName, envFilePath }
 }
 
@@ -56,11 +61,11 @@ function getCredentials() {
   const loginType = (process.env.LOGIN_TYPE || 'idir').toLowerCase()
 
   const username = loginType === 'idir'
-    ? (process.env.TEST_USERNAME_BCSC_IDIR || process.env.TEST_USERNAME)
+    ? (process.env.TEST_USERNAME_BCSC_IDIR || process.env.TEST_USERNAME_BCSC)
     : (process.env.TEST_USERNAME_BCSC || process.env.TEST_USERNAME)
 
   const password = loginType === 'idir'
-    ? (process.env.TEST_PASSWORD_BCSC_IDIR || process.env.TEST_PASSWORD)
+    ? (process.env.TEST_PASSWORD_BCSC_IDIR || process.env.TEST_PASSWORD_BCSC)
     : (process.env.TEST_PASSWORD_BCSC || process.env.TEST_PASSWORD)
 
   return { username, password, loginType }
@@ -71,10 +76,13 @@ function validateCredentialsAreProvided(username, password, baseURL, loginType, 
     console.error(`Global setup: Missing required environment variables in ${envFilePath}`)
     console.error(`  BASE_URL: ${baseURL ? '✓' : '✗'}`)
     console.error(`  LOGIN_TYPE: ${loginType}`)
-    console.error(`  TEST_USERNAME_BCSC: ${process.env.TEST_USERNAME_BCSC ? '✓' : '✗'}`)
-    console.error(`  TEST_PASSWORD_BCSC: ${process.env.TEST_PASSWORD_BCSC ? '✓' : '✗'}`)
-    console.error(`  TEST_USERNAME_BCSC_IDIR: ${process.env.TEST_USERNAME_BCSC_IDIR ? '✓' : '✗'}`)
-    console.error(`  TEST_PASSWORD_BCSC_IDIR: ${process.env.TEST_PASSWORD_BCSC_IDIR ? '✓' : '✗'}`)
+    if (loginType === 'idir') {
+      console.error(`  TEST_USERNAME_BCSC_IDIR: ${process.env.TEST_USERNAME_BCSC_IDIR ? '✓' : '✗'}`)
+      console.error(`  TEST_PASSWORD_BCSC_IDIR: ${process.env.TEST_PASSWORD_BCSC_IDIR ? '✓' : '✗'}`)
+    } else {
+      console.error(`  TEST_USERNAME_BCSC: ${process.env.TEST_USERNAME_BCSC ? '✓' : '✗'}`)
+      console.error(`  TEST_PASSWORD_BCSC: ${process.env.TEST_PASSWORD_BCSC ? '✓' : '✗'}`)
+    }
     throw new Error('Missing required environment variables for login')
   }
 }
@@ -95,12 +103,14 @@ async function launchBrowser() {
 
 async function performLoginAndSaveSession(page, context, baseURL, loginType, username, password) {
   await page.goto(baseURL)
+  console.log(`Global setup: loginType=${loginType}, username=${username}`)
+
 
   const loginPage = new LoginPage(page)
 
   if (loginType === 'idir') {
     console.log('Global setup: Using IDIR login flow')
-    await loginPage.loginWithIDIR(username, password)
+    await loginPage.loginWithBCSC(username, password)
   } else {
     console.log('Global setup: Using BCSC login flow')
     await loginPage.loginWithBCSC(username, password)
