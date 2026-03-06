@@ -127,8 +127,17 @@ export default function useTransactionDataTable(invoices: Ref<Invoice[]>) {
     }
   ])
 
+  const successStatuses = new Set<InvoiceStatus>([
+    InvoiceStatus.COMPLETED,
+    InvoiceStatus.PAID,
+    InvoiceStatus.REFUNDED,
+    InvoiceStatus.CREDITED,
+    InvoiceStatus.MANUALLY_REFUNDED
+  ])
+
   const isAlreadyCancelled = (statusCode?: string): boolean => {
-    return [InvoiceStatus.REFUNDED, InvoiceStatus.REFUND_REQUESTED].includes(statusCode as InvoiceStatus)
+    return [InvoiceStatus.REFUNDED, InvoiceStatus.REFUND_REQUESTED, InvoiceStatus.MANUALLY_REFUNDED]
+      .includes(statusCode as InvoiceStatus)
   }
 
   const cancel = async (invoiceId: number) => {
@@ -170,6 +179,7 @@ export default function useTransactionDataTable(invoices: Ref<Invoice[]>) {
     headerTransactions,
     transformInvoices,
     cancel,
-    isAlreadyCancelled
+    isAlreadyCancelled,
+    successStatuses
   }
 }

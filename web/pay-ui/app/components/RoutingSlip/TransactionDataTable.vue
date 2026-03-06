@@ -23,7 +23,8 @@ const {
   invoiceCount,
   cancel,
   disableCancelButton,
-  isAlreadyCancelled
+  isAlreadyCancelled,
+  successStatuses
 } = useTransactionDataTable(toRef(props, 'invoices'))
 
 const enableRefundRequestFlow = await getFeatureFlag(LDFlags.EnableFasRefundRequestFlow, false, 'await')
