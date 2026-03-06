@@ -103,7 +103,7 @@ async function launchBrowser() {
 
 async function performLoginAndSaveSession(page, context, baseURL, loginType, username, password) {
   await page.goto(baseURL)
-  console.log(`Global setup: loginType=${loginType}, username=${username}`)
+  console.log(`Global setup: Starting login using loginType=${loginType}`)
 
 
   const loginPage = new LoginPage(page)
