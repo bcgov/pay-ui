@@ -178,6 +178,7 @@ function hasDropdownContent(item: Transaction): boolean {
   }
   const hasRefundStatus = item.statusCode === InvoiceStatus.CREDITED
     || item.statusCode === InvoiceStatus.REFUNDED
+    || item.statusCode === InvoiceStatus.MANUALLY_REFUNDED
   return hasPartialRefunds
     || hasAppliedCreditsWithRemaining
     || hasRefundStatus
@@ -360,7 +361,7 @@ function getPartialRefundsItems(
 
 function getFullRefundItems(item: Transaction): DropdownItem[] {
   const validStatuses = [
-    InvoiceStatus.REFUNDED, InvoiceStatus.CREDITED
+    InvoiceStatus.REFUNDED, InvoiceStatus.CREDITED, InvoiceStatus.MANUALLY_REFUNDED
   ]
   if (!validStatuses.includes(item.statusCode)) {
     return []
@@ -368,6 +369,16 @@ function getFullRefundItems(item: Transaction): DropdownItem[] {
 
   const refundAsCredits = isRefundAsCredits(item)
   const isCredited = item.statusCode === InvoiceStatus.CREDITED
+  const isManuallyRefunded = item.statusCode === InvoiceStatus.MANUALLY_REFUNDED
+
+  let dropdownStatusCode: InvoiceStatus
+  if (isManuallyRefunded) {
+    dropdownStatusCode = InvoiceStatus.MANUALLY_REFUNDED
+  } else if (refundAsCredits) {
+    dropdownStatusCode = InvoiceStatus.CREDITED
+  } else {
+    dropdownStatusCode = InvoiceStatus.REFUNDED
+  }
 
   return [createDropdownItem(item, {
     id: `full-${item.id}`,
@@ -379,9 +390,7 @@ function getFullRefundItems(item: Transaction): DropdownItem[] {
       ? paymentTypeDisplay[PaymentTypes.CREDIT]
       : paymentTypeDisplay[item.paymentMethod] || item.paymentMethod,
     isRefund: true,
-    statusCode: refundAsCredits
-      ? InvoiceStatus.CREDITED
-      : InvoiceStatus.REFUNDED,
+    statusCode: dropdownStatusCode,
     transactionId: item.id
   })]
 }
@@ -403,7 +412,8 @@ function isCompletedOrPaid(statusCode: InvoiceStatus): boolean {
     InvoiceStatus.COMPLETED,
     InvoiceStatus.PAID,
     InvoiceStatus.REFUNDED,
-    InvoiceStatus.CREDITED
+    InvoiceStatus.CREDITED,
+    InvoiceStatus.MANUALLY_REFUNDED
   ].includes(statusCode)
 }
 
