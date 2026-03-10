@@ -31,6 +31,7 @@ export const PaymentStatusList = [
   { label: invoiceStatusDisplay[InvoiceStatus.PENDING], value: InvoiceStatus.PENDING },
   { label: invoiceStatusDisplay[InvoiceStatus.APPROVED], value: InvoiceStatus.APPROVED },
   { label: invoiceStatusDisplay[InvoiceStatus.REFUNDED], value: InvoiceStatus.REFUNDED },
+  { label: invoiceStatusDisplay[InvoiceStatus.MANUALLY_REFUNDED], value: InvoiceStatus.MANUALLY_REFUNDED },
   { label: invoiceStatusDisplay[InvoiceStatus.REFUND_REQUESTED], value: InvoiceStatus.REFUND_REQUESTED },
   // These are FE only on the backend they are PAID
   { label: invoiceStatusDisplay[InvoiceStatus.PARTIALLY_CREDITED], value: InvoiceStatus.PARTIALLY_CREDITED },
