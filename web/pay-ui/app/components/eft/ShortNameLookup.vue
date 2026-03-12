@@ -113,24 +113,26 @@ defineExpose({ clearSelection: clearSelectionSilent, isShortNameLinkedOrPending 
         size="lg"
         class="w-full"
         :readonly="state === LookupStates.SUMMARY"
-        :trailing-icon="isSearching ? undefined : 'i-mdi-magnify'"
       >
         <template #trailing>
-          <div class="flex items-center gap-2">
-            <UIcon
-              v-if="isSearching"
-              name="i-mdi-loading"
-              class="animate-spin size-5 text-primary"
-            />
-            <button
-              v-if="searchTerm && !isSearching"
-              type="button"
-              class="text-gray-600 hover:text-gray-700"
-              @click="clearSelection"
-            >
-              <UIcon name="i-mdi-close" class="size-5" />
-            </button>
-          </div>
+          <UIcon
+            v-if="isSearching"
+            name="i-mdi-loading"
+            class="animate-spin size-5 text-primary"
+          />
+          <button
+            v-else-if="searchTerm"
+            type="button"
+            class="text-gray-600 hover:text-gray-700"
+            @click="clearSelection"
+          >
+            <UIcon name="i-mdi-close" class="size-5" />
+          </button>
+          <UIcon
+            v-else
+            name="i-mdi-magnify"
+            class="size-6 text-gray-600"
+          />
         </template>
       </UInput>
     </div>

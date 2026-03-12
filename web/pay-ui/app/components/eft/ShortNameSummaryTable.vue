@@ -16,6 +16,8 @@ interface Props {
   currentTab?: number
 }
 
+const toast = useToast()
+
 const props = withDefaults(defineProps<Props>(), {
   linkedAccount: undefined,
   currentTab: 0
@@ -154,7 +156,6 @@ function onLinkedAccount(account: EFTShortnameResponse) {
 
   if (!shortName) { return }
 
-  const toast = useToast()
   toast.add({
     description: `Bank short name ${shortName.shortName} was successfully linked.`,
     icon: 'i-mdi-check-circle',

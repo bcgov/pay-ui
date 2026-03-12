@@ -97,7 +97,7 @@ defineExpose({ onSaveComplete })
 </script>
 
 <template>
-  <UModal v-model:open="isOpen" :ui="{ content: 'sm:max-w-[500px]' }">
+  <UModal v-model:open="isOpen" :ui="{ content: 'sm:max-w-[500px]', header: 'border-0', body: 'border-b-0', footer: 'border-0' }">
     <template #header>
       <div class="flex items-center justify-between w-full pr-2">
         <h2 class="text-xl font-bold text-gray-900">
@@ -115,7 +115,7 @@ defineExpose({ onSaveComplete })
 
     <template #body>
       <div class="space-y-4 py-2">
-        <p class="text-gray-600">
+        <p class="text-[var(--color-text-secondary)]">
           {{ dialogConfig.description }}
         </p>
         <UInput

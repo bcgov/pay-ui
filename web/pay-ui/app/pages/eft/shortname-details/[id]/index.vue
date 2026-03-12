@@ -31,9 +31,9 @@ useHead({
   title: t('page.eft.shortNameDetails.title')
 })
 
+const toast = useToast()
+
 const state = reactive({
-  snackbar: false,
-  snackbarText: '',
   displayShortNameFinancialDialog: false,
   shortNameFinancialDialogType: '' as 'CAS_SUPPLIER_NUMBER' | 'CAS_SUPPLIER_SITE' | 'EMAIL' | ''
 })
@@ -99,10 +99,13 @@ async function _onRefund() {
 
 async function _onLinkAccount() {
   await loadShortname()
-  state.snackbarText = t('page.eft.shortNameDetails.snackbar.linkSuccess', {
-    shortName: shortNameDetails.value?.shortName
+  toast.add({
+    description: t('page.eft.shortNameDetails.snackbar.linkSuccess', {
+      shortName: shortNameDetails.value?.shortName
+    }),
+    icon: 'i-mdi-check-circle',
+    color: 'success'
   })
-  state.snackbar = true
 }
 
 async function _onPaymentAction() {
@@ -151,14 +154,6 @@ onMounted(async () => {
     </div>
 
     <div v-else class="shortname-details-container">
-      <!-- Snackbar for notifications -->
-      <div
-        v-if="state.snackbar"
-        class="fixed top-4 right-4 bg-gray-800 text-white px-4 py-3 rounded shadow-lg z-50"
-      >
-        {{ state.snackbarText }}
-      </div>
-
       <!-- Header Section -->
       <div class="header-section bg-white py-8">
         <div class="flex flex-col lg:flex-row lg:justify-between gap-6">
