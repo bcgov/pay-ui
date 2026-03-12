@@ -203,6 +203,7 @@ function declineConfirm() {
             color="primary"
             variant="solid"
             size="md"
+            class="font-bold"
           >
             {{ getRefundStatusText() }}
           </UBadge>
@@ -278,7 +279,7 @@ function declineConfirm() {
       </template>
 
       <template #body>
-        <p class="pt-4 pb-4">
+        <p class="pt-4 pb-4 text-[var(--color-text-secondary)]">
           By declining the request, an email will be sent to the requestor including the reason entered below:
         </p>
         <UInput

@@ -62,10 +62,11 @@ const eftShortNameSummary = computed<EFTShortnameResponse | null>(() => {
 })
 
 const headers = [
-  { accessorKey: 'linkedAccount', header: 'Linked Account' },
-  { accessorKey: 'accountBranch', header: 'Branch' },
-  { accessorKey: 'unpaidStatementIds', header: 'Unpaid Statement Number' },
-  { accessorKey: 'amountOwing', header: 'Amount Owing' },
+  { accessorKey: 'linkedAccount', header: 'Linked Account', meta: { class: { th: 'w-[15%]', td: 'w-[15%]' } } },
+  { accessorKey: 'accountBranch', header: 'Branch', meta: { class: { th: 'w-[22%]', td: 'w-[22%]' } } },
+  { accessorKey: 'unpaidStatementIds', header: 'Unpaid Statement Number',
+    meta: { class: { th: 'w-[22%]', td: 'w-[22%]' } } },
+  { accessorKey: 'amountOwing', header: 'Amount Owing', meta: { class: { th: 'w-[22%]', td: 'w-[22%]' } } },
   { accessorKey: 'actions', header: 'Actions', meta: { class: { th: 'text-right', td: 'text-right' } } }
 ]
 
@@ -216,7 +217,7 @@ watch(
     </div>
 
     <div v-if="isLinked || loading" class="px-0">
-      <div class="py-4 px-6">
+      <div class="py-4 px-6 bg-white">
         <UButton
           label="+ Link a New Account"
           color="primary"
@@ -387,6 +388,18 @@ watch(
 <style lang="scss" scoped>
 @use '~/assets/scss/basic-table.scss';
 @use '~/assets/scss/card.scss';
+
+.account-link-table {
+  :deep(table) {
+    table-layout: fixed;
+  }
+
+  :deep(td) {
+    vertical-align: top;
+    padding-top: 14px;
+    padding-bottom: 8px;
+  }
+}
 
 .expansion-icon {
   background-color: var(--color-primary);

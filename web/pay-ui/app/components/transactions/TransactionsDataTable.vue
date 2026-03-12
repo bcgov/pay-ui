@@ -958,7 +958,7 @@ watch(() => transactions.results, () => {
                   v-if="asTransaction(row).latestRefundStatus === RefundApprovalStatus.PENDING_APPROVAL"
                   color="primary"
                   size="sm"
-                  class="mt-1"
+                  class="mt-1 font-bold text-xs"
                 >
                   REFUND REQUEST
                 </UBadge>
@@ -966,7 +966,7 @@ watch(() => transactions.results, () => {
                   v-if="asTransaction(row).latestRefundStatus === RefundApprovalStatus.DECLINED"
                   color="primary"
                   size="sm"
-                  class="mt-1"
+                  class="mt-1 font-bold text-xs"
                 >
                   REFUND DECLINED
                 </UBadge>
@@ -1016,6 +1016,7 @@ watch(() => transactions.results, () => {
                     }
                   ]
                 ]"
+                :content="{ align: 'start', alignOffset: -130 }"
               >
                 <UButton
                   color="primary"

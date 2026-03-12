@@ -476,6 +476,6 @@ watch(() => props.refundMethod, (newData) => {
 @use '~/assets/scss/card.scss';
 
 input[type="radio"] {
-  accent-color: var(--color-primary);
+  accent-color: var(--ui-primary);
 }
 </style>

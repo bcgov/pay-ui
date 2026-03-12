@@ -276,19 +276,23 @@ onMounted(async () => {
 const columns = computed<TableColumn<ShortNameHistoryItem>[]>(() => [
   {
     accessorKey: 'transactionDate',
-    header: 'Date'
+    header: 'Date',
+    meta: { class: { th: 'w-[15%]', td: 'w-[15%]' } }
   },
   {
     accessorKey: 'description',
-    header: 'Description'
+    header: 'Description',
+    meta: { class: { th: 'w-[22%]', td: 'w-[22%]' } }
   },
   {
     accessorKey: 'relatedStatementNumber',
-    header: 'Related Statement Number'
+    header: 'Related Statement Number',
+    meta: { class: { th: 'w-[22%]', td: 'w-[22%]' } }
   },
   {
     accessorKey: 'amount',
-    header: 'Amount'
+    header: 'Amount',
+    meta: { class: { th: 'w-[22%]', td: 'w-[22%]' } }
   },
   {
     accessorKey: 'actions',
@@ -369,7 +373,7 @@ const columns = computed<TableColumn<ShortNameHistoryItem>[]>(() => [
 
         <template #description-cell="{ row }">
           <div>
-            <div class="font-medium flex items-center gap-1">
+            <div class="font-bold flex items-center gap-1">
               {{ getDescription(row.original).title }}
               <IconTooltip
                 v-if="isFundsReceived(row.original) && getFundsReceivedTooltip(row.original)"
@@ -471,20 +475,27 @@ const columns = computed<TableColumn<ShortNameHistoryItem>[]>(() => [
 
 .history-table {
   overflow: visible !important;
-}
 
-.history-table :deep(table) {
-  overflow: visible !important;
-}
+  :deep(table) {
+    table-layout: fixed;
+    overflow: visible !important;
+  }
 
-.history-table :deep(thead) {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: white !important;
-}
+  :deep(td) {
+    vertical-align: top;
+    padding-top: 14px;
+    padding-bottom: 8px;
+  }
 
-.history-table :deep(thead th) {
-  background: white !important;
+  :deep(thead) {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: white !important;
+
+    th {
+      background: white !important;
+    }
+  }
 }
 </style>

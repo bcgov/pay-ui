@@ -40,7 +40,7 @@ function viewDetails(index: number) {
 function getStatusConfig(item: RefundHistoryItem) {
   if (item.refundStatus === RefundApprovalStatus.PENDING_APPROVAL) {
     return { label: 'REFUND REQUESTED', color: 'neutral' as const,
-      classes: '!bg-gray-200 !text-gray-700 font-bold' }
+      classes: '!bg-gray-200 !text-[var(--color-text-secondary)] font-bold' }
   }
   if (item.refundStatus === RefundApprovalStatus.APPROVED && item.partialRefundLines?.length > 0) {
     return { label: 'PARTIALLY REFUNDED', color: 'primary' as const }
@@ -53,7 +53,7 @@ function getStatusConfig(item: RefundHistoryItem) {
   }
   if (item.refundStatus === RefundApprovalStatus.DECLINED) {
     return { label: 'REFUND DECLINED', color: 'neutral' as const,
-      classes: '!bg-gray-200 !text-gray-700 font-bold' }
+      classes: '!bg-gray-200 !text-[var(--color-text-secondary)] font-bold' }
   }
   return null
 }
@@ -81,7 +81,7 @@ function getStatusConfig(item: RefundHistoryItem) {
             <UBadge
               v-if="getStatusConfig(row.original)"
               :color="getStatusConfig(row.original)?.color"
-              :class="getStatusConfig(row.original)?.classes"
+              :class="[getStatusConfig(row.original)?.classes, 'font-bold text-xs']"
               variant="solid"
               size="md"
             >

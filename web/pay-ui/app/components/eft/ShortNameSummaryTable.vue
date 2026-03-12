@@ -426,6 +426,7 @@ const columns = computed<TableColumn<EFTShortnameResponse>[]>(() => {
                 color="primary"
                 variant="solid"
                 size="sm"
+                class="font-bold text-xs"
               >
                 {{ ShortNameRefundLabel.PENDING_APPROVAL }}
               </UBadge>
@@ -454,6 +455,7 @@ const columns = computed<TableColumn<EFTShortnameResponse>[]>(() => {
                     }
                   ]
                 ]"
+                :content="{ align: 'start', alignOffset: -130 }"
               >
                 <UButton
                   color="primary"
