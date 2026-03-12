@@ -2,7 +2,6 @@
 import type { ButtonProps } from '@nuxt/ui'
 import type { CalendarDate } from '@internationalized/date'
 import { DateTime } from 'luxon'
-import CommonUtils from '@/utils/common-util'
 
 const { t } = useI18n()
 
@@ -83,6 +82,11 @@ function cancel() {
   open.value = false
 }
 
+function clearDateRange() {
+  model.value = { startDate: null, endDate: null }
+  emit('change', model.value)
+}
+
 function getFilterCodeForRange(range?: { start?: CalendarDate, end?: CalendarDate }): string | undefined {
   if (!range?.start || !range?.end) {
     return DATEFILTER_CODES.CUSTOMRANGE
@@ -126,9 +130,7 @@ const ranges = computed<ButtonProps[]>(() =>
 
 const triggerButtonLabel = computed(() => {
   if (model.value.startDate && model.value.endDate) {
-    const startDate = CommonUtils.formatDisplayDate(model.value.startDate, 'yyyy-MM-dd')
-    const endDate = CommonUtils.formatDisplayDate(model.value.endDate, 'yyyy-MM-dd')
-    return `${startDate} - ${endDate}`
+    return `${model.value.startDate} - ${model.value.endDate}`
   }
   return ''
 })
@@ -174,10 +176,18 @@ watch(model, () => {
         }"
       >
         <template #default>
-          <span v-if="triggerButtonLabel" class="flex-1 text-left pr-8">{{ triggerButtonLabel }}</span>
+          <span v-if="triggerButtonLabel" class="flex-1 text-left pr-14">{{ triggerButtonLabel }}</span>
           <span v-else class="date-range-placeholder">{{ props.placeholder || $t('label.date') }}</span>
         </template>
       </UButton>
+      <button
+        v-if="triggerButtonLabel"
+        type="button"
+        class="filter-clear-btn absolute top-1/2 -translate-y-1/2 right-9 flex items-center focus:outline-none z-10"
+        @click.stop="clearDateRange"
+      >
+        <UIcon name="i-mdi-close" class="size-6" style="color: var(--color-primary) !important" />
+      </button>
     </div>
 
     <template #content>

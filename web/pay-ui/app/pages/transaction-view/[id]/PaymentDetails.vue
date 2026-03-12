@@ -12,12 +12,14 @@ const props = defineProps<Props>()
 
 <template>
   <div class="bg-white rounded shadow-sm border border-gray-200">
-    <div class="flex items-center h-[75px] px-6 bg-blue-50">
-      <UIcon name="i-mdi-file-document" class="text-primary text-3xl mr-3" />
-      <span class="font-bold text-lg">Payment Details</span>
+    <div class="card-title flex items-center px-6 py-5 bg-bcgov-lightblue">
+      <UIcon name="i-mdi-file-document" class="text-primary text-3xl mr-4" />
+      <h2 class="text-lg font-bold text-gray-900">
+        Payment Details
+      </h2>
     </div>
 
-    <div class="p-6 space-y-4">
+    <div class="p-6 space-y-4 text-[var(--color-text-secondary)]">
       <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
         <span class="font-bold text-gray-900">Account Name</span>
         <span class="sm:col-span-3">{{ props.paymentData.accountName }}</span>
@@ -68,3 +70,7 @@ const props = defineProps<Props>()
     </div>
   </div>
 </template>
+
+<style lang="scss" scoped>
+@use '~/assets/scss/card.scss';
+</style>

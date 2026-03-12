@@ -19,8 +19,11 @@ export default defineAppConfig({
       },
       variants: {
         size: {
+          lg: {
+            base: 'h-[60px]'
+          },
           bcGovLg: {
-            base: 'px-2.5 pb-2 pt-6 text-base gap-1.5',
+            base: 'px-2.5 pb-2 pt-6 text-base gap-1.5 h-[60px]',
             leading: 'ps-2.5',
             trailing: 'pe-2.5',
             leadingIcon: 'size-5',

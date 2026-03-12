@@ -61,7 +61,7 @@ function getStatusConfig(item: RefundHistoryItem) {
 
 <template>
   <div class="bg-white rounded shadow-sm border border-gray-200">
-    <div class="flex items-center h-[75px] px-6 bg-blue-50">
+    <div class="card-title flex items-center px-6 py-5">
       <UIcon name="i-mdi-format-list-bulleted" class="text-primary text-3xl mr-3" />
       <span class="font-bold text-lg">Refund History</span>
     </div>
@@ -110,12 +110,9 @@ function getStatusConfig(item: RefundHistoryItem) {
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 @use '~/assets/scss/basic-table.scss';
-
-.text-primary {
-  color: var(--color-primary);
-}
+@use '~/assets/scss/card.scss';
 
 :deep(td) {
   color: var(--color-text-secondary);

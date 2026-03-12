@@ -258,7 +258,7 @@ const columns = computed<TableColumn<LinkedShortNameItem>[]>(() => {
           <template #body-top>
             <tr class="sticky-row header-row-2 bg-[var(--color-white)]" role="row">
               <th class="text-left table-filter-input" scope="col">
-                <UInput
+                <SearchInput
                   id="short-name-filter"
                   v-model="state.filters.filterPayload.shortName"
                   name="short-name-filter"
@@ -280,7 +280,7 @@ const columns = computed<TableColumn<LinkedShortNameItem>[]>(() => {
                 />
               </th>
               <th class="text-left table-filter-input" scope="col">
-                <UInput
+                <SearchInput
                   id="account-name-filter"
                   v-model="state.filters.filterPayload.accountName"
                   name="account-name-filter"
@@ -292,7 +292,7 @@ const columns = computed<TableColumn<LinkedShortNameItem>[]>(() => {
                 />
               </th>
               <th class="text-left table-filter-input" scope="col">
-                <UInput
+                <SearchInput
                   id="branch-name-filter"
                   v-model="state.filters.filterPayload.branchName"
                   name="branch-name-filter"
@@ -304,7 +304,7 @@ const columns = computed<TableColumn<LinkedShortNameItem>[]>(() => {
                 />
               </th>
               <th class="text-left table-filter-input" scope="col">
-                <UInput
+                <SearchInput
                   id="account-number-filter"
                   v-model="state.filters.filterPayload.accountNumber"
                   name="account-number-filter"
@@ -316,7 +316,7 @@ const columns = computed<TableColumn<LinkedShortNameItem>[]>(() => {
                 />
               </th>
               <th class="text-left table-filter-input" scope="col">
-                <UInput
+                <SearchInput
                   id="amount-owing-filter"
                   v-model="state.filters.filterPayload.amountOwing"
                   name="amount-owing-filter"
@@ -328,7 +328,7 @@ const columns = computed<TableColumn<LinkedShortNameItem>[]>(() => {
                 />
               </th>
               <th class="text-left table-filter-input" scope="col">
-                <UInput
+                <SearchInput
                   id="statement-id-filter"
                   v-model="state.filters.filterPayload.statementId"
                   name="statement-id-filter"

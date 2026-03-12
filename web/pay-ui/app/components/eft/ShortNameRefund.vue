@@ -290,14 +290,7 @@ watch(
 
 <style lang="scss" scoped>
 @use '~/assets/scss/basic-table.scss';
-
-.card-title {
-  background-color: var(--color-bg-light-blue);
-}
-
-.text-primary {
-  color: var(--color-primary);
-}
+@use '~/assets/scss/card.scss';
 
 .initiate-refund-btn {
   border-color: #003366 !important;

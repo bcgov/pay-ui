@@ -296,7 +296,7 @@ watch(
         </template>
 
         <template #actions-cell="{ row, index }">
-          <div class="flex items-center justify-end gap-2">
+          <div class="flex items-stretch justify-end">
             <template v-if="showUnlinkAccountButton(row.original)">
               <UButton
                 v-if="row.original.isParentRow"
@@ -312,10 +312,12 @@ watch(
               <UButton
                 :label="row.original.hasMultipleStatements && row.original.isParentRow ? 'Apply All' : 'Apply Payment'"
                 color="primary"
-                class="btn-table font-normal"
+                :class="[
+                  'btn-table font-normal',
+                  row.original.isParentRow ? 'rounded-r-none' : ''
+                ]"
                 :loading="loading"
                 :disabled="row.original.hasInsufficientFunds"
-                :class="{ 'opacity-40 pointer-events-none': row.original.hasInsufficientFunds }"
                 @click="handleApplyPayment(row.original)"
               />
               <UDropdownMenu
@@ -332,12 +334,10 @@ watch(
               >
                 <UButton
                   color="primary"
-                  size="sm"
                   :loading="loading"
-                  class="more-actions-btn px-1"
-                >
-                  <UIcon :name="state.actionDropdown[index] ? 'i-mdi-menu-up' : 'i-mdi-menu-down'" />
-                </UButton>
+                  class="btn-table btn-table-icon rounded-l-none border-l border-white"
+                  trailing-icon="i-mdi-menu-down"
+                />
               </UDropdownMenu>
             </template>
 
@@ -386,14 +386,7 @@ watch(
 
 <style lang="scss" scoped>
 @use '~/assets/scss/basic-table.scss';
-
-.card-title {
-  background-color: var(--color-bg-light-blue);
-}
-
-.text-primary {
-  color: var(--color-primary);
-}
+@use '~/assets/scss/card.scss';
 
 .expansion-icon {
   background-color: var(--color-primary);
@@ -415,11 +408,5 @@ watch(
   color: var(--color-primary);
   font-weight: normal;
   cursor: pointer;
-}
-
-.more-actions-btn {
-  border-top-left-radius: 0 !important;
-  border-bottom-left-radius: 0 !important;
-  margin-left: -1px;
 }
 </style>

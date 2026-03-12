@@ -329,7 +329,7 @@ const columns = computed<TableColumn<EFTShortnameResponse>[]>(() => {
           <template #body-top>
             <tr class="sticky-row header-row-2 bg-[var(--color-white)]" role="row">
               <th class="text-left table-filter-input" scope="col">
-                <UInput
+                <SearchInput
                   id="short-name-filter"
                   v-model="state.filters.filterPayload.shortName"
                   name="short-name-filter"
@@ -350,7 +350,7 @@ const columns = computed<TableColumn<EFTShortnameResponse>[]>(() => {
                   class="w-full"
                 />
               </th>
-              <th class="text-left table-filter-input" scope="col">
+              <th class="text-left table-filter-input min-w-[260px]" scope="col">
                 <DateRangeFilter
                   v-model="dateRangeModel"
                   placeholder="Last Payment Received Date"
@@ -360,7 +360,7 @@ const columns = computed<TableColumn<EFTShortnameResponse>[]>(() => {
                 />
               </th>
               <th class="text-left table-filter-input" scope="col">
-                <UInput
+                <SearchInput
                   id="credits-remaining-filter"
                   v-model="state.filters.filterPayload.creditsRemaining"
                   name="credits-remaining-filter"
@@ -372,7 +372,7 @@ const columns = computed<TableColumn<EFTShortnameResponse>[]>(() => {
                 />
               </th>
               <th class="text-left table-filter-input" scope="col">
-                <UInput
+                <SearchInput
                   id="linked-accounts-count-filter"
                   v-model="state.filters.filterPayload.linkedAccountsCount"
                   name="linked-accounts-count-filter"
@@ -437,11 +437,11 @@ const columns = computed<TableColumn<EFTShortnameResponse>[]>(() => {
           </template>
 
           <template #actions-cell="{ row }">
-            <div class="flex items-center justify-end gap-2">
+            <div class="flex items-stretch justify-end">
               <UButton
                 label="View Details"
                 color="primary"
-                class="btn-table font-normal"
+                class="btn-table font-normal rounded-r-none"
                 @click="navigateToDetails(row.original.id)"
               />
               <UDropdownMenu
@@ -457,8 +457,8 @@ const columns = computed<TableColumn<EFTShortnameResponse>[]>(() => {
               >
                 <UButton
                   color="primary"
-                  class="btn-table"
-                  trailing-icon="i-mdi-arrow-down"
+                  class="btn-table btn-table-icon rounded-l-none border-l border-white"
+                  trailing-icon="i-mdi-menu-down"
                 />
               </UDropdownMenu>
             </div>
@@ -491,18 +491,38 @@ const columns = computed<TableColumn<EFTShortnameResponse>[]>(() => {
   @use '~/assets/scss/search-table.scss';
   @use '~/assets/scss/colors.scss' as *;
 
-  // Equal width columns for this 6-column table
   :deep(table) {
-    table-layout: fixed;
+    table-layout: auto;
     width: 100%;
   }
 
-  :deep(table th),
-  :deep(table td) {
-    width: 16.666% !important;
+  :deep(table thead tr:first-child th) {
+    min-width: 150px;
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
   }
 
-  // Force inputs to fill cell width
+  :deep(.sticky-row th) {
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+  }
+
+  .header-row-2 {
+    :deep(.date button) {
+      overflow: hidden;
+      white-space: nowrap;
+      background-color: var(--color-bg-shade) !important;
+    }
+  }
+
+  :deep(.sticky-row th.clear-filters-th) {
+    text-align: right !important;
+  }
+
+  :deep(.clear-filters-btn) {
+    max-width: 150px !important;
+  }
+
   :deep(.sticky-row th .w-full),
   :deep(.sticky-row th > div),
   :deep(.sticky-row th input),

@@ -21,12 +21,14 @@ function handleDownloadReceipt() {
 
 <template>
   <div class="bg-white rounded shadow-sm border border-gray-200">
-    <div class="flex items-center h-[75px] px-6 bg-blue-50">
-      <UIcon name="i-mdi-file-document" class="text-primary text-3xl mr-3" />
-      <span class="font-bold text-lg">Transaction Details</span>
+    <div class="card-title flex items-center px-6 py-5 bg-bcgov-lightblue">
+      <UIcon name="i-mdi-file-document" class="text-primary text-3xl mr-4" />
+      <h2 class="text-lg font-bold text-gray-900">
+        Transaction Details
+      </h2>
     </div>
 
-    <div class="p-6 space-y-6">
+    <div class="p-6 space-y-6 text-[var(--color-text-secondary)]">
       <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
         <span class="font-bold text-gray-900">Transaction Date</span>
         <span class="sm:col-span-3">
@@ -49,19 +51,19 @@ function handleDownloadReceipt() {
       </div>
 
       <div class="overflow-x-auto">
-        <table class="w-full border-collapse">
+        <table class="w-full border-collapse table-fixed">
           <thead>
             <tr class="border-b border-gray-200">
-              <th class="text-left py-3 pr-4 font-semibold text-gray-700">
+              <th class="w-1/4 text-left py-3 pr-4 font-semibold">
                 Application
               </th>
-              <th class="text-left py-3 px-4 font-semibold text-gray-700 border-l border-gray-200">
+              <th class="w-1/3 text-left py-3 px-4 font-semibold border-l border-gray-200">
                 Type
               </th>
-              <th class="text-left py-3 px-4 font-semibold text-gray-700 border-l border-gray-200">
+              <th class="w-1/6 text-left py-3 px-4 font-semibold border-l border-gray-200">
                 Number
               </th>
-              <th class="text-left py-3 pl-4 font-semibold text-gray-700 border-l border-gray-200">
+              <th class="w-1/4 text-left py-3 pl-4 font-semibold border-l border-gray-200">
                 Detail
               </th>
             </tr>
@@ -71,13 +73,13 @@ function handleDownloadReceipt() {
               <td class="py-4 pr-4 align-top">
                 {{ transactionData.applicationName }}
               </td>
-              <td class="py-4 px-4 align-top">
+              <td class="py-4 px-4 align-top border-l border-gray-200">
                 {{ transactionData.applicationType }}
               </td>
-              <td class="py-4 px-4 align-top">
+              <td class="py-4 px-4 align-top border-l border-gray-200">
                 {{ transactionData.businessIdentifier }}
               </td>
-              <td class="py-4 pl-4 align-top">
+              <td class="py-4 pl-4 align-top border-l border-gray-200">
                 <template v-if="transactionData.applicationDetails">
                   <div
                     v-for="(detail, index) in transactionData.applicationDetails"
@@ -97,21 +99,21 @@ function handleDownloadReceipt() {
       </div>
 
       <div class="overflow-x-auto">
-        <table class="w-full border-collapse">
+        <table class="w-full border-collapse table-fixed">
           <thead>
             <tr class="border-b border-gray-200">
-              <th class="text-left py-3 pr-4 font-semibold text-gray-700">
+              <th class="w-1/4 text-left py-3 pr-4 font-semibold">
                 Transaction ID
               </th>
-              <th class="text-left py-3 px-4 font-semibold text-gray-700 border-l border-gray-200">
+              <th class="w-1/3 text-left py-3 px-4 font-semibold border-l border-gray-200">
                 Invoice Reference ID
               </th>
-              <th
-                v-if="transactionData.routingSlip"
-                class="text-left py-3 pl-4 font-semibold text-gray-700 border-l border-gray-200"
-              >
-                Routing Slip Number
+              <th class="w-1/6 text-left py-3 px-4 font-semibold border-l border-gray-200">
+                <template v-if="transactionData.routingSlip">
+                  Routing Slip Number
+                </template>
               </th>
+              <th class="w-1/4" />
             </tr>
           </thead>
           <tbody>
@@ -119,15 +121,13 @@ function handleDownloadReceipt() {
               <td class="py-4 pr-4 align-top">
                 {{ transactionData.invoiceId }}
               </td>
-              <td class="py-4 px-4 align-top">
+              <td class="py-4 px-4 align-top border-l border-gray-200">
                 {{ transactionData.invoiceReferenceId }}
               </td>
-              <td
-                v-if="transactionData.routingSlip"
-                class="py-4 pl-4 align-top"
-              >
+              <td class="py-4 px-4 align-top border-l border-gray-200">
                 {{ transactionData.routingSlip }}
               </td>
+              <td />
             </tr>
           </tbody>
         </table>
@@ -135,3 +135,11 @@ function handleDownloadReceipt() {
     </div>
   </div>
 </template>
+
+<style lang="scss" scoped>
+@use '~/assets/scss/card.scss';
+
+th, td {
+  font-size: inherit;
+}
+</style>

@@ -398,7 +398,7 @@ onMounted(async () => {
 
 <template>
   <div class="flex flex-col">
-    <div class="flex-shrink-0 mb-2 mt-4">
+    <div class="flex-shrink-0 mb-2 mt-8">
       <h1 class="text-gray-900 mb-4">
         {{ $t(getTransactionPageTitle()) }}
       </h1>

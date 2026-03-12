@@ -193,6 +193,15 @@ function canApproveDeclineProductRefund(productRole: string) {
   return verifyRoles(validRoles)
 }
 
+function getRoleProductCodes(allProductCodes: string[]): string[] {
+  if (verifyRoles([Role.ViewAllTransactions])) {
+    return allProductCodes
+  }
+  return allProductCodes.filter(code =>
+    verifyRoles([`${code.toLowerCase()}${RolePattern.ProductViewTransaction}` as Role])
+  )
+}
+
 /**
  * check its in refunc process
  * @param  {string} status
@@ -348,5 +357,6 @@ export default {
   isReversable,
   canInitiateProductRefund,
   canApproveDeclineProductRefund,
-  isProductRefundViewer
+  isProductRefundViewer,
+  getRoleProductCodes
 }

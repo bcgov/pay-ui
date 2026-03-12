@@ -1,5 +1,14 @@
 @use 'colors.scss' as *;
 
+::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.hint-text {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
 // ============================================
 // Table Styles
 // ============================================
@@ -59,6 +68,11 @@ button label,
   padding-left: 19px !important;
   padding-right: 19px !important;
   cursor: pointer;
+
+  &.btn-table-icon {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
 }
 
 // Utility class for table filter inputs (40px height)
@@ -150,6 +164,20 @@ button label,
     }
   }
 }
+
+.table-filter-input .filter-clear-btn {
+  height: auto !important;
+  padding: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+.filter-clear-btn * {
+  font-size: inherit !important;
+}
+
 
 body.table-wide-active {
   .app-inner-container {

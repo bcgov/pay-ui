@@ -77,13 +77,13 @@ function showRefundRequestBadge(invoiceRow: Invoice) {
       .includes(invoiceRow.latestRefundStatus as RefundApprovalStatus))
 }
 
-function showViewDetails(invoiceRow: Invoice) {
-  const isCancelled = isAlreadyCancelled(invoiceRow.statusCode)
-  const isRefund = invoiceRow.latestRefundStatus
-    && ![RefundApprovalStatus.DECLINED]
-      .includes(invoiceRow.latestRefundStatus as RefundApprovalStatus)
+function showViewDetails(invoiceRow: Invoice): boolean {
+  if (isAlreadyCancelled(invoiceRow.statusCode)) { return true }
+  if (!invoiceRow.latestRefundStatus) { return false }
+  if (invoiceRow.latestRefundStatus !== RefundApprovalStatus.DECLINED) { return true }
 
-  return isCancelled || isRefund
+  const productApproverRole = (invoiceRow.product?.toLowerCase() ?? '') + RolePattern.ProductRefundApprover
+  return CommonUtils.canApproveDeclineProductRefund(productApproverRole)
 }
 </script>
 

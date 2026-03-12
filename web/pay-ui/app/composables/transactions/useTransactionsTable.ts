@@ -166,6 +166,16 @@ export async function useTransactionsTable() {
     }
   })
 
+  watch(searchTransactionsTableHeaders, (headers) => {
+    const visibility: Record<string, boolean> = {}
+    ;(headers as ExtendedTableColumn[]).forEach((item) => {
+      if (item.accessorKey) {
+        visibility[item.accessorKey] = item.display ?? true
+      }
+    })
+    Object.assign(store.searchColumnVisibility, visibility)
+  }, { deep: true })
+
   async function getNext() {
     if (loadState.isLoading || loadState.reachedEnd) { return }
     transactions.filters.pageNumber = (transactions.filters.pageNumber ?? 1) + 1

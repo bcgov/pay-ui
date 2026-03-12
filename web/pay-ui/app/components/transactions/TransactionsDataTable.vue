@@ -597,10 +597,10 @@ watch(() => transactions.results, () => {
             >
               <th
                 v-if="columnVisibility.accountName"
-                class="text-left table-filter-input"
+                class="text-left table-filter-input min-w-[160px]"
                 scope="col"
               >
-                <UInput
+                <SearchInput
                   v-model="fp.accountName"
                   placeholder="Account Name"
                   size="md"
@@ -610,7 +610,7 @@ watch(() => transactions.results, () => {
               </th>
               <th
                 v-if="columnVisibility.product"
-                class="text-left table-filter-input"
+                class="text-left table-filter-input min-w-[170px]"
                 scope="col"
               >
                 <StatusList
@@ -623,10 +623,10 @@ watch(() => transactions.results, () => {
               </th>
               <th
                 v-if="columnVisibility.lineItems"
-                class="text-left table-filter-input"
+                class="text-left table-filter-input min-w-[170px]"
                 scope="col"
               >
-                <UInput
+                <SearchInput
                   v-model="fp.lineItems"
                   placeholder="Transaction Type"
                   size="md"
@@ -636,10 +636,10 @@ watch(() => transactions.results, () => {
               </th>
               <th
                 v-if="columnVisibility.details"
-                class="text-left table-filter-input"
+                class="text-left table-filter-input min-w-[120px]"
                 scope="col"
               >
-                <UInput
+                <SearchInput
                   v-model="fp.details"
                   placeholder="Details"
                   size="md"
@@ -649,10 +649,10 @@ watch(() => transactions.results, () => {
               </th>
               <th
                 v-if="columnVisibility.businessIdentifier"
-                class="text-left table-filter-input"
+                class="text-left table-filter-input min-w-[120px]"
                 scope="col"
               >
-                <UInput
+                <SearchInput
                   v-model="fp.businessIdentifier"
                   placeholder="Number"
                   size="md"
@@ -662,10 +662,10 @@ watch(() => transactions.results, () => {
               </th>
               <th
                 v-if="columnVisibility.folioNumber"
-                class="text-left table-filter-input"
+                class="text-left table-filter-input min-w-[120px]"
                 scope="col"
               >
-                <UInput
+                <SearchInput
                   v-model="fp.folioNumber"
                   placeholder="Folio #"
                   size="md"
@@ -675,10 +675,10 @@ watch(() => transactions.results, () => {
               </th>
               <th
                 v-if="columnVisibility.createdName"
-                class="text-left table-filter-input"
+                class="text-left table-filter-input min-w-[150px]"
                 scope="col"
               >
-                <UInput
+                <SearchInput
                   v-model="fp.createdName"
                   placeholder="Initiated By"
                   size="md"
@@ -688,7 +688,7 @@ watch(() => transactions.results, () => {
               </th>
               <th
                 v-if="columnVisibility.createdOn"
-                class="text-left table-filter-input"
+                class="text-left table-filter-input date min-w-[230px]"
                 scope="col"
               >
                 <DateRangeFilter
@@ -700,15 +700,15 @@ watch(() => transactions.results, () => {
               </th>
               <th
                 v-if="columnVisibility.total"
-                class="text-left table-filter-input"
+                class="text-left table-filter-input min-w-[100px]"
                 scope="col"
               />
               <th
                 v-if="columnVisibility.id"
-                class="text-left table-filter-input"
+                class="text-left table-filter-input min-w-[160px]"
                 scope="col"
               >
-                <UInput
+                <SearchInput
                   v-model="fp.id"
                   placeholder="Transaction ID"
                   size="md"
@@ -718,10 +718,10 @@ watch(() => transactions.results, () => {
               </th>
               <th
                 v-if="columnVisibility.invoiceNumber"
-                class="text-left table-filter-input"
+                class="text-left table-filter-input min-w-[130px]"
                 scope="col"
               >
-                <UInput
+                <SearchInput
                   v-model="fp.invoiceNumber"
                   placeholder="Invoice #"
                   size="md"
@@ -731,7 +731,7 @@ watch(() => transactions.results, () => {
               </th>
               <th
                 v-if="columnVisibility.paymentMethod"
-                class="text-left table-filter-input"
+                class="text-left table-filter-input min-w-[170px]"
                 scope="col"
               >
                 <StatusList
@@ -744,7 +744,7 @@ watch(() => transactions.results, () => {
               </th>
               <th
                 v-if="columnVisibility.statusCode"
-                class="text-left table-filter-input"
+                class="text-left table-filter-input min-w-[130px]"
                 scope="col"
               >
                 <StatusList
@@ -757,10 +757,10 @@ watch(() => transactions.results, () => {
               </th>
               <th
                 v-if="columnVisibility['downloads']"
-                class="table-filter-input"
+                class="table-filter-input min-w-[100px]"
                 scope="col"
               />
-              <th class="clear-filters-th" scope="col">
+              <th class="clear-filters-th min-w-[160px]" scope="col">
                 <UButton
                   v-if="transactions.filters.isActive"
                   label="Clear Filters"
@@ -995,11 +995,14 @@ watch(() => transactions.results, () => {
 
           <template #actions-cell="{ row }">
             <template v-if="isDropdownRow(row)" />
-            <div v-else class="flex items-center justify-end gap-2">
+            <div v-else class="flex items-stretch justify-start">
               <UButton
                 label="View Details"
                 color="primary"
-                class="btn-table font-normal"
+                :class="[
+                  'btn-table font-normal',
+                  isRefundable(asTransaction(row)) ? 'rounded-r-none' : ''
+                ]"
                 @click="viewDetails(asTransaction(row))"
               />
               <UDropdownMenu
@@ -1016,8 +1019,8 @@ watch(() => transactions.results, () => {
               >
                 <UButton
                   color="primary"
-                  class="btn-table"
-                  trailing-icon="i-mdi-arrow-down"
+                  class="btn-table btn-table-icon rounded-l-none border-l border-white"
+                  trailing-icon="i-mdi-menu-down"
                 />
               </UDropdownMenu>
             </div>
@@ -1064,19 +1067,46 @@ watch(() => transactions.results, () => {
   width: 100%;
 }
 
-:deep(table thead tr:first-child th),
-:deep(.sticky-row th) {
-  min-width: 120px;
+:deep(table thead tr:first-child th) {
+  min-width: 150px;
   padding-top: 0.75rem !important;
   padding-bottom: 0.75rem !important;
 }
 
-:deep(.sticky-row th.clear-filters-th) {
-  text-align: right !important;
+:deep(.sticky-row th) {
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
 }
 
-:deep(.clear-filters-btn) {
-  max-width: 150px !important;
+.header-row-2 {
+  :deep(.date button) {
+    overflow: hidden;
+    white-space: nowrap;
+    background-color: var(--color-bg-shade) !important;
+  }
+}
+
+:deep(table thead tr th[data-pinned="right"]),
+:deep(table tbody tr td[data-pinned="right"]) {
+  border-left: none !important;
+  box-shadow: -2px 0 4px 0 rgba(0, 0, 0, 0.1) !important;
+  background-color: var(--color-white) !important;
+}
+
+:deep(.sticky-row th.clear-filters-th) {
+  position: sticky !important;
+  right: 0 !important;
+  background-color: var(--color-white) !important;
+  border-left: none !important;
+  box-shadow: -2px 0 4px 0 rgba(0, 0, 0, 0.1) !important;
+  z-index: 2 !important;
+  text-align: left !important;
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+}
+
+:deep(.clear-filters-th .clear-filters-btn) {
+  width: auto !important;
 }
 
 :deep(.sticky-row th .w-full),
