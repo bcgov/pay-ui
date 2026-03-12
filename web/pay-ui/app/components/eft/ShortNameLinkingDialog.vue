@@ -100,7 +100,12 @@ watch(() => props.open, (open) => {
   <div>
     <UModal
       v-model:open="isOpen"
-      :ui="{ content: 'sm:max-w-[700px] sm:w-[700px] overflow-visible', body: 'overflow-visible' }"
+      :ui="{
+        content: 'sm:max-w-[700px] sm:w-[700px] overflow-visible',
+        body: 'overflow-visible border-b-0',
+        header: 'border-0',
+        footer: 'border-0'
+      }"
     >
       <template #header>
         <div class="flex items-center justify-between w-full pr-2">
@@ -119,11 +124,11 @@ watch(() => props.open, (open) => {
 
       <template #body>
         <div class="space-y-4 py-2 overflow-visible relative z-[60]">
-          <div>
-            <p class="text-gray-700">
+          <div class="text-[var(--color-text-secondary)]">
+            <p>
               Short Name Type: {{ shortNameTypeDescription }}
             </p>
-            <p class="text-gray-600">
+            <p>
               After the account has been linked, payment will be applied at 6:00 p.m. Pacific Time.
             </p>
           </div>

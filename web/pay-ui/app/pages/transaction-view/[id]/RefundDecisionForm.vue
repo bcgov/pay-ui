@@ -76,12 +76,14 @@ function declineConfirm() {
 
 <template>
   <div class="bg-white rounded shadow-sm border border-gray-200">
-    <div class="flex items-center h-[75px] px-6 bg-blue-50">
+    <div class="card-title flex items-center px-6 py-5 bg-bcgov-lightblue">
       <UIcon name="i-mdi-file-document" class="text-primary text-3xl mr-3" />
-      <span class="font-bold text-lg">Refund Request</span>
+      <h2 class="text-lg font-bold text-gray-900">
+        Refund Request
+      </h2>
     </div>
 
-    <div class="p-6 space-y-4">
+    <div class="p-6 space-y-4 text-[var(--color-text-secondary)]">
       <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
         <span class="font-bold text-gray-900">Request Date</span>
         <span class="sm:col-span-3">
@@ -201,6 +203,7 @@ function declineConfirm() {
             color="primary"
             variant="solid"
             size="md"
+            class="font-bold"
           >
             {{ getRefundStatusText() }}
           </UBadge>
@@ -276,7 +279,7 @@ function declineConfirm() {
       </template>
 
       <template #body>
-        <p class="pt-4 pb-4">
+        <p class="pt-4 pb-4 text-[var(--color-text-secondary)]">
           By declining the request, an email will be sent to the requestor including the reason entered below:
         </p>
         <UInput
@@ -309,8 +312,6 @@ function declineConfirm() {
   </div>
 </template>
 
-<style scoped>
-.text-primary {
-  color: var(--color-primary);
-}
+<style lang="scss" scoped>
+@use '~/assets/scss/card.scss';
 </style>

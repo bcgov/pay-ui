@@ -35,10 +35,10 @@ const state = reactive({
 })
 
 const headers = [
-  { id: 'createdName', accessorKey: 'createdName', header: 'Initiated By' },
-  { id: 'comment', accessorKey: 'comment', header: 'Reason for Refund' },
-  { id: 'refundMethod', accessorKey: 'refundMethod', header: 'Refund Method' },
-  { id: 'refundAmount', accessorKey: 'refundAmount', header: 'Refund Amount' },
+  { id: 'createdName', accessorKey: 'createdName', header: 'Initiated By', meta: { class: { th: 'w-[15%]', td: 'w-[15%]' } } },
+  { id: 'comment', accessorKey: 'comment', header: 'Reason for Refund', meta: { class: { th: 'w-[22%]', td: 'w-[22%]' } } },
+  { id: 'refundMethod', accessorKey: 'refundMethod', header: 'Refund Method', meta: { class: { th: 'w-[22%]', td: 'w-[22%]' } } },
+  { id: 'refundAmount', accessorKey: 'refundAmount', header: 'Refund Amount', meta: { class: { th: 'w-[22%]', td: 'w-[22%]' } } },
   { id: 'actions', accessorKey: 'actions', header: 'Actions', meta: { class: { th: 'text-right', td: 'text-right' } } }
 ]
 
@@ -187,7 +187,7 @@ watch(
         :data="filteredResults"
         :columns="headers"
         :loading="state.loading"
-        class="w-full"
+        class="refund-table w-full"
       >
         <template #refundMethod-cell="{ row }">
           <span>
@@ -290,13 +290,18 @@ watch(
 
 <style lang="scss" scoped>
 @use '~/assets/scss/basic-table.scss';
+@use '~/assets/scss/card.scss';
 
-.card-title {
-  background-color: var(--color-bg-light-blue);
-}
+.refund-table {
+  :deep(table) {
+    table-layout: fixed;
+  }
 
-.text-primary {
-  color: var(--color-primary);
+  :deep(td) {
+    vertical-align: top;
+    padding-top: 14px;
+    padding-bottom: 8px;
+  }
 }
 
 .initiate-refund-btn {

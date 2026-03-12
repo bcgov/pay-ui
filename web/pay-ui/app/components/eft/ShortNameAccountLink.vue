@@ -62,10 +62,11 @@ const eftShortNameSummary = computed<EFTShortnameResponse | null>(() => {
 })
 
 const headers = [
-  { accessorKey: 'linkedAccount', header: 'Linked Account' },
-  { accessorKey: 'accountBranch', header: 'Branch' },
-  { accessorKey: 'unpaidStatementIds', header: 'Unpaid Statement Number' },
-  { accessorKey: 'amountOwing', header: 'Amount Owing' },
+  { accessorKey: 'linkedAccount', header: 'Linked Account', meta: { class: { th: 'w-[15%]', td: 'w-[15%]' } } },
+  { accessorKey: 'accountBranch', header: 'Branch', meta: { class: { th: 'w-[22%]', td: 'w-[22%]' } } },
+  { accessorKey: 'unpaidStatementIds', header: 'Unpaid Statement Number',
+    meta: { class: { th: 'w-[22%]', td: 'w-[22%]' } } },
+  { accessorKey: 'amountOwing', header: 'Amount Owing', meta: { class: { th: 'w-[22%]', td: 'w-[22%]' } } },
   { accessorKey: 'actions', header: 'Actions', meta: { class: { th: 'text-right', td: 'text-right' } } }
 ]
 
@@ -216,7 +217,7 @@ watch(
     </div>
 
     <div v-if="isLinked || loading" class="px-0">
-      <div class="py-4 px-6">
+      <div class="py-4 px-6 bg-white">
         <UButton
           label="+ Link a New Account"
           color="primary"
@@ -296,7 +297,7 @@ watch(
         </template>
 
         <template #actions-cell="{ row, index }">
-          <div class="flex items-center justify-end gap-2">
+          <div class="flex items-stretch justify-end">
             <template v-if="showUnlinkAccountButton(row.original)">
               <UButton
                 v-if="row.original.isParentRow"
@@ -312,10 +313,12 @@ watch(
               <UButton
                 :label="row.original.hasMultipleStatements && row.original.isParentRow ? 'Apply All' : 'Apply Payment'"
                 color="primary"
-                class="btn-table font-normal"
+                :class="[
+                  'btn-table font-normal',
+                  row.original.isParentRow ? 'rounded-r-none' : ''
+                ]"
                 :loading="loading"
                 :disabled="row.original.hasInsufficientFunds"
-                :class="{ 'opacity-40 pointer-events-none': row.original.hasInsufficientFunds }"
                 @click="handleApplyPayment(row.original)"
               />
               <UDropdownMenu
@@ -332,12 +335,10 @@ watch(
               >
                 <UButton
                   color="primary"
-                  size="sm"
                   :loading="loading"
-                  class="more-actions-btn px-1"
-                >
-                  <UIcon :name="state.actionDropdown[index] ? 'i-mdi-menu-up' : 'i-mdi-menu-down'" />
-                </UButton>
+                  class="btn-table btn-table-icon rounded-l-none border-l border-white"
+                  trailing-icon="i-mdi-menu-down"
+                />
               </UDropdownMenu>
             </template>
 
@@ -386,13 +387,18 @@ watch(
 
 <style lang="scss" scoped>
 @use '~/assets/scss/basic-table.scss';
+@use '~/assets/scss/card.scss';
 
-.card-title {
-  background-color: var(--color-bg-light-blue);
-}
+.account-link-table {
+  :deep(table) {
+    table-layout: fixed;
+  }
 
-.text-primary {
-  color: var(--color-primary);
+  :deep(td) {
+    vertical-align: top;
+    padding-top: 14px;
+    padding-bottom: 8px;
+  }
 }
 
 .expansion-icon {
@@ -415,11 +421,5 @@ watch(
   color: var(--color-primary);
   font-weight: normal;
   cursor: pointer;
-}
-
-.more-actions-btn {
-  border-top-left-radius: 0 !important;
-  border-bottom-left-radius: 0 !important;
-  margin-left: -1px;
 }
 </style>

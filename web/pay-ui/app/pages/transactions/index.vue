@@ -104,7 +104,8 @@ onMounted(() => {
 .tab-container {
   display: inline-flex;
   background-color: #003366;
-  border-radius: 12px;
+  border-radius: 4px;
+  margin-bottom: 8px;
 }
 
 .tab-button {
@@ -112,7 +113,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 14px 24px;
+  padding: 8px 16px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -126,11 +127,11 @@ onMounted(() => {
 
   // Round outer corners for first and last tabs
   &:first-child {
-    border-radius: 12px 0 0 12px;
+    border-radius: 4px 0 0 4px;
   }
 
   &:last-child {
-    border-radius: 0 12px 12px 0;
+    border-radius: 0 4px 4px 0;
   }
 
   &:hover:not(.active) {
@@ -142,7 +143,7 @@ onMounted(() => {
     background-color: white;
     color: #212529;
     border: 2px solid #1a1a1a;
-    border-radius: 12px;
+    border-radius: 4px;
     margin: 4px;
   }
 

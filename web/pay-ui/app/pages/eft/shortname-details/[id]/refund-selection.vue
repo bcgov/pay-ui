@@ -76,7 +76,7 @@ onMounted(() => {
                     v-model="state.refundType"
                     type="radio"
                     :value="EFTRefundMethod.EFT"
-                    class="w-5 h-5 text-primary border-gray-300 focus:ring-primary"
+                    class="w-5 h-5 border-gray-300"
                   >
                   <span class="ml-3 text-gray-700">Direct Deposit (using CAS information)</span>
                 </label>
@@ -85,7 +85,7 @@ onMounted(() => {
                     v-model="state.refundType"
                     type="radio"
                     :value="EFTRefundMethod.CHEQUE"
-                    class="w-5 h-5 text-primary border-gray-300 focus:ring-primary"
+                    class="w-5 h-5 border-gray-300"
                   >
                   <span class="ml-3 text-gray-700">Issue a cheque</span>
                 </label>
@@ -121,6 +121,6 @@ onMounted(() => {
 
 <style scoped>
 input[type="radio"] {
-  accent-color: var(--color-primary);
+  accent-color: var(--ui-primary);
 }
 </style>

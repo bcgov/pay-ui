@@ -210,12 +210,14 @@ watch(() => props.refundMethod, (newData) => {
 <template>
   <div>
     <div class="bg-white rounded shadow-sm border border-gray-200">
-      <div class="flex items-center h-[75px] px-6 bg-blue-50">
+      <div class="card-title flex items-center px-6 py-5 bg-bcgov-lightblue">
         <UIcon name="i-mdi-file-document" class="text-primary text-3xl mr-3" />
-        <span class="font-bold text-lg">Refund Request</span>
+        <h2 class="text-lg font-bold text-gray-900">
+          Refund Request
+        </h2>
       </div>
 
-      <div class="p-6 space-y-4">
+      <div class="p-6 space-y-4 text-[var(--color-text-secondary)]">
         <!-- Previous refund alert -->
         <UAlert
           v-if="previousRefundedAmount > 0"
@@ -229,22 +231,32 @@ watch(() => props.refundMethod, (newData) => {
 
         <form @submit.prevent="onReviewBtnClick">
           <!-- Refund Type -->
-          <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-4">
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-8">
             <span class="font-bold text-gray-900">Refund Type</span>
             <div class="sm:col-span-3">
-              <div class="flex flex-col gap-2">
-                <URadioGroup
-                  v-model="refundFormData.refundType"
-                  :items="[
-                    { label: 'Full Refund',
-                      value: RefundType.FULL_REFUND,
-                      disabled: formDisabled || !isFullRefundAllowed },
-                    { label: 'Partial Refund',
-                      value: RefundType.PARTIAL_REFUND,
-                      disabled: formDisabled || !isPartialRefundAllowed }
-                  ]"
-                  @update:model-value="onRefundTypeChange"
-                />
+              <div class="space-y-4">
+                <label class="flex items-center cursor-pointer">
+                  <input
+                    v-model="refundFormData.refundType"
+                    type="radio"
+                    :value="RefundType.FULL_REFUND"
+                    :disabled="formDisabled || !isFullRefundAllowed"
+                    class="w-5 h-5"
+                    @change="onRefundTypeChange"
+                  >
+                  <span class="ml-3 text-gray-700">Full Refund</span>
+                </label>
+                <label class="flex items-center cursor-pointer">
+                  <input
+                    v-model="refundFormData.refundType"
+                    type="radio"
+                    :value="RefundType.PARTIAL_REFUND"
+                    :disabled="formDisabled || !isPartialRefundAllowed"
+                    class="w-5 h-5"
+                    @change="onRefundTypeChange"
+                  >
+                  <span class="ml-3 text-gray-700">Partial Refund</span>
+                </label>
                 <p v-if="refundTypeHint" class="text-sm text-gray-500">
                   {{ refundTypeHint }}
                 </p>
@@ -258,7 +270,7 @@ watch(() => props.refundMethod, (newData) => {
           <!-- Partial Refund Line Items -->
           <div
             v-if="refundFormData.refundType === RefundType.PARTIAL_REFUND"
-            class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-4"
+            class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-8"
           >
             <span class="font-bold text-gray-900">Specify Refund Amount</span>
             <div class="sm:col-span-3">
@@ -286,7 +298,7 @@ watch(() => props.refundMethod, (newData) => {
                       size="lg"
                       @update:model-value="calculateTotalRequestedAmount"
                     />
-                    <p class="text-xs text-gray-500 mt-1">
+                    <p class="hint-text mt-1">
                       Filing Fees / {{ CommonUtils.formatAmount(Number(lineItem.filingFees)) }}
                     </p>
                     <p
@@ -305,7 +317,7 @@ watch(() => props.refundMethod, (newData) => {
                       size="lg"
                       @update:model-value="calculateTotalRequestedAmount"
                     />
-                    <p class="text-xs text-gray-500 mt-1">
+                    <p class="hint-text mt-1">
                       Service Fees / {{ CommonUtils.formatAmount(Number(lineItem.serviceFees)) }}
                     </p>
                     <p
@@ -324,7 +336,7 @@ watch(() => props.refundMethod, (newData) => {
                       size="lg"
                       @update:model-value="calculateTotalRequestedAmount"
                     />
-                    <p class="text-xs text-gray-500 mt-1">
+                    <p class="hint-text mt-1">
                       Priority Fees / {{ CommonUtils.formatAmount(Number(lineItem.priorityFees)) }}
                     </p>
                     <p
@@ -343,7 +355,7 @@ watch(() => props.refundMethod, (newData) => {
                       size="lg"
                       @update:model-value="calculateTotalRequestedAmount"
                     />
-                    <p class="text-xs text-gray-500 mt-1">
+                    <p class="hint-text mt-1">
                       Future Effective Fees / {{ CommonUtils.formatAmount(Number(lineItem.futureEffectiveFees)) }}
                     </p>
                     <p
@@ -363,7 +375,7 @@ watch(() => props.refundMethod, (newData) => {
           </div>
 
           <!-- Total Refund Amount -->
-          <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-4">
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-8">
             <span class="font-bold text-gray-900">Total Refund Amount</span>
             <span class="sm:col-span-3">
               {{ CommonUtils.formatAmount(Number(refundFormData.totalRefundAmount)) }}
@@ -371,13 +383,13 @@ watch(() => props.refundMethod, (newData) => {
           </div>
 
           <!-- Refund Method -->
-          <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-4">
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-8">
             <span class="font-bold text-gray-900">Refund Method</span>
             <span class="sm:col-span-3">{{ refundFormData.refundMethod }}</span>
           </div>
 
           <!-- Notification Email -->
-          <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-4">
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-8">
             <span class="font-bold text-gray-900">Notification Email</span>
             <div class="sm:col-span-3">
               <UInput
@@ -389,7 +401,7 @@ watch(() => props.refundMethod, (newData) => {
                 size="lg"
                 class="w-full"
               />
-              <p class="text-xs text-gray-500 mt-1">
+              <p class="hint-text mt-1">
                 Defaults to account email. Enter an email if missing, or to use a different address
               </p>
               <p v-if="notificationEmailError" class="text-xs text-red-500 mt-1">
@@ -399,7 +411,7 @@ watch(() => props.refundMethod, (newData) => {
           </div>
 
           <!-- Reasons for Refund -->
-          <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-4">
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-8">
             <span class="font-bold text-gray-900">Reasons for Refund</span>
             <div class="sm:col-span-3">
               <UInput
@@ -410,7 +422,7 @@ watch(() => props.refundMethod, (newData) => {
                 size="lg"
                 class="w-full"
               />
-              <p class="text-xs text-gray-500 mt-1">
+              <p class="hint-text mt-1">
                 The reason will be displayed in client's notification email when refund is approved
               </p>
               <p v-if="reasonsForRefundError" class="text-xs text-red-500 mt-1">
@@ -420,7 +432,7 @@ watch(() => props.refundMethod, (newData) => {
           </div>
 
           <!-- Staff Comment -->
-          <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-4">
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-8">
             <span class="font-bold text-gray-900">Staff Comment</span>
             <div class="sm:col-span-3">
               <UInput
@@ -431,7 +443,7 @@ watch(() => props.refundMethod, (newData) => {
                 size="lg"
                 class="w-full"
               />
-              <p class="text-xs text-gray-500 mt-1">
+              <p class="hint-text mt-1">
                 Only viewable by staff
               </p>
             </div>
@@ -460,8 +472,10 @@ watch(() => props.refundMethod, (newData) => {
   </div>
 </template>
 
-<style scoped>
-.text-primary {
-  color: var(--color-primary);
+<style lang="scss" scoped>
+@use '~/assets/scss/card.scss';
+
+input[type="radio"] {
+  accent-color: var(--ui-primary);
 }
 </style>

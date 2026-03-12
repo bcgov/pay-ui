@@ -39,22 +39,19 @@ function clearSelection() {
       :placeholder="computedPlaceholder"
       size="md"
       class="input-text w-full"
-      :class="{ '!pr-14': model }"
       :ui="{
         placeholder: 'placeholder',
         content: 'wide-dropdown min-w-max',
-        trailing: model ? '!pr-8' : ''
+        base: model ? '!pr-16' : ''
       }"
     />
     <button
       v-if="model"
       type="button"
-      class="absolute top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-700
-      focus:outline-none focus:ring-2 focus:ring-gray-500 rounded z-10"
-      style="right: 0.5rem;"
+      class="filter-clear-btn absolute top-1/2 -translate-y-1/2 right-9 flex items-center focus:outline-none z-10"
       @click.stop="clearSelection"
     >
-      <UIcon name="i-mdi-close" class="size-5" />
+      <UIcon name="i-mdi-close" class="size-6" style="color: var(--color-primary) !important" />
     </button>
   </div>
 </template>

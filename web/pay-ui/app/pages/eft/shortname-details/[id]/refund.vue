@@ -531,6 +531,7 @@ onMounted(async () => {
                         .includes(state.refundDetails.chequeStatus as ChequeRefundCode)"
                     color="error"
                     size="lg"
+                    class="font-bold"
                   >
                     {{ getEFTRefundStatusDescription(state.refundDetails)?.toUpperCase() }}
                   </UBadge>

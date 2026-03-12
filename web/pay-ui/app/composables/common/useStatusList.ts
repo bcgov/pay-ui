@@ -5,6 +5,7 @@ import ShortNameUtils from '~/utils/short-name-util'
 import { PaymentMethodSelectItems } from '~/enums'
 import { productDisplay } from '~/utils/product-util'
 import { PaymentStatusList } from '~/utils/invoice-status-util'
+import CommonUtils from '~/utils/common-util'
 
 interface StatusListProps {
   value?: string
@@ -148,11 +149,14 @@ export function useInvoiceStatusList() {
   }
 }
 
-// Helper to get product (Application Type) list
+// Helper to get product (Application Type) list, filtered by the user's roles
 export function useProductList() {
-  const list = computed(() =>
-    Object.entries(productDisplay).map(([value, label]) => ({ label, value }))
-  )
+  const allProducts = Object.entries(productDisplay).map(([value, label]) => ({ label, value }))
+
+  const list = computed(() => {
+    const accessible = CommonUtils.getRoleProductCodes(allProducts.map(p => p.value))
+    return allProducts.filter(p => accessible.includes(p.value))
+  })
 
   const mapFn = (item: SelectItem): SelectItem => item
 

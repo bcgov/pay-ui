@@ -12,6 +12,15 @@ export default defineAppConfig({
     container: {
       base: 'max-w-(--container-bcGovLg) px-0 sm:px-0 lg:px-0 py-6 sm:py-10 flex flex-col gap-6 sm:gap-8'
     },
+    input: {
+      variants: {
+        size: {
+          lg: {
+            base: 'h-[60px] text-base'
+          }
+        }
+      }
+    },
     inputMenu: {
       slots: {
         group: 'p-0',
@@ -20,7 +29,7 @@ export default defineAppConfig({
       variants: {
         size: {
           bcGovLg: {
-            base: 'px-2.5 pb-2 pt-6 text-base gap-1.5',
+            base: 'px-2.5 pb-2 pt-6 text-base gap-1.5 h-[60px]',
             leading: 'ps-2.5',
             trailing: 'pe-2.5',
             leadingIcon: 'size-5',
