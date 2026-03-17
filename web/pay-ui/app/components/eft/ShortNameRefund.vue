@@ -35,11 +35,16 @@ const state = reactive({
 })
 
 const headers = [
-  { id: 'createdName', accessorKey: 'createdName', header: 'Initiated By', meta: { class: { th: 'w-[15%]', td: 'w-[15%]' } } },
-  { id: 'comment', accessorKey: 'comment', header: 'Reason for Refund', meta: { class: { th: 'w-[22%]', td: 'w-[22%]' } } },
-  { id: 'refundMethod', accessorKey: 'refundMethod', header: 'Refund Method', meta: { class: { th: 'w-[22%]', td: 'w-[22%]' } } },
-  { id: 'refundAmount', accessorKey: 'refundAmount', header: 'Refund Amount', meta: { class: { th: 'w-[22%]', td: 'w-[22%]' } } },
-  { id: 'actions', accessorKey: 'actions', header: 'Actions', meta: { class: { th: 'text-right', td: 'text-right' } } }
+  { id: 'createdName', accessorKey: 'createdName', header: 'Initiated By',
+    meta: { class: { th: 'w-[15%]', td: 'w-[15%]' } } },
+  { id: 'comment', accessorKey: 'comment', header: 'Reason for Refund',
+    meta: { class: { th: 'w-[22%]', td: 'w-[22%]' } } },
+  { id: 'refundMethod', accessorKey: 'refundMethod', header: 'Refund Method',
+    meta: { class: { th: 'w-[22%]', td: 'w-[22%]' } } },
+  { id: 'refundAmount', accessorKey: 'refundAmount', header: 'Refund Amount',
+    meta: { class: { th: 'w-[22%]', td: 'w-[22%]' } } },
+  { id: 'actions', accessorKey: 'actions', header: 'Actions',
+    meta: { class: { th: 'text-right', td: 'text-right' } } }
 ]
 
 const filteredResults = computed(() => state.results)

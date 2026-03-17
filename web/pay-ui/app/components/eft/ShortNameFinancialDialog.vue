@@ -97,7 +97,10 @@ defineExpose({ onSaveComplete })
 </script>
 
 <template>
-  <UModal v-model:open="isOpen" :ui="{ content: 'sm:max-w-[500px]', header: 'border-0', body: 'border-b-0', footer: 'border-0' }">
+  <UModal
+    v-model:open="isOpen"
+    :ui="{ content: 'sm:max-w-[500px]', header: 'border-0', body: 'border-b-0', footer: 'border-0' }"
+  >
     <template #header>
       <div class="flex items-center justify-between w-full pr-2">
         <h2 class="text-xl font-bold text-gray-900">

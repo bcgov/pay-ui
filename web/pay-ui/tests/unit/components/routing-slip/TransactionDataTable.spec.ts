@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import TransactionDataTable from '~/components/RoutingSlip/TransactionDataTable.vue'
 import type { Invoice, InvoiceDisplay } from '~/interfaces/invoice'
 import { InvoiceStatus, RefundApprovalStatus } from '~/utils/constants'
+import CommonUtils from '~/utils/common-util'
 
 const {
   mockCancel,
@@ -22,7 +23,9 @@ vi.mock('~/utils/common-util', async () => {
     default: {
       ...actual.default,
       verifyRoles: () => true,
-      canInitiateProductRefund: () => true
+      isProductRefundViewer: () => true,
+      canInitiateProductRefund: () => true,
+      canApproveDeclineProductRefund: () => false
     }
   }
 })
@@ -136,14 +139,14 @@ describe('TransactionDataTable', () => {
     })
 
     describe('"View Refund Detail" button', () => {
-      it('shows for a cancelled invoice', async () => {
-        mockDisplayData.list = [
-          { id: 2, statusCode: InvoiceStatus.CANCELLED, total: 50.00, latestRefundId: 10, description: [] }
-        ]
+      it('does not show when the user is not a refund viewer', async () => {
+        vi.spyOn(CommonUtils, 'isProductRefundViewer').mockReturnValueOnce(false)
+        mockDisplayData.list = [{
+          id: 1, statusCode: InvoiceStatus.COMPLETED, total: 30.00,
+          latestRefundStatus: RefundApprovalStatus.PENDING_APPROVAL, latestRefundId: 5, description: []
+        }]
         const wrapper = await mountTable()
-        const button = wrapper.find('[data-test="btn-invoice-cancel-0"]')
-        expect(button.exists()).toBe(true)
-        expect(button.text()).toBe('View Refund Detail')
+        expect(wrapper.find('[data-test="btn-view-refund-detail-0"]').exists()).toBe(false)
       })
 
       it('shows for a REFUND_REQUESTED invoice', async () => {
@@ -156,7 +159,7 @@ describe('TransactionDataTable', () => {
           description: []
         }]
         const wrapper = await mountTable()
-        const button = wrapper.find('[data-test="btn-invoice-cancel-0"]')
+        const button = wrapper.find('[data-test="btn-view-refund-detail-0"]')
         expect(button.exists()).toBe(true)
         expect(button.text()).toBe('View Refund Detail')
       })
@@ -172,7 +175,7 @@ describe('TransactionDataTable', () => {
         }]
 
         const wrapper = await mountTable()
-        const button = wrapper.find('[data-test="btn-invoice-cancel-0"]')
+        const button = wrapper.find('[data-test="btn-view-refund-detail-0"]')
         expect(button.exists()).toBe(true)
         expect(button.text()).toBe('View Refund Detail')
       })
@@ -187,7 +190,7 @@ describe('TransactionDataTable', () => {
         }]
 
         const wrapper = await mountTable()
-        await wrapper.find('[data-test="btn-invoice-cancel-0"]').trigger('click')
+        await wrapper.find('[data-test="btn-view-refund-detail-0"]').trigger('click')
 
         expect(mockNavigateTo).toHaveBeenCalledWith(expect.objectContaining({
           path: `/transaction-view/${invoiceId}/refund-request/${refundId}`,
@@ -204,7 +207,7 @@ describe('TransactionDataTable', () => {
         ]
 
         const wrapper = await mountTable()
-        const button = wrapper.find('[data-test="btn-invoice-cancel-0"]')
+        const button = wrapper.find('[data-test="btn-request-refund-0"]')
         expect(button.exists()).toBe(true)
         expect(button.text()).toBe('Request Refund')
       })
@@ -217,12 +220,12 @@ describe('TransactionDataTable', () => {
         }]
 
         const wrapper = await mountTable()
-        const button = wrapper.find('[data-test="btn-invoice-cancel-0"]')
+        const button = wrapper.find('[data-test="btn-request-refund-0"]')
         expect(button.exists()).toBe(true)
         expect(button.text()).toBe('Request Refund')
       })
 
-      it('navigates to the initiateRefund page on click, does not call cancel()', async () => {
+      it('navigates to the initiateRefund page on click, does not invoke the legacy cancel', async () => {
         const invoiceId = 1
         mockDisplayData.list = [{
           id: invoiceId, statusCode: InvoiceStatus.COMPLETED, total: 30.00,
@@ -230,7 +233,7 @@ describe('TransactionDataTable', () => {
         }]
 
         const wrapper = await mountTable()
-        await wrapper.find('[data-test="btn-invoice-cancel-0"]').trigger('click')
+        await wrapper.find('[data-test="btn-request-refund-0"]').trigger('click')
 
         expect(mockNavigateTo).toHaveBeenCalledWith(expect.objectContaining({
           path: `/transaction-view/${invoiceId}/initiateRefund`,
@@ -246,7 +249,7 @@ describe('TransactionDataTable', () => {
         }]
 
         const wrapper = await mountTable()
-        expect(wrapper.find('[data-test="btn-invoice-cancel-0"]').exists()).toBe(false)
+        expect(wrapper.find('[data-test="btn-request-refund-0"]').exists()).toBe(false)
       })
 
       it('does not show for an invoice with $0 total', async () => {
@@ -255,7 +258,7 @@ describe('TransactionDataTable', () => {
         ]
 
         const wrapper = await mountTable()
-        expect(wrapper.find('[data-test="btn-invoice-cancel-0"]').exists()).toBe(false)
+        expect(wrapper.find('[data-test="btn-request-refund-0"]').exists()).toBe(false)
       })
     })
   })

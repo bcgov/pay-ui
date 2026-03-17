@@ -11,7 +11,11 @@ function clear() {
 </script>
 
 <template>
-  <UInput v-model="model" v-bind="$attrs" :ui="{ base: model ? '!pr-8' : '' }">
+  <UInput
+    v-model="model"
+    v-bind="$attrs"
+    :ui="{ base: model ? '!pr-8' : '' }"
+  >
     <template v-if="model" #trailing>
       <button
         type="button"
@@ -19,7 +23,11 @@ function clear() {
         @mousedown.prevent
         @click.stop="clear"
       >
-        <UIcon name="i-mdi-close" class="size-6" style="color: var(--color-primary) !important" />
+        <UIcon
+          name="i-mdi-close"
+          class="size-6"
+          style="color: var(--color-primary) !important"
+        />
       </button>
     </template>
   </UInput>

@@ -83,8 +83,7 @@ function getRequestedAmountRules(max?: number | null) {
       : `Refund amount exceeds ${CommonUtils.formatAmount(Number(max))}`,
     (v: number | string | null | undefined) => {
       if (v == null || v === '') { return true }
-      const decimalIndex = String(v).indexOf('.')
-      return decimalIndex === -1 || String(v).length - decimalIndex - 1 <= 2
+      return /^\d+(\.\d{1,2})?$/.test(String(v))
         ? true
         : 'Maximum 2 decimal places allowed'
     }
