@@ -78,12 +78,18 @@ function showRefundRequestBadge(invoiceRow: Invoice) {
 }
 
 function showViewDetails(invoiceRow: Invoice): boolean {
-  if (isAlreadyCancelled(invoiceRow.statusCode)) { return true }
-  if (!invoiceRow.latestRefundStatus) { return false }
-  if (invoiceRow.latestRefundStatus !== RefundApprovalStatus.DECLINED) { return true }
+  // Assumes isRefundable() has already been called and returned false in
+  // the template
+  if (!CommonUtils.isProductRefundViewer() || !invoiceRow.latestRefundStatus) {
+    return false
+  }
+  const productRequesterRole = (invoiceRow.product?.toLowerCase() ?? '') + RolePattern.ProductRefundRequester
+  const canInitiate = CommonUtils.canInitiateProductRefund(productRequesterRole)
 
   const productApproverRole = (invoiceRow.product?.toLowerCase() ?? '') + RolePattern.ProductRefundApprover
-  return CommonUtils.canApproveDeclineProductRefund(productApproverRole)
+  const canApprove = CommonUtils.canApproveDeclineProductRefund(productApproverRole)
+
+  return canInitiate || canApprove
 }
 </script>
 
@@ -150,17 +156,7 @@ function showViewDetails(invoiceRow: Invoice): boolean {
       </template>
       <template #actions-cell="{ row }">
         <template v-if="enableRefundRequestFlow">
-          <template v-if="showViewDetails(row.original)">
-            <UButton
-              :data-test="commonUtil.getIndexedTag('btn-invoice-cancel', row.index)"
-              label="View Refund Detail"
-              variant="outline"
-              color="primary"
-              class="btn-table"
-              @click="viewRefundDetail(row.original.id, row.original.latestRefundId)"
-            />
-          </template>
-          <template v-else-if="isRefundable(row.original)">
+          <template v-if="isRefundable(row.original)">
             <UButton
               :data-test="commonUtil.getIndexedTag('btn-invoice-cancel', row.index)"
               label="Request Refund"
@@ -168,6 +164,16 @@ function showViewDetails(invoiceRow: Invoice): boolean {
               color="primary"
               class="btn-table"
               @click="cancelTransaction(row.original.id!)"
+            />
+          </template>
+          <template v-else-if="showViewDetails(row.original)">
+            <UButton
+              :data-test="commonUtil.getIndexedTag('btn-invoice-cancel', row.index)"
+              label="View Refund Detail"
+              variant="outline"
+              color="primary"
+              class="btn-table"
+              @click="viewRefundDetail(row.original.id, row.original.latestRefundId)"
             />
           </template>
         </template>
