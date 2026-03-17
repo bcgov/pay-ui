@@ -186,7 +186,11 @@ watch(model, () => {
         class="filter-clear-btn absolute top-1/2 -translate-y-1/2 right-9 flex items-center focus:outline-none"
         @click.stop="clearDateRange"
       >
-        <UIcon name="i-mdi-close" class="size-6" style="color: var(--color-primary) !important" />
+        <UIcon
+          name="i-mdi-close"
+          class="size-6"
+          style="color: var(--color-primary) !important"
+        />
       </button>
     </div>
 

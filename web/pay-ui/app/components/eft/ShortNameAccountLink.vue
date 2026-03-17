@@ -251,8 +251,8 @@ watch(
               v-if="row.original.hasPendingPayment"
               class="flex items-start gap-2 text-gray-700 mt-2"
             >
-              <UIcon name="i-mdi-clock-outline" class="mt-0.5 shrink-0" />
-              <span class="text-sm">
+              <UIcon name="i-mdi-clock-outline" class="shrink-0 text-2xl self-center" />
+              <span class="text-sm pt-px">
                 {{ formatCurrency(row.original.pendingPaymentAmountTotal) }}
                 will be applied to this account today at 5:00 p.m. PST or 6:00 p.m. PDT.
               </span>
@@ -290,7 +290,7 @@ watch(
             >
               <UIcon
                 name="i-mdi-information-outline"
-                class="text-red-500 cursor-help"
+                class="text-red-500 cursor-help text-2xl"
               />
             </UTooltip>
           </div>
