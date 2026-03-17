@@ -199,7 +199,10 @@ watch(routingSlips, () => {
                     @input="debouncedSearch()"
                   />
                 </th>
-                <th v-if="columnVisibility.date" class="text-left px-2 py-2 date table-filter-input header-date min-w-[230px]">
+                <th
+                  v-if="columnVisibility.date"
+                  class="text-left px-2 py-2 date table-filter-input header-date min-w-[230px]"
+                >
                   <DateRangeFilter v-model="filters.dateFilter" @change="search()" />
                 </th>
                 <th v-if="columnVisibility.status" class="text-left px-2 py-2 table-filter-input header-status">

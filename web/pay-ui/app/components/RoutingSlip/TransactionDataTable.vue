@@ -158,7 +158,7 @@ function showViewDetails(invoiceRow: Invoice): boolean {
         <template v-if="enableRefundRequestFlow">
           <template v-if="isRefundable(row.original)">
             <UButton
-              :data-test="commonUtil.getIndexedTag('btn-invoice-cancel', row.index)"
+              :data-test="commonUtil.getIndexedTag('btn-request-refund', row.index)"
               label="Request Refund"
               variant="outline"
               color="primary"
@@ -168,7 +168,7 @@ function showViewDetails(invoiceRow: Invoice): boolean {
           </template>
           <template v-else-if="showViewDetails(row.original)">
             <UButton
-              :data-test="commonUtil.getIndexedTag('btn-invoice-cancel', row.index)"
+              :data-test="commonUtil.getIndexedTag('btn-view-refund-detail', row.index)"
               label="View Refund Detail"
               variant="outline"
               color="primary"
