@@ -1,6 +1,6 @@
 steps:
   # install / setup ci
-  - name: node:20.5.1
+  - name: node:24
     entrypoint: npm
     dir: "."
     args: ['install']
@@ -15,7 +15,7 @@ steps:
   #
   # Generate the static site
   #
-  - name: node:20.5.1
+  - name: node:24
     dir: "."
     entrypoint: npm
     env:
