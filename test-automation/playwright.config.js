@@ -45,7 +45,7 @@ export default defineConfig({
   ],
 
   use: {
-    baseURL: process.env.BASE_URL || 'http://localhost:3000',
+    baseURL: process.env.TRANSACTIONS_URL || 'https://pay-web-test.web.app/transactions',
     trace: 'on-first-retry',
     headless: true,
     screenshot: 'only-on-failure',
@@ -54,7 +54,6 @@ export default defineConfig({
 
   projects: [
     {
-      name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
         storageState: path.join(

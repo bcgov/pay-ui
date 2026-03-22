@@ -17,6 +17,9 @@
 import { test as base, expect } from '@playwright/test'
 import { LoginPage } from './pages/login-page.js'
 import { AccountInfoPage } from './pages/account-info-page.js'
+import {RefundRequestPage} from './pages/refund-request-page.js'
+import{RefundDeclinePage} from './pages/refund-decline-page.js'
+import {RefundApprovePage} from './pages/refund-approve-page.js'
 
 const test = base.extend({
   loginPage: async ({ page }, use) => {
@@ -24,6 +27,15 @@ const test = base.extend({
   },
   accountInfoPage: async ({ page }, use) => {
     await use(new AccountInfoPage(page))
+  },
+  refundRequestPage: async ({ page }, use) => {
+    await use(new RefundRequestPage(page))
+  },
+  refundDeclinePage: async ({ page }, use) => {
+    await use(new RefundDeclinePage(page))
+  },
+  refundApprovePage: async ({ page }, use) => {
+    await use(new RefundApprovePage(page))
   }
 })
 
