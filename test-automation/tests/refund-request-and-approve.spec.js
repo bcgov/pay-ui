@@ -18,8 +18,8 @@
 
 import { test } from '../fixtures.js'
 
-test.describe.serial.only('Refund Request Tests', () => {
-  test('validate refund request functionality @regression', async ({ page, refundRequestPage , loginPage }) => {
+test.describe.serial('Refund Request Tests', () => {
+  test('validate refund request functionality ', async ({ page, refundRequestPage , loginPage }) => {
     console.log('Test: Current URL before navigation:', page.url())
     console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
     await page.goto(process.env.TRANSACTIONS_URL || 'undefined')
@@ -27,7 +27,7 @@ test.describe.serial.only('Refund Request Tests', () => {
     await refundRequestPage.refundRequest()
   })
   test.use({ storageState: { cookies: [], origins: [] } })  // clears saved cookies
-  test('validate refund approve functionality @regression', async ({ page, refundApprovePage , loginPage }) => {
+  test('validate refund approve functionality', async ({ page, refundApprovePage , loginPage }) => {
     console.log('Test: Current URL before navigation:', page.url())
     await page.goto(process.env.TRANSACTIONS_URL || 'undefined')
     // eslint-disable-next-line max-len
