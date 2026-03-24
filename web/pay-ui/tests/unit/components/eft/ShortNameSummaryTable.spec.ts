@@ -283,7 +283,7 @@ describe('ShortNameSummaryTable', () => {
         description: expect.stringContaining('TEST')
       })
     )
-    expect(wrapper.vm.state.highlightIndex).toBe(0)
+    expect(wrapper.vm.state.highlightedId).toBe(123)
   })
 
   it('should reload on currentTab change', async () => {

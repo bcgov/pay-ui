@@ -284,15 +284,11 @@ watch(
             <span :class="{ 'child-statement-row': !row.original.isParentRow }">
               {{ formatCurrency(row.original.amountOwing) }}
             </span>
-            <UTooltip
+            <IconTooltip
               v-if="row.original.isParentRow && row.original.insufficientFundMessage"
-              :text="row.original.insufficientFundMessage.replace('<br/>', ' ')"
-            >
-              <UIcon
-                name="i-mdi-information-outline"
-                class="text-red-500 cursor-help text-2xl"
-              />
-            </UTooltip>
+              :text="row.original.insufficientFundMessage"
+              icon-class="text-red-500 cursor-pointer shrink-0 size-6"
+            />
           </div>
         </template>
 
