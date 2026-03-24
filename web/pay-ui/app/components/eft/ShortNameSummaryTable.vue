@@ -55,7 +55,7 @@ const state = reactive<ShortNameSummaryState>({
   accountLinkingErrorDialogTitle: '',
   accountLinkingErrorDialogText: '',
   isShortNameLinkingDialogOpen: false,
-  highlightIndex: -1
+  highlightedId: null
 })
 
 const {
@@ -63,7 +63,8 @@ const {
   updateFilter,
   getNext,
   resetReachedEnd,
-  loadState
+  loadState,
+  refreshSummaryItem
 } = useShortNameTable(state)
 
 const eftStore = useEftStore()
@@ -118,7 +119,10 @@ function openAccountLinkingDialog(item: EFTShortnameResponse) {
 
 async function onLinkAccount(account: unknown) {
   emit('on-link-account', account)
-  await loadTableSummaryData('page', 1)
+  const shortNameId = (account as { shortNameId?: number })?.shortNameId
+  if (shortNameId) {
+    await refreshSummaryItem(shortNameId)
+  }
 }
 
 async function onDateRangeChange() {
@@ -162,10 +166,10 @@ function onLinkedAccount(account: EFTShortnameResponse) {
     color: 'success'
   })
 
-  state.highlightIndex = results.indexOf(shortName)
+  state.highlightedId = shortName.id
 
   setTimeout(() => {
-    state.highlightIndex = -1
+    state.highlightedId = null
   }, 4000)
 }
 
@@ -242,67 +246,40 @@ const dateRangeModel = computed({
 
 const columns = computed<TableColumn<EFTShortnameResponse>[]>(() => {
   // TODO Session state stuff
+  const hlId = state.highlightedId
+  const hlTd = (base: string) => (cell: { row: { original: EFTShortnameResponse } }) =>
+    cell.row.original.id === hlId ? `${base} bg-green-100` : base
 
   return [
     {
       accessorKey: 'shortName',
       header: 'Short Name',
-      meta: {
-        class: {
-          th: 'header-short-name',
-          td: 'header-short-name'
-        }
-      }
+      meta: { class: { th: 'header-short-name', td: hlTd('header-short-name') } }
     },
     {
       accessorKey: 'shortNameType',
       header: 'Type',
-      meta: {
-        class: {
-          th: 'header-type',
-          td: 'header-type'
-        }
-      }
+      meta: { class: { th: 'header-type', td: hlTd('header-type') } }
     },
     {
       accessorKey: 'lastPaymentReceivedDate',
       header: 'Last Payment Received Date',
-      meta: {
-        class: {
-          th: 'header-date',
-          td: 'header-date'
-        }
-      }
+      meta: { class: { th: 'header-date', td: hlTd('header-date') } }
     },
     {
       accessorKey: 'creditsRemaining',
       header: 'Unsettled Amount',
-      meta: {
-        class: {
-          th: 'header-unsettled-amount',
-          td: 'header-unsettled-amount'
-        }
-      }
+      meta: { class: { th: 'header-unsettled-amount', td: hlTd('header-unsettled-amount') } }
     },
     {
       accessorKey: 'linkedAccountsCount',
       header: 'Linked Accounts',
-      meta: {
-        class: {
-          th: 'header-linked-accounts',
-          td: 'header-linked-accounts'
-        }
-      }
+      meta: { class: { th: 'header-linked-accounts', td: hlTd('header-linked-accounts') } }
     },
     {
       accessorKey: 'actions',
       header: 'Actions',
-      meta: {
-        class: {
-          th: 'header-action',
-          td: 'header-action'
-        }
-      }
+      meta: { class: { th: 'header-action', td: hlTd('header-action') } }
     }
   ]
 })
@@ -322,10 +299,7 @@ const columns = computed<TableColumn<EFTShortnameResponse>[]>(() => {
           :columns="columns"
           :loading="state.loading"
           sticky
-          :class="[
-            'sticky-table',
-            state.highlightIndex >= 0 ? 'highlight-row' : ''
-          ]"
+          class="sticky-table"
         >
           <template #body-top>
             <tr class="sticky-row header-row-2 bg-[var(--color-white)]" role="row">

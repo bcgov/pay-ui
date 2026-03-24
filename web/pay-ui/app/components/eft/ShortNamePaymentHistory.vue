@@ -426,6 +426,12 @@ const columns = computed<TableColumn<ShortNameHistoryItem>[]>(() => [
                 && row.original.statementNumber
                 && CommonUtils.isReversable(row.original)"
               :text="getReversalTooltip(row.original.transactionDate, row.original.paymentDate)"
+              :content="{ side: 'top' }"
+              :arrow="{ width: 20, height: 10 }"
+              :ui="{
+                content: '!bg-[rgba(73,80,87,0.95)] !text-white !h-auto !rounded px-3 py-2 text-sm',
+                arrow: '!fill-[rgba(73,80,87,0.95)]'
+              }"
             >
               <UButton
                 label="Reverse Payment"

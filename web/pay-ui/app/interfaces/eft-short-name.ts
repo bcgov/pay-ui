@@ -67,7 +67,7 @@ export interface ShortNameSummaryState {
   accountLinkingErrorDialogTitle: string
   accountLinkingErrorDialogText: string
   isShortNameLinkingDialogOpen: boolean
-  highlightIndex: number
+  highlightedId: number | null
 }
 
 export interface ShortNameFilterPayload {
