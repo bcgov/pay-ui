@@ -3,7 +3,7 @@
 # PAY-UI 
 ## About
 
-TBD.
+TBD..
 
 ## Usage
 
