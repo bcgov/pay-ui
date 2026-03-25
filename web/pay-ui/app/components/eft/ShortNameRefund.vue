@@ -172,7 +172,7 @@ watch(
     <!-- No Refund State -->
     <div
       v-if="!filteredResults.length"
-      class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 px-4 py-6"
+      class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 px-4 py-6 bg-white"
     >
       <span class="text-gray-700">
         No refund initiated. SBC Finance can initiate refund if a CAS supplier number is created for the short name.

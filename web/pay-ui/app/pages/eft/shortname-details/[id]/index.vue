@@ -155,7 +155,7 @@ onMounted(async () => {
 
     <div v-else class="shortname-details-container">
       <!-- Header Section -->
-      <div class="header-section bg-white py-8">
+      <div class="header-section pt-8 pb-4 px-4">
         <div class="flex flex-col lg:flex-row lg:justify-between gap-6">
           <!-- Left: Short Name Title -->
           <div class="shortname-title">
@@ -170,7 +170,7 @@ onMounted(async () => {
 
           <!-- Right: Short Name Info -->
           <div class="shortname-info text-lg">
-            <div class="mb-2">
+            <div>
               <span class="font-bold">{{ t('page.eft.shortNameDetails.label.type') }}: </span>
               {{ ShortNameUtils.getShortNameTypeDescription(shortName?.shortNameType || '') }}
             </div>
@@ -212,7 +212,7 @@ onMounted(async () => {
       </div>
 
       <!-- Caution Alert -->
-      <div v-if="canEFTRefund" class="pb-6 bg-[var(--color-bg-shade)]">
+      <div v-if="canEFTRefund" class="pt-8 pb-8 bg-[var(--color-bg-shade)]">
         <div class="caution-alert">
           <UIcon name="i-mdi-alert" class="caution-icon" />
           <p class="text-gray-700">
@@ -264,8 +264,7 @@ onMounted(async () => {
 }
 
 .header-section {
-  position: relative;
-  background-color: var(--color-bg-shade) !important;
+  background-color: white;
 }
 
 .content-sections {
