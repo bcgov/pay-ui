@@ -581,8 +581,8 @@ onMounted(async () => {
               />
               <UButton
                 :label="buttonText"
-                :color="disableSubmission ? 'neutral' : buttonColor"
-                :variant="disableSubmission ? 'outline' : 'solid'"
+                :color="buttonColor"
+                variant="solid"
                 size="lg"
                 :loading="state.isLoading"
                 :disabled="disableSubmission"

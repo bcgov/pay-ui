@@ -366,7 +366,7 @@ watch(
 
     <div
       v-else
-      class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 px-4 py-6"
+      class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 px-4 py-6 bg-white"
     >
       <span class="text-gray-700">
         This short name is not linked with an account.
@@ -394,6 +394,8 @@ watch(
     vertical-align: top;
     padding-top: 14px;
     padding-bottom: 8px;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 }
 
@@ -401,8 +403,9 @@ watch(
   background-color: var(--color-primary);
   border-radius: 50%;
   color: white;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;

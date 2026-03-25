@@ -473,6 +473,11 @@ const columns = computed<TableColumn<EFTShortnameResponse>[]>(() => {
     width: 100%;
   }
 
+  :deep(th.header-unsettled-amount),
+  :deep(td.header-unsettled-amount) {
+    min-width: 225px;
+  }
+
   :deep(table thead tr:first-child th) {
     min-width: 150px;
     padding-top: 0.75rem !important;
