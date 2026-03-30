@@ -20,6 +20,7 @@ import { AccountInfoPage } from './pages/account-info-page.js'
 import {RefundRequestPage} from './pages/refund-request-page.js'
 import{RefundDeclinePage} from './pages/refund-decline-page.js'
 import {RefundApprovePage} from './pages/refund-approve-page.js'
+import { TransactionsPage } from './pages/transactions-page.js'
 
 const test = base.extend({
   loginPage: async ({ page }, use) => {
@@ -36,6 +37,9 @@ const test = base.extend({
   },
   refundApprovePage: async ({ page }, use) => {
     await use(new RefundApprovePage(page))
+  },
+  transactionsPage: async ({ page }, use) => {
+    await use(new TransactionsPage(page))
   }
 })
 
