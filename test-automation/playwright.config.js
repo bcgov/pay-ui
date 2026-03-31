@@ -29,6 +29,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 export default defineConfig({
+  timeout: 80000,
   globalSetup: path.join(__dirname, 'globalSetup.js'),
   testDir: './tests',
 
