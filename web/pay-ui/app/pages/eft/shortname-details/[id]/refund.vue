@@ -10,6 +10,9 @@ import {
   ChequeRefundCode
 } from '@/utils/constants'
 import { getEFTErrorMessage } from '@/utils/api-error-handler'
+import { getRequiredAddressSchema } from '@/utils/validation'
+import { z } from 'zod'
+import type { Form } from '@nuxt/ui'
 import { useShortNameDetails } from '@/composables/eft/useShortNameDetails'
 import { useEftRefund } from '@/composables/eft/useEftRefund'
 import type { EftRefund, EftRefundRequest } from '@/composables/eft/useEftRefund'
@@ -17,6 +20,10 @@ import type { EftRefund, EftRefundRequest } from '@/composables/eft/useEftRefund
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
+
+const addressSchema = z.object({ address: getRequiredAddressSchema() })
+type AddressFormSchema = z.infer<typeof addressSchema>
+const addressFormRef = useTemplateRef<Form<AddressFormSchema>>('addressForm')
 
 const shortNameId = computed(() => Number(route.params.id))
 const eftRefundId = computed(() => route.query.eftRefundId ? Number(route.query.eftRefundId) : undefined)
@@ -68,12 +75,20 @@ const state = reactive({
     country: 'CA',
     locationDescription: ''
   },
-  statusIsExpanded: false
+  statusIsExpanded: false,
+  showValidationErrors: false
+})
+
+const emailError = computed(() => {
+  if (!state.email) { return 'Email is required' }
+  const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+  if (!pattern.test(state.email)) { return 'Valid email is required' }
+  return ''
 })
 
 const isFormValid = computed(() => {
   if (!state.refundAmount || parseFloat(state.refundAmount) <= 0) { return false }
-  if (!state.email) { return false }
+  if (emailError.value) { return false }
   if (!state.staffComment) { return false }
 
   if (state.refundMethod === EFTRefundMethod.EFT) {
@@ -92,7 +107,7 @@ const isFormValid = computed(() => {
 })
 
 const disableSubmission = computed(() => {
-  return !isFormValid.value || state.isSubmitted || state.isLoading
+  return state.isSubmitted || state.isLoading
 })
 
 const buttonText = computed(() => {
@@ -123,6 +138,26 @@ const refundAmountError = computed(() => {
   return ''
 })
 
+const entityNameError = computed(() => {
+  if (!state.entityName) { return 'Entity Name is required' }
+  return ''
+})
+
+const casSupplierNumberError = computed(() => {
+  if (!state.casSupplierNumber) { return 'CAS Supplier Number is required' }
+  return ''
+})
+
+const casSupplierSiteError = computed(() => {
+  if (!state.casSupplierSite) { return 'CAS Supplier Site is required' }
+  return ''
+})
+
+const staffCommentError = computed(() => {
+  if (!state.staffComment) { return 'Reason for Refund is required' }
+  return ''
+})
+
 async function loadRefundDetails(): Promise<void> {
   if (!eftRefundId.value) { return }
 
@@ -145,12 +180,11 @@ function prepopulateRefund() {
   }
 }
 
-function getEmailHint(): string {
-  if (state.refundMethod === EFTRefundMethod.EFT) {
-    return "The email provided in the client's Direct Deposit Application form"
-  }
-  return ''
-}
+const emailHint = computed(() =>
+  state.refundMethod === EFTRefundMethod.EFT
+    ? "The email provided in the client's Direct Deposit Application form"
+    : ''
+)
 
 function isApproved(): boolean {
   return state.refundDetails?.status === EFTRefundStatus.APPROVED
@@ -181,6 +215,14 @@ function getEFTRefundStatusDescription(refundDetails: EftRefund | null): string 
 }
 
 async function submitRefundRequest() {
+  state.showValidationErrors = true
+  if (state.refundMethod === EFTRefundMethod.CHEQUE) {
+    try {
+      await addressFormRef.value?.validate()
+    } catch (error) {
+      console.error('Address form validation error:', error)
+    }
+  }
   if (!isFormValid.value) { return }
 
   state.isLoading = true
@@ -303,9 +345,9 @@ onMounted(async () => {
 
         <!-- Card -->
         <div class="bg-white rounded shadow-sm border border-gray-200">
-          <div class="p-6 space-y-6">
+          <div class="p-6 space-y-6 text-secondary">
             <!-- Refund Method -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-start">
               <span class="font-bold text-gray-900">Refund Method</span>
               <span class="sm:col-span-2">
                 {{
@@ -316,13 +358,13 @@ onMounted(async () => {
             </div>
 
             <!-- Short Name -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-start">
               <span class="font-bold text-gray-900">Short Name</span>
               <span class="sm:col-span-2">{{ shortNameDetails?.shortName }}</span>
             </div>
 
             <!-- Type -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-start">
               <span class="font-bold text-gray-900">Type</span>
               <span class="sm:col-span-2">
                 {{ ShortNameUtils.getShortNameTypeDescription(shortNameDetails?.shortNameType || '') }}
@@ -330,14 +372,14 @@ onMounted(async () => {
             </div>
 
             <!-- Unsettled Amount (edit mode only) -->
-            <div v-if="!state.readOnly" class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div v-if="!state.readOnly" class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-start">
               <span class="font-bold text-gray-900">Unsettled Amount on Short Name</span>
               <span class="sm:col-span-2">{{ formatCurrency(shortNameDetails?.creditsRemaining) }}</span>
             </div>
 
             <!-- Refund Amount -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-start">
-              <span class="font-bold text-gray-900 pt-2">Refund Amount</span>
+              <span class="font-bold text-gray-900">Refund Amount</span>
               <div v-if="state.readOnly" class="sm:col-span-2">
                 {{ formatCurrency(state.refundDetails?.refundAmount) }}
               </div>
@@ -349,7 +391,10 @@ onMounted(async () => {
                   class="w-full"
                   :disabled="state.isSubmitted"
                 />
-                <p v-if="state.refundAmount && refundAmountError" class="text-red-500 text-sm mt-1">
+                <p
+                  v-if="(state.refundAmount || state.showValidationErrors) && refundAmountError"
+                  class="text-red-500 text-sm mt-1"
+                >
                   {{ refundAmountError }}
                 </p>
               </div>
@@ -360,7 +405,7 @@ onMounted(async () => {
               v-if="state.refundMethod === EFTRefundMethod.CHEQUE"
               class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-start"
             >
-              <span class="font-bold text-gray-900 pt-2">Entity Name</span>
+              <span class="font-bold text-gray-900">Entity Name</span>
               <div v-if="state.readOnly" class="sm:col-span-2">
                 {{ state.refundDetails?.entityName }}
               </div>
@@ -372,7 +417,13 @@ onMounted(async () => {
                   class="w-full"
                   :disabled="state.isSubmitted"
                 />
-                <p class="text-gray-500 text-sm mt-1">
+                <p
+                  v-if="(state.entityName || state.showValidationErrors) && entityNameError"
+                  class="text-red-500 text-sm mt-1"
+                >
+                  {{ entityNameError }}
+                </p>
+                <p v-else class="text-gray-500 text-sm mt-1">
                   Name of the individual or organization receiving the cheque
                 </p>
               </div>
@@ -383,7 +434,7 @@ onMounted(async () => {
               v-if="state.refundMethod === EFTRefundMethod.CHEQUE"
               class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-start"
             >
-              <span class="font-bold text-gray-900 pt-2">Entity Address</span>
+              <span class="font-bold text-gray-900">Entity Address</span>
               <div v-if="state.readOnly" class="sm:col-span-2">
                 <p>{{ state.refundDetails?.street }}</p>
                 <p v-if="state.refundDetails?.streetAdditional">
@@ -396,12 +447,18 @@ onMounted(async () => {
                 <p>{{ state.refundDetails?.country }}</p>
               </div>
               <div v-else class="sm:col-span-2">
-                <ConnectFormAddress
-                  id="entity-address"
-                  v-model="state.address"
-                  schema-prefix="address"
-                  :disabled="state.isSubmitted"
-                />
+                <UForm
+                  ref="addressForm"
+                  :schema="addressSchema"
+                  :state="{ address: state.address }"
+                >
+                  <ConnectFormAddress
+                    id="entity-address"
+                    v-model="state.address"
+                    schema-prefix="address"
+                    :disabled="state.isSubmitted"
+                  />
+                </UForm>
               </div>
             </div>
 
@@ -410,7 +467,7 @@ onMounted(async () => {
               v-if="state.refundMethod === EFTRefundMethod.EFT"
               class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-start"
             >
-              <span class="font-bold text-gray-900 pt-2">CAS Supplier Number</span>
+              <span class="font-bold text-gray-900">CAS Supplier Number</span>
               <div v-if="state.readOnly" class="sm:col-span-2">
                 {{ state.refundDetails?.casSupplierNumber }}
               </div>
@@ -422,7 +479,13 @@ onMounted(async () => {
                   class="w-full"
                   :disabled="state.isSubmitted"
                 />
-                <p class="text-gray-500 text-sm mt-1">
+                <p
+                  v-if="(state.casSupplierNumber || state.showValidationErrors) && casSupplierNumberError"
+                  class="text-red-500 text-sm mt-1"
+                >
+                  {{ casSupplierNumberError }}
+                </p>
+                <p v-else class="text-gray-500 text-sm mt-1">
                   This number should be created in CAS before issuing a refund
                 </p>
               </div>
@@ -433,7 +496,7 @@ onMounted(async () => {
               v-if="state.refundMethod === EFTRefundMethod.EFT"
               class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-start"
             >
-              <span class="font-bold text-gray-900 pt-2">CAS Supplier Site</span>
+              <span class="font-bold text-gray-900">CAS Supplier Site</span>
               <div v-if="state.readOnly" class="sm:col-span-2">
                 {{ state.refundDetails?.casSupplierSite }}
               </div>
@@ -445,7 +508,13 @@ onMounted(async () => {
                   class="w-full"
                   :disabled="state.isSubmitted"
                 />
-                <p class="text-gray-500 text-sm mt-1">
+                <p
+                  v-if="(state.casSupplierSite || state.showValidationErrors) && casSupplierSiteError"
+                  class="text-red-500 text-sm mt-1"
+                >
+                  {{ casSupplierSiteError }}
+                </p>
+                <p v-else class="text-gray-500 text-sm mt-1">
                   This site should be created in CAS before issuing a refund
                 </p>
               </div>
@@ -453,7 +522,7 @@ onMounted(async () => {
 
             <!-- Email -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-start">
-              <span class="font-bold text-gray-900 pt-2">Entity Email</span>
+              <span class="font-bold text-gray-900">Entity Email</span>
               <div v-if="state.readOnly" class="sm:col-span-2">
                 {{ state.refundDetails?.refundEmail }}
               </div>
@@ -466,15 +535,18 @@ onMounted(async () => {
                   class="w-full"
                   :disabled="state.isSubmitted"
                 />
-                <p v-if="getEmailHint()" class="text-gray-500 text-sm mt-1">
-                  {{ getEmailHint() }}
+                <p v-if="(state.email || state.showValidationErrors) && emailError" class="text-red-500 text-sm mt-1">
+                  {{ emailError }}
+                </p>
+                <p v-else-if="emailHint" class="text-gray-500 text-sm mt-1">
+                  {{ emailHint }}
                 </p>
               </div>
             </div>
 
             <!-- Reason for Refund -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-start">
-              <span class="font-bold text-gray-900 pt-2">Reason for Refund</span>
+              <span class="font-bold text-gray-900">Reason for Refund</span>
               <div v-if="state.readOnly" class="sm:col-span-2">
                 {{ state.refundDetails?.comment }}
               </div>
@@ -486,13 +558,19 @@ onMounted(async () => {
                   class="w-full"
                   :disabled="state.isSubmitted"
                 />
+                <p
+                  v-if="(state.staffComment || state.showValidationErrors) && staffCommentError"
+                  class="text-red-500 text-sm mt-1"
+                >
+                  {{ staffCommentError }}
+                </p>
               </div>
             </div>
 
             <!-- Read-only details -->
             <template v-if="state.readOnly">
               <!-- Requested By -->
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-start">
                 <span class="font-bold text-gray-900">Requested By Qualified Receiver</span>
                 <span class="sm:col-span-2">
                   {{ state.refundDetails?.createdBy }} {{ formatDate(state.refundDetails?.createdOn) }}
@@ -500,7 +578,7 @@ onMounted(async () => {
               </div>
 
               <!-- Approved By -->
-              <div v-if="isApproved()" class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div v-if="isApproved()" class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-start">
                 <span class="font-bold text-gray-900">Approved By Expense Authority</span>
                 <span class="sm:col-span-2">
                   {{ state.refundDetails?.decisionBy }} {{ formatDate(state.refundDetails?.updatedOn) }}
@@ -508,7 +586,7 @@ onMounted(async () => {
               </div>
 
               <!-- Declined By -->
-              <div v-if="isDeclined()" class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div v-if="isDeclined()" class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-start">
                 <span class="font-bold text-gray-900">Declined By Expense Authority</span>
                 <span class="sm:col-span-2">
                   {{ state.refundDetails?.decisionBy }} {{ formatDate(state.refundDetails?.updatedOn) }}
@@ -516,7 +594,7 @@ onMounted(async () => {
               </div>
 
               <!-- Decline Reason -->
-              <div v-if="isDeclined()" class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div v-if="isDeclined()" class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-start">
                 <span class="font-bold text-gray-900">Reason for Declining</span>
                 <span class="sm:col-span-2">{{ state.refundDetails?.declineReason }}</span>
               </div>
@@ -599,5 +677,9 @@ onMounted(async () => {
 <style scoped>
 .text-primary {
   color: var(--color-primary);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
 }
 </style>

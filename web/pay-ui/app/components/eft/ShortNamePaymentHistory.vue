@@ -384,7 +384,7 @@ const columns = computed<TableColumn<ShortNameHistoryItem>[]>(() => [
             <div
               v-if="getDescription(row.original).subtitle"
               class="text-sm"
-              :class="isChequeUndeliverable(row.original) ? 'text-red-600' : 'text-gray-500'"
+              :class="isChequeUndeliverable(row.original) ? 'text-red-600' : 'text-secondary'"
             >
               {{ getDescription(row.original).subtitle }}
             </div>
@@ -405,7 +405,7 @@ const columns = computed<TableColumn<ShortNameHistoryItem>[]>(() => [
             <template v-else>
               <div>-</div>
             </template>
-            <div class="text-gray-500 text-sm">
+            <div class="text-secondary text-sm">
               Balance: {{ CommonUtils.formatAmount(row.original.shortNameBalance ?? row.original.creditsRemaining) }}
             </div>
           </div>
@@ -463,6 +463,10 @@ const columns = computed<TableColumn<ShortNameHistoryItem>[]>(() => [
 <style lang="scss" scoped>
 @use '~/assets/scss/basic-table.scss';
 @use '~/assets/scss/card.scss';
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
 
 .btn-table {
   white-space: nowrap;
