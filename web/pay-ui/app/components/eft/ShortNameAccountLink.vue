@@ -9,11 +9,11 @@ import CommonUtils from '@/utils/common-util'
 interface Props {
   shortNameDetails: ShortNameDetails | null
   shortName: EftShortName | null
-  highlightIndex?: number
+  highlightedLinkId?: number | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  highlightIndex: -1
+  highlightedLinkId: null
 })
 
 const emit = defineEmits<{
@@ -61,14 +61,19 @@ const eftShortNameSummary = computed<EFTShortnameResponse | null>(() => {
   }
 })
 
-const headers = [
-  { accessorKey: 'linkedAccount', header: 'Linked Account', meta: { class: { th: 'w-[15%]', td: 'w-[15%]' } } },
-  { accessorKey: 'accountBranch', header: 'Branch', meta: { class: { th: 'w-[22%]', td: 'w-[22%]' } } },
-  { accessorKey: 'unpaidStatementIds', header: 'Unpaid Statement Number',
-    meta: { class: { th: 'w-[22%]', td: 'w-[22%]' } } },
-  { accessorKey: 'amountOwing', header: 'Amount Owing', meta: { class: { th: 'w-[22%]', td: 'w-[22%]' } } },
-  { accessorKey: 'actions', header: 'Actions', meta: { class: { th: 'text-right', td: 'text-right' } } }
-]
+const headers = computed(() => {
+  const hlTd = (base: string) => (cell: { row: { original: AccountLinkRow } }) =>
+    cell.row.original.id === props.highlightedLinkId ? `${base} bg-green-100` : base
+
+  return [
+    { accessorKey: 'linkedAccount', header: 'Linked Account', meta: { class: { th: 'w-[15%]', td: hlTd('w-[15%]') } } },
+    { accessorKey: 'accountBranch', header: 'Branch', meta: { class: { th: 'w-[22%]', td: hlTd('w-[22%]') } } },
+    { accessorKey: 'unpaidStatementIds', header: 'Unpaid Statement Number',
+      meta: { class: { th: 'w-[22%]', td: hlTd('w-[22%]') } } },
+    { accessorKey: 'amountOwing', header: 'Amount Owing', meta: { class: { th: 'w-[22%]', td: hlTd('w-[22%]') } } },
+    { accessorKey: 'actions', header: 'Actions', meta: { class: { th: 'text-right', td: hlTd('text-right') } } }
+  ]
+})
 
 function openAccountLinkingDialog() {
   state.isShortNameLinkingDialogOpen = true
@@ -388,6 +393,10 @@ watch(
 .account-link-table {
   :deep(table) {
     table-layout: fixed;
+  }
+
+  :deep(td.bg-green-100) {
+    background-color: #dcfce7 !important;
   }
 
   :deep(td) {

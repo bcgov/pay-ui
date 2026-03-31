@@ -203,12 +203,12 @@ watch(
         <template #refundAmount-cell="{ row }">
           <div>
             <span>{{ formatCurrency(Number(row.original.refundAmount)) }}</span>
-            <button
-              class="block text-primary underline font-normal cursor-pointer mt-1"
+            <span
+              class="block text-sm text-primary underline font-normal cursor-pointer mt-1"
               @click="viewRefundDetails(row.original.id)"
             >
               View Refund Detail
-            </button>
+            </span>
           </div>
         </template>
 

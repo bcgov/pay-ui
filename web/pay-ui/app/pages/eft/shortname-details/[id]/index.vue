@@ -97,7 +97,10 @@ async function _onRefund() {
   await paymentHistoryRef.value?.refresh()
 }
 
-async function _onLinkAccount() {
+const highlightedLinkId = ref<number | null>(null)
+let highlightTimer: ReturnType<typeof setTimeout> | null = null
+
+async function _onLinkAccount(account: unknown) {
   await loadShortname()
   toast.add({
     description: t('page.eft.shortNameDetails.snackbar.linkSuccess', {
@@ -106,7 +109,17 @@ async function _onLinkAccount() {
     icon: 'i-mdi-check-circle',
     color: 'success'
   })
+  const linkId = (account as { id?: number })?.id
+  if (linkId) {
+    if (highlightTimer) { clearTimeout(highlightTimer) }
+    highlightedLinkId.value = linkId
+    highlightTimer = setTimeout(() => { highlightedLinkId.value = null }, 4000)
+  }
 }
+
+onUnmounted(() => {
+  if (highlightTimer) { clearTimeout(highlightTimer) }
+})
 
 async function _onPaymentAction() {
   await refreshSummary()
@@ -234,6 +247,7 @@ onMounted(async () => {
         <ShortNameAccountLink
           :short-name-details="shortNameDetails"
           :short-name="shortName"
+          :highlighted-link-id="highlightedLinkId"
           @on-link-account="_onLinkAccount"
           @on-payment-action="_onPaymentAction"
         />
