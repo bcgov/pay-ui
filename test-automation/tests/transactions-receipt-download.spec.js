@@ -21,7 +21,7 @@ import { test } from '../fixtures.js'
 
 test.describe('Transaction Receipt Download Tests', () => {
   // eslint-disable-next-line max-len
-  test('validate transaction receipt download functionality @regression', async ({ page, transactionsPage }) => {
+  test('validate transaction receipt download functionality', async ({ page, transactionsPage }) => {
     console.log('Test: Current URL before navigation:', page.url())
     console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
 
