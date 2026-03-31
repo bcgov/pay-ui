@@ -22,7 +22,7 @@ test.use({ storageState: { cookies: [], origins: [] } })  // clears saved cookie
 
 //TODO - once authentication code merged to test , validation will be reversed
 
-test('validate authentication flow @regression', async ({ page, accountInfoPage , loginPage }) => {
+test('validate authentication flow', async ({ page, accountInfoPage , loginPage }) => {
   console.log('Test: Current URL before navigation:', page.url())
   console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
   await page.goto(process.env.BASE_URL || 'undefined')
