@@ -19,7 +19,7 @@ export class LoginPage {
   constructor(page) {
     this.page = page
     this.bcServiceCard = page.locator('[id="social-bcsc"]')
-    this.lgoinWithIDIR = page.locator('#social-idir')
+    this.lgoinWithIDIR = page.getByText('Login with IDIR')
     this.usernamePasswordButton = page.locator('[id="tile_btn_test_with_username_password_device_div_id"]')
     this.usernameInput = page.locator('#username')
     this.passwordInput = page.locator('#password')
@@ -42,6 +42,7 @@ export class LoginPage {
   async loginWithIDIR(username, password) {
     await this.lgoinWithIDIR.click()
     await this.idirUsernameInput.fill(username)
+    await this.page.waitForTimeout(3000) // wait for password field to be interactable
     await this.idirPasswordInput.fill(password)
     await this.continueButton.click()
   }
