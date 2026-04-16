@@ -23,6 +23,15 @@ export class AccountInfoPage {
     this.accountInfoText = page.getByText('Account Info')
     this.deactivateAccountButton = page.locator('[data-test="deactivate-btn"]')
     this.authenticationLink = page.getByText('Authentication')
+    this.manageAccount = page.getByText(' MANAGE ACCOUNT ')
+    this.teamMembersLink = page.getByText('Team Members')
+    this.productsAndPaymentsLink = page.getByText('Products and Payment')
+    this.accountActivity = page.getByText(' ACCOUNT ACTIVITY ')
+    this.statementsLink = page.getByText('Statements')
+    this.transactionsLink = page.getByText('Transactions')
+    this.activityLogLink = page.getByText('Activity Log')
+    this.advancedSettings = page.getByText(' ADVANCED SETTINGS ')
+    this.developerAccessLink = page.getByText('Developer Access')
   }
 
   async accountInfo() {
@@ -34,6 +43,15 @@ export class AccountInfoPage {
     await this.page.waitForLoadState('networkidle', { timeout: 60000 })
     await expect(this.deactivateAccountButton).toBeVisible({ timeout: 60000 })
     await expect(this.authenticationLink).toBeVisible({ timeout: 60000 })
+    await expect(this.manageAccount.last()).toBeVisible({ timeout: 60000 })
+    await expect(this.teamMembersLink.last()).toBeVisible({ timeout: 60000 })
+    await expect(this.productsAndPaymentsLink).toBeVisible({ timeout: 60000 })
+    await expect(this.accountActivity).toBeVisible({ timeout: 60000 })
+    await expect(this.statementsLink).toBeVisible({ timeout: 60000 })
+    await expect(this.transactionsLink.last()).toBeVisible({ timeout: 60000 })
+    await expect(this.activityLogLink).toBeVisible({ timeout: 60000 })
+    await expect(this.advancedSettings).toBeVisible({ timeout: 60000 })
+    await expect(this.developerAccessLink).toBeVisible({ timeout: 60000 })
   }
 
 }
