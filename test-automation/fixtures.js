@@ -22,6 +22,7 @@ import{RefundDeclinePage} from './pages/refund-decline-page.js'
 import {RefundApprovePage} from './pages/refund-approve-page.js'
 import { TransactionsPage } from './pages/transactions-page.js'
 import { GovmAccountCreationPage } from './pages/govm-account-creation-page.js'
+import { StatementsPage } from './pages/statements-page.js'
 
 const test = base.extend({
   loginPage: async ({ page }, use) => {
@@ -44,6 +45,10 @@ const test = base.extend({
   },
   govmAccountCreationPage: async ({ page }, use) => {
     await use(new GovmAccountCreationPage(page))
+  }
+  ,
+  statementsPage: async ({ page }, use) => {
+    await use(new StatementsPage(page))
   }
 })
 
