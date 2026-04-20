@@ -1,15 +1,15 @@
 /**
  * ============================================================================
- * Account Info Page - Page Object Model
+ * Statements Page - Page Object Model
  * ============================================================================
  *
- * File: pages/account-info-page.js
- * Purpose: Encapsulates Account Info page interactions and selectors
+ * File: pages/statements-page.js
+ * Purpose: Encapsulates statements page interactions and selectors
  * author: Anish Batra
  * Created: February 16, 2026
  *
  * Description:
- *   This page object provides methods and locators for the Account Info page.
+ *   This page object provides methods and locators for the Statements page.
  *   It follows the Page Object Model (POM) pattern for maintainable test code.
  * ============================================================================
  */
