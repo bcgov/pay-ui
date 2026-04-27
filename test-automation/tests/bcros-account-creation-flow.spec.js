@@ -12,9 +12,9 @@
  */
 
 import { test } from '../fixtures.js'
-test('validate bcros account creation (individual)  flow', async ({ page, bcrosAccountCreationPage}) => {
+test('validate bcros account creation flow (individual & Business)', async ({ page, bcrosAccountCreationPage}) => {
   console.log('Test: Current URL before navigation:', page.url())
   console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
   await page.goto('https://test.bcregistry.gov.bc.ca/en-CA/dashboard',{timeout: 180000})
-  await bcrosAccountCreationPage.bcrosAccountCreation()
+  await bcrosAccountCreationPage.bcrosAccountCreation('business')
 })
