@@ -31,6 +31,18 @@ export class ManageEFTPaymentsPage {
     this.selectAccountToLink = page.locator('[role="option"]')
     this.linkAccountButtonOnConfirmationPopup = page.getByText(' Link Account ')
     this.cancelPaymentButton = page.getByText(' Cancel Payment ')
+    this.initiateRefundButton = page.getByText(' Initiate Refund ')
+    this.issueACheckButton = page.getByText('Issue a cheque')
+    this.nextButton = page.getByText('Next')
+    this.refundAmountInput = page.locator('[data-test="refundAmount"]')
+    this.streetAddressInput = page.locator('[id="street-address-1"]')
+    this.firstAddressOption = page.getByText('1st-290 Dupuis St')
+    this.emailInput = page.locator('[data-test="email"]')
+    this.entityNameInput = page.locator('[data-test="entityName"]')
+    this.refundReasonInput = page.locator('[data-test="staffComment"]')
+    this.submitRefundRequestButton = page.getByText('Submit Refund Request')
+    this.declineButton = page.getByText(' Decline ')
+    this.declineBtnOnConfirmationPopup = page.locator('[data-test="btn-confirm-confirmation-dialog"]')
   }
 
   async accountUnlinkAndLink() {
@@ -53,6 +65,34 @@ export class ManageEFTPaymentsPage {
     await this.cancelPaymentButton.click({timeout: 60000})
     await this.page.waitForTimeout(3000)
     await this.confirmButton.click({timeout: 60000})
+    await this.page.waitForTimeout(2000)
+  }
+
+  async initiateRefund() {
+    await this.manageEFTPaymentsButton.click({timeout: 60000})
+    await this.page.waitForTimeout(8000)
+    await this.bankShortNameFilterInput.first().pressSequentially('KENLI013')
+    await this.page.waitForTimeout(5000) // wait for filter to apply
+    await this.viewDetailsButton.click({timeout: 60000})
+    await this.initiateRefundButton.click({timeout: 60000})
+    await this.issueACheckButton.click({timeout: 60000})
+    await this.nextButton.click({timeout: 60000})
+    await this.refundAmountInput.fill('5')
+    await this.page.waitForTimeout(1000)
+    await this.streetAddressInput.fill('1 street')
+    await this.page.waitForTimeout(1000)
+    await this.page.keyboard.press('Space')
+    await this.page.waitForTimeout(1000)
+    await this.firstAddressOption.click({timeout: 10000})
+    await this.page.waitForTimeout(1000)
+    await this.emailInput.fill('anish@test.com')
+    await this.entityNameInput.fill('anishTestEntity')
+    await this.refundReasonInput.fill('Test Refund')
+    await this.submitRefundRequestButton.click({timeout: 60000})
+    await this.page.waitForTimeout(2000)
+    await expect(this.declineButton).toBeVisible({timeout: 60000})
+    await this.declineButton.click({timeout: 60000})
+    await this.declineBtnOnConfirmationPopup.click({timeout: 60000})
     await this.page.waitForTimeout(2000)
   }
 }
