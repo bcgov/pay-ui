@@ -21,7 +21,7 @@ import { test } from '../fixtures.js'
 test.describe('Account Info Page Tests', () => {
 
   //use login type as bcsc to run this test
-  test('should display account info page correctly ', async ({ page, accountInfoPage }) => {
+  test('should display account info page correctly', async ({ page, accountInfoPage }) => {
     console.log('Test: Current URL before navigation:', page.url())
     console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
     await page.goto(process.env.BASE_URL,{timeout: 180000})

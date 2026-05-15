@@ -36,6 +36,7 @@ export class TransactionsPage {
     const downloadPromise = this.page.waitForEvent('download', { timeout: 50000 })
     // Click the receipt link
     await this.receiptLink.first().click({timeout: 10000})
+    await this.page.waitForTimeout(6000) // Wait for download to start
 
     // Wait for download to start
     const download = await downloadPromise

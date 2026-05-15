@@ -41,8 +41,10 @@ export class StatementsPage {
     // Click the receipt link
     if (options.format === 'CSV') {
       await this.CSVLink.first().click({timeout: 20000})
+      await this.page.waitForTimeout(8000) // wait for download to start
     } else if (options.format === 'PDF') {
       await this.PDFLink.first().click({timeout: 50000})
+      await this.page.waitForTimeout(8000) // wait for download to start
     }
 
     // Wait for download to start

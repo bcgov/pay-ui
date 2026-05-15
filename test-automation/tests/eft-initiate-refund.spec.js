@@ -26,16 +26,17 @@ test.describe('Manage EFT Refund Page Tests', () => {
     console.log('Test: Current URL before navigation:', page.url())
     console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
     await page.goto(process.env.EFT_PAYMENTS_URL,{timeout: 180000})
-    await loginPage.loginWithIDIR('<Use Test IDIR Username>','<Use Test IDIR Password>')
+    await loginPage.loginWithIDIR('<use test idir username >','<use test idir password>')
     await manageEFTPaymentsPage.initiateRefund('Check')
   })
 
   test.use({ storageState: { cookies: [], origins: [] } })  // clears saved cookies
+  // eslint-disable-next-line max-len
   test('should validate  EFT Refund(using DD) correctly', async ({ page, loginPage, manageEFTPaymentsPage }) => {
     console.log('Test: Current URL before navigation:', page.url())
     console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
     await page.goto(process.env.EFT_PAYMENTS_URL,{timeout: 180000})
-    await loginPage.loginWithIDIR('<Use Test IDIR Username>','<Use Test IDIR Password>')
+    await loginPage.loginWithIDIR('<use test idir username >','<use test idir password>')
     await manageEFTPaymentsPage.initiateRefund('DD')
   })
 })

@@ -22,6 +22,6 @@ test('validate govm account creation  flow ', async ({ page, govmAccountCreation
   console.log('Test: Current URL before navigation:', page.url())
   console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
   await page.goto('https://test.bcregistry.gov.bc.ca/en-CA/dashboard',{timeout: 180000})
-  await loginPage.loginWithIDIR(process.env.TEST_USERNAME_BCSC_IDIR, process.env.TEST_PASSWORD_BCSC_IDIR)
+  await loginPage.loginWithIDIR('<use test idir credentials>', '<use test idir credentials>')
   await govmAccountCreationPage.govmAccountCreation()
 })
