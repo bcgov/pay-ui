@@ -27,7 +27,7 @@ test.describe('Manage EFT Payments Page Tests', () => {
     console.log('Test: Current URL before navigation:', page.url())
     console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
     await page.goto(process.env.EFT_PAYMENTS_URL,{timeout: 180000})
-    await loginPage.loginWithIDIR('<Use Test IDIR Username>','<Use Test IDIR Password>')
+    await loginPage.loginWithIDIR('<use test idir username >','<use test idir password>')
     await manageEFTPaymentsPage.accountUnlinkAndLink()
   })
 })

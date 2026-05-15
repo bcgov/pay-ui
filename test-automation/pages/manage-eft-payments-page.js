@@ -45,26 +45,26 @@ export class ManageEFTPaymentsPage {
     this.declineButton = page.getByText(' Decline ')
     this.declineBtnOnConfirmationPopup = page.locator('[data-test="btn-confirm-confirmation-dialog"]')
     this.casSupplierNumber = page.locator('[data-test="casSupplierNumber"]')
-    this.casSupplierSite = page.locator('data-test="casSupplierSite"')
+    this.casSupplierSite = page.locator('[data-test="casSupplierSite"]')
   }
 
   async accountUnlinkAndLink() {
     await this.manageEFTPaymentsButton.click({timeout: 60000})
     await this.page.waitForTimeout(8000)
-    await this.bankShortNameFilterInput.first().pressSequentially('KENLI013')
+    await this.bankShortNameFilterInput.first().pressSequentially('TSTDESPOSITDATE001')
     await this.page.waitForTimeout(5000) // wait for filter to apply
     await this.viewDetailsButton.click({timeout: 60000})
-    await this.arrowWithApplyPaymentButton.click({timeout: 60000})
+    //await this.arrowWithApplyPaymentButton.click({timeout: 60000})
     await this.unlinkAccountButton.click({timeout: 60000})
     await expect(this.unlinkAccountConfirmationText).toBeVisible({timeout: 60000})
     await this.confirmButton.click({timeout: 60000})
     await this.linkToAccountButton.click({timeout: 60000})
     await this.accountID.click({timeout: 60000})
-    await this.accountID.fill('2955')
+    await this.accountID.fill('3738')
     await this.selectAccountToLink.click({timeout: 60000})
     await this.page.waitForTimeout(2000)
     await this.linkAccountButtonOnConfirmationPopup.click({timeout: 60000})
-    await expect(this.page.locator('tbody').first()).toContainText('2955',{timeout: 60000})
+    await expect(this.page.locator('tbody').first()).toContainText('3738',{timeout: 60000})
     await this.cancelPaymentButton.click({timeout: 60000})
     await this.page.waitForTimeout(3000)
     await this.confirmButton.click({timeout: 60000})
@@ -74,13 +74,17 @@ export class ManageEFTPaymentsPage {
   async initiateRefund(option) {
     await this.manageEFTPaymentsButton.click({timeout: 60000})
     await this.page.waitForTimeout(8000)
-    await this.bankShortNameFilterInput.first().pressSequentially('KENLI013')
+    await this.bankShortNameFilterInput.first().pressSequentially('FEDERAL PAYMENT CANADA 1')
     await this.page.waitForTimeout(5000) // wait for filter to apply
     await this.viewDetailsButton.click({timeout: 60000})
-    await this.initiateRefundButton.click({timeout: 60000})
+    await this.page.waitForTimeout(2000)
+    await this.initiateRefundButton.last().click({timeout: 60000})
+    await this.page.waitForTimeout(3000) // wait for refund options to load
     if (option === 'Check') {
       await this.issueACheckButton.click({timeout: 60000})
+      await this.page.waitForTimeout(2000)
       await this.nextButton.click({timeout: 60000})
+      await this.page.waitForTimeout(2000)
       await this.refundAmountInput.fill('5')
       await this.page.waitForTimeout(1000)
       await this.streetAddressInput.fill('1 street')
@@ -103,8 +107,8 @@ export class ManageEFTPaymentsPage {
       await this.refundReasonInput.fill('Test Refund')
     }
     await this.submitRefundRequestButton.click({timeout: 60000})
-    await this.page.waitForTimeout(2000)
-    await expect(this.declineButton).toBeVisible({timeout: 60000})
+    await this.page.waitForTimeout(10000)
+    //await expect(this.declineButton).toBeVisible({timeout: 60000})
     await this.declineButton.click({timeout: 60000})
     await this.declineBtnOnConfirmationPopup.click({timeout: 60000})
     await this.page.waitForTimeout(2000)

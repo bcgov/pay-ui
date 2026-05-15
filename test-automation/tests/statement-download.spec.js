@@ -20,15 +20,17 @@
 import { test } from '../fixtures.js'
 
 test.describe('Statement Download Tests', () => {
+  test.use({ storageState: { cookies: [], origins: [] } })  // clears saved cookies
   // eslint-disable-next-line max-len
-  test('validate statement  download functionality (CSV & PDF)', async ({ page,statementsPage }) => {
+  test('validate statement  download functionality (CSV & PDF)', async ({ page,statementsPage,loginPage }) => {
     console.log('Test: Current URL before navigation:', page.url())
     console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
     await page.goto(process.env.BASE_URL,{timeout: 180000})
+    await loginPage.loginWithIDIR('<use test idir username >','<use test idir password>')
     await statementsPage.clickStatementsLink()
 
     // Download receipt and verify
-    const download = await statementsPage.downloadStatementAndVerify({format: 'PDF'})
+    const download = await statementsPage.downloadStatementAndVerify({format: 'CSV'})
 
     // Additional verification - check file exists and has content
     const downloadPath = await download.path()

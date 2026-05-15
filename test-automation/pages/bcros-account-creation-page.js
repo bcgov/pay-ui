@@ -17,7 +17,7 @@ import { expect } from '@playwright/test'
 export class BcrosAccountCreationPage {
   constructor(page) {
     this.page = page
-    this.accountName = page.getByText('JyotiKumar')
+    this.accountName = page.getByText('Business Name 1')
     this.createAccountButton = page.getByText('Create Account')
     this.createAnotherAccountButton = page.getByText(' Create Another Account ')
     this.individualAccount = page.locator('[data-test="radio-individual-account-type"]')
@@ -49,7 +49,7 @@ export class BcrosAccountCreationPage {
       await this.page.locator('[class="v-label theme--light"]', { hasText: 'Individual Person' }).click({force:true, timeout: 180000})
       await this.page.waitForTimeout(1000)
     }
-    await this.accountNameInput.fill('Anish-bcros-automation-test')
+    await this.accountNameInput.fill('Anish-bcros-individual-test')
     if(accountType === 'business') {
       await this.businessType.click({timeout: 10000})
       await this.bank.click({timeout: 10000})
@@ -64,7 +64,7 @@ export class BcrosAccountCreationPage {
     await this.page.waitForTimeout(2000)
     await this.accountNameInput.clear()
     await this.page.waitForTimeout(1000)
-    await this.accountNameInput.pressSequentially('Anish-bcros-automation-testing')
+    await this.accountNameInput.pressSequentially('Anish-bcros-individual-test')
     await this.nextButton.click({timeout: 180000})
     await this.page.waitForTimeout(1000)
     await this.nextButton.click({timeout: 10000})

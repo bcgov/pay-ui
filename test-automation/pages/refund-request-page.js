@@ -32,7 +32,7 @@ export class RefundRequestPage {
   async refundRequest() {
     await this.page.goto(process.env.TRANSACTIONS_URL || 'undefined')
     await this.paymentStatus.nth(1).click({timeout: 10000})
-    await this.processingStatus.click({timeout: 10000})
+    await this.processingStatus.first().click({timeout: 10000})
     await this.moreActionsArrow.first().click({timeout: 10000})
     await this.initiateRefund.click({timeout: 10000})
     await this.fullRefund.click({timeout: 10000})
