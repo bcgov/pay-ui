@@ -25,6 +25,7 @@ import { GovmAccountCreationPage } from './pages/govm-account-creation-page.js'
 import { StatementsPage } from './pages/statements-page.js'
 import { BcrosAccountCreationPage } from './pages/bcros-account-creation-page.js'
 import { ManageEFTPaymentsPage } from './pages/manage-eft-payments-page.js'
+import { StaffReviewPage } from './pages/staff-review-page.js'
 
 const test = base.extend({
   loginPage: async ({ page }, use) => {
@@ -57,6 +58,9 @@ const test = base.extend({
   },
   manageEFTPaymentsPage: async ({ page }, use) => {
     await use(new ManageEFTPaymentsPage(page))
+  },
+  staffReviewPage: async ({ page }, use) => {
+    await use(new StaffReviewPage(page))
   }
 })
 
