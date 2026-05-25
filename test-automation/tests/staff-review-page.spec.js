@@ -27,4 +27,12 @@ test.describe.serial('Staff Review Tests', () => {
     await loginPage.loginWithIDIR(process.env.TEST_USERNAME_IDIR, process.env.TEST_PASSWORD_IDIR)
     await staffReviewPage.ApproveAnAccount()
   })
+
+  test('validate staff review functionality-decline account', async ({ page, staffReviewPage , loginPage }) => {
+    console.log('Test: Current URL before navigation:', page.url())
+    console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
+    await page.goto(process.env.BASE_URL || 'undefined')
+    await loginPage.loginWithIDIR(process.env.TEST_USERNAME_IDIR, process.env.TEST_PASSWORD_IDIR)
+    await staffReviewPage.DeclineAnAccount()
+  })
 })

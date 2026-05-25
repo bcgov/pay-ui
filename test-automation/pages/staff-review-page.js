@@ -19,6 +19,7 @@ export class StaffReviewPage {
     this.pendingReviewTab = page.getByRole('tab', { name: ' Pending Review ' })
     this.reviewButton = page.getByRole('button', { name: 'Review' })
     this.approveButton = page.getByRole('button', { name: 'Approve' })
+    this.declineButton = page.getByRole('button', { name: 'Decline' })
   }
 
   async ApproveAnAccount() {
@@ -27,5 +28,13 @@ export class StaffReviewPage {
     await this.approveButton.click({timeout: 10000})
     await this.page.waitForTimeout(3000)
     await this.approveButton.click({timeout: 10000})
+  }
+
+   async DeclineAnAccount() {
+    await this.pendingReviewTab.click({timeout: 10000})
+    await this.reviewButton.click({timeout: 10000})
+    await this.declineButton.click({timeout: 10000})
+    await this.page.waitForTimeout(3000)
+    await this.page.getByRole('button', { name: 'Confirm Decline' }).click({timeout: 10000})
   }
 }
