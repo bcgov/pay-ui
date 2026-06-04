@@ -4,9 +4,11 @@ import type { FilingType } from '@/interfaces/routing-slip'
 const props = withDefaults(defineProps<{
   modelValue?: FilingType | null
   id?: string
+  sortResults?: boolean
 }>(), {
   modelValue: null,
-  id: undefined
+  id: undefined,
+  sortResults: false
 })
 
 const emit = defineEmits<{
@@ -36,10 +38,14 @@ const searchFilingTypes = async (searchTerm: string | undefined): Promise<Array<
   try {
     // Global Exception handler will handle this one.
     const results = await payApi.getSearchFilingType(trimmedTerm)
-    return results.map((item: FilingType) => ({
-      ...item,
-      label: `${item.filingTypeCode?.description} - ${item.corpTypeCode?.description}`
-    }))
+    const mapped = results.map((item: FilingType) => {
+      const corpDesc = item.corpTypeCode?.description
+      return {
+        ...item,
+        label: corpDesc ? `${item.filingTypeCode?.description} - ${corpDesc}` : (item.filingTypeCode?.description ?? '')
+      }
+    })
+    return props.sortResults ? mapped.sort((a, b) => a.label.localeCompare(b.label)) : mapped
   } catch (error) {
     console.error('Error searching filing types:', error)
     return []

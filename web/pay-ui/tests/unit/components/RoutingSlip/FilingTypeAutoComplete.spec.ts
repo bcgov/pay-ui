@@ -330,7 +330,7 @@ describe('FilingTypeAutoComplete', () => {
 
     const result = await queryFn('annual')
     expect(result).toHaveLength(1)
-    expect(result[0]?.label).toBe('Annual Report - undefined')
+    expect(result[0]?.label).toBe('Annual Report')
   })
 
   it('should handle errors gracefully and return empty array', async () => {
@@ -429,6 +429,84 @@ describe('FilingTypeAutoComplete', () => {
     expect(filingDetails2.exists()).toBe(true)
     expect(filingDetails2.text()).toContain('Annual Report')
     expect(filingDetails2.text()).not.toContain('-')
+  })
+
+  it('should return results in API order when sortResults is false (default)', async () => {
+    const mockResults: FilingType[] = [
+      {
+        filingTypeCode: { code: 'OTANN', description: 'B Filing' },
+        corpTypeCode: { code: 'BC', description: 'BC Company', product: 'BC' }
+      },
+      {
+        filingTypeCode: { code: 'OTADD', description: 'A Filing' },
+        corpTypeCode: { code: 'BC', description: 'BC Company', product: 'BC' }
+      }
+    ]
+    mockGetSearchFilingType.mockResolvedValue(mockResults)
+
+    const wrapper = await mountSuspended(FilingTypeAutoComplete, {
+      global: {
+        stubs: {
+          AsyncAutoComplete: {
+            template: '<div></div>',
+            props: ['id', 'label', 'modelValue', 'queryFn'],
+            emits: ['update:modelValue', 'input', 'blur', 'focus']
+          }
+        }
+      }
+    })
+
+    const component = wrapper.vm as InstanceType<typeof FilingTypeAutoComplete> & {
+      searchFilingTypes?: (searchTerm: string | undefined) => Promise<Array<FilingType & { label: string }>>
+    }
+    const queryFn = component.searchFilingTypes
+    if (!queryFn) { throw new Error('queryFn is undefined') }
+
+    const result = await queryFn('fil')
+    expect(result[0]?.label).toBe('B Filing - BC Company')
+    expect(result[1]?.label).toBe('A Filing - BC Company')
+  })
+
+  it('should return results sorted alphabetically by label when sortResults is true', async () => {
+    const mockResults: FilingType[] = [
+      {
+        filingTypeCode: { code: 'OTANN', description: 'C Filing' },
+        corpTypeCode: { code: 'BC', description: 'BC Company', product: 'BC' }
+      },
+      {
+        filingTypeCode: { code: 'OTADD', description: 'A Filing' },
+        corpTypeCode: { code: 'BC', description: 'BC Company', product: 'BC' }
+      },
+      {
+        filingTypeCode: { code: 'OTCHG', description: 'B Filing' },
+        corpTypeCode: { code: 'BC', description: 'BC Company', product: 'BC' }
+      }
+    ]
+    mockGetSearchFilingType.mockResolvedValue(mockResults)
+
+    const wrapper = await mountSuspended(FilingTypeAutoComplete, {
+      props: { sortResults: true },
+      global: {
+        stubs: {
+          AsyncAutoComplete: {
+            template: '<div></div>',
+            props: ['id', 'label', 'modelValue', 'queryFn'],
+            emits: ['update:modelValue', 'input', 'blur', 'focus']
+          }
+        }
+      }
+    })
+
+    const component = wrapper.vm as InstanceType<typeof FilingTypeAutoComplete> & {
+      searchFilingTypes?: (searchTerm: string | undefined) => Promise<Array<FilingType & { label: string }>>
+    }
+    const queryFn = component.searchFilingTypes
+    if (!queryFn) { throw new Error('queryFn is undefined') }
+
+    const result = await queryFn('fil')
+    expect(result[0]?.label).toBe('A Filing - BC Company')
+    expect(result[1]?.label).toBe('B Filing - BC Company')
+    expect(result[2]?.label).toBe('C Filing - BC Company')
   })
 
   it('should use default props and pass $attrs to AsyncAutoComplete', async () => {

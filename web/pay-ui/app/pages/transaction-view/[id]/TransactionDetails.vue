@@ -14,8 +14,16 @@ const canDownloadReceipt = computed(() =>
   || props.transactionData.invoiceStatusCode === InvoiceStatus.PAID
 )
 
-function handleDownloadReceipt() {
-  downloadReceipt(props.transactionData)
+const isDownloadingReceipt = ref(false)
+
+async function handleDownloadReceipt() {
+  isDownloadingReceipt.value = true
+  try {
+    await downloadReceipt(props.transactionData)
+  }
+  finally {
+    isDownloadingReceipt.value = false
+  }
 }
 </script>
 
@@ -41,11 +49,18 @@ function handleDownloadReceipt() {
         <div class="sm:col-span-3">
           <button
             v-if="canDownloadReceipt"
-            class="flex items-center gap-1 text-primary cursor-pointer hover:underline"
+            class="flex items-center gap-1 text-primary cursor-pointer hover:underline
+            disabled:opacity-60 disabled:cursor-not-allowed"
+            :disabled="isDownloadingReceipt"
             @click="handleDownloadReceipt()"
           >
-            <UIcon name="i-mdi-file-pdf-outline" class="size-5" />
-            <span>Receipt</span>
+            <template v-if="isDownloadingReceipt">
+              <UIcon name="i-mdi-loading" class="size-5 animate-spin" />
+            </template>
+            <template v-else>
+              <UIcon name="i-mdi-file-pdf-outline" class="size-5" />
+              <span>Receipt</span>
+            </template>
           </button>
         </div>
       </div>

@@ -1104,6 +1104,11 @@ watch(() => transactions.results, () => {
   background-color: var(--color-white) !important;
 }
 
+:deep(table thead tr th.header-action) {
+  width: 175px !important;
+  max-width: 175px !important;
+}
+
 :deep(.sticky-row th.clear-filters-th) {
   position: sticky !important;
   right: 0 !important;
@@ -1114,6 +1119,8 @@ watch(() => transactions.results, () => {
   text-align: left !important;
   padding-left: 0.75rem !important;
   padding-right: 0.75rem !important;
+  width: 175px !important;
+  max-width: 175px !important;
 }
 
 :deep(.clear-filters-th .clear-filters-btn) {

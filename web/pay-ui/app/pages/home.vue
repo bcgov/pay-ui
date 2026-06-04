@@ -3,17 +3,29 @@ import Search from '~/components/Dashboard/Search.vue'
 import DailyReport from '~/components/Dashboard/DailyReport.vue'
 
 const { t } = useI18n()
+const config = useRuntimeConfig()
+const authWebUrl = (config.public as { authWebUrl?: string }).authWebUrl || ''
 
 definePageMeta({
   layout: 'connect-auth',
   middleware: ['pay-auth'],
   allowedRoles: [Role.FAS_VIEW],
-  hideBreadcrumbs: true
+  hideBreadcrumbs: false
 })
 
 useHead({
   title: t('page.dashboard.title')
 })
+
+setBreadcrumbs([
+  {
+    label: 'Staff Dashboard',
+    to: `${authWebUrl}/staff/dashboard`
+  },
+  {
+    label: 'FAS Dashboard'
+  }
+])
 </script>
 
 <template>
