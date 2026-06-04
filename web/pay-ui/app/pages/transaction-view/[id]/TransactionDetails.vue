@@ -49,7 +49,8 @@ async function handleDownloadReceipt() {
         <div class="sm:col-span-3">
           <button
             v-if="canDownloadReceipt"
-            class="flex items-center gap-1 text-primary cursor-pointer hover:underline disabled:opacity-60 disabled:cursor-not-allowed"
+            class="flex items-center gap-1 text-primary cursor-pointer hover:underline
+            disabled:opacity-60 disabled:cursor-not-allowed"
             :disabled="isDownloadingReceipt"
             @click="handleDownloadReceipt()"
           >
