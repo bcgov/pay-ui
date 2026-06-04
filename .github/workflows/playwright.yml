@@ -25,9 +25,9 @@ on:
   pull_request:
     branches: [ feature-nuxt-v3-upgrade ]
   workflow_dispatch: {}
-  schedule:
-    # Runs Mon-Fri at 11:00 AM Eastern Standard Time (fixed UTC-5 -> 16:00 UTC)
-    - cron: '0 16 * * 1-5'
+  # schedule:
+  #   # Runs Mon-Fri at 11:00 AM Eastern Standard Time (fixed UTC-5 -> 16:00 UTC)
+  #   - cron: '0 16 * * 1-5'
 permissions:
   contents: read
 jobs:
