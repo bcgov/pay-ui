@@ -386,7 +386,7 @@ watch(routingSlips, () => {
             </template>
 
             <template #actions-cell="{ row }">
-              <div class="text-right">
+              <div class="flex items-stretch justify-start">
                 <UButton
                   label="Open"
                   class="btn-table font-normal"
@@ -449,6 +449,22 @@ watch(routingSlips, () => {
 :deep(.sticky-row th) {
   padding-top: 0.75rem !important;
   padding-bottom: 0.75rem !important;
+}
+
+:deep(table thead tr th[data-pinned="right"]),
+:deep(table tbody tr td[data-pinned="right"]) {
+  border-left: none !important;
+  box-shadow: -2px 0 4px 0 rgba(0, 0, 0, 0.1) !important;
+  background-color: var(--color-white) !important;
+}
+
+:deep(.sticky-row th.clear-filters-th) {
+  position: sticky !important;
+  right: 0 !important;
+  background-color: var(--color-white) !important;
+  border-left: none !important;
+  box-shadow: -2px 0 4px 0 rgba(0, 0, 0, 0.1) !important;
+  z-index: 2 !important;
 }
 
 .fas-search {

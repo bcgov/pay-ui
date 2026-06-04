@@ -67,7 +67,8 @@ const formDisabled = computed(() => {
 const refundTypeHint = computed(() => {
   return props.isPartialRefundAllowed
     ? ''
-    : `Partial Refunds not supported for payment method ${props.invoicePaymentMethod} invoices or is not paid.`
+    : `Partial Refunds not supported for payment method ${props.invoicePaymentMethod} invoices`
+      + ' or if the invoice is unpaid.'
 })
 
 function getRequestedAmountRules(max?: number | null) {

@@ -4,21 +4,28 @@ import Home from '~/pages/home.vue'
 const {
   mockNavigateTo,
   mockUseI18n,
-  mockT
+  mockT,
+  mockSetBreadcrumbs
 } = vi.hoisted(() => {
   const _mockNavigateTo = vi.fn()
   const _mockUseI18n = vi.fn()
   const _mockT = vi.fn()
+  const _mockSetBreadcrumbs = vi.fn()
 
   return {
     mockNavigateTo: _mockNavigateTo,
     mockUseI18n: _mockUseI18n,
-    mockT: _mockT
+    mockT: _mockT,
+    mockSetBreadcrumbs: _mockSetBreadcrumbs
   }
 })
 
 mockNuxtImport('navigateTo', () => mockNavigateTo)
 mockNuxtImport('useI18n', () => mockUseI18n)
+mockNuxtImport('setBreadcrumbs', () => mockSetBreadcrumbs)
+mockNuxtImport('useRuntimeConfig', () => () => ({
+  public: { authWebUrl: 'https://auth.example.com' }
+}))
 
 vi.mock('~/components/Dashboard/Search.vue', () => ({
   default: {
@@ -105,6 +112,14 @@ describe('Home Page', () => {
   it('should set page title', async () => {
     await mountSuspended(Home, mountOptions)
     expect(mockT).toHaveBeenCalledWith('page.dashboard.title')
+  })
+
+  it('should set breadcrumbs', async () => {
+    await mountSuspended(Home, mountOptions)
+    expect(mockSetBreadcrumbs).toHaveBeenCalledWith([
+      { label: 'Staff Dashboard', to: 'https://auth.example.com/staff/dashboard' },
+      { label: 'FAS Dashboard' }
+    ])
   })
 
   it('should have correct layout classes', async () => {
