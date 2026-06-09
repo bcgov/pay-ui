@@ -21,6 +21,9 @@ async function handleDownloadReceipt() {
   try {
     await downloadReceipt(props.transactionData)
   }
+  catch (error) {
+    console.error('Failed to download receipt', error)
+  }
   finally {
     isDownloadingReceipt.value = false
   }
@@ -49,6 +52,7 @@ async function handleDownloadReceipt() {
         <div class="sm:col-span-3">
           <button
             v-if="canDownloadReceipt"
+            data-testid="receipt-download-btn"
             class="flex items-center gap-1 text-primary cursor-pointer hover:underline
             disabled:opacity-60 disabled:cursor-not-allowed"
             :disabled="isDownloadingReceipt"
