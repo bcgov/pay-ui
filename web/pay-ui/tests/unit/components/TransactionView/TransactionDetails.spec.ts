@@ -1,4 +1,5 @@
-import { mount } from '@vue/test-utils'
+import { mount, flushPromises } from '@vue/test-utils'
+import { nextTick } from 'vue'
 import TransactionDetails from '~/pages/transaction-view/[id]/TransactionDetails.vue'
 import type { TransactionData } from '~/interfaces/transaction-view'
 import { InvoiceStatus } from '~/utils/constants'
@@ -47,7 +48,7 @@ describe('TransactionDetails', () => {
       global: {
         stubs: {
           NuxtLink: { template: '<a><slot /></a>' },
-          UIcon: true
+          UIcon: { props: ['name'], template: '<span :data-icon-name="name" />' }
         }
       }
     })
@@ -71,12 +72,59 @@ describe('TransactionDetails', () => {
     expect(wrapper.text()).toContain('NR_NUMBER')
   })
 
+  it('should not show receipt button when invoice is not PAID or COMPLETED', () => {
+    const wrapper = createWrapper({ invoiceStatusCode: InvoiceStatus.CREATED })
+    expect(wrapper.find('[data-testid="receipt-download-btn"]').exists()).toBe(false)
+  })
+
   it('should call downloadReceipt when receipt button is clicked', async () => {
     const wrapper = createWrapper({ invoiceStatusCode: InvoiceStatus.PAID })
-    await wrapper.find('button').trigger('click')
+    await wrapper.find('[data-testid="receipt-download-btn"]').trigger('click')
     expect(mockDownloadReceipt).toHaveBeenCalledWith(
       expect.objectContaining({ invoiceId: sampleData.invoiceId })
     )
+  })
+
+  it('should show spinner and disable button while downloading', async () => {
+    let resolveDownload!: () => void
+    mockDownloadReceipt.mockReturnValue(
+      new Promise<void>((resolve) => { resolveDownload = resolve })
+    )
+
+    const wrapper = createWrapper({ invoiceStatusCode: InvoiceStatus.PAID })
+    const btn = wrapper.find('[data-testid="receipt-download-btn"]')
+
+    expect(btn.find('[data-icon-name="i-mdi-file-pdf-outline"]').exists()).toBe(true)
+    expect(btn.find('[data-icon-name="i-mdi-loading"]').exists()).toBe(false)
+    expect(btn.attributes('disabled')).toBeUndefined()
+
+    await btn.trigger('click')
+    await nextTick()
+
+    expect(btn.attributes('disabled')).toBeDefined()
+    expect(btn.find('[data-icon-name="i-mdi-loading"]').exists()).toBe(true)
+    expect(btn.find('[data-icon-name="i-mdi-file-pdf-outline"]').exists()).toBe(false)
+
+    resolveDownload()
+    await flushPromises()
+
+    expect(btn.attributes('disabled')).toBeUndefined()
+    expect(btn.find('[data-icon-name="i-mdi-file-pdf-outline"]').exists()).toBe(true)
+    expect(btn.find('[data-icon-name="i-mdi-loading"]').exists()).toBe(false)
+  })
+
+  it('should restore button to normal state if download throws', async () => {
+    mockDownloadReceipt.mockRejectedValue(new Error('network error'))
+
+    const wrapper = createWrapper({ invoiceStatusCode: InvoiceStatus.PAID })
+    const btn = wrapper.find('[data-testid="receipt-download-btn"]')
+
+    await btn.trigger('click')
+    await flushPromises()
+
+    expect(btn.attributes('disabled')).toBeUndefined()
+    expect(btn.find('[data-icon-name="i-mdi-file-pdf-outline"]').exists()).toBe(true)
+    expect(btn.find('[data-icon-name="i-mdi-loading"]').exists()).toBe(false)
   })
 
   it('should show routing slip column when present', () => {
