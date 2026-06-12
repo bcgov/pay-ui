@@ -153,10 +153,7 @@ function getInvoiceStatus(item: Transaction): string {
     return invoiceStatusDisplay[InvoiceStatus.PENDING]
   }
   if (item.partialRefunds && item.partialRefunds.length > 0) {
-    if (
-      [PaymentTypes.ONLINE_BANKING, PaymentTypes.PAD]
-        .includes(item.paymentMethod)
-    ) {
+    if (isRefundAsCredits(item)) {
       return invoiceStatusDisplay[InvoiceStatus.PARTIALLY_CREDITED]
     }
     return invoiceStatusDisplay[InvoiceStatus.PARTIALLY_REFUNDED]
