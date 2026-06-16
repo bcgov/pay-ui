@@ -26,6 +26,7 @@ import { StatementsPage } from './pages/statements-page.js'
 import { BcrosAccountCreationPage } from './pages/bcros-account-creation-page.js'
 import { ManageEFTPaymentsPage } from './pages/manage-eft-payments-page.js'
 import { StaffReviewPage } from './pages/staff-review-page.js'
+import { EditProfilePage } from './pages/edit-profile-page.js'
 
 const test = base.extend({
   loginPage: async ({ page }, use) => {
@@ -61,6 +62,9 @@ const test = base.extend({
   },
   staffReviewPage: async ({ page }, use) => {
     await use(new StaffReviewPage(page))
+  },
+  editProfilePage: async ({ page }, use) => {
+    await use(new EditProfilePage(page))
   }
 })
 

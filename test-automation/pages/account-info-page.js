@@ -20,6 +20,8 @@ export class AccountInfoPage {
   constructor(page) {
     this.page = page
     this.accountName = page.locator('[class="v-btn__content"]')
+    this.editProfileLink = page.getByText('Edit Profile')
+    this.cancelButton = page.getByRole('button', { name: 'Cancel' })
     this.accountInfoText = page.getByText('Account Info')
     this.deactivateAccountButton = page.locator('[data-test="deactivate-btn"]')
     this.authenticationLink = page.getByText('Authentication')
@@ -53,5 +55,6 @@ export class AccountInfoPage {
     await expect(this.advancedSettings).toBeVisible({ timeout: 60000 })
     await expect(this.developerAccessLink).toBeVisible({ timeout: 60000 })
   }
+
 
 }
