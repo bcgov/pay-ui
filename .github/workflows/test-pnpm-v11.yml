@@ -20,6 +20,9 @@ jobs:
           cache-dependency-path: web/pay-ui/pnpm-lock.yaml
       - name: Install (from workspace root)
         run: pnpm install --no-frozen-lockfile --ignore-scripts
+      - name: Prepare (generate .nuxt types)
+        working-directory: web/pay-ui
+        run: pnpm nuxt prepare
       - name: Build
         working-directory: web/pay-ui
         run: pnpm build
