@@ -7,9 +7,6 @@ on:
 jobs:
   test-pnpm-v11:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: web/pay-ui
     steps:
       - uses: actions/checkout@v6
       - name: Setup pnpm v11
@@ -21,9 +18,10 @@ jobs:
           node-version: 24
           cache: pnpm
           cache-dependency-path: web/pay-ui/pnpm-lock.yaml
-      - name: Install
-        run: pnpm install
+      - name: Install (from workspace root)
+        run: pnpm install --no-frozen-lockfile --ignore-scripts
       - name: Build
+        working-directory: web/pay-ui
         run: pnpm build
       - name: Verify pnpm version
         run: pnpm --version
