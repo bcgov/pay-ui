@@ -1,0 +1,11 @@
+# This file is at the repo root so pnpm v11 reads onlyBuiltDependencies
+# for the web/pay-ui app. pnpm-workspace.yaml must be at git root.
+onlyBuiltDependencies:
+  - "@parcel/watcher"
+  - "@sbc-connect/nuxt-auth"
+  - "@sbc-connect/nuxt-base"
+  - "@sbc-connect/nuxt-forms"
+  - "@sbc-connect/nuxt-pay"
+  - "@tailwindcss/oxide"
+  - esbuild
+  - vue-demi
