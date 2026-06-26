@@ -1,5 +1,6 @@
-# This file is at the repo root so pnpm v11 reads onlyBuiltDependencies
-# for the web/pay-ui app. pnpm-workspace.yaml must be at git root.
+packages:
+  - web/pay-ui
+
 onlyBuiltDependencies:
   - "@parcel/watcher"
   - "@sbc-connect/nuxt-auth"
