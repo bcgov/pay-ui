@@ -46,6 +46,7 @@ defineExpose({
       <FilingTypeAutoComplete
         :id="`filing-type-autocomplete-${index}`"
         v-model="manualTransactionDetails.filingType"
+        sort-results
         required
         :rules="requiredFieldRule"
         @input="errors.filingType = ''; delayedCalculateTotal()"

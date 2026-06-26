@@ -264,16 +264,14 @@ watch(routingSlips, () => {
                     @input="debouncedSearch()"
                   />
                 </th>
-                <th
-                  class="text-right pl-2 pr-4 clear-filters-th"
-                >
+                <th class="clear-filters-th">
                   <template v-if="hasActiveFilters">
                     <UButton
                       label="Clear Filters"
                       variant="outline"
                       color="primary"
                       trailing-icon="i-mdi-close"
-                      size="sm"
+                      size="md"
                       class="clear-filters-btn"
                       @click="resetSearchFilters()"
                     />
@@ -386,7 +384,7 @@ watch(routingSlips, () => {
             </template>
 
             <template #actions-cell="{ row }">
-              <div class="text-right">
+              <div class="flex items-stretch justify-start">
                 <UButton
                   label="Open"
                   class="btn-table font-normal"
@@ -431,24 +429,50 @@ watch(routingSlips, () => {
 
 :deep(table thead tr:first-child th),
 :deep(.sticky-row th) {
-  width: 150px;
   min-width: 150px;
   padding-top: 0.75rem !important;
   padding-bottom: 0.75rem !important;
 }
 
-//Fix clear filters size
-:deep(.sticky-row th.clear-filters-th) {
-  text-align: right !important;
-}
-
-:deep(.clear-filters-btn) {
-  max-width: 150px !important;
+:deep(.clear-filters-th .clear-filters-btn) {
+  width: auto !important;
 }
 
 :deep(.sticky-row th) {
   padding-top: 0.75rem !important;
   padding-bottom: 0.75rem !important;
+}
+
+:deep(table thead tr th[data-pinned="right"]),
+:deep(table tbody tr td[data-pinned="right"]) {
+  border-left: none !important;
+  box-shadow: -2px 0 4px 0 rgba(0, 0, 0, 0.1) !important;
+  background-color: var(--color-white) !important;
+}
+
+:deep(table thead tr th.header-action) {
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
+}
+
+:deep(table tbody tr td[data-pinned="right"]) {
+  max-width: 160px !important;
+}
+
+:deep(.sticky-row th.clear-filters-th) {
+  position: sticky !important;
+  right: 0 !important;
+  background-color: var(--color-white) !important;
+  border-left: none !important;
+  box-shadow: -2px 0 4px 0 rgba(0, 0, 0, 0.1) !important;
+  z-index: 2 !important;
+  text-align: left !important;
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
 }
 
 .fas-search {

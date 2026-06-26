@@ -29,10 +29,6 @@ const props = withDefaults(defineProps<Props>(), {
   extended: false
 })
 
-const emit = defineEmits<{
-  isDownloadingReceipt: [value: boolean]
-}>()
-
 const {
   searchTransactionsTableHeaders,
   columnPinning,
@@ -63,6 +59,7 @@ const {
 setViewAll(props.extended)
 
 const expandedRows = ref(new Set<number>())
+const downloadingReceiptIds = ref(new Set<number>())
 
 type TableRow = Transaction | DropdownItem
 
@@ -156,10 +153,7 @@ function getInvoiceStatus(item: Transaction): string {
     return invoiceStatusDisplay[InvoiceStatus.PENDING]
   }
   if (item.partialRefunds && item.partialRefunds.length > 0) {
-    if (
-      [PaymentTypes.ONLINE_BANKING, PaymentTypes.PAD]
-        .includes(item.paymentMethod)
-    ) {
+    if (isRefundAsCredits(item)) {
       return invoiceStatusDisplay[InvoiceStatus.PARTIALLY_CREDITED]
     }
     return invoiceStatusDisplay[InvoiceStatus.PARTIALLY_REFUNDED]
@@ -450,7 +444,7 @@ function initiateRefund(item: Transaction) {
 }
 
 async function downloadReceipt(item: Transaction) {
-  emit('isDownloadingReceipt', true)
+  downloadingReceiptIds.value.add(item.id)
   try {
     const nuxtApp = useNuxtApp()
     const $payApi = nuxtApp.$payApi as typeof nuxtApp.$payApi
@@ -473,7 +467,7 @@ async function downloadReceipt(item: Transaction) {
   } catch (error) {
     console.error('Failed to download receipt', error)
   } finally {
-    emit('isDownloadingReceipt', false)
+    downloadingReceiptIds.value.delete(item.id)
   }
 }
 
@@ -996,10 +990,16 @@ watch(() => transactions.results, () => {
             <span
               v-else
               class="receipt-link"
+              :class="{ 'pointer-events-none opacity-60': downloadingReceiptIds.has(asTransaction(row).id) }"
               @click="downloadReceipt(asTransaction(row))"
             >
-              <UIcon name="i-mdi-file-download-outline" />
-              Receipt
+              <template v-if="downloadingReceiptIds.has(asTransaction(row).id)">
+                <UIcon name="i-mdi-loading" class="size-5 animate-spin" />
+              </template>
+              <template v-else>
+                <UIcon name="i-mdi-file-download-outline" class="size-5" />
+                <span>Receipt</span>
+              </template>
             </span>
           </template>
 
@@ -1104,6 +1104,11 @@ watch(() => transactions.results, () => {
   background-color: var(--color-white) !important;
 }
 
+:deep(table thead tr th.header-action) {
+  width: 175px !important;
+  max-width: 175px !important;
+}
+
 :deep(.sticky-row th.clear-filters-th) {
   position: sticky !important;
   right: 0 !important;
@@ -1114,6 +1119,8 @@ watch(() => transactions.results, () => {
   text-align: left !important;
   padding-left: 0.75rem !important;
   padding-right: 0.75rem !important;
+  width: 175px !important;
+  max-width: 175px !important;
 }
 
 :deep(.clear-filters-th .clear-filters-btn) {

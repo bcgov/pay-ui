@@ -116,7 +116,7 @@
 }
 
 .table-scroll,
-.table-scroll * {
+.table-scroll *:not(.animate-spin) {
   transform: none !important;
   will-change: auto !important;
 }
