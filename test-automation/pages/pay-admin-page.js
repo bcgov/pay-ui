@@ -20,6 +20,14 @@ export class PayAdminPage {
     this.code = page.locator('[id="code"]')
     this.comments = page.locator('[id="comments"]')
     this.saveButton = page.locator('[class="btn btn-primary"]')
+    this.feeSchedule = page.getByText('Fee Schedule')
+    this.createLink = page.getByRole('link', { name: 'Create' })
+    this.variableFeeFlag = page.getByText('Variable Fee Flag')
+    this.showOnPriceListFlag = page.getByText('Show on Price List')
+    this.gstAddedToStatutoryFeesFlag = page.getByText('GST Added to Statutory Fees')
+    this.gstAddedToServicesFeesFlag = page.getByText('GST Added to Services Fees')
+
+
   }
 
   async createFeeCode() {
@@ -30,5 +38,16 @@ export class PayAdminPage {
     await expect(this.comments).toBeVisible({ timeout: 10000 })
     await this.comments.fill('Test comments', {timeout: 10000})
     await this.saveButton.click({timeout: 10000})
+  }
+
+   async validateFeeSchedule() {
+    //TODO- will update later to use env variable for url
+    await this.page.goto(process.env.FEECODEURL)
+    await this.feeSchedule.click({timeout: 10000})
+    await this.createLink.click({timeout: 10000})
+    await this.variableFeeFlag.click({timeout: 10000})
+    await this.showOnPriceListFlag.click({timeout: 10000})
+    await this.gstAddedToStatutoryFeesFlag.click({timeout: 10000})
+    await this.gstAddedToServicesFeesFlag.click({timeout: 10000})
   }
 }
