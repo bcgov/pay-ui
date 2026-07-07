@@ -28,12 +28,20 @@ test.describe.serial('Pay Admin Tests', () => {
     await payAdminPage.createFeeCode()
   })
 
-   test.use({ storageState: { cookies: [], origins: [] } })
+  test.use({ storageState: { cookies: [], origins: [] } })
   test('validate pay admin functionality-validate fee schedule', async ({ page, payAdminPage , loginPage }) => {
     console.log('Test: Current URL before navigation:', page.url())
     console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
     // use credentials for Pay admin
     await loginPage.loginWithIDIR(process.env.TEST_USERNAME_IDIR, process.env.TEST_PASSWORD_IDIR)
     await payAdminPage.validateFeeSchedule()
+  })
+
+  test('validate pay admin functionality-create corp type', async ({ page, payAdminPage , loginPage }) => {
+    console.log('Test: Current URL before navigation:', page.url())
+    console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
+    // use credentials for Pay admin (IDIR)
+    await loginPage.loginWithIDIR(process.env.TEST_USERNAME_IDIR, process.env.TEST_PASSWORD_IDIR)
+    await payAdminPage.createCorpType()
   })
 })
