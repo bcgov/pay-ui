@@ -18,6 +18,9 @@ export class PayAdminPage {
     this.page = page
     this.ammount = page.locator('[id="amount"]')
     this.code = page.locator('[id="code"]')
+    this.distributionCode = page.getByText('Distribution Code')
+    this.distributionCodeName = page.locator('[id="name"]')
+    this.distributionClientCode = page.locator('[id="client"]')
     this.description = page.locator('[id="description"]')
     this.comments = page.locator('[id="comments"]')
     this.saveButton = page.locator('[class="btn btn-primary"]')
@@ -65,4 +68,17 @@ export class PayAdminPage {
     await this.saveButton.click({timeout: 10000})
     await expect(this.successMessage).toBeVisible({ timeout: 10000 })
   }
+
+  async createDistributionCode() {
+    //TODO- will update later to use env variable for url
+    await this.page.goto(process.env.FEECODEURL)
+    await this.createLink.click({timeout: 10000})
+    await this.distributionCodeName.fill('anish test automation', {timeout: 10000})
+    await this.distributionClientCode.fill('220', {timeout: 10000})
+    await this.comments.fill('anish test automation comments', {timeout: 10000})
+    await this.saveButton.click({timeout: 10000})
+    await expect(this.successMessage).toBeVisible({ timeout: 10000 })
+  }
+
+
 }
