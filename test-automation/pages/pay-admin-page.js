@@ -18,6 +18,7 @@ export class PayAdminPage {
     this.page = page
     this.ammount = page.locator('[id="amount"]')
     this.code = page.locator('[id="code"]')
+    this.editFeeCodeLink = page.locator('[title="Edit Record"]')
     this.distributionCode = page.getByText('Distribution Code')
     this.distributionCodeName = page.locator('[id="name"]')
     this.distributionClientCode = page.locator('[id="client"]')
@@ -76,6 +77,18 @@ export class PayAdminPage {
     await this.distributionCodeName.fill('anish test automation', {timeout: 10000})
     await this.distributionClientCode.fill('220', {timeout: 10000})
     await this.comments.fill('anish test automation comments', {timeout: 10000})
+    await this.saveButton.click({timeout: 10000})
+    await expect(this.successMessage).toBeVisible({ timeout: 10000 })
+  }
+
+   async editFeeCodeAndSave() {
+    //TODO- will update later to use env variable for url
+    await this.page.goto(process.env.FEECODEURL)
+    await this.editFeeCodeLink.first().click({timeout: 10000})
+    await this.ammount.clear({timeout: 10000})
+    await this.ammount.fill('190', {timeout: 10000})
+    await this.comments.clear({timeout: 10000})
+    await this.comments.fill('edited fee code record', {timeout: 10000})
     await this.saveButton.click({timeout: 10000})
     await expect(this.successMessage).toBeVisible({ timeout: 10000 })
   }
