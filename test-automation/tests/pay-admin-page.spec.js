@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * Staff Review Page Tests
+ * Pay Admin Page Tests
  * ============================================================================
  *
  * File: tests/pay-admin-page.spec.js
@@ -28,6 +28,14 @@ test.describe.serial('Pay Admin Tests', () => {
     await payAdminPage.createFeeCode()
   })
 
+    test('validate pay admin functionality-edit fee code and save', async ({ page, payAdminPage , loginPage }) => {
+    console.log('Test: Current URL before navigation:', page.url())
+    console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
+    // use credentials for Pay admin (IDIR)
+    await loginPage.loginWithIDIR(process.env.TEST_USERNAME_IDIR, process.env.TEST_PASSWORD_IDIR)
+    await payAdminPage.editFeeCodeAndSave()
+  })
+
   test.use({ storageState: { cookies: [], origins: [] } })
   test('validate pay admin functionality-validate fee schedule', async ({ page, payAdminPage , loginPage }) => {
     console.log('Test: Current URL before navigation:', page.url())
@@ -53,11 +61,19 @@ test.describe.serial('Pay Admin Tests', () => {
     await payAdminPage.createDistributionCode()
   })
 
-  test('validate pay admin functionality-edit fee code and save', async ({ page, payAdminPage , loginPage }) => {
+    test('validate pay admin functionality-create filling type and save', async ({ page, payAdminPage , loginPage }) => {
     console.log('Test: Current URL before navigation:', page.url())
     console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
     // use credentials for Pay admin (IDIR)
     await loginPage.loginWithIDIR(process.env.TEST_USERNAME_IDIR, process.env.TEST_PASSWORD_IDIR)
-    await payAdminPage.editFeeCodeAndSave()
+    await payAdminPage.createAndSaveFillingType()
+  })
+
+    test('validate pay admin functionality-edit filling type and save', async ({ page, payAdminPage , loginPage }) => {
+    console.log('Test: Current URL before navigation:', page.url())
+    console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
+    // use credentials for Pay admin (IDIR)
+    await loginPage.loginWithIDIR(process.env.TEST_USERNAME_IDIR, process.env.TEST_PASSWORD_IDIR)
+    await payAdminPage.editFillingTypeAndSave()
   })
 })
