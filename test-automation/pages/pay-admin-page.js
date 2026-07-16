@@ -18,7 +18,7 @@ export class PayAdminPage {
     this.page = page
     this.ammount = page.locator('[id="amount"]')
     this.code = page.locator('[id="code"]')
-    this.editFeeCodeLink = page.locator('[title="Edit Record"]')
+    this.editRecord = page.locator('[title="Edit Record"]')
     this.distributionCode = page.getByText('Distribution Code')
     this.distributionCodeName = page.locator('[id="name"]')
     this.distributionClientCode = page.locator('[id="client"]')
@@ -26,6 +26,7 @@ export class PayAdminPage {
     this.comments = page.locator('[id="comments"]')
     this.saveButton = page.locator('[class="btn btn-primary"]')
     this.feeSchedule = page.getByText('Fee Schedule')
+    this.feeCodeLink = page.getByRole('link', { name: 'Fee Code' })
     this.createLink = page.getByRole('link', { name: 'Create' })
     this.variableFeeFlag = page.getByText('Variable Fee Flag')
     this.showOnPriceListFlag = page.getByText('Show on Price List')
@@ -33,13 +34,15 @@ export class PayAdminPage {
     this.gstAddedToServicesFeesFlag = page.getByText('GST Added to Services Fees')
     this.corpTypeLink = page.getByRole('link', { name: 'Corp Type' })
     this.successMessage = page.getByText('Record was successfully created.')
+    this.fillingTypeLink = page.getByRole('link', { name: 'Filing Type' })
 
 
   }
 
   async createFeeCode() {
     //TODO- will update later to use env variable for url
-    await this.page.goto(process.env.FEECODEURL)
+    await this.page.goto(process.env.PAYADMINURL)
+    await this.feeCodeLink.click({timeout: 10000})
     await this.code.fill('220')
     await this.ammount.fill('100')
     await expect(this.comments).toBeVisible({ timeout: 10000 })
@@ -47,9 +50,22 @@ export class PayAdminPage {
     await this.saveButton.click({timeout: 10000})
   }
 
+   async editFeeCodeAndSave() {
+    //TODO- will update later to use env variable for url
+    await this.page.goto(process.env.PAYADMINURL)
+    await this.feeCodeLink.click({timeout: 10000})
+    await this.editRecord.first().click({timeout: 10000})
+    await this.ammount.clear({timeout: 10000})
+    await this.ammount.fill('190', {timeout: 10000})
+    await this.comments.clear({timeout: 10000})
+    await this.comments.fill('edited fee code record', {timeout: 10000})
+    await this.saveButton.click({timeout: 10000})
+    await expect(this.successMessage).toBeVisible({ timeout: 10000 })
+  }
+
    async validateFeeSchedule() {
     //TODO- will update later to use env variable for url
-    await this.page.goto(process.env.FEECODEURL)
+    await this.page.goto(process.env.PAYADMINURL)
     await this.feeSchedule.click({timeout: 10000})
     await this.createLink.click({timeout: 10000})
     await this.variableFeeFlag.click({timeout: 10000})
@@ -60,7 +76,7 @@ export class PayAdminPage {
 
    async createCorpType() {
     //TODO- will update later to use env variable for url
-    await this.page.goto(process.env.FEECODEURL)
+    await this.page.goto(process.env.PAYADMINURL)
     await this.corpTypeLink.click({timeout: 10000})
     await this.createLink.click({timeout: 10000})
     await this.code.fill('220')
@@ -72,7 +88,8 @@ export class PayAdminPage {
 
   async createDistributionCode() {
     //TODO- will update later to use env variable for url
-    await this.page.goto(process.env.FEECODEURL)
+    await this.page.goto(process.env.PAYADMINURL)
+    await this.distributionCode.click({timeout: 10000})
     await this.createLink.click({timeout: 10000})
     await this.distributionCodeName.fill('anish test automation', {timeout: 10000})
     await this.distributionClientCode.fill('220', {timeout: 10000})
@@ -81,17 +98,30 @@ export class PayAdminPage {
     await expect(this.successMessage).toBeVisible({ timeout: 10000 })
   }
 
-   async editFeeCodeAndSave() {
+  
+
+  async createAndSaveFillingType() {
     //TODO- will update later to use env variable for url
-    await this.page.goto(process.env.FEECODEURL)
-    await this.editFeeCodeLink.first().click({timeout: 10000})
-    await this.ammount.clear({timeout: 10000})
-    await this.ammount.fill('190', {timeout: 10000})
-    await this.comments.clear({timeout: 10000})
-    await this.comments.fill('edited fee code record', {timeout: 10000})
+    await this.page.goto(process.env.PAYADMINURL)
+    await this.fillingTypeLink.click({timeout: 10000})
+    await this.createLink.click({timeout: 10000})
+    await this.code.fill('390')
+    await this.description.fill('anish test automation', {timeout: 10000})
+    await this.comments.fill('anish test automation comments', {timeout: 10000})
     await this.saveButton.click({timeout: 10000})
     await expect(this.successMessage).toBeVisible({ timeout: 10000 })
   }
 
-
+  async editFillingTypeAndSave() {
+    //TODO- will update later to use env variable for url
+    await this.page.goto(process.env.PAYADMINURL)
+    await this.fillingTypeLink.click({timeout: 10000})
+    await this.editRecord.first().click({timeout: 10000})
+    await this.description.clear({timeout: 10000})
+    await this.description.fill('automation edited filling type record', {timeout: 10000})
+    await this.comments.clear({timeout: 10000})
+    await this.comments.fill('automation edited filling type record comments', {timeout: 10000})
+    await this.saveButton.click({timeout: 10000})
+    await expect(this.successMessage).toBeVisible({ timeout: 10000 })
+  }
 }
