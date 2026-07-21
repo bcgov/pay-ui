@@ -76,4 +76,19 @@ test.describe.serial('Pay Admin Tests', () => {
     await loginPage.loginWithIDIR(process.env.TEST_USERNAME_IDIR, process.env.TEST_PASSWORD_IDIR)
     await payAdminPage.editFillingTypeAndSave()
   })
+  test('validate pay admin functionality-edit distribution code and save', async ({ page, payAdminPage , loginPage }) => {
+    console.log('Test: Current URL before navigation:', page.url())
+    console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
+    // use credentials for Pay admin (IDIR)
+    await loginPage.loginWithIDIR(process.env.TEST_USERNAME_IDIR, process.env.TEST_PASSWORD_IDIR)
+    await payAdminPage.editDistributionCodeAndSave()
+  })
+
+  test('validate pay admin functionality-edit fee schedule and save', async ({ page, payAdminPage , loginPage }) => {
+    console.log('Test: Current URL before navigation:', page.url())
+    console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
+    // use credentials for Pay admin (IDIR)
+    await loginPage.loginWithIDIR(process.env.TEST_USERNAME_IDIR, process.env.TEST_PASSWORD_IDIR)
+    await payAdminPage.editFeeScheduleAndSave()
+  })
 })
