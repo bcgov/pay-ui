@@ -139,4 +139,16 @@ export class PayAdminPage {
     await this.saveButton.click({timeout: 10000})
     await expect(this.successMessage).toBeVisible({ timeout: 10000 })
   }
+
+  async editCorpTypeAndSave() {
+    await this.page.goto(process.env.PAYADMINURL)
+    await this.corpTypeLink.click({timeout: 10000})
+    await this.editRecord.first().click({timeout: 10000})
+    await this.description.clear({timeout: 10000})
+    await this.description.fill('automation edited corp type record', {timeout: 10000})
+    await this.comments.clear({timeout: 10000})
+    await this.comments.fill('automation edited corp type record comments', {timeout: 10000})
+    await this.saveButton.click({timeout: 10000})
+    await expect(this.successMessage).toBeVisible({ timeout: 10000 })
+  }
 }

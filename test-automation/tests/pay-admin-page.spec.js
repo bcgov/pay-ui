@@ -91,4 +91,12 @@ test.describe.serial('Pay Admin Tests', () => {
     await loginPage.loginWithIDIR(process.env.TEST_USERNAME_IDIR, process.env.TEST_PASSWORD_IDIR)
     await payAdminPage.editFeeScheduleAndSave()
   })
+
+   test('validate pay admin functionality-edit corp type and save', async ({ page, payAdminPage , loginPage }) => {
+    console.log('Test: Current URL before navigation:', page.url())
+    console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
+    // use credentials for Pay admin (IDIR)
+    await loginPage.loginWithIDIR(process.env.TEST_USERNAME_IDIR, process.env.TEST_PASSWORD_IDIR)
+    await payAdminPage.editCorpTypeAndSave()
+  })
 })
