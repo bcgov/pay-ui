@@ -35,6 +35,9 @@ export class PayAdminPage {
     this.corpTypeLink = page.getByRole('link', { name: 'Corp Type' })
     this.successMessage = page.getByText('Record was successfully created.')
     this.fillingTypeLink = page.getByRole('link', { name: 'Filing Type' })
+    this.refundsAllowed = page.getByText('Refunds allowed')
+    this.cancelButton = page.getByRole('button', { name: 'Cancel' })
+    this.refundApprovalRequired = page.getByText('Refund Approval Required')
 
 
   }
@@ -150,5 +153,15 @@ export class PayAdminPage {
     await this.comments.fill('automation edited corp type record comments', {timeout: 10000})
     await this.saveButton.click({timeout: 10000})
     await expect(this.successMessage).toBeVisible({ timeout: 10000 })
+  }
+
+  async validateRefundFlag(){
+    await this.page.goto(process.env.PAYADMINURL)
+    await this.corpTypeLink.click({timeout: 10000})
+    await this.editRecord.first().click({timeout: 10000})
+    await expect(this.refundsAllowed).toBeVisible({ timeout: 10000 })
+    await this.cancelButton.click({timeout: 10000})
+    await expect(this.refundApprovalRequired).toBeVisible({ timeout: 10000 }) 
+    await expect(this.refundsAllowed).toBeVisible({ timeout: 10000 })
   }
 }
