@@ -37,8 +37,7 @@ export class PayAdminPage {
     this.fillingTypeLink = page.getByRole('link', { name: 'Filing Type' })
     this.refundsAllowed = page.getByText('Refunds allowed')
     this.cancelButton = page.getByRole('button', { name: 'Cancel' })
-    this.refundApprovalRequired = page.getByText('Refund Approval Required') 
-    this.refundsAllowed = page.getByText('Refunds allowed')
+    this.refundApprovalRequired = page.getByText('Refund Approval Required')
 
 
   }
