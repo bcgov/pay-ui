@@ -99,4 +99,12 @@ test.describe.serial('Pay Admin Tests', () => {
     await loginPage.loginWithIDIR(process.env.TEST_USERNAME_IDIR, process.env.TEST_PASSWORD_IDIR)
     await payAdminPage.editCorpTypeAndSave()
   })
+
+  test('validate pay admin functionality-validate refund flag', async ({ page, payAdminPage , loginPage }) => {
+    console.log('Test: Current URL before navigation:', page.url())
+    console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
+    // use credentials for Pay admin (IDIR)
+    await loginPage.loginWithIDIR(process.env.TEST_USERNAME_IDIR, process.env.TEST_PASSWORD_IDIR)
+    await payAdminPage.validateRefundFlag()
+  })
 })
