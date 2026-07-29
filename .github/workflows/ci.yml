@@ -19,7 +19,7 @@ jobs:
     uses: bcgov/bcregistry-sre/.github/workflows/frontend-ci.yaml@main
     with:
       node_version: 24
-      pnpm_version: latest-11
+      pnpm_version: 11.9.0
       app_name: "pay-ui"
       working_directory: "./web/pay-ui"
       codecov_flag: "payweb"
