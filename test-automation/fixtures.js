@@ -28,6 +28,7 @@ import { ManageEFTPaymentsPage } from './pages/manage-eft-payments-page.js'
 import { StaffReviewPage } from './pages/staff-review-page.js'
 import { PayAdminPage } from './pages/pay-admin-page.js'
 import { EditProfilePage } from './pages/edit-profile-page.js'
+import {BcaValidationPage} from './pages/bca-validation-page.js'
 
 const test = base.extend({
   loginPage: async ({ page }, use) => {
@@ -69,7 +70,10 @@ const test = base.extend({
   },
   editProfilePage: async ({ page }, use) => {
     await use(new EditProfilePage(page))
-  }
+  },
+  bcaValidationPage: async ({ page }, use) => {
+    await use(new BcaValidationPage(page))
+  } 
 })
 
 export {
