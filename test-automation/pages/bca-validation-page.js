@@ -57,7 +57,7 @@ export class BcaValidationPage {
     await this.editProfileLink.click({ timeout: 60000 })
     await this.accountInfoText.click({ timeout: 60000 })
     await this.productsAndPaymentLink.click({ timeout: 60000 })
-    await this.productChewckbox.first().check({ timeout: 60000 })
+    await this.productCheckbox.first().check({ timeout: 60000 })
     await this.waitForTimeout(3000)
     await this.cancelButton.click({ timeout: 60000 })
   }
