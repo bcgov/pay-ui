@@ -27,6 +27,8 @@ export class BcaValidationPage {
     this.saveButton = page.getByRole('button', { name: 'Save' })
     this.bcaCard = page.locator('[data-test="div-product-BCA"]')
     this.bcaPaymentMethods = this.bcaCard.locator('.product-payment-icons')
+    this.productChewckbox = page.locator('[type="checkbox"]')
+    this.cancelButton = page.getByRole('button', { name: 'Cancel' })
   }
 
   async getBcaPaymentMethods() {
@@ -48,5 +50,15 @@ export class BcaValidationPage {
       'CREDIT CARD',
       'BC ONLINE',
     ])
+  }
+
+  async validateProductsandServices() {
+    await this.accountName.nth(1).click({ timeout: 60000 })
+    await this.editProfileLink.click({ timeout: 60000 })
+    await this.accountInfoText.click({ timeout: 60000 })
+    await this.productsAndPaymentLink.click({ timeout: 60000 })
+    await this.productChewckbox.first().check({ timeout: 60000 })
+    await this.waitForTimeout(3000)
+    await this.cancelButton.click({ timeout: 60000 })
   }
 }
