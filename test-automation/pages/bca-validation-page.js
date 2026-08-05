@@ -27,7 +27,7 @@ export class BcaValidationPage {
     this.saveButton = page.getByRole('button', { name: 'Save' })
     this.bcaCard = page.locator('[data-test="div-product-BCA"]')
     this.bcaPaymentMethods = this.bcaCard.locator('.product-payment-icons')
-    this.productChewckbox = page.locator('[type="checkbox"]')
+    this.productCheckbox = page.locator('[type="checkbox"]')
     this.cancelButton = page.getByRole('button', { name: 'Cancel' })
   }
 
