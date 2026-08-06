@@ -89,6 +89,7 @@ const mockStore: {
     number: string
     status: string | null
     createdOn: string | null
+    routingSlipDate: string | null
     paymentAccount: { accountName: string } | null
     contactName: string
     mailingAddress: {
@@ -110,6 +111,7 @@ const mockStore: {
     number: '123456',
     status: 'ACTIVE',
     createdOn: '2025-01-01T00:00:00Z',
+    routingSlipDate: '2025-01-01',
     paymentAccount: {
       accountName: 'Test Account'
     },
@@ -137,6 +139,7 @@ describe('useRoutingSlipInfo', () => {
       number: '123456',
       status: 'ACTIVE',
       createdOn: '2025-01-01T00:00:00Z',
+      routingSlipDate: '2025-01-01',
       paymentAccount: {
         accountName: 'Test Account'
       },
@@ -185,7 +188,7 @@ describe('useRoutingSlipInfo', () => {
 
   it('should return basic computed properties and handle all status select scenarios', async () => {
     const composable = useRoutingSlipInfo()
-    expect(composable.formattedDate.value).toBe('Dec 31, 2024')
+    expect(composable.formattedDate.value).toBe('Jan 01, 2025')
     expect(composable.statusLabel.value).toBeDefined()
     expect(composable.entityNumber.value).toBe('Test Account')
     expect(composable.contactName.value).toBe('Test Contact')
@@ -527,11 +530,11 @@ describe('useRoutingSlipInfo', () => {
   })
 
   it('should return dash for formattedDate when date is null or invalid', () => {
-    mockStore.routingSlip.createdOn = null as unknown as string
+    mockStore.routingSlip.routingSlipDate = null as unknown as string
     const composable1 = useRoutingSlipInfo()
     expect(composable1.formattedDate.value).toBe('-')
 
-    mockStore.routingSlip.createdOn = 'invalid-date'
+    mockStore.routingSlip.routingSlipDate = 'invalid-date'
     const composable2 = useRoutingSlipInfo()
     expect(composable2.formattedDate.value).toBe('-')
   })
