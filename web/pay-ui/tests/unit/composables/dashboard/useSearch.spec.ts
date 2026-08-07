@@ -3,7 +3,7 @@ import { useSearch } from '~/composables/dashboard/useSearch'
 import { chequeRefundCodes } from '~/utils/constants'
 import { createPinia, setActivePinia } from 'pinia'
 import { nextTick } from 'vue'
-import type { RoutingSlipDetails } from '~/interfaces/routing-slip'
+import type { RoutingSlip, RoutingSlipDetails } from '~/interfaces/routing-slip'
 import type { Invoice } from '~/interfaces/invoice'
 
 const mockPostSearchRoutingSlip = vi.fn()
@@ -129,20 +129,21 @@ describe('useSearch', () => {
   it('should compute routingSlips from searchRoutingSlipResult', async () => {
     const composable = await useSearch()
     const { store } = useRoutingSlipStore()
-    store.searchRoutingSlipResult = [
-      {
-        number: '123',
-        status: 'ACTIVE',
-        routingSlipDate: '2025-09-26',
-        invoices: [],
-        paymentAccount: null,
-        payments: []
-      }
-    ] as Partial<Invoice>[]
+    store.searchRoutingSlipResult.length = 0
+    store.searchRoutingSlipResult.push({
+      number: '123',
+      status: 'ACTIVE',
+      routingSlipDate: '2025-09-26',
+      invoices: [],
+      paymentAccount: null,
+      payments: []
+    } as unknown as RoutingSlip)
 
     await nextTick()
     expect(composable.routingSlips.value).toBeDefined()
     expect(Array.isArray(composable.routingSlips.value)).toBe(true)
+    // the routing slip date is a date only value - it must display as stored
+    expect(composable.routingSlips.value[0]?.date).toBe('September 26, 2025')
   })
 
   it('should compute columnVisibility from table headers', async () => {

@@ -5,7 +5,6 @@ import { SlipStatusDropdown, ChequeRefundStatus, chequeRefundCodes } from '~/uti
 import commonUtil from '~/utils/common-util'
 import type { Address } from '~/interfaces/address'
 import type { RefundRequestDetails } from '~/interfaces/routing-slip'
-import { DateTime } from 'luxon'
 
 export function useRoutingSlipInfo() {
   const { updateRoutingSlipStatus, updateRoutingSlipRefundStatus,
@@ -35,12 +34,11 @@ export function useRoutingSlipInfo() {
 
   const state = reactive({
     formattedDate: computed<string>(() => {
-      const date = store.routingSlip.createdOn
+      const date = store.routingSlip.routingSlipDate
       if (!date) {
         return '-'
       }
-      const dt = DateTime.fromISO(date, { zone: 'UTC' }).setZone('America/Vancouver')
-      return dt.isValid ? dt.toFormat('MMM dd, yyyy') : '-'
+      return commonUtil.formatDisplayDate(date, 'MMM dd, yyyy') || '-'
     }),
     statusColor: computed<string>(() => {
       const status = store.routingSlip.status

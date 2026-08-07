@@ -16,6 +16,13 @@ describe('common-util', () => {
     it.each([
       [new Date('2025-09-26T10:00:00.000Z'), undefined, 'Sep 26, 2025'],
       [new Date('2025-09-26T10:00:00.000Z'), 'yyyy-MM-dd', '2025-09-26'],
+      // date only values must not be shifted into the previous day by the Pacific conversion
+      ['2026-08-04', undefined, 'Aug 04, 2026'],
+      ['2026-08-04', 'MMMM dd, yyyy', 'August 04, 2026'],
+      ['2026-08-04', 'yyyy-MM-dd', '2026-08-04'],
+      // values carrying a time are still displayed in Pacific time
+      ['2026-08-04T21:40:50+00:00', undefined, 'Aug 04, 2026'],
+      ['2026-08-04T03:00:00+00:00', undefined, 'Aug 03, 2026'],
       ['invalid-date', undefined, ''],
       [null as unknown as Date | string, undefined, ''],
       [undefined as unknown as Date | string, undefined, '']

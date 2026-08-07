@@ -1,6 +1,8 @@
 import type { Address } from '~/interfaces/address'
 import { DateTime } from 'luxon'
 
+const DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+
 function formatDisplayDate(
   date: Date | string | null | undefined,
   format: string | 'start' | 'end' = 'MMM dd, yyyy'
@@ -14,8 +16,13 @@ function formatDisplayDate(
     date = date.replace(' ', 'T')
   }
 
+  // Date only values (eg. routing slip date) have no time or timezone - reading them as a
+  // UTC instant would push them into the previous day once shifted to Pacific time, so parse
+  // them in Pacific time to keep the calendar date as stored.
+  const zone = typeof date === 'string' && DATE_ONLY_PATTERN.test(date) ? 'America/Vancouver' : 'utc'
+
   const dateTime = typeof date === 'string'
-    ? DateTime.fromISO(date, { zone: 'utc' }).setZone('America/Vancouver')
+    ? DateTime.fromISO(date, { zone }).setZone('America/Vancouver')
     : DateTime.fromJSDate(date, { zone: 'utc' }).setZone('America/Vancouver')
 
   if (!dateTime.isValid) {
