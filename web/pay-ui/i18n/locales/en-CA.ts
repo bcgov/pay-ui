@@ -156,6 +156,12 @@ export default {
       description: 'By approving write-off, the routing slip balance will close, '
         + 'and no further transactions may be made using this routing slip.',
       confirmButton: 'Authorize Write off'
+    },
+    authorizeRefund: {
+      title: 'Authorize Refund?',
+      description: 'By approving refund, the routing slip balance will be refunded, '
+        + 'and no further transactions may be made using this routing slip.',
+      confirmButton: 'Authorize Refund'
     }
   },
   page: {

@@ -403,6 +403,7 @@ watch(
     vertical-align: top;
     padding-top: 14px;
     padding-bottom: 8px;
+    white-space: normal;
     word-break: break-word;
     overflow-wrap: break-word;
   }
