@@ -75,6 +75,14 @@ const headers = computed(() => {
   ]
 })
 
+const pendingPaymentExpanded = computed<Record<string, boolean>>(() =>
+  Object.fromEntries(
+    processedRows.value.flatMap((row, index) =>
+      row.isParentRow && row.hasPendingPayment ? [[String(index), true]] : []
+    )
+  )
+)
+
 function openAccountLinkingDialog() {
   state.isShortNameLinkingDialogOpen = true
 }
@@ -236,6 +244,7 @@ watch(
         :data="processedRows"
         :columns="headers"
         :loading="loading"
+        :expanded="pendingPaymentExpanded"
         class="account-link-table w-full"
       >
         <template #linkedAccount-cell="{ row }">
@@ -252,16 +261,19 @@ watch(
               </template>
               <span>{{ formatAccountDisplayName(row.original) }}</span>
             </div>
-            <div
-              v-if="row.original.hasPendingPayment"
-              class="flex items-start gap-2 text-gray-700 mt-2"
-            >
-              <UIcon name="i-mdi-clock-outline" class="shrink-0 text-2xl self-center" />
-              <span class="text-sm pt-px">
-                {{ formatCurrency(row.original.pendingPaymentAmountTotal) }}
-                will be applied to this account today at 5:00 p.m. PST or 6:00 p.m. PDT.
-              </span>
-            </div>
+          </div>
+        </template>
+
+        <template #expanded="{ row }">
+          <div
+            class="flex items-center gap-2 text-gray-700"
+            :class="{ 'bg-green-100': row.original.id === highlightedLinkId }"
+          >
+            <UIcon name="i-mdi-clock-outline" class="shrink-0 text-2xl" />
+            <span class="text-sm">
+              {{ formatCurrency(row.original.pendingPaymentAmountTotal) }}
+              will be applied to this account today at 5:00 p.m. PST or 6:00 p.m. PDT.
+            </span>
           </div>
         </template>
 
@@ -403,8 +415,18 @@ watch(
     vertical-align: top;
     padding-top: 14px;
     padding-bottom: 8px;
+    white-space: normal;
     word-break: break-word;
     overflow-wrap: break-word;
+  }
+
+  // Keep the pending payment row visually attached to the account row above it.
+  :deep(tr[data-expanded='true']) {
+    border-bottom-width: 0;
+  }
+
+  :deep(tr[data-expanded='true'] + tr td) {
+    padding-top: 0;
   }
 }
 

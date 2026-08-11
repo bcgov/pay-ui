@@ -15,6 +15,7 @@ const {
   _mockOpenVoidRoutingSlipModal,
   _mockOpenErrorDialog,
   _mockOpenAuthorizeWriteOffModal,
+  _mockOpenAuthorizeRefundModal,
   mockUsePayModals,
   mockUsePayApi,
   mockInvoiceCount
@@ -44,11 +45,13 @@ const {
   const _mockOpenVoidRoutingSlipModal = vi.fn()
   const _mockOpenErrorDialog = vi.fn()
   const _mockOpenAuthorizeWriteOffModal = vi.fn()
+  const _mockOpenAuthorizeRefundModal = vi.fn()
   const mockUsePayModals = {
     openPlaceRoutingSlipToNSFModal: _mockOpenPlaceRoutingSlipToNSFModal,
     openVoidRoutingSlipModal: _mockOpenVoidRoutingSlipModal,
     openErrorDialog: _mockOpenErrorDialog,
-    openAuthorizeWriteOffModal: _mockOpenAuthorizeWriteOffModal
+    openAuthorizeWriteOffModal: _mockOpenAuthorizeWriteOffModal,
+    openAuthorizeRefundModal: _mockOpenAuthorizeRefundModal
   }
 
   const mockUsePayApi = {
@@ -67,6 +70,7 @@ const {
     _mockOpenVoidRoutingSlipModal,
     _mockOpenErrorDialog,
     _mockOpenAuthorizeWriteOffModal,
+    _mockOpenAuthorizeRefundModal,
     mockUsePayModals,
     mockUsePayApi,
     mockInvoiceCount
@@ -398,7 +402,7 @@ describe('useRoutingSlipInfo', () => {
     }] as Refund[]
     mockUsePayApi.updateRoutingSlipRefund.mockResolvedValue({})
     _mockGetRoutingSlip.mockResolvedValue({})
-    _mockOpenAuthorizeWriteOffModal.mockImplementation(async (callback: () => Promise<void>) => {
+    _mockOpenAuthorizeRefundModal.mockImplementation(async (callback: () => Promise<void>) => {
       await callback()
     })
 
@@ -408,7 +412,7 @@ describe('useRoutingSlipInfo', () => {
 
     await composable.handleRefundReviewAuthorize()
 
-    expect(_mockOpenAuthorizeWriteOffModal).toHaveBeenCalled()
+    expect(_mockOpenAuthorizeRefundModal).toHaveBeenCalled()
     expect(mockUsePayApi.updateRoutingSlipRefund).toHaveBeenCalled()
     expect(_mockToggleLoading).toHaveBeenCalledWith(true)
     expect(_mockToggleLoading).toHaveBeenCalledWith(false)
@@ -424,7 +428,7 @@ describe('useRoutingSlipInfo', () => {
     }] as Refund[]
     mockUsePayApi.updateRoutingSlipRefund.mockResolvedValue({})
     _mockGetRoutingSlip.mockResolvedValue({})
-    _mockOpenAuthorizeWriteOffModal.mockImplementation(async (callback: () => Promise<void>) => {
+    _mockOpenAuthorizeRefundModal.mockImplementation(async (callback: () => Promise<void>) => {
       await callback()
     })
 
@@ -441,7 +445,7 @@ describe('useRoutingSlipInfo', () => {
 
   it('should handle refund review authorize error', async () => {
     mockUsePayApi.updateRoutingSlipRefund.mockRejectedValue(new Error('API Error'))
-    _mockOpenAuthorizeWriteOffModal.mockImplementation(async (callback: () => Promise<void>) => {
+    _mockOpenAuthorizeRefundModal.mockImplementation(async (callback: () => Promise<void>) => {
       await callback()
     })
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -462,7 +466,7 @@ describe('useRoutingSlipInfo', () => {
     const composable = useRoutingSlipInfo()
     await composable.handleRefundReviewAuthorize()
 
-    expect(_mockOpenAuthorizeWriteOffModal).not.toHaveBeenCalled()
+    expect(_mockOpenAuthorizeRefundModal).not.toHaveBeenCalled()
   })
 
   it('should handle refund review cancel', () => {

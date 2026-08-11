@@ -212,7 +212,7 @@ export function useRoutingSlipInfo() {
       return
     }
 
-    await modal.openAuthorizeWriteOffModal(async () => {
+    await modal.openAuthorizeRefundModal(async () => {
       try {
         const refundDetails = store.routingSlip.refunds?.[0]?.details
         const payload = {
