@@ -192,7 +192,7 @@ describe('useRoutingSlipInfo', () => {
 
   it('should return basic computed properties and handle all status select scenarios', async () => {
     const composable = useRoutingSlipInfo()
-    expect(composable.formattedDate.value).toBe('Jan 01, 2025')
+    expect(composable.formattedDate.value).toBe('January 01, 2025')
     expect(composable.statusLabel.value).toBeDefined()
     expect(composable.entityNumber.value).toBe('Test Account')
     expect(composable.contactName.value).toBe('Test Contact')
