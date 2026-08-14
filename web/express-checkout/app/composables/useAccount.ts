@@ -34,15 +34,38 @@ export function useAccount() {
     )
   }
 
-  /** POST /bank-accounts/verifications — same call auth-web makes to validate bank info. */
+  /**
+   * POST /bank-accounts/verifications — same call auth-web makes to validate bank info.
+   *
+   * Fail-open on downstream outage (mirrors auth-web's `validatePADInfo` in
+   * `sbc-auth/auth-web/src/stores/org.ts:481-501`): if pay-api reports the
+   * CAS/pay-connector chain is unreachable (`statusCode !== 200`) or the request
+   * itself throws, treat the info as valid so setup can proceed. Bank rejection
+   * would still surface later at debit time — blocking here on a transient
+   * upstream outage is worse than proceeding.
+   */
   async function verifyPadInfo(padInfo: PadBankInfo): Promise<PadVerifyResponse> {
-    return await ($payApi as ReturnType<typeof $fetch.create>)<PadVerifyResponse>(
-      '/bank-accounts/verifications',
-      {
-        method: 'POST',
-        body: padInfo
+    try {
+      const response = await ($payApi as ReturnType<typeof $fetch.create>)<PadVerifyResponse>(
+        '/bank-accounts/verifications',
+        {
+          method: 'POST',
+          body: padInfo
+        }
+      )
+      if (response?.statusCode !== 200) {
+        return { isValid: true }
       }
-    )
+      return response
+    } catch (err) {
+      const e = err as { response?: { status?: number } }
+      console.error('PAD Verification API Failed! - ', err)
+      return {
+        isValid: true,
+        statusCode: e?.response?.status ?? 500,
+        message: 'Failed'
+      }
+    }
   }
 
   /**
@@ -82,5 +105,18 @@ export function useAccount() {
     )
   }
 
-  return { getAccountPaymentInfo, verifyPadInfo, updateOrgPadInfo, getOrgAuthorizations }
+  /**
+   * GET auth-api /documents/termsofuse_pad — returns the latest PAD terms document.
+   * Same call auth-web's TermsOfUseDialog uses. Response shape includes:
+   *   { type, version_id, content }  — content is HTML/markdown, with "Month Day, Year"
+   *   swapped to today's date server-side.
+   */
+  async function getPadTermsOfUse(): Promise<{ content: string, version_id?: string, type?: string }> {
+    return await ($authApi as ReturnType<typeof $fetch.create>)<{ content: string, version_id?: string, type?: string }>(
+      '/documents/termsofuse_pad',
+      { method: 'GET' }
+    )
+  }
+
+  return { getAccountPaymentInfo, verifyPadInfo, updateOrgPadInfo, getOrgAuthorizations, getPadTermsOfUse }
 }

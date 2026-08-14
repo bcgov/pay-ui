@@ -46,6 +46,27 @@ const isSubmitting = ref(false)
 const submitError = ref<string | null>(null)
 const accountLoading = ref(false)
 
+// When the user opens "Update banking information" from the READY banner,
+// swap the banner out for PadInfoWidget in edit mode.
+const editingPad = ref(false)
+
+// Prefill for the widget's edit mode. Sourced from pay-api's account payload —
+// bankAccountNumber comes back masked (e.g. XXXXXX1234).
+const padEditInitial = computed(() => {
+  const cfs = store.accountInfo?.cfsAccount
+  if (!cfs) return undefined
+  return {
+    bankInstitutionNumber: cfs.bankInstitutionNumber ?? '',
+    bankTransitNumber: cfs.bankTransitNumber ?? '',
+    bankAccountNumber: cfs.bankAccountNumber ?? ''
+  }
+})
+
+const hasPadBankDetails = computed(() => {
+  const cfs = store.accountInfo?.cfsAccount
+  return !!(cfs?.bankAccountNumber || cfs?.bankTransitNumber || cfs?.bankInstitutionNumber)
+})
+
 // Caller's permission actions on the selected account. auth-api's
 // /orgs/{id}/authorizations returns permission actions (e.g. 'change_pad_info',
 // 'invite_members') under `roles` — NOT membership types. Actions come back
@@ -163,6 +184,7 @@ const obPayeeName = 'BC Registries'
 
 async function onPadSaved() {
   // Widget saved bank info; re-derive PAD state from the fresh account payload.
+  editingPad.value = false
   await loadAccount()
 }
 
@@ -271,8 +293,16 @@ async function submit() {
 
         <!-- PAD sub-state: activation / frozen banner OR inline setup widget -->
         <template v-if="method === 'PAD'">
+          <!-- Widget in edit mode takes over the entire slot regardless of banner state. -->
+          <PadInfoWidget
+            v-if="editingPad && store.selectedAccountId"
+            :account-id="store.selectedAccountId"
+            :initial="padEditInitial"
+            @saved="onPadSaved"
+            @cancel="editingPad = false"
+          />
           <div
-            v-if="padState === 'LOADING'"
+            v-else-if="padState === 'LOADING'"
             class="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-500"
           >
             {{ $t('page.checkout.pad.loading') }}
@@ -283,6 +313,42 @@ async function submit() {
           >
             <p class="font-semibold">{{ $t('page.checkout.pad.pendingTitle') }}</p>
             <p class="mt-1">{{ $t('page.checkout.pad.pendingBody') }}</p>
+            <!-- Bank details are read-only during PENDING: pay-api rejects
+                 PUT /orgs/{id} paymentInfo with CFS_ACCOUNT_SETUP_IN_PROGRESS
+                 until the CFS side finishes provisioning. -->
+            <dl v-if="hasPadBankDetails" class="mt-3 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-xs">
+              <dt class="font-medium">{{ $t('padWidget.transit') }}</dt>
+              <dd>{{ store.accountInfo?.cfsAccount?.bankTransitNumber }}</dd>
+              <dt class="font-medium">{{ $t('padWidget.institution') }}</dt>
+              <dd>{{ store.accountInfo?.cfsAccount?.bankInstitutionNumber }}</dd>
+              <dt class="font-medium">{{ $t('padWidget.account') }}</dt>
+              <dd>{{ store.accountInfo?.cfsAccount?.bankAccountNumber }}</dd>
+            </dl>
+            <p class="mt-2 text-xs italic">
+              {{ $t('page.checkout.pad.pendingEditLocked') }}
+            </p>
+          </div>
+          <div
+            v-else-if="padState === 'READY'"
+            class="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-700"
+          >
+            <p class="font-semibold text-slate-900">{{ $t('page.checkout.pad.readyTitle') }}</p>
+            <dl v-if="hasPadBankDetails" class="mt-3 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-xs">
+              <dt class="font-medium">{{ $t('padWidget.transit') }}</dt>
+              <dd>{{ store.accountInfo?.cfsAccount?.bankTransitNumber }}</dd>
+              <dt class="font-medium">{{ $t('padWidget.institution') }}</dt>
+              <dd>{{ store.accountInfo?.cfsAccount?.bankInstitutionNumber }}</dd>
+              <dt class="font-medium">{{ $t('padWidget.account') }}</dt>
+              <dd>{{ store.accountInfo?.cfsAccount?.bankAccountNumber }}</dd>
+            </dl>
+            <button
+              v-if="canEditPadInfo"
+              type="button"
+              class="mt-3 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+              @click="editingPad = true"
+            >
+              {{ $t('page.checkout.pad.editButton') }}
+            </button>
           </div>
           <div
             v-else-if="padState === 'FROZEN'"

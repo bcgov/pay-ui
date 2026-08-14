@@ -37,13 +37,12 @@ const referenceNumber = computed(() => {
   )
 })
 
-// Same BCR-<accountId> payee reference the checkout page shows for OB.
-// TODO: replace with a pay-api-provided cfs_party_number once exposed on the invoice DTO.
-const obPayeeReference = computed<string>(() => {
-  const paymentAccount = store.invoice?.payment_account as { auth_account_id?: string | number } | undefined
-  const accountId = paymentAccount?.auth_account_id ?? store.selectedAccountId
-  return accountId ? `BCR-${accountId}` : ''
-})
+// OB payee identifier — the CFS account number, same source the checkout page
+// uses. Comes from `store.accountInfo` populated during the checkout step
+// (loadAccount()); persists across navigation because the store is a Pinia
+// singleton.
+const obPayeeReference = computed<string>(() => store.accountInfo?.cfsAccount?.cfsAccountNumber ?? '')
+const obPayeeName = 'BC Registries'
 
 // Transaction date: only shown when we actually have one from pay-api.
 // For unpaid invoices (PAD scheduled, OB awaiting), no date is displayed.
@@ -73,12 +72,53 @@ const transactionDate = computed<string | null>(() => {
       <p class="mx-auto mt-3 max-w-lg text-sm text-slate-600">
         {{ $t(`page.success.body.${methodKey}`) }}
       </p>
-      <p v-if="methodKey === 'ob' && obPayeeReference" class="mx-auto mt-4 max-w-lg rounded border border-blue-200 bg-blue-50 p-3 text-sm text-slate-800">
-        Payee account number: <strong>{{ obPayeeReference }}</strong>
-      </p>
     </div>
 
-    <section class="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
+    <!-- OB: no receipt yet (payment hasn't been made). Show the same "how to pay"
+         instructions the checkout sidebar renders, so the user has everything they
+         need in one place after leaving the site. -->
+    <section
+      v-if="methodKey === 'ob'"
+      class="rounded-xl border border-slate-200 bg-white p-8 shadow-sm"
+    >
+      <h2 class="text-xl font-semibold text-slate-900">
+        {{ $t('page.checkout.instructions.ob.title') }}
+      </h2>
+      <div class="mt-4 space-y-2 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-slate-800">
+        <p>
+          <strong>{{ $t('page.checkout.instructions.ob.payeeNameLabel') }}:</strong>
+          <span class="ml-1">{{ obPayeeName }}</span>
+        </p>
+        <p>
+          <strong>{{ $t('page.checkout.instructions.ob.identifierLabel') }}:</strong>
+          <span v-if="obPayeeReference" class="ml-1">{{ obPayeeReference }}</span>
+          <span v-else class="ml-1 italic text-slate-500">{{ $t('page.checkout.instructions.ob.identifierPending') }}</span>
+        </p>
+      </div>
+      <ol class="mt-4 list-decimal space-y-2 pl-5 text-sm text-slate-700">
+        <li>{{ $t('page.checkout.instructions.ob.step1') }}</li>
+        <li>
+          {{ $t('page.checkout.instructions.ob.step2') }}
+          <strong class="ml-1">{{ obPayeeName }}</strong>
+        </li>
+        <li>
+          {{ $t('page.checkout.instructions.ob.step3') }}
+          <strong v-if="obPayeeReference" class="ml-1">{{ obPayeeReference }}</strong>
+        </li>
+        <li>{{ $t('page.checkout.instructions.ob.step4') }}</li>
+      </ol>
+      <div class="mt-6 rounded-lg bg-slate-50 p-4 text-sm">
+        <div class="flex justify-between text-slate-700">
+          <span>{{ $t('page.checkout.total') }}</span>
+          <span class="font-semibold text-slate-900">${{ Number(store.invoice?.total ?? 0).toFixed(2) }} CAD</span>
+        </div>
+      </div>
+    </section>
+
+    <section
+      v-else
+      class="rounded-xl border border-slate-200 bg-white p-8 shadow-sm"
+    >
       <div class="mb-6 flex items-start justify-between">
         <div>
           <p class="text-xs uppercase text-slate-500">Official Receipt</p>
@@ -144,56 +184,16 @@ const transactionDate = computed<string | null>(() => {
         For inquiries, please reference: {{ referenceNumber }}.
       </p>
 
-      <div class="mt-6 flex flex-wrap justify-center gap-3">
-        <button
-          type="button"
-          class="inline-flex items-center gap-2 rounded-md bg-[#212B47] px-4 py-2 text-sm font-medium text-white hover:bg-[#2d3a5f]"
-          @click="() => window.print()"
-        >
-          <span aria-hidden="true">🖨️</span> Print Receipt
-        </button>
-        <!-- POST /payment-requests/{id}/reports returns the PDF; simple GET link works for open-in-tab / download. -->
+      <div class="mt-6 flex justify-center">
         <a
           v-if="store.invoice?.id"
           :href="`/api/v1/payment-requests/${store.invoice.id}/reports`"
-          class="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          class="inline-flex items-center gap-2 rounded-md bg-[#212B47] px-4 py-2 text-sm font-medium text-white hover:bg-[#2d3a5f]"
         >
-          <span aria-hidden="true">⬇️</span> Download PDF
+          <span aria-hidden="true">⬇️</span> Download Receipt
         </a>
       </div>
     </section>
 
-    <!-- TODO: these two follow-up cards need real destinations for external
-         partners (e.g. partner-provided returnUrl for dashboard, and a real
-         notification-signup endpoint). For POC they link back to root. -->
-    <div class="mt-8 grid gap-4 sm:grid-cols-2">
-      <a
-        href="/"
-        class="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-[#212B47] hover:shadow-md"
-      >
-        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
-          <span aria-hidden="true">▦</span>
-        </div>
-        <div class="grow">
-          <p class="font-semibold text-slate-900">Return to Dashboard</p>
-          <p class="text-sm text-slate-500">Manage your other services</p>
-        </div>
-        <span aria-hidden="true" class="text-slate-400">›</span>
-      </a>
-
-      <a
-        href="/"
-        class="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-[#212B47] hover:shadow-md"
-      >
-        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
-          <span aria-hidden="true">✉️</span>
-        </div>
-        <div class="grow">
-          <p class="font-semibold text-slate-900">Add Notification</p>
-          <p class="text-sm text-slate-500">Get renewal alerts next year</p>
-        </div>
-        <span aria-hidden="true" class="text-slate-400">›</span>
-      </a>
-    </div>
   </div>
 </template>

@@ -19,8 +19,6 @@ useHead({
 
 const isLinking = ref(false)
 const linkError = ref<string | null>(null)
-const searchTerm = ref('')
-const activeFilter = ref<'all' | 'corporate' | 'municipal'>('all')
 
 const isLoadingAccounts = ref(false)
 
@@ -54,25 +52,19 @@ interface Account {
   [k: string]: unknown
 }
 
-const filteredAccounts = computed(() => {
-  const term = searchTerm.value.trim().toLowerCase()
-  return (accountStore.userAccounts as Account[] || []).filter((a) => {
-    if (!term) return true
-    return (a.label || a.name || '').toLowerCase().includes(term)
-  })
-})
+const accounts = computed<Account[]>(() => (accountStore.userAccounts as Account[] || []))
 
 const primaryAccount = computed<Account | null>(() => {
   // Guard: if the user genuinely has no accounts, don't fall back to a stale
   // currentAccount from sessionStorage — the empty-state branch should render.
-  if (filteredAccounts.value.length === 0) return null
+  if (accounts.value.length === 0) return null
   const current = accountStore.currentAccount as Account | undefined
   if (current?.id) return current
-  return (filteredAccounts.value[0] as Account) || null
+  return accounts.value[0] || null
 })
 
 const otherAccounts = computed<Account[]>(() =>
-  filteredAccounts.value.filter(a => a.id !== primaryAccount.value?.id)
+  accounts.value.filter(a => a.id !== primaryAccount.value?.id)
 )
 
 async function pick(accountId: number) {
@@ -126,71 +118,29 @@ function registerNew() {
 
 <template>
   <div class="pay-account">
-    <!-- Hero -->
-    <section class="bg-[#212B47] py-14">
-      <div class="mx-auto max-w-6xl px-6 text-center">
-        <h1 class="text-3xl font-semibold !text-white sm:text-4xl">
+    <!-- Compact page header -->
+    <header class="border-b border-slate-200 bg-white">
+      <div class="mx-auto max-w-6xl px-6 py-5">
+        <h1 class="text-xl font-semibold text-slate-900 sm:text-2xl">
           {{ $t('page.account.h1') }}
         </h1>
-        <p class="mx-auto mt-4 max-w-2xl text-slate-300">
+        <p class="mt-1 text-sm text-slate-500">
           {{ $t('page.account.subtitle') }}
         </p>
       </div>
-    </section>
+    </header>
 
-    <section class="mx-auto max-w-6xl px-6 py-10">
+    <section class="mx-auto max-w-6xl px-6 py-8">
       <div v-if="linkError" class="mb-6 rounded border border-red-300 bg-red-50 p-4 text-red-800">
         {{ linkError }}
       </div>
 
-      <div class="grid gap-6 lg:grid-cols-3">
-        <!-- Find a Group -->
-        <aside class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 class="text-lg font-semibold text-slate-900">Find a Group</h2>
-          <p class="mt-1 text-sm text-slate-500">
-            Filter your accounts by name, industry, or region.
-          </p>
-          <div class="mt-4">
-            <label class="relative block">
-              <span class="sr-only">Search profiles</span>
-              <input
-                v-model="searchTerm"
-                type="search"
-                placeholder="🔍  Search profiles..."
-                class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-              >
-            </label>
-          </div>
-          <!-- TODO: pill filters currently visual-only. Wire to a real account
-               classification field once one is confirmed on the auth-api org
-               response (accountType / orgType / industry). -->
-          <div class="mt-4 flex flex-wrap gap-2">
-            <button
-              type="button"
-              class="rounded-full px-3 py-1 text-xs font-medium"
-              :class="activeFilter === 'all' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'"
-              @click="activeFilter = 'all'"
-            >All Profiles</button>
-            <button
-              type="button"
-              class="rounded-full px-3 py-1 text-xs font-medium"
-              :class="activeFilter === 'corporate' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'"
-              @click="activeFilter = 'corporate'"
-            >Corporate</button>
-            <button
-              type="button"
-              class="rounded-full px-3 py-1 text-xs font-medium"
-              :class="activeFilter === 'municipal' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'"
-              @click="activeFilter = 'municipal'"
-            >Municipal</button>
-          </div>
-        </aside>
-
+      <div class="grid gap-6 sm:grid-cols-2">
         <!-- Primary account (highlighted) -->
         <button
           v-if="primaryAccount"
           type="button"
-          class="col-span-2 rounded-xl border-2 border-[#212B47] bg-blue-50 p-6 text-left shadow-sm transition hover:shadow-md disabled:opacity-60"
+          class="col-span-full rounded-xl border-2 border-[#212B47] bg-blue-50 p-6 text-left shadow-sm transition hover:shadow-md disabled:opacity-60"
           :disabled="isLinking"
           @click="pick(primaryAccount.id)"
         >
@@ -215,11 +165,11 @@ function registerNew() {
           </div>
         </button>
 
-        <div v-else-if="isLoadingAccounts" class="col-span-2 rounded-xl border border-slate-200 bg-white p-6 text-slate-500">
+        <div v-else-if="isLoadingAccounts" class="col-span-full rounded-xl border border-slate-200 bg-white p-6 text-slate-500">
           Loading your accounts...
         </div>
 
-        <div v-else-if="hasNoAccounts" class="col-span-2 rounded-xl border border-slate-200 bg-white p-8 text-center">
+        <div v-else-if="hasNoAccounts" class="col-span-full rounded-xl border border-slate-200 bg-white p-8 text-center">
           <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
             <span aria-hidden="true">🆕</span>
           </div>

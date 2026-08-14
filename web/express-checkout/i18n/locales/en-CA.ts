@@ -57,9 +57,13 @@ export default {
       pad: {
         loading: 'Checking your PAD account…',
         pendingTitle: 'PAD activation in progress',
-        pendingBody: 'Your PAD account is being activated (typically 3 business days). This invoice will be debited once activation completes — you can continue and confirm below.',
+        pendingBody: 'Your PAD account is being activated (typically 3 business days). Click "Confirm PAD Payment" below so this invoice is applied to the PAD once activation completes.',
         frozenTitle: 'PAD is currently frozen',
         frozenBody: 'Your PAD account is frozen. Please pick a different payment method or contact support to unfreeze it.',
+        readyTitle: 'Bank account on file for PAD',
+        readyEditPrompt: 'Need to change the bank account on file for this payment?',
+        editButton: 'Update banking information',
+        pendingEditLocked: 'Banking information can\'t be changed while activation is in progress. Please wait until activation completes to update these details.',
         notAuthorizedTitle: 'PAD setup not available',
         notAuthorizedBody: 'Only an account administrator or coordinator can set up Pre-Authorized Debit. Please contact your account administrator or coordinator to add banking information, or choose a different payment method.'
       },
@@ -95,6 +99,8 @@ export default {
   },
   padWidget: {
     title: 'Set up Pre-Authorized Debit',
+    editTitle: 'Update banking information',
+    editSubtitle: 'Updating banking information restarts the mandatory 3-business-day PAD confirmation period. All future PAD transactions on this account will use the new details.',
     confirmationPeriodBody: 'The Canadian Payment Association requires a 3-business-day confirmation period before your first PAD deduction. The account administrator will receive a written confirmation of the PAD agreement prior to the first deduction.',
     transit: 'Transit Number',
     transitHint: 'Minimum 4 digits',
@@ -102,13 +108,27 @@ export default {
     institutionHint: 'Exactly 3 digits',
     account: 'Bank Account Number',
     accountHint: '7 to 12 digits',
+    accountEditHint: 'To change, clear the field and re-enter the full account number.',
     tos: 'I authorize BC Registries and Online Services to debit the account above according to the terms of the Pre-Authorized Debit agreement.',
+    tosPrefix: 'I have read, understood and agree to the',
+    tosLinkLabel: 'Business Pre-Authorized Debit Terms and Conditions',
+    tosSuffix: 'for BC Registry Services.',
+    terms: {
+      heading: 'Business Pre-Authorized Debit Terms and Conditions Agreement — BC Registries and Online Services',
+      loading: 'Loading terms and conditions…',
+      loadFailed: 'Unable to load the terms and conditions. Please close this dialog and try again.',
+      scrollHint: 'Scroll to the bottom to enable "Agree to terms".',
+      agreeButton: 'Agree to terms'
+    },
     submit: 'Save banking information',
+    updateSubmit: 'Update banking information',
+    cancel: 'Cancel',
     submitting: 'Verifying…',
     errors: {
       transit: 'Transit Number must be at least 4 digits.',
       institution: 'Institution Number must be exactly 3 digits.',
       account: 'Account Number must be between 7 and 12 digits.',
+      maskedDigits: 'Edited banking information should not contain masked digits (X). Clear the field and re-enter the full account number.',
       verifyFailed: 'Your bank information could not be verified. Please double-check and try again.',
       saveFailed: 'Unable to save your PAD information. Please try again.'
     }

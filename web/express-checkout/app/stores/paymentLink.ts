@@ -57,6 +57,12 @@ export interface AccountCfsInfo {
   cfsSiteNumber?: string
   paymentMethod?: PaymentMethodCode
   status?: CfsAccountStatus
+  // pay-api returns bank fields on PAD-configured accounts. The account number
+  // is masked with 'X's (only the last MASK_LEN digits preserved). Transit and
+  // institution numbers are returned in full.
+  bankAccountNumber?: string
+  bankInstitutionNumber?: string
+  bankTransitNumber?: string
 }
 
 export interface AccountPaymentInfo {
