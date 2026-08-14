@@ -33,6 +33,11 @@ onMounted(async () => {
       isLoadingAccounts.value = false
     }
   }
+  // Zero-account users have nothing to pick — skip the empty-state card and
+  // send them straight into the simplified create-account flow.
+  if ((accountStore.userAccounts?.length ?? 0) === 0) {
+    registerNew()
+  }
 })
 
 const hasNoAccounts = computed(
