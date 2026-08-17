@@ -16,7 +16,8 @@
  *   4. Emits `saved` so the parent can refetch account info.
  *   5. In EDIT mode, also emits `cancel` when user backs out.
  */
-import { useAccount, type PadBankInfo } from '../composables/useAccount'
+import { useAccount } from '../composables/useAccount'
+import type { PadBankInfo } from '../composables/useAccount'
 
 const props = defineProps<{
   accountId: number
@@ -28,8 +29,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'saved'): void
-  (e: 'cancel'): void
+  (e: 'saved' | 'cancel'): void
 }>()
 
 const { t } = useI18n()
@@ -59,7 +59,7 @@ const scrolledToBottom = ref(false)
 async function openTermsDialog() {
   termsDialogOpen.value = true
   scrolledToBottom.value = false
-  if (termsContent.value !== null) return // already fetched
+  if (termsContent.value !== null) { return } // already fetched
   termsLoading.value = true
   termsError.value = null
   try {
@@ -107,34 +107,34 @@ const numericOrXOnly = (v: string) => v.replace(/[^0-9Xx]/g, '').toUpperCase()
 
 watch(institution, (v, prev) => {
   const clean = numericOnly(v).slice(0, 3)
-  if (clean !== prev) markTouched()
+  if (clean !== prev) { markTouched() }
   institution.value = clean
 })
 watch(transit, (v, prev) => {
   const clean = numericOnly(v).slice(0, 5)
-  if (clean !== prev) markTouched()
+  if (clean !== prev) { markTouched() }
   transit.value = clean
 })
 watch(account, (v, prev) => {
   const clean = numericOrXOnly(v).slice(0, 12)
-  if (clean !== prev) markTouched()
+  if (clean !== prev) { markTouched() }
   account.value = clean
 })
 
 const institutionError = computed(() => {
-  if (!institution.value) return null
+  if (!institution.value) { return null }
   return institution.value.length === 3 ? null : t('padWidget.errors.institution')
 })
 const transitError = computed(() => {
-  if (!transit.value) return null
+  if (!transit.value) { return null }
   return transit.value.length >= 4 ? null : t('padWidget.errors.transit')
 })
 const accountError = computed(() => {
-  if (!account.value) return null
-  if (account.value.length < 7 || account.value.length > 12) return t('padWidget.errors.account')
+  if (!account.value) { return null }
+  if (account.value.length < 7 || account.value.length > 12) { return t('padWidget.errors.account') }
   // Once the user has touched the form, any lingering X's from the mask are
   // no longer acceptable — force a full retype rather than a partial edit.
-  if (touched.value && account.value.includes('X')) return t('padWidget.errors.maskedDigits')
+  if (touched.value && account.value.includes('X')) { return t('padWidget.errors.maskedDigits') }
   return null
 })
 
@@ -148,7 +148,7 @@ const canSubmit = computed(() =>
 )
 
 async function submit() {
-  if (!canSubmit.value) return
+  if (!canSubmit.value) { return }
   submitting.value = true
   errorMessage.value = null
   const padInfo: PadBankInfo = {
@@ -183,7 +183,11 @@ async function submit() {
       {{ isEdit ? $t('padWidget.editSubtitle') : $t('padWidget.confirmationPeriodBody') }}
     </p>
 
-    <form class="mt-5 space-y-4" novalidate @submit.prevent="submit">
+    <form
+      class="mt-5 space-y-4"
+      novalidate
+      @submit.prevent="submit"
+    >
       <div class="grid gap-4 sm:grid-cols-2">
         <label class="block">
           <span class="mb-1 block text-sm font-medium text-slate-700">

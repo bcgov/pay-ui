@@ -54,7 +54,7 @@ const editingPad = ref(false)
 // bankAccountNumber comes back masked (e.g. XXXXXX1234).
 const padEditInitial = computed(() => {
   const cfs = store.accountInfo?.cfsAccount
-  if (!cfs) return undefined
+  if (!cfs) { return undefined }
   return {
     bankInstitutionNumber: cfs.bankInstitutionNumber ?? '',
     bankTransitNumber: cfs.bankTransitNumber ?? '',
@@ -80,7 +80,7 @@ const canEditPadInfo = computed(() =>
 )
 
 async function loadAccount() {
-  if (!store.selectedAccountId) return
+  if (!store.selectedAccountId) { return }
   accountLoading.value = true
   try {
     const info = await getAccountPaymentInfo(store.selectedAccountId)
@@ -93,7 +93,7 @@ async function loadAccount() {
 }
 
 async function loadUserPermissions() {
-  if (!store.selectedAccountId) return
+  if (!store.selectedAccountId) { return }
   try {
     const auth = await getOrgAuthorizations(store.selectedAccountId)
     userPermissions.value = auth?.roles ?? []
@@ -105,7 +105,7 @@ async function loadUserPermissions() {
 }
 
 async function switchAndRefreshAccount(target: Method) {
-  if (!store.invoice) return
+  if (!store.invoice) { return }
   try {
     const updated = await payLink.changePaymentMethod(store.invoice.id, target)
     store.setInvoice(updated)
@@ -118,7 +118,7 @@ async function switchAndRefreshAccount(target: Method) {
 
 onMounted(async () => {
   if (!store.invoice) {
-    if (store.token) navigateTo(localePath(`/pay/${store.token}/account`))
+    if (store.token) { navigateTo(localePath(`/pay/${store.token}/account`)) }
     return
   }
   await Promise.all([loadAccount(), loadUserPermissions()])
@@ -126,23 +126,23 @@ onMounted(async () => {
 
 /** Derives which PAD sub-UI to render from account state. */
 const padState = computed<PadState>(() => {
-  if (accountLoading.value) return 'LOADING'
+  if (accountLoading.value) { return 'LOADING' }
   const info = store.accountInfo
-  if (!info) return 'NOT_SETUP'
+  if (!info) { return 'NOT_SETUP' }
   const isPad = info.paymentMethod === 'PAD' || info.cfsAccount?.paymentMethod === 'PAD'
-  if (!isPad) return 'NOT_SETUP'
+  if (!isPad) { return 'NOT_SETUP' }
   const status: CfsAccountStatus | undefined = info.cfsAccount?.status
-  if (status === 'FREEZE') return 'FROZEN'
-  if (status === 'PENDING' || status === 'PENDING_PAD_ACTIVATION') return 'PENDING'
+  if (status === 'FREEZE') { return 'FROZEN' }
+  if (status === 'PENDING' || status === 'PENDING_PAD_ACTIVATION') { return 'PENDING' }
   return 'READY'
 })
 
 const canSubmit = computed(() => {
-  if (!store.invoice || isSubmitting.value) return false
+  if (!store.invoice || isSubmitting.value) { return false }
   if (method.value === 'PAD') {
     // Block submit when PAD isn't set up AND the caller can't set it up themselves —
     // otherwise they'd see an error at submit time with no path forward.
-    if (padState.value === 'NOT_SETUP' && !canEditPadInfo.value) return false
+    if (padState.value === 'NOT_SETUP' && !canEditPadInfo.value) { return false }
     return padState.value === 'READY' || padState.value === 'PENDING'
   }
   return true
@@ -151,9 +151,9 @@ const canSubmit = computed(() => {
 const ctaLabel = computed(() => {
   switch (method.value) {
     case 'DIRECT_PAY': return t('page.checkout.submit.cc')
-    case 'PAD':        return t('page.checkout.submit.pad')
+    case 'PAD': return t('page.checkout.submit.pad')
     case 'ONLINE_BANKING': return t('page.checkout.submit.ob')
-    default:           return t('page.checkout.submit.cc')
+    default: return t('page.checkout.submit.cc')
   }
 })
 
@@ -189,7 +189,7 @@ async function onPadSaved() {
 }
 
 async function submit() {
-  if (!store.invoice || !canSubmit.value) return
+  if (!store.invoice || !canSubmit.value) { return }
   isSubmitting.value = true
   submitError.value = null
   try {
@@ -252,7 +252,13 @@ async function submit() {
               :class="method === 'DIRECT_PAY' ? 'border-[#212B47] bg-blue-50' : 'border-slate-200 hover:border-slate-300'"
             >
               <div class="flex items-center gap-3">
-                <input v-model="method" type="radio" name="pm" value="DIRECT_PAY" class="h-4 w-4 text-[#212B47]">
+                <input
+                  v-model="method"
+                  type="radio"
+                  name="pm"
+                  value="DIRECT_PAY"
+                  class="h-4 w-4 text-[#212B47]"
+                >
                 <div>
                   <p class="font-semibold text-slate-900">{{ $t('page.checkout.method.cc') }}</p>
                   <p class="text-sm text-slate-500">{{ $t('page.checkout.method.ccSub') }}</p>
@@ -266,7 +272,13 @@ async function submit() {
               :class="method === 'PAD' ? 'border-[#212B47] bg-blue-50' : 'border-slate-200 hover:border-slate-300'"
             >
               <div class="flex items-center gap-3">
-                <input v-model="method" type="radio" name="pm" value="PAD" class="h-4 w-4 text-[#212B47]">
+                <input
+                  v-model="method"
+                  type="radio"
+                  name="pm"
+                  value="PAD"
+                  class="h-4 w-4 text-[#212B47]"
+                >
                 <div>
                   <p class="font-semibold text-slate-900">{{ $t('page.checkout.method.pad') }}</p>
                   <p class="text-sm text-slate-500">{{ $t('page.checkout.method.padSub') }}</p>
@@ -280,7 +292,13 @@ async function submit() {
               :class="method === 'ONLINE_BANKING' ? 'border-[#212B47] bg-blue-50' : 'border-slate-200 hover:border-slate-300'"
             >
               <div class="flex items-center gap-3">
-                <input v-model="method" type="radio" name="pm" value="ONLINE_BANKING" class="h-4 w-4 text-[#212B47]">
+                <input
+                  v-model="method"
+                  type="radio"
+                  name="pm"
+                  value="ONLINE_BANKING"
+                  class="h-4 w-4 text-[#212B47]"
+                >
                 <div>
                   <p class="font-semibold text-slate-900">{{ $t('page.checkout.method.ob') }}</p>
                   <p class="text-sm text-slate-500">{{ $t('page.checkout.method.obSub') }}</p>
@@ -311,17 +329,27 @@ async function submit() {
             v-else-if="padState === 'PENDING'"
             class="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900"
           >
-            <p class="font-semibold">{{ $t('page.checkout.pad.pendingTitle') }}</p>
-            <p class="mt-1">{{ $t('page.checkout.pad.pendingBody') }}</p>
+            <p class="font-semibold">
+              {{ $t('page.checkout.pad.pendingTitle') }}
+            </p>
+            <p class="mt-1">
+              {{ $t('page.checkout.pad.pendingBody') }}
+            </p>
             <!-- Bank details are read-only during PENDING: pay-api rejects
                  PUT /orgs/{id} paymentInfo with CFS_ACCOUNT_SETUP_IN_PROGRESS
                  until the CFS side finishes provisioning. -->
             <dl v-if="hasPadBankDetails" class="mt-3 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-xs">
-              <dt class="font-medium">{{ $t('padWidget.transit') }}</dt>
+              <dt class="font-medium">
+                {{ $t('padWidget.transit') }}
+              </dt>
               <dd>{{ store.accountInfo?.cfsAccount?.bankTransitNumber }}</dd>
-              <dt class="font-medium">{{ $t('padWidget.institution') }}</dt>
+              <dt class="font-medium">
+                {{ $t('padWidget.institution') }}
+              </dt>
               <dd>{{ store.accountInfo?.cfsAccount?.bankInstitutionNumber }}</dd>
-              <dt class="font-medium">{{ $t('padWidget.account') }}</dt>
+              <dt class="font-medium">
+                {{ $t('padWidget.account') }}
+              </dt>
               <dd>{{ store.accountInfo?.cfsAccount?.bankAccountNumber }}</dd>
             </dl>
             <p class="mt-2 text-xs italic">
@@ -332,13 +360,21 @@ async function submit() {
             v-else-if="padState === 'READY'"
             class="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-700"
           >
-            <p class="font-semibold text-slate-900">{{ $t('page.checkout.pad.readyTitle') }}</p>
+            <p class="font-semibold text-slate-900">
+              {{ $t('page.checkout.pad.readyTitle') }}
+            </p>
             <dl v-if="hasPadBankDetails" class="mt-3 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-xs">
-              <dt class="font-medium">{{ $t('padWidget.transit') }}</dt>
+              <dt class="font-medium">
+                {{ $t('padWidget.transit') }}
+              </dt>
               <dd>{{ store.accountInfo?.cfsAccount?.bankTransitNumber }}</dd>
-              <dt class="font-medium">{{ $t('padWidget.institution') }}</dt>
+              <dt class="font-medium">
+                {{ $t('padWidget.institution') }}
+              </dt>
               <dd>{{ store.accountInfo?.cfsAccount?.bankInstitutionNumber }}</dd>
-              <dt class="font-medium">{{ $t('padWidget.account') }}</dt>
+              <dt class="font-medium">
+                {{ $t('padWidget.account') }}
+              </dt>
               <dd>{{ store.accountInfo?.cfsAccount?.bankAccountNumber }}</dd>
             </dl>
             <button
@@ -354,8 +390,12 @@ async function submit() {
             v-else-if="padState === 'FROZEN'"
             class="rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-800"
           >
-            <p class="font-semibold">{{ $t('page.checkout.pad.frozenTitle') }}</p>
-            <p class="mt-1">{{ $t('page.checkout.pad.frozenBody') }}</p>
+            <p class="font-semibold">
+              {{ $t('page.checkout.pad.frozenTitle') }}
+            </p>
+            <p class="mt-1">
+              {{ $t('page.checkout.pad.frozenBody') }}
+            </p>
           </div>
           <template v-else-if="padState === 'NOT_SETUP' && store.selectedAccountId">
             <PadInfoWidget
@@ -367,8 +407,12 @@ async function submit() {
               v-else
               class="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900"
             >
-              <p class="font-semibold">{{ $t('page.checkout.pad.notAuthorizedTitle') }}</p>
-              <p class="mt-1">{{ $t('page.checkout.pad.notAuthorizedBody') }}</p>
+              <p class="font-semibold">
+                {{ $t('page.checkout.pad.notAuthorizedTitle') }}
+              </p>
+              <p class="mt-1">
+                {{ $t('page.checkout.pad.notAuthorizedBody') }}
+              </p>
             </div>
           </template>
         </template>
@@ -394,7 +438,7 @@ async function submit() {
                   <span class="font-semibold text-slate-900">
                     ${{ Number(
                       line.total
-                      ?? ((line.filing_fees ?? 0) + (line.service_fees ?? 0))
+                        ?? ((line.filing_fees ?? 0) + (line.service_fees ?? 0))
                     ).toFixed(2) }}
                   </span>
                 </div>
@@ -429,13 +473,17 @@ async function submit() {
               class="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-slate-800"
             >
               <template v-if="method === 'PAD'">
-                <p class="font-semibold">{{ $t('page.checkout.instructions.pad.title') }}</p>
+                <p class="font-semibold">
+                  {{ $t('page.checkout.instructions.pad.title') }}
+                </p>
                 <p class="mt-2 text-slate-600">
                   {{ $t('page.checkout.instructions.pad.body') }}
                 </p>
               </template>
               <template v-else-if="method === 'ONLINE_BANKING'">
-                <p class="font-semibold">{{ $t('page.checkout.instructions.ob.title') }}</p>
+                <p class="font-semibold">
+                  {{ $t('page.checkout.instructions.ob.title') }}
+                </p>
                 <div class="mt-2 space-y-1 text-slate-700">
                   <p>
                     <strong>{{ $t('page.checkout.instructions.ob.payeeNameLabel') }}:</strong>

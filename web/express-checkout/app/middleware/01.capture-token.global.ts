@@ -6,7 +6,7 @@
  */
 export default defineNuxtRouteMiddleware((to) => {
   const token = to.params?.token
-  if (typeof token !== 'string' || !token) return
+  if (typeof token !== 'string' || !token) { return }
 
   const store = usePaymentLinkStore()
   if (store.token !== token) {

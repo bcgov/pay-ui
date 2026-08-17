@@ -57,9 +57,9 @@ const accounts = computed<Account[]>(() => (accountStore.userAccounts as Account
 const primaryAccount = computed<Account | null>(() => {
   // Guard: if the user genuinely has no accounts, don't fall back to a stale
   // currentAccount from sessionStorage — the empty-state branch should render.
-  if (accounts.value.length === 0) return null
+  if (accounts.value.length === 0) { return null }
   const current = accountStore.currentAccount as Account | undefined
-  if (current?.id) return current
+  if (current?.id) { return current }
   return accounts.value[0] || null
 })
 
@@ -68,7 +68,7 @@ const otherAccounts = computed<Account[]>(() =>
 )
 
 async function pick(accountId: number) {
-  if (!store.token || isLinking.value) return
+  if (!store.token || isLinking.value) { return }
   isLinking.value = true
   linkError.value = null
   try {
@@ -98,7 +98,7 @@ async function pick(accountId: number) {
 }
 
 function continueToPrimary() {
-  if (primaryAccount.value?.id) pick(primaryAccount.value.id)
+  if (primaryAccount.value?.id) { pick(primaryAccount.value.id) }
 }
 
 function registerNew() {
@@ -242,7 +242,6 @@ function registerNew() {
           </button>
         </div>
       </div>
-
     </section>
   </div>
 </template>

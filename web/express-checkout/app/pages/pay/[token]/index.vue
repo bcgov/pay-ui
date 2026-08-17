@@ -23,7 +23,7 @@ useHead({
 
 onMounted(async () => {
   const token = route.params.token as string
-  if (!token) return
+  if (!token) { return }
 
   const hasInvoiceForThisToken = store.token === token && !!store.invoice
   const isPaid = (store.invoice?.paid ?? 0) >= (store.invoice?.total ?? -1) && (store.invoice?.total ?? 0) > 0

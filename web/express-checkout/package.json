@@ -15,8 +15,8 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix .",
+    "lint": "eslint --fix .",
+    "lint:check": "eslint .",
     "test": "vitest --dir tests/unit --passWithNoTests",
     "test:unit": "vitest --dir tests/unit --passWithNoTests",
     "test:unit:cov": "vitest --dir tests/unit --coverage --passWithNoTests",
@@ -34,8 +34,10 @@
   "devDependencies": {
     "@axe-core/playwright": "4.11.3",
     "@iconify-json/mdi": "1.2.3",
+    "@nuxt/eslint-config": "1.5.2",
     "@nuxt/test-utils": "3.21.0",
     "@types/node": "25.5.0",
+    "eslint": "9.36.0",
     "typescript": "6.0.3",
     "vue-tsc": "3.3.1"
   },

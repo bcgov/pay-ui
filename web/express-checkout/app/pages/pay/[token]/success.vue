@@ -19,8 +19,8 @@ useHead({
 
 const methodKey = computed(() => {
   const m = store.invoice?.payment_method || store.paymentMethod
-  if (m === 'PAD') return 'pad'
-  if (m === 'ONLINE_BANKING') return 'ob'
+  if (m === 'PAD') { return 'pad' }
+  if (m === 'ONLINE_BANKING') { return 'ob' }
   return 'cc'
 })
 
@@ -50,9 +50,9 @@ const transactionDate = computed<string | null>(() => {
   const rawIso = store.invoice?.receipts?.[0]?.receipt_date
     || store.invoice?.payment_date
     || null
-  if (!rawIso) return null
+  if (!rawIso) { return null }
   const d = new Date(rawIso)
-  if (Number.isNaN(d.valueOf())) return null
+  if (Number.isNaN(d.valueOf())) { return null }
   return d.toLocaleString('en-CA', {
     year: 'numeric', month: 'long', day: 'numeric',
     hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Vancouver'
@@ -121,7 +121,9 @@ const transactionDate = computed<string | null>(() => {
     >
       <div class="mb-6 flex items-start justify-between">
         <div>
-          <p class="text-xs uppercase text-slate-500">Official Receipt</p>
+          <p class="text-xs uppercase text-slate-500">
+            Official Receipt
+          </p>
           <h2 class="mt-1 text-xl font-semibold text-slate-900">
             Province of British Columbia
           </h2>
@@ -140,23 +142,33 @@ const transactionDate = computed<string | null>(() => {
 
       <dl class="divide-y divide-slate-200 border-y border-slate-200 py-2 text-sm">
         <div v-if="referenceNumber" class="flex justify-between py-3">
-          <dt class="text-slate-500">Reference Number</dt>
-          <dd class="font-semibold text-slate-900">{{ referenceNumber }}</dd>
+          <dt class="text-slate-500">
+            Reference Number
+          </dt>
+          <dd class="font-semibold text-slate-900">
+            {{ referenceNumber }}
+          </dd>
         </div>
         <div class="flex justify-between py-3">
-          <dt class="text-slate-500">Payment Method</dt>
+          <dt class="text-slate-500">
+            Payment Method
+          </dt>
           <dd class="font-medium text-slate-900">
             {{ $t(`page.checkout.method.${methodKey}`) }}
           </dd>
         </div>
         <div v-if="store.invoice?.corp_type_code" class="flex justify-between py-3">
-          <dt class="text-slate-500">Corp Type</dt>
+          <dt class="text-slate-500">
+            Corp Type
+          </dt>
           <dd class="font-medium text-slate-900">
             {{ store.invoice.corp_type_code }}
           </dd>
         </div>
         <div v-if="store.invoice?.business_identifier" class="flex justify-between py-3">
-          <dt class="text-slate-500">Business</dt>
+          <dt class="text-slate-500">
+            Business
+          </dt>
           <dd class="font-medium text-slate-900">
             {{ store.invoice.business_identifier }}
           </dd>
@@ -194,6 +206,5 @@ const transactionDate = computed<string | null>(() => {
         </a>
       </div>
     </section>
-
   </div>
 </template>

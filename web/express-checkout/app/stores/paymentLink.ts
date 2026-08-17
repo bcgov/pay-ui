@@ -32,7 +32,7 @@ export interface PayInvoice {
   gst?: number
   service_fees?: number
   status_code?: string
-  payment_method?: string        // e.g. 'DIRECT_PAY' | 'PAD' | 'ONLINE_BANKING' | 'CC'
+  payment_method?: string // e.g. 'DIRECT_PAY' | 'PAD' | 'ONLINE_BANKING' | 'CC'
   corp_type_code?: string
   business_identifier?: string
   payment_date?: string
@@ -44,12 +44,12 @@ export interface PayInvoice {
 
 export type PaymentMethodCode = 'CC' | 'DIRECT_PAY' | 'PAD' | 'ONLINE_BANKING'
 
-export type CfsAccountStatus =
-  | 'ACTIVE'
-  | 'INACTIVE'
-  | 'PENDING'
-  | 'PENDING_PAD_ACTIVATION'
-  | 'FREEZE'
+export type CfsAccountStatus
+  = | 'ACTIVE'
+    | 'INACTIVE'
+    | 'PENDING'
+    | 'PENDING_PAD_ACTIVATION'
+    | 'FREEZE'
 
 export interface AccountCfsInfo {
   cfsAccountNumber?: string
