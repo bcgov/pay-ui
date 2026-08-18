@@ -32,17 +32,17 @@ export class RoutingSlipsPage {
 
   async createRefundRequestForRoutingSlip() {
     await this.manageRoutingSlipsLink.click({timeout: 60000})
-    await expect(this.page).toHaveURL('https://test.pay.bcregistry.gov.bc.ca/home', { timeout: 60000 })
+    await expect(this.page).toHaveURL('https://${Process.env.BASE_URL}.pay.bcregistry.gov.bc.ca/home', { timeout: 60000 })
     await this.openRSButton.click({timeout: 60000})
     await this.editStatusButton.click({timeout: 60000})
     await this.refundRequestLink.click({timeout: 60000})
-    await expect(this.page).toHaveURL('https://test.pay.bcregistry.gov.bc.ca/home', { timeout: 60000 })
+    await expect(this.page).toHaveURL('https://${Process.env.BASE_URL}.pay.bcregistry.gov.bc.ca/home', { timeout: 60000 })
     await this.doneButton.click({timeout: 60000})
   }
 
   async validateRoutingSlipRefundRequest() {
     await this.manageRoutingSlipsLink.click({timeout: 60000})
-    await expect(this.page).toHaveURL('https://test.pay.bcregistry.gov.bc.ca/home', { timeout: 60000 })
+    await expect(this.page).toHaveURL('https://${Process.env.BASE_URL}.pay.bcregistry.gov.bc.ca/home', { timeout: 60000 })
     await this.openRSButton.click({timeout: 60000})
     await this.editStatusButton.click({timeout: 60000})
     await this.ReviewRefundRequest.click({timeout: 60000})
