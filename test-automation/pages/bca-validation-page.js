@@ -29,6 +29,9 @@ export class BcaValidationPage {
     this.bcaPaymentMethods = this.bcaCard.locator('.product-payment-icons')
     this.productCheckbox = page.locator('[type="checkbox"]')
     this.cancelButton = page.getByRole('button', { name: 'Cancel' })
+    this.readMoreButtonBCA = page.locator('[data-test="span-readmore-BCA"]')
+    this.reportsAvailableText = page.getByText('Three reports are available for purchase:')
+    this.bcaExpandedReports = page.locator('[data-test="div-expanded-product-BCA"]');
   }
 
   async getBcaPaymentMethods() {
@@ -61,4 +64,20 @@ export class BcaValidationPage {
     await this.waitForTimeout(3000)
     await this.cancelButton.click({ timeout: 60000 })
   }
+
+  async validateBCAReports(){
+    await this.accountName.nth(1).click({ timeout: 60000 })
+    await this.editProfileLink.click({ timeout: 60000 })
+    await this.accountInfoText.click({ timeout: 60000 })
+    await this.productsAndPaymentLink.click({ timeout: 60000 })
+    await expect(this.BCAssessment).toBeVisible({ timeout: 60000 })
+    await expect(this.supportedPaymentMethods).toBeVisible({ timeout: 60000 })
+    await this.readMoreButtonBCA.click({ timeout: 60000 })
+    await this.page.waitForTimeout(3000)
+    const reports = await this.bcaExpandedReports.locator('ul li').allTextContents();
+    // Assert all 3 are present
+    expect(reports).toContain('Owner Location Report');
+    expect(reports).toContain('Assessment Roll Report');
+    expect(reports).toContain('Assessment Inventory Report');
+}
 }
