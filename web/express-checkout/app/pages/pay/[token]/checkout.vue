@@ -157,26 +157,8 @@ const ctaLabel = computed(() => {
   }
 })
 
-const subtotal = computed(() => {
-  const items = store.invoice?.line_items || []
-  if (items.length > 0) {
-    return items.reduce((sum, l) => sum
-      + (Number(l.filing_fees) || 0)
-      + (Number(l.priority_fees) || 0)
-      + (Number(l.future_effective_fees) || 0)
-      + (Number(l.service_fees) || 0)
-      - (Number(l.waived_fees) || 0), 0)
-  }
-  const total = Number(store.invoice?.total ?? 0)
-  const gst = Number(store.invoice?.gst ?? 0)
-  const pst = (store.invoice?.line_items || []).reduce((s, l) => s + (Number(l.pst) || 0), 0)
-  return total - gst - pst
-})
-
-const pstTotal = computed(() => {
-  const items = store.invoice?.line_items || []
-  return items.reduce((s, l) => s + (Number(l.pst) || 0), 0)
-})
+const subtotal = computed(() => calculateSubtotal(store.invoice))
+const pstTotal = computed(() => calculatePstTotal(store.invoice))
 
 /** OB payee identifier — the CFS account number (matches auth-web's Pay with Online Banking). */
 const obPayeeReference = computed(() => store.accountInfo?.cfsAccount?.cfsAccountNumber ?? '')
