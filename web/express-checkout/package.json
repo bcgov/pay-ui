@@ -1,0 +1,61 @@
+{
+  "name": "express-checkout",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@10.13.1",
+  "license": "BSD-3-Clause",
+  "scripts": {
+    "build-check": "nuxt build",
+    "build": "nuxt generate",
+    "dev": "nuxt dev --port 3001",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint --fix .",
+    "lint:check": "eslint .",
+    "test": "vitest --dir tests/unit --passWithNoTests",
+    "test:unit": "vitest --dir tests/unit --passWithNoTests",
+    "test:unit:cov": "vitest --dir tests/unit --coverage --passWithNoTests",
+    "test:e2e": "npx playwright test",
+    "test:e2e:ui": "npx playwright test --ui",
+    "build:test": "pnpm generate && npx serve .output/public",
+    "typecheck": "npx nuxt typecheck"
+  },
+  "dependencies": {
+    "@sbc-connect/nuxt-business-base": "^0.24.0",
+    "nuxt": "4.4.8",
+    "vue": "3.5.39",
+    "vue-router": "5.0.7"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.11.3",
+    "@iconify-json/mdi": "1.2.3",
+    "@nuxt/eslint-config": "1.5.2",
+    "@nuxt/test-utils": "3.21.0",
+    "@types/node": "25.5.0",
+    "@vitest/coverage-v8": "3.2.4",
+    "@vue/test-utils": "2.4.6",
+    "eslint": "9.36.0",
+    "happy-dom": "17.6.3",
+    "typescript": "6.0.3",
+    "vitest": "3.2.4",
+    "vue-tsc": "3.3.1"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "@sbc-connect/nuxt-auth",
+      "@sbc-connect/nuxt-base",
+      "@sbc-connect/nuxt-business-base",
+      "@sbc-connect/nuxt-forms",
+      "@sbc-connect/nuxt-pay",
+      "@tailwindcss/oxide",
+      "esbuild",
+      "vue-demi"
+    ]
+  }
+}

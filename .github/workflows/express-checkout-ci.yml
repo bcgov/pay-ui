@@ -1,4 +1,4 @@
-name: PAY-UI CI
+name: EXPRESS-CHECKOUT CI
 
 on:
   pull_request:
@@ -6,8 +6,8 @@ on:
       - main
       - feature*
     paths:
-      - "web/pay-ui/**"
-      - ".github/workflows/ci.yml"
+      - "web/express-checkout/**"
+      - ".github/workflows/express-checkout-ci.yml"
   workflow_dispatch:
 
 defaults:
@@ -16,11 +16,11 @@ defaults:
     working-directory: .
 
 jobs:
-  pay-ui-ci:
+  express-checkout-ci:
     uses: bcgov/bcregistry-sre/.github/workflows/frontend-ci.yaml@main
     with:
       node_version: 24
       pnpm_version: 11.9.0
-      app_name: "pay-ui"
-      working_directory: "./web/pay-ui"
-      codecov_flag: "payweb"
+      app_name: "express-checkout"
+      working_directory: "./web/express-checkout"
+      codecov_flag: "expresscheckout"

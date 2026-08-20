@@ -1,12 +1,12 @@
-name: PAY-UI GCP CD
+name: EXPRESS-CHECKOUT GCP CD
 
 on:
   push:
     branches:
       - main
     paths:
-      - "web/pay-ui/**"
-      - ".github/workflows/gcp-cd.yml"
+      - "web/express-checkout/**"
+      - ".github/workflows/express-checkout-cd.yml"
   workflow_dispatch:
     inputs:
       target:
@@ -20,12 +20,12 @@ on:
         - prod
 
 jobs:
-  pay-ui-cd:
+  express-checkout-cd:
     uses: bcgov/bcregistry-sre/.github/workflows/frontend-cd.yaml@main
     with:
       target: ${{ inputs.target }}
-      app_name: "pay-ui"
-      working_directory: "./web/pay-ui"
+      app_name: "express-checkout"
+      working_directory: "./web/express-checkout"
     secrets:
       WORKLOAD_IDENTIFY_POOLS_PROVIDER: ${{ secrets.WORKLOAD_IDENTIFY_POOLS_PROVIDER }}
       GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
