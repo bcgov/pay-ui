@@ -25,7 +25,9 @@ export class RoutingSlipsPage {
     this.refundRequestLink = page.getByText('Refund request')
     this.doneButton = page.getByText('Done')
     this.ReviewRefundRequest = page.getByText('Review refund request')
+    this.writeOffRequest = page.getByText('Write off request')
     this.authorizeRefundButton = page.getByText('Authorize Refund')
+    this.authorizeWriteOffRequestButton = page.getByText('Authorize Write Off Request')
     this.cancelButton = page.getByText('Cancel')
     
   }
@@ -47,6 +49,16 @@ export class RoutingSlipsPage {
     await this.editStatusButton.click({timeout: 60000})
     await this.ReviewRefundRequest.click({timeout: 60000})
     await expect(this.authorizeRefundButton).toBeVisible({ timeout: 60000 })
+    await this.cancelButton.click({timeout: 60000})
+  }
+
+  async validateRoutingSlipWriteOffRequest() {
+    await this.manageRoutingSlipsLink.click({timeout: 60000})
+    await expect(this.page).toHaveURL('https://${Process.env.BASE_URL}.pay.bcregistry.gov.bc.ca/home', { timeout: 60000 })
+    await this.openRSButton.click({timeout: 60000})
+    await this.editStatusButton.click({timeout: 60000})
+    await this.writeOffRequest.click({timeout: 60000})
+    await expect(this.authorizeWriteOffRequestButton).toBeVisible({ timeout: 60000 })
     await this.cancelButton.click({timeout: 60000})
   }
 }

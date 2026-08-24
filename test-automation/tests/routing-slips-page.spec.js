@@ -36,4 +36,13 @@ test.describe.serial('Routing Slips Tests', () => {
     await loginPage.loginWithIDIR(process.env.TEST_USERNAME_IDIR, process.env.TEST_PASSWORD_IDIR)
     await routingSlipsPage.validateRoutingSlipRefundRequest()
   })
+
+  test('validate routing slip write-off request', async ({ page, routingSlipsPage , loginPage }) => {
+    console.log('Test: Current URL before navigation:', page.url())
+    console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
+    await page.goto(process.env.BASE_URL || 'undefined')
+    //login with idir user that has FAS supervisior role to validate routing slip refund request
+    await loginPage.loginWithIDIR(process.env.TEST_USERNAME_IDIR, process.env.TEST_PASSWORD_IDIR)
+    await routingSlipsPage.validateRoutingSlipWriteOffRequest()
+  })
 })
