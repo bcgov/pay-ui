@@ -51,7 +51,7 @@ describe('LinkRoutingSlipSearch', () => {
   it('should render, display AsyncAutoComplete, display buttons, emit cancel, and validate', async () => {
     const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
       props: {
-        parentRoutingSlipNumber: '123456789'
+        currentRoutingSlipNumber: '123456789'
       },
       global: {
         stubs: {
@@ -117,7 +117,7 @@ describe('LinkRoutingSlipSearch', () => {
 
     const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
       props: {
-        parentRoutingSlipNumber: '123456789'
+        currentRoutingSlipNumber: '123456789'
       },
       global: {
         stubs: {
@@ -166,7 +166,7 @@ describe('LinkRoutingSlipSearch', () => {
 
     const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
       props: {
-        parentRoutingSlipNumber: '123456789'
+        currentRoutingSlipNumber: '123456789'
       },
       global: {
         stubs: {
@@ -208,8 +208,8 @@ describe('LinkRoutingSlipSearch', () => {
       await new Promise(resolve => setTimeout(resolve, 100))
 
       expect(mockPostLinkRoutingSlip).toHaveBeenCalledWith({
-        childRoutingSlipNumber: '987654321',
-        parentRoutingSlipNumber: '123456789'
+        childRoutingSlipNumber: '123456789',
+        parentRoutingSlipNumber: '987654321'
       })
       expect(wrapper.emitted('success')).toBeTruthy()
       expect(wrapper.emitted('success')![0]).toEqual(['987654321'])
@@ -221,9 +221,7 @@ describe('LinkRoutingSlipSearch', () => {
     Object.assign(fetchError, {
       response: {
         _data: {
-          rootCause: {
-            detail: 'Custom error message'
-          }
+          title: 'Custom error message'
         }
       }
     } as Partial<FetchError>)
@@ -253,7 +251,7 @@ describe('LinkRoutingSlipSearch', () => {
       await new Promise(resolve => setTimeout(resolve, 100))
 
       const formField = wrapper.findComponent({ name: 'UFormField' })
-      expect(formField.props('error')).toBe('validation.unknownError')
+      expect(formField.props('error')).toBe('An error occurred while processing your request.')
     }
 
     component.selected = undefined
@@ -270,7 +268,7 @@ describe('LinkRoutingSlipSearch', () => {
   it('should handle cancel, success emission, various error types, loading states, and refresh calls', async () => {
     const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
       props: {
-        parentRoutingSlipNumber: '123456789'
+        currentRoutingSlipNumber: '123456789'
       },
       global: {
         stubs: {
@@ -329,18 +327,14 @@ describe('LinkRoutingSlipSearch', () => {
     interface FetchErrorWithResponse extends Error {
       response?: {
         _data?: {
-          rootCause?: {
-            detail?: string
-          }
+          title?: string
         }
       }
     }
     const fetchError = new Error('Fetch Error') as FetchErrorWithResponse
     fetchError.response = {
       _data: {
-        rootCause: {
-          detail: 'Custom error detail'
-        }
+        title: 'Custom error detail'
       }
     }
     mockPostLinkRoutingSlip.mockImplementation(() => Promise.reject(fetchError))
@@ -372,7 +366,7 @@ describe('LinkRoutingSlipSearch', () => {
         selected?: string
         errorMessage?: string
       }
-      expect(componentWithError.errorMessage).toBe('validation.unknownError')
+      expect(componentWithError.errorMessage).toBe('An error occurred while processing your request.')
     }
 
     const fetchError2 = new Error('Fetch Error') as FetchErrorWithResponse
@@ -392,7 +386,7 @@ describe('LinkRoutingSlipSearch', () => {
         selected?: string
         errorMessage?: string
       }
-      expect(componentWithError.errorMessage).toBe('validation.unknownError')
+      expect(componentWithError.errorMessage).toBe('An error occurred while processing your request.')
     }
 
     mockPostLinkRoutingSlip.mockImplementation(() => Promise.resolve({}))
@@ -426,7 +420,7 @@ describe('LinkRoutingSlipSearch', () => {
   it('should clear error message when selected value is set', async () => {
     const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
       props: {
-        parentRoutingSlipNumber: '123456789'
+        currentRoutingSlipNumber: '123456789'
       },
       global: {
         stubs: {
@@ -476,7 +470,7 @@ describe('LinkRoutingSlipSearch', () => {
   it('should clear error message on focus', async () => {
     const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
       props: {
-        parentRoutingSlipNumber: '123456789'
+        currentRoutingSlipNumber: '123456789'
       },
       global: {
         stubs: {
@@ -521,7 +515,7 @@ describe('LinkRoutingSlipSearch', () => {
   it('should handle debounceValidate when called multiple times quickly', async () => {
     const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
       props: {
-        parentRoutingSlipNumber: '123456789'
+        currentRoutingSlipNumber: '123456789'
       },
       global: {
         stubs: {
@@ -574,7 +568,7 @@ describe('LinkRoutingSlipSearch', () => {
 
     const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
       props: {
-        parentRoutingSlipNumber: '123456789'
+        currentRoutingSlipNumber: '123456789'
       },
       global: {
         stubs: {
@@ -621,7 +615,7 @@ describe('LinkRoutingSlipSearch', () => {
 
     const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
       props: {
-        parentRoutingSlipNumber: '123456789'
+        currentRoutingSlipNumber: '123456789'
       },
       global: {
         stubs: {
@@ -664,7 +658,7 @@ describe('LinkRoutingSlipSearch', () => {
   it('should handle linkRoutingSlip when already loading', async () => {
     const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
       props: {
-        parentRoutingSlipNumber: '123456789'
+        currentRoutingSlipNumber: '123456789'
       },
       global: {
         stubs: {
@@ -719,7 +713,7 @@ describe('LinkRoutingSlipSearch', () => {
 
     const wrapper = await mountSuspended(LinkRoutingSlipSearch, {
       props: {
-        parentRoutingSlipNumber: '123456789'
+        currentRoutingSlipNumber: '123456789'
       },
       global: {
         stubs: {

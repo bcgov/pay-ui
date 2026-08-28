@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { FetchError } from 'ofetch'
 import { DateTime } from 'luxon'
 import { debounce } from 'es-toolkit'
+import { getFASErrorMessage } from '@/utils/api-error-handler'
 
 const { t } = useI18n()
 const payApi = usePayApi()
@@ -14,7 +14,7 @@ const {
 const { store } = useRoutingSlipStore()
 
 const props = defineProps<{
-  parentRoutingSlipNumber: string
+  currentRoutingSlipNumber: string
 }>()
 
 const emit = defineEmits<{
@@ -58,8 +58,8 @@ async function linkRoutingSlip(): Promise<void> {
       return
     }
     await payApi.postLinkRoutingSlip({
-      childRoutingSlipNumber: selected.value,
-      parentRoutingSlipNumber: props.parentRoutingSlipNumber
+      childRoutingSlipNumber: props.currentRoutingSlipNumber,
+      parentRoutingSlipNumber: selected.value
     })
     emit('success', selected.value)
     const currentRoutingSlipId = store.routingSlip?.number || ''
@@ -67,13 +67,7 @@ async function linkRoutingSlip(): Promise<void> {
     await getRoutingSlip(getRoutingSlipRequestPayload)
     await getLinkedRoutingSlips(currentRoutingSlipId)
   } catch (e) {
-    const fallbackMsg = t('validation.unknownError')
-    if (e instanceof FetchError) {
-      const msg = e.response?._data.rootCause.detail || fallbackMsg
-      errorMessage.value = msg
-    } else {
-      errorMessage.value = fallbackMsg
-    }
+    errorMessage.value = getFASErrorMessage(e)
   } finally {
     loading.value = false
   }

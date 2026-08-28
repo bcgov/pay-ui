@@ -249,7 +249,8 @@ describe('usePayApi', () => {
       expect(mockPayApi).toHaveBeenCalledTimes(1)
       expect(mockPayApi).toHaveBeenCalledWith('/fas/routing-slips/links', {
         method: 'POST',
-        body
+        body,
+        showErrorToast: false
       })
 
       const mockError = new Error('API Error 500')

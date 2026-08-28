@@ -37,7 +37,8 @@ export const usePayApi = () => {
   async function postLinkRoutingSlip(body: LinkRoutingSlipParams): Promise<void> {
     return $payApi('/fas/routing-slips/links', {
       method: 'POST',
-      body
+      body,
+      showErrorToast: false
     })
   }
 

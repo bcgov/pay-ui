@@ -102,7 +102,7 @@ const {
         </div>
         <div v-if="showSearch" class="mb-4">
           <LinkRoutingSlipSearch
-            :parent-routing-slip-number="slipId"
+            :current-routing-slip-number="slipId"
             @cancel="toggleSearch()"
           />
         </div>
