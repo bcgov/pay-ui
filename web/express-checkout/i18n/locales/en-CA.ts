@@ -6,66 +6,45 @@ export default {
       h1: 'Preparing your payment...'
     },
     account: {
-      title: 'Select Account Profile',
-      h1: 'Select Account Profile',
-      subtitle: 'Choose the account you wish to make payment for.',
-      registerNew: 'Register New',
-      continue: 'Continue to Profile'
+      title: 'Select Your Account or Create a New One',
+      loading: 'Loading your accounts…',
+      errors: {
+        noPermission: 'You do not have permission to make payments on this account.',
+        linkFailed: 'Unable to link this invoice. Please try again.'
+      }
     },
     checkout: {
       title: 'Complete Your Payment',
-      h1: 'Complete Your Payment',
+      selectMethod: 'Select a Payment Method',
       method: {
         cc: 'Credit Card',
-        ccSub: 'Visa, Mastercard, AMEX',
-        pad: 'Pre-Authorized Debit (PAD)',
-        padSub: 'Direct withdrawal from business account',
+        ccSub: 'Pay with your credit card.',
+        pad: 'Pre-Authorized Debit',
+        padSub: 'Automatically debit a bank account when payments are due.',
         ob: 'Online Banking',
-        obSub: 'Bill Payment via your bank',
-        eft: 'Electronic Funds Transfer (EFT)',
-        eftSub: 'Send funds directly from your bank to BC Registries'
+        obSub: 'Pay for products and services through your financial institution\'s website.'
       },
-      submit: {
-        cc: 'Continue to Payment',
-        pad: 'Confirm PAD Payment',
-        ob: 'Confirm Payment',
-        eft: 'Confirm Payment'
-      },
-      instructions: {
-        pad: {
-          title: 'How Pre-Authorized Debit works',
-          body: 'Funds will be automatically withdrawn from your registered business account within 3 business days. You do not need to take any further action.'
-        },
-        ob: {
-          title: 'How to complete Online Banking payment',
-          payeeNameLabel: 'Payee Name',
-          identifierLabel: 'Payment Identifier',
-          identifierPending: 'Generating…',
-          step1: 'Sign in to your financial institution\'s online banking website or app and go to the bill payment page.',
-          step2: 'Add the following as a payee:',
-          step3: 'Enter this payment identifier as your account number:',
-          step4: 'Submit the payment for the total amount shown. It may take 2 to 5 business days to process.'
-        },
-        eft: {
-          title: 'How to complete EFT payment',
-          body: 'Send an Electronic Funds Transfer for the total amount above to BC Registries and Online Services. You will receive detailed EFT instructions on the next page.'
-        }
-      },
-      summary: 'Invoice Summary',
-      subtotal: 'Subtotal',
-      total: 'Total Amount Due',
+      feeSummary: 'Fee Summary',
+      serviceFee: 'Service Fee',
+      totalFees: 'Total Fees',
+      back: 'Back',
+      cancel: 'Cancel',
+      confirmAndPay: 'Confirm and Pay',
+      processing: 'Processing…',
+      completeRequired: 'Please complete required information',
       pad: {
         loading: 'Checking your PAD account…',
         pendingTitle: 'PAD activation in progress',
-        pendingBody: 'Your PAD account is being activated (typically 3 business days). Click "Confirm PAD Payment" below so this invoice is applied to the PAD once activation completes.',
+        pendingBody: 'Your PAD account is being activated (typically 3 business days). Click "Confirm and Pay" below so this invoice is applied to the PAD once activation completes.',
         frozenTitle: 'PAD is currently frozen',
         frozenBody: 'Your PAD account is frozen. Please pick a different payment method or contact support to unfreeze it.',
-        readyTitle: 'Bank account on file for PAD',
-        readyEditPrompt: 'Need to change the bank account on file for this payment?',
-        editButton: 'Update banking information',
         pendingEditLocked: 'Banking information can\'t be changed while activation is in progress. Please wait until activation completes to update these details.',
-        notAuthorizedTitle: 'PAD setup not available',
-        notAuthorizedBody: 'Only an account administrator or coordinator can set up Pre-Authorized Debit. Please contact your account administrator or coordinator to add banking information, or choose a different payment method.'
+        setupRequiredBadge: 'Set up required',
+        notSetUpBody: 'Pre-authorized Debit is not set up for this account. To enable this payment method, visit the ',
+        notSetUpLink: 'products and payment page in the account settings',
+        bankingInformation: 'Banking Information',
+        bankingInfoHelp: 'These are the bank account details on file for this account\'s Pre-Authorized Debit.',
+        edit: 'Edit'
       },
       errors: {
         methodSwitchFailed: 'Unable to update payment method. Please try again.',
@@ -79,22 +58,45 @@ export default {
     },
     success: {
       title: 'Payment Successful',
-      h1: {
-        cc: 'Payment Successful',
-        pad: 'Payment Scheduled',
-        ob: 'Awaiting Payment',
-        eft: 'Awaiting Funds'
+      cc: {
+        title: 'Payment Successful',
+        body: 'Placeholder text that guides users on how to access their documents.',
+        methodLabel: 'Payment method',
+        amountLabel: 'Amount paid',
+        downloadReceipt: 'Download Receipt'
       },
-      body: {
-        cc: 'Your transaction has been processed successfully. A confirmation email has been sent to your registered address.',
-        pad: 'Your pre-authorized debit is scheduled. Funds will be withdrawn from your business account within 3 business days. We will notify you once payment is confirmed.',
-        ob: 'Please complete the online banking payment using the invoice number shown as your payee reference. We will notify you once the payment is received.',
-        eft: 'Please complete the Electronic Funds Transfer using the details provided. We will notify you once funds arrive.'
+      pad: {
+        title: 'Payment in Progress',
+        methodLabel: 'Payment method',
+        amountLabel: 'Amount paid',
+        body1: '{amount} will be debited from your bank in 2-3 business days.',
+        body2: 'Your receipt will become available once the debit is successful.'
+      },
+      ob: {
+        title: 'Payment Pending',
+        transactionAmount: 'Transaction Amount',
+        balanceDue: 'Balance Due',
+        description: 'Transaction will be completed when payment is received in full. Online Banking payment methods can expect between {days} for your payment.',
+        daysRange: '2-5 days',
+        payeeNameLabel: 'Payee Name',
+        identifierLabel: 'Payment Identifier',
+        identifierPending: 'Generating…',
+        howToPayTitle: 'How to pay with online banking:',
+        steps: {
+          step1: 'Sign in to your financial institution\'s online banking website or app',
+          step2: 'Go to the bill payment page',
+          step3: 'Add {payee} as payee',
+          step4: 'Enter this payment identifier as the account number: {identifier}',
+          step5: 'Submit your payment for the balance due'
+        },
+        downloadInvoice: 'Download Invoice',
+        completeNow: 'Would you like to complete transactions immediately?',
+        payByCC: 'Pay by credit card',
+        switching: 'Redirecting…'
       }
     },
     error: {
-      invalidLink: 'This payment link is no longer valid.',
-      invalidLinkBody: 'The link may have already been used or has expired. Please contact the sender for a new link.'
+      invalidLink: 'This payment link is no longer valid.'
     }
   },
   padWidget: {
@@ -109,7 +111,6 @@ export default {
     account: 'Bank Account Number',
     accountHint: '7 to 12 digits',
     accountEditHint: 'To change, clear the field and re-enter the full account number.',
-    tos: 'I authorize BC Registries and Online Services to debit the account above according to the terms of the Pre-Authorized Debit agreement.',
     tosPrefix: 'I have read, understood and agree to the',
     tosLinkLabel: 'Business Pre-Authorized Debit Terms and Conditions',
     tosSuffix: 'for BC Registry Services.',

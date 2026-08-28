@@ -6,39 +6,17 @@ export interface PayInvoiceLineItem {
   future_effective_fees?: number
   service_fees?: number
   waived_fees?: number
-  gst?: number
-  statutory_fees_gst?: number
-  service_fees_gst?: number
-  pst?: number
 }
 
-export interface PayInvoiceReference {
-  invoice_number?: string
-  reference_number?: string
-  status_code?: string
-}
-
-export interface PayInvoiceReceipt {
-  receipt_number?: string
-  receipt_date?: string
-  receipt_amount?: number
-}
-
-/** Pay-api's invoice DTO uses snake_case (see InvoiceSchema data_keys). */
+/** Pay-api's invoice DTO uses snake_case (see InvoiceSchema data_keys). Only
+ * fields we actually read are typed; extra fields land under the index signature. */
 export interface PayInvoice {
   id: number
   total?: number
   paid?: number
-  gst?: number
   service_fees?: number
-  status_code?: string
   payment_method?: string // e.g. 'DIRECT_PAY' | 'PAD' | 'ONLINE_BANKING' | 'CC'
-  corp_type_code?: string
-  business_identifier?: string
-  payment_date?: string
   line_items?: PayInvoiceLineItem[]
-  references?: PayInvoiceReference[]
-  receipts?: PayInvoiceReceipt[]
   [key: string]: unknown
 }
 
