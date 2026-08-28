@@ -10,9 +10,7 @@ defineProps<{
 }>()
 
 defineEmits<{
-  (e: 'back'): void
-  (e: 'cancel'): void
-  (e: 'submit'): void
+  (e: 'back' | 'cancel' | 'submit'): void
 }>()
 </script>
 
