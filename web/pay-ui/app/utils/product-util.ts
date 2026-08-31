@@ -10,7 +10,7 @@ export const productDisplay = {
   [Product.RPT]: 'Rural Property Tax',
   [Product.STRR]: 'Short-Term Rental Registry',
   [Product.VS]: 'Wills Registry',
-  [Product.NRO]: 'Name Requests Online'
+  [Product.NRO]: 'Name Requests Online TEST'
 }
 export const getProductDisplayName = (productCode: string): string => {
   return productDisplay[productCode as Product] || productCode
