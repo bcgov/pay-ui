@@ -156,7 +156,11 @@ async function submit() {
               icon="i-mdi-currency-usd"
               :title="$t('page.checkout.method.ob')"
               :subtitle="$t('page.checkout.method.obSub')"
-            />
+            >
+              <template #extra>
+                <CheckoutObInfo v-if="method === 'ONLINE_BANKING'" />
+              </template>
+            </CheckoutPaymentMethodCard>
 
             <CheckoutPaymentMethodCard
               v-model="method"

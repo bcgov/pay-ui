@@ -32,6 +32,11 @@ export default {
       confirmAndPay: 'Confirm and Pay',
       processing: 'Processing…',
       completeRequired: 'Please complete required information',
+      ob: {
+        nextStep: 'You will get step-by-step payment instructions on the next step.',
+        paymentInFull: 'BC Registries and Online Services {emphasis} from your financial institution prior to the release of items purchased through this service. Receipt of an online banking payment generally takes 3-4 days from when you make the payment with your financial institution.',
+        paymentInFullEmphasis: 'must receive payment in full'
+      },
       pad: {
         loading: 'Checking your PAD account…',
         pendingTitle: 'PAD activation in progress',
