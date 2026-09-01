@@ -272,7 +272,7 @@ async function submit() {
           {{ $t('padWidget.tosPrefix') }}
           <button
             type="button"
-            class="font-semibold text-navy-legacy underline hover:text-navy-legacy-hover"
+            class="font-semibold text-[--color-navy-legacy] underline hover:text-[--color-navy-legacy-hover]"
             @click.prevent="openTermsDialog"
           >
             {{ $t('padWidget.tosLinkLabel') }}
@@ -319,7 +319,7 @@ async function submit() {
             </button>
             <button
               type="button"
-              class="rounded-md bg-navy-legacy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-legacy-hover disabled:opacity-60"
+              class="rounded-md bg-[--color-navy-legacy] px-4 py-2 text-sm font-semibold text-white hover:bg-[--color-navy-legacy-hover] disabled:opacity-60"
               :disabled="!scrolledToBottom || termsLoading || !!termsError"
               @click="agreeToTerms"
             >
@@ -348,8 +348,8 @@ async function submit() {
         <button
           type="submit"
           :class="inline
-            ? 'rounded-md bg-mark px-4 py-2 text-sm font-semibold text-white hover:bg-mark-dark disabled:opacity-60'
-            : 'rounded-md bg-navy-legacy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-legacy-hover disabled:opacity-60'"
+            ? 'rounded-md bg-mark px-4 py-2 text-sm font-semibold text-white hover:bg-[--color-mark-dark] disabled:opacity-60'
+            : 'rounded-md bg-[--color-navy-legacy] px-4 py-2 text-sm font-semibold text-white hover:bg-[--color-navy-legacy-hover] disabled:opacity-60'"
           :disabled="!canSubmit"
         >
           {{ submitting ? $t('padWidget.submitting') : (isEdit ? $t('padWidget.updateSubmit') : $t('padWidget.submit')) }}

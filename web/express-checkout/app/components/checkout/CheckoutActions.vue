@@ -18,7 +18,7 @@ defineEmits<{
   <div class="space-y-4">
     <button
       type="button"
-      class="flex w-full items-center justify-center gap-2 rounded-md bg-mark px-4 py-3 text-sm font-semibold text-white transition hover:bg-mark-dark disabled:opacity-60"
+      class="flex w-full items-center justify-center gap-2 rounded-md bg-mark px-4 py-3 text-sm font-semibold text-white transition hover:bg-[--color-mark-dark] disabled:opacity-60"
       :disabled="!canSubmit"
       @click="$emit('submit')"
     >

@@ -27,7 +27,7 @@ function lineHelper(line: PayInvoiceLineItem): string {
 
 <template>
   <section class="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
-    <header class="bg-navy px-5 py-3">
+    <header class="bg-[--color-navy] px-5 py-3">
       <h2 class="text-base font-semibold !text-white">
         {{ $t('page.checkout.feeSummary') }}
       </h2>

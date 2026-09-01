@@ -172,7 +172,7 @@ async function submit() {
                     :href="pad.accountSettingsUrl.value"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="font-medium text-mark underline hover:text-mark-dark"
+                    class="font-medium text-mark underline hover:text-[--color-mark-dark]"
                   >{{ $t('page.checkout.pad.notSetUpLink') }}</a>
                   <span v-else class="font-medium">{{ $t('page.checkout.pad.notSetUpLink') }}</span>.
                 </p>

@@ -32,7 +32,7 @@ defineEmits<{
       <button
         v-if="canEdit"
         type="button"
-        class="inline-flex items-center gap-1 text-sm font-semibold text-mark hover:text-mark-dark"
+        class="inline-flex items-center gap-1 text-sm font-semibold text-mark hover:text-[--color-mark-dark]"
         @click="$emit('edit')"
       >
         <UIcon name="i-mdi-pencil" class="size-4" />

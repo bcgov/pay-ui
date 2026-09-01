@@ -7,12 +7,12 @@
 
 /*
  * App-specific design tokens layered on top of the sbc-connect/nuxt-base
- * theme. `--ui-mark` (= #1A5A96) is inherited from the base layer; the tokens
- * below give us proper utility classes (bg-mark-dark, bg-navy, …) for the
- * darker hover states and the Fee Summary navy header, so we don't need to
- * scatter arbitrary hex values across the templates.
+ * theme. `--ui-mark` (= #1A5A96) is inherited from the base layer via its
+ * `@theme static` block; the tokens below are consumed from templates via
+ * Tailwind's arbitrary-value shorthand — e.g. `bg-[--color-navy]` — so we
+ * don't need to scatter raw hex values across the templates.
  */
-@theme {
+:root {
   --color-mark-dark: #124372;
   --color-navy: #1A2A47;
   --color-navy-legacy: #212B47;

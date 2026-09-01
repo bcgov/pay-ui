@@ -62,7 +62,7 @@ async function download() {
       <button
         type="button"
         :disabled="downloading || !invoiceId"
-        class="inline-flex items-center gap-2 rounded-md bg-mark px-6 py-3 text-sm font-semibold text-white transition hover:bg-mark-dark disabled:opacity-60"
+        class="inline-flex items-center gap-2 rounded-md bg-mark px-6 py-3 text-sm font-semibold text-white transition hover:bg-[--color-mark-dark] disabled:opacity-60"
         @click="download"
       >
         <UIcon name="i-mdi-download" class="size-5" />
