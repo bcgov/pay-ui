@@ -14,29 +14,29 @@ describe('useInvoiceFees', () => {
     it('sums filing + priority + future-effective, minus waived', () => {
       const { lineBaseFee } = useInvoiceFees(() => null)
       expect(lineBaseFee(lineItem({
-        filing_fees: 30,
-        priority_fees: 5,
-        future_effective_fees: 10,
-        waived_fees: 3
+        filingFees: 30,
+        priorityFees: 5,
+        futureEffectiveFees: 10,
+        waivedFees: 3
       }))).toBe(42)
     })
 
     it('treats missing numeric fields as 0', () => {
       const { lineBaseFee } = useInvoiceFees(() => null)
-      expect(lineBaseFee(lineItem({ filing_fees: 40 }))).toBe(40)
+      expect(lineBaseFee(lineItem({ filingFees: 40 }))).toBe(40)
       expect(lineBaseFee(lineItem({}))).toBe(0)
     })
 
     it('excludes service fees from the line base', () => {
       const { lineBaseFee } = useInvoiceFees(() => null)
-      expect(lineBaseFee(lineItem({ filing_fees: 30, service_fees: 1.5 }))).toBe(30)
+      expect(lineBaseFee(lineItem({ filingFees: 30, serviceFees: 1.5 }))).toBe(30)
     })
 
     it('coerces string values to numbers', () => {
       const { lineBaseFee } = useInvoiceFees(() => null)
       expect(lineBaseFee(lineItem({
-        filing_fees: '20' as unknown as number,
-        priority_fees: '1.5' as unknown as number
+        filingFees: '20' as unknown as number,
+        priorityFees: '1.5' as unknown as number
       }))).toBe(21.5)
     })
   })
@@ -48,19 +48,19 @@ describe('useInvoiceFees', () => {
       expect(useInvoiceFees(() => invoice()).serviceFees.value).toBe(0)
     })
 
-    it('prefers invoice.service_fees when set', () => {
+    it('prefers invoice.serviceFees when set', () => {
       const { serviceFees } = useInvoiceFees(() => invoice({
-        service_fees: 1.5,
-        line_items: [lineItem({ service_fees: 99 })] // ignored
+        serviceFees: 1.5,
+        lineItems: [lineItem({ serviceFees: 99 })] // ignored
       }))
       expect(serviceFees.value).toBe(1.5)
     })
 
-    it('sums line_items[].service_fees when top-level is missing', () => {
+    it('sums lineItems[].serviceFees when top-level is missing', () => {
       const { serviceFees } = useInvoiceFees(() => invoice({
-        line_items: [
-          lineItem({ service_fees: 1.5 }),
-          lineItem({ service_fees: 2 }),
+        lineItems: [
+          lineItem({ serviceFees: 1.5 }),
+          lineItem({ serviceFees: 2 }),
           lineItem({})
         ]
       }))
@@ -71,7 +71,7 @@ describe('useInvoiceFees', () => {
       const state = ref<PayInvoice | null>(null)
       const { serviceFees } = useInvoiceFees(() => state.value)
       expect(serviceFees.value).toBe(0)
-      state.value = invoice({ service_fees: 4.25 })
+      state.value = invoice({ serviceFees: 4.25 })
       expect(serviceFees.value).toBe(4.25)
     })
   })

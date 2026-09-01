@@ -27,8 +27,6 @@ export default {
       feeSummary: 'Fee Summary',
       serviceFee: 'Service Fee',
       totalFees: 'Total Fees',
-      back: 'Back',
-      cancel: 'Cancel',
       confirmAndPay: 'Confirm and Pay',
       processing: 'Processing…',
       completeRequired: 'Please complete required information',
@@ -63,6 +61,8 @@ export default {
     },
     success: {
       title: 'Payment Successful',
+      downloading: 'Preparing document…',
+      downloadFailed: 'Unable to download the document. Please try again.',
       cc: {
         title: 'Payment Successful',
         body: 'Placeholder text that guides users on how to access their documents.',
@@ -101,13 +101,14 @@ export default {
       }
     },
     error: {
-      invalidLink: 'This payment link is no longer valid.'
+      invalidLink: 'This payment link is no longer valid.',
+      alreadyLinked: 'This payment link has already been redeemed by another account. Please sign in with that account to complete the payment, or contact the sender for a new link.'
     }
   },
   padWidget: {
     title: 'Set up Pre-Authorized Debit',
     editTitle: 'Update banking information',
-    editSubtitle: 'Updating banking information restarts the mandatory 3-business-day PAD confirmation period. All future PAD transactions on this account will use the new details.',
+    editSubtitle: 'Updating this information will replace the banking details currently saved for this account.',
     confirmationPeriodBody: 'The Canadian Payment Association requires a 3-business-day confirmation period before your first PAD deduction. The account administrator will receive a written confirmation of the PAD agreement prior to the first deduction.',
     transit: 'Transit Number',
     transitHint: 'Minimum 4 digits',
@@ -127,7 +128,7 @@ export default {
       agreeButton: 'Agree to terms'
     },
     submit: 'Save banking information',
-    updateSubmit: 'Update banking information',
+    updateSubmit: 'Save',
     cancel: 'Cancel',
     submitting: 'Verifying…',
     errors: {

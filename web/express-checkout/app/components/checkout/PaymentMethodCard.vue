@@ -30,7 +30,7 @@ defineEmits<{
     class="rounded-lg border-2 bg-white transition"
     :class="[
       disabled ? 'border-slate-200 bg-slate-50/60' : '',
-      !disabled && modelValue === value ? 'border-[#1A5A96] bg-blue-50/60' : '',
+      !disabled && modelValue === value ? 'border-mark bg-blue-50/60' : '',
       !disabled && modelValue !== value ? 'border-slate-200 hover:border-slate-300' : ''
     ]"
   >
@@ -51,10 +51,10 @@ defineEmits<{
           :value="value"
           :checked="modelValue === value"
           :disabled="disabled"
-          class="mt-1 h-4 w-4 accent-[#1A5A96] disabled:cursor-not-allowed"
+          class="mt-1 h-4 w-4 accent-mark disabled:cursor-not-allowed"
           @change="$emit('update:modelValue', value)"
         >
-        <UIcon :name="icon" class="mt-0.5 size-6 shrink-0 text-[#1A5A96]" />
+        <UIcon :name="icon" class="mt-0.5 size-6 shrink-0 text-mark" />
         <div class="min-w-0">
           <slot name="body">
             <p class="font-semibold text-slate-900">

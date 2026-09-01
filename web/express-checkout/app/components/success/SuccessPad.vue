@@ -9,7 +9,7 @@ defineProps<{
 
 <template>
   <div class="py-8 text-center">
-    <UIcon name="i-mdi-clock-outline" class="mx-auto size-14 text-[#1A5A96]" />
+    <UIcon name="i-mdi-clock-outline" class="mx-auto size-14 text-mark" />
     <h1 class="mt-4 text-3xl font-bold text-slate-900">
       {{ $t('page.success.pad.title') }}
     </h1>

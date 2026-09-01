@@ -47,16 +47,16 @@ describe('useCcHandoff', () => {
   it('patches the invoice to DIRECT_PAY when the current method differs', async () => {
     const store = usePaymentLinkStore()
     store.setToken('tok-123')
-    store.setInvoice({ id: 7, payment_method: 'ONLINE_BANKING' } as PayInvoice)
+    store.setInvoice({ id: 7, paymentMethod: 'ONLINE_BANKING' } as PayInvoice)
 
-    changePaymentMethod.mockResolvedValueOnce({ id: 7, payment_method: 'DIRECT_PAY' })
+    changePaymentMethod.mockResolvedValueOnce({ id: 7, paymentMethod: 'DIRECT_PAY' })
     createTransaction.mockResolvedValueOnce({ id: 99, paySystemUrl: 'https://paybc.test/hosted/99' })
 
     const { handoff } = useCcHandoff()
     const result = await handoff(7)
 
     expect(changePaymentMethod).toHaveBeenCalledWith(7, 'DIRECT_PAY')
-    expect(store.invoice?.payment_method).toBe('DIRECT_PAY')
+    expect(store.invoice?.paymentMethod).toBe('DIRECT_PAY')
     expect(store.paymentMethod).toBe('DIRECT_PAY')
     expect(result).toBe(true)
   })
@@ -64,7 +64,7 @@ describe('useCcHandoff', () => {
   it('skips the changePaymentMethod call when the invoice is already DIRECT_PAY', async () => {
     const store = usePaymentLinkStore()
     store.setToken('tok-123')
-    store.setInvoice({ id: 7, payment_method: 'DIRECT_PAY' } as PayInvoice)
+    store.setInvoice({ id: 7, paymentMethod: 'DIRECT_PAY' } as PayInvoice)
 
     createTransaction.mockResolvedValueOnce({ id: 99, paySystemUrl: 'https://paybc.test/hosted/99' })
 
@@ -78,7 +78,7 @@ describe('useCcHandoff', () => {
   it('passes the pay-return and client-system URLs derived from baseUrl + token', async () => {
     const store = usePaymentLinkStore()
     store.setToken('tok-abc')
-    store.setInvoice({ id: 5, payment_method: 'DIRECT_PAY' } as PayInvoice)
+    store.setInvoice({ id: 5, paymentMethod: 'DIRECT_PAY' } as PayInvoice)
 
     createTransaction.mockResolvedValueOnce({ id: 1, paySystemUrl: 'https://paybc.test/1' })
 
@@ -94,7 +94,7 @@ describe('useCcHandoff', () => {
   it('redirects to paySystemUrl and returns true when pay-api hands one back', async () => {
     const store = usePaymentLinkStore()
     store.setToken('tok-123')
-    store.setInvoice({ id: 7, payment_method: 'DIRECT_PAY' } as PayInvoice)
+    store.setInvoice({ id: 7, paymentMethod: 'DIRECT_PAY' } as PayInvoice)
 
     createTransaction.mockResolvedValueOnce({ id: 1, paySystemUrl: 'https://paybc.test/hosted/1' })
 
@@ -108,7 +108,7 @@ describe('useCcHandoff', () => {
   it('returns false without redirecting when paySystemUrl is missing', async () => {
     const store = usePaymentLinkStore()
     store.setToken('tok-123')
-    store.setInvoice({ id: 7, payment_method: 'DIRECT_PAY' } as PayInvoice)
+    store.setInvoice({ id: 7, paymentMethod: 'DIRECT_PAY' } as PayInvoice)
 
     createTransaction.mockResolvedValueOnce({ id: 1 })
 
@@ -122,7 +122,7 @@ describe('useCcHandoff', () => {
   it('propagates errors from pay-api so callers can surface them', async () => {
     const store = usePaymentLinkStore()
     store.setToken('tok-123')
-    store.setInvoice({ id: 7, payment_method: 'ONLINE_BANKING' } as PayInvoice)
+    store.setInvoice({ id: 7, paymentMethod: 'ONLINE_BANKING' } as PayInvoice)
 
     changePaymentMethod.mockRejectedValueOnce(new Error('boom'))
 

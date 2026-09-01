@@ -1,22 +1,31 @@
 export interface PayInvoiceLineItem {
   description?: string
   total?: number
-  filing_fees?: number
-  priority_fees?: number
-  future_effective_fees?: number
-  service_fees?: number
-  waived_fees?: number
+  filingFees?: number
+  priorityFees?: number
+  futureEffectiveFees?: number
+  serviceFees?: number
+  waivedFees?: number
+  /** Optional quantity metadata used to render the Fee Summary subtitle
+   *  ("× {quantity} {quantityDesc}"). pay-api's InvoiceSchema surfaces these
+   *  for line items that come from a fee code with a per-unit rate. */
+  quantity?: number
+  quantityDesc?: string
 }
 
-/** Pay-api's invoice DTO uses snake_case (see InvoiceSchema data_keys). Only
- * fields we actually read are typed; extra fields land under the index signature. */
+/** Pay-api's payment-request DTO. Fields we read are typed; extra fields land
+ *  under the index signature. Note: the redemption endpoint returns camelCase
+ *  (not the snake_case InvoiceSchema you'd see in db-facing docs). */
 export interface PayInvoice {
   id: number
   total?: number
   paid?: number
-  service_fees?: number
-  payment_method?: string // e.g. 'DIRECT_PAY' | 'PAD' | 'ONLINE_BANKING' | 'CC'
-  line_items?: PayInvoiceLineItem[]
+  serviceFees?: number
+  paymentMethod?: string // e.g. 'DIRECT_PAY' | 'PAD' | 'ONLINE_BANKING' | 'CC'
+  lineItems?: PayInvoiceLineItem[]
+  /** pay-api returns invoice creation timestamp as ISO 8601 — used as the
+   *  `filingDateTime` when POSTing to /receipts to generate the invoice PDF. */
+  createdOn?: string
   [key: string]: unknown
 }
 
@@ -63,8 +72,8 @@ export const usePaymentLinkStore = defineStore('express-checkout-payment-link', 
 
   function setInvoice(value: PayInvoice | null) {
     invoice.value = value
-    if (value?.payment_method && !paymentMethod.value) {
-      paymentMethod.value = value.payment_method as PaymentMethodCode
+    if (value?.paymentMethod && !paymentMethod.value) {
+      paymentMethod.value = value.paymentMethod as PaymentMethodCode
     }
   }
 

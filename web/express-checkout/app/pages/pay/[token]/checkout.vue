@@ -28,7 +28,7 @@ useHead({
 })
 
 const method = ref<Method>(
-  (store.paymentMethod as Method) || (store.invoice?.payment_method as Method) || 'DIRECT_PAY'
+  (store.paymentMethod as Method) || (store.invoice?.paymentMethod as Method) || 'DIRECT_PAY'
 )
 
 const isSubmitting = ref(false)
@@ -62,7 +62,7 @@ watch(method, (m) => {
   // OB needs an OB CFS account. Switch eagerly so pay-api lazy-creates the
   // reference and populates cfsAccountNumber — otherwise the payment
   // identifier is blank on the success page.
-  if (m === 'ONLINE_BANKING' && store.invoice?.payment_method !== 'ONLINE_BANKING') {
+  if (m === 'ONLINE_BANKING' && store.invoice?.paymentMethod !== 'ONLINE_BANKING') {
     void switchAndRefreshAccount('ONLINE_BANKING')
   }
 })
@@ -94,16 +94,6 @@ async function onPadSaved() {
   await pad.refresh()
 }
 
-async function onBack() {
-  if (store.token) { await navigateTo(localePath(`/pay/${store.token}/account`)) }
-}
-
-async function onCancel() {
-  // No return-URL wired through the pay-link payload yet; falling back to the
-  // account picker mirrors the Back action but reads as an explicit abort.
-  if (store.token) { await navigateTo(localePath(`/pay/${store.token}/account`)) }
-}
-
 async function submit() {
   if (!store.invoice || !canSubmit.value) { return }
   isSubmitting.value = true
@@ -115,7 +105,7 @@ async function submit() {
       await navigateTo(localePath(`/pay/${store.token}/success`))
       return
     }
-    if (method.value !== store.invoice.payment_method) {
+    if (method.value !== store.invoice.paymentMethod) {
       const updated = await payLink.changePaymentMethod(invoiceId, method.value)
       store.setInvoice(updated)
     }
@@ -182,15 +172,23 @@ async function submit() {
                     :href="pad.accountSettingsUrl.value"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="font-medium text-[#1A5A96] underline hover:text-[#124372]"
+                    class="font-medium text-mark underline hover:text-mark-dark"
                   >{{ $t('page.checkout.pad.notSetUpLink') }}</a>
                   <span v-else class="font-medium">{{ $t('page.checkout.pad.notSetUpLink') }}</span>.
                 </p>
               </template>
 
               <template #extra>
+                <PadInfoWidget
+                  v-if="method === 'PAD' && editingPad && store.selectedAccountId"
+                  :account-id="store.selectedAccountId"
+                  :initial="padEditInitial"
+                  inline
+                  @saved="onPadSaved"
+                  @cancel="editingPad = false"
+                />
                 <CheckoutPadBankingInfo
-                  v-if="method === 'PAD' && pad.padState.value === 'READY' && !editingPad"
+                  v-else-if="method === 'PAD' && pad.padState.value === 'READY'"
                   :cfs-account="store.accountInfo?.cfsAccount"
                   :can-edit="pad.canEditPadInfo.value"
                   @edit="editingPad = true"
@@ -200,19 +198,11 @@ async function submit() {
           </div>
         </div>
 
-        <template v-if="method === 'PAD'">
-          <PadInfoWidget
-            v-if="editingPad && store.selectedAccountId"
-            :account-id="store.selectedAccountId"
-            :initial="padEditInitial"
-            @saved="onPadSaved"
-            @cancel="editingPad = false"
-          />
-          <CheckoutPadStatusBanner
-            v-else-if="pad.padState.value === 'LOADING' || pad.padState.value === 'PENDING' || pad.padState.value === 'FROZEN'"
-            :state="pad.padState.value"
-          />
-        </template>
+        <CheckoutPadStatusBanner
+          v-if="method === 'PAD' && !editingPad
+            && (pad.padState.value === 'LOADING' || pad.padState.value === 'PENDING' || pad.padState.value === 'FROZEN')"
+          :state="pad.padState.value"
+        />
       </div>
 
       <aside class="min-w-0 space-y-4">
@@ -220,24 +210,9 @@ async function submit() {
         <CheckoutActions
           :can-submit="canSubmit"
           :is-submitting="isSubmitting"
-          @back="onBack"
-          @cancel="onCancel"
           @submit="submit"
         />
       </aside>
     </div>
   </div>
 </template>
-
-<style>
-/**
- * Reserve scrollbar space at the viewport level so switching payment methods
- * (which grows/shrinks the sidebar) doesn't flip the vertical scrollbar on/off
- * and jump the viewport width by ~15px on every radio change.
- */
-html,
-body {
-  scrollbar-gutter: stable;
-  overflow-y: scroll;
-}
-</style>

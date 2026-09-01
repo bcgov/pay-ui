@@ -58,17 +58,33 @@ async function pick(accountId: number) {
     }
     await navigateTo(localePath(`/pay/${store.token}/checkout`))
   } catch (err: unknown) {
-    const e = err as { statusCode?: number, data?: { message?: string } }
-    if (e?.statusCode === 404 || e?.statusCode === 400) {
-      linkError.value = t('page.error.invalidLink')
-    } else if (e?.statusCode === 403) {
-      linkError.value = t('page.account.errors.noPermission')
-    } else {
-      linkError.value = e?.data?.message || t('page.account.errors.linkFailed')
-    }
+    linkError.value = describeRedeemError(err)
   } finally {
     isLinking.value = false
   }
+}
+
+// pay-api returns 400 for a link that's already been redeemed by a different
+// account — the response body carries a code / message that identifies the
+// specific case (e.g. LINK_ALREADY_USED, "already linked"). We surface that as
+// a dedicated message so the user knows *why* the link failed and what to do,
+// instead of the generic "no longer valid".
+function describeRedeemError(err: unknown): string {
+  const e = err as {
+    statusCode?: number
+    data?: { code?: string, type?: string, message?: string, detail?: string }
+  }
+  const message = (e.data?.message || e.data?.detail || '').trim()
+  const codeText = String(e.data?.code || e.data?.type || '').toUpperCase()
+  const looksAlreadyLinked = codeText.includes('ALREADY')
+    || codeText.includes('LINK_INVALID')
+    || codeText.includes('LINK_USED')
+    || /already\s+(been\s+)?linked|linked\s+to\s+(a\s+)?different\s+account/i.test(message)
+
+  if (looksAlreadyLinked) { return t('page.error.alreadyLinked') }
+  if (e.statusCode === 403) { return t('page.account.errors.noPermission') }
+  if (e.statusCode === 404 || e.statusCode === 400) { return t('page.error.invalidLink') }
+  return message || t('page.account.errors.linkFailed')
 }
 
 function registerNew() {

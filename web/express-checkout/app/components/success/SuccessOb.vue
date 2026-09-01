@@ -15,13 +15,28 @@ const props = defineProps<{
 const { t } = useI18n()
 const localePath = useLocalePath()
 const store = usePaymentLinkStore()
+const payLink = usePayLink()
 const { handoff } = useCcHandoff()
 
 const payeeName = 'BC Registries'
 
-const downloadUrl = computed(() =>
-  props.invoiceId ? `/api/v1/payment-requests/${props.invoiceId}/reports` : ''
-)
+const downloading = ref(false)
+const downloadError = ref<string | null>(null)
+
+async function download() {
+  if (!props.invoiceId || downloading.value) { return }
+  downloading.value = true
+  downloadError.value = null
+  try {
+    const blob = await payLink.downloadInvoice(props.invoiceId)
+    fileDownload(blob, `bcregistry-invoice-${props.invoiceId}.pdf`)
+  } catch (err: unknown) {
+    const e = err as { data?: { message?: string } }
+    downloadError.value = e?.data?.message || t('page.success.downloadFailed')
+  } finally {
+    downloading.value = false
+  }
+}
 
 const switching = ref(false)
 const switchError = ref<string | null>(null)
@@ -47,36 +62,36 @@ async function payByCreditCard() {
 <template>
   <div>
     <div class="mb-8 text-center">
-      <UIcon name="i-mdi-clock-outline" class="mx-auto size-14 text-[#1A5A96]" />
+      <UIcon name="i-mdi-clock-outline" class="mx-auto size-14 text-mark" />
       <h1 class="mt-4 text-3xl font-bold text-slate-900">
         {{ $t('page.success.ob.title') }}
       </h1>
     </div>
 
     <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-      <div class="bg-[#1A5A96] px-8 py-6 !text-white">
-        <p class="text-xl font-bold">
+      <div class="ob-banner bg-mark px-8 py-6 text-white">
+        <p class="text-xl font-bold text-white">
           {{ $t('page.success.ob.transactionAmount') }}: {{ amountFormatted }}
         </p>
-        <p class="mt-1 text-xl font-bold">
+        <p class="mt-1 text-xl font-bold text-white">
           {{ $t('page.success.ob.balanceDue') }}: {{ balanceDueFormatted }}
         </p>
         <i18n-t
           keypath="page.success.ob.description"
           tag="p"
-          class="mt-4 text-sm leading-relaxed"
+          class="mt-4 text-sm leading-relaxed text-white"
         >
           <template #days>
-            <strong>{{ $t('page.success.ob.daysRange') }}</strong>
+            <strong class="font-bold text-white">{{ $t('page.success.ob.daysRange') }}</strong>
           </template>
         </i18n-t>
-        <p class="mt-4 text-sm">
-          <strong>{{ $t('page.success.ob.payeeNameLabel') }}:</strong>
-          <span class="ml-1">{{ payeeName }}</span>
-          <span class="mx-3 opacity-60">|</span>
-          <strong>{{ $t('page.success.ob.identifierLabel') }}:</strong>
-          <span v-if="payeeReference" class="ml-1">{{ payeeReference }}</span>
-          <span v-else class="ml-1 italic opacity-90">{{ $t('page.success.ob.identifierPending') }}</span>
+        <p class="mt-4 text-sm text-white">
+          <strong class="font-bold text-white">{{ $t('page.success.ob.payeeNameLabel') }}:</strong>
+          <span class="ml-1 text-white">{{ payeeName }}</span>
+          <span class="mx-3 text-white/60">|</span>
+          <strong class="font-bold text-white">{{ $t('page.success.ob.identifierLabel') }}:</strong>
+          <span v-if="payeeReference" class="ml-1 text-white">{{ payeeReference }}</span>
+          <span v-else class="ml-1 italic text-white/90">{{ $t('page.success.ob.identifierPending') }}</span>
         </p>
       </div>
 
@@ -101,15 +116,20 @@ async function payByCreditCard() {
           <li>{{ $t('page.success.ob.steps.step5') }}</li>
         </ol>
 
-        <div class="mt-6">
-          <a
-            v-if="downloadUrl"
-            :href="downloadUrl"
-            class="inline-flex items-center gap-2 rounded-md border border-[#1A5A96] px-4 py-2 text-sm font-medium text-[#1A5A96] hover:bg-blue-50"
+        <div class="mt-6 space-y-2">
+          <button
+            v-if="invoiceId"
+            type="button"
+            :disabled="downloading"
+            class="inline-flex items-center gap-2 rounded-md border border-mark px-4 py-2 text-sm font-medium text-mark transition hover:bg-blue-50 disabled:opacity-60"
+            @click="download"
           >
             <UIcon name="i-mdi-download" class="size-4" />
-            {{ $t('page.success.ob.downloadInvoice') }}
-          </a>
+            {{ downloading ? $t('page.success.downloading') : $t('page.success.ob.downloadInvoice') }}
+          </button>
+          <p v-if="downloadError" class="text-sm text-red-700">
+            {{ downloadError }}
+          </p>
         </div>
 
         <hr class="my-8 border-slate-200">
@@ -121,7 +141,7 @@ async function payByCreditCard() {
           <button
             type="button"
             :disabled="switching"
-            class="inline-flex items-center gap-2 rounded-md border border-[#1A5A96] px-4 py-2 text-sm font-medium text-[#1A5A96] transition hover:bg-blue-50 disabled:opacity-60"
+            class="inline-flex items-center gap-2 rounded-md border border-mark px-4 py-2 text-sm font-medium text-mark transition hover:bg-blue-50 disabled:opacity-60"
             @click="payByCreditCard"
           >
             <UIcon name="i-mdi-credit-card-outline" class="size-4" />

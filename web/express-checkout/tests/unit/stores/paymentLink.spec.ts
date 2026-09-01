@@ -26,7 +26,7 @@ describe('usePaymentLinkStore', () => {
 
   it('setInvoice auto-populates paymentMethod when unset', () => {
     const store = usePaymentLinkStore()
-    const invoice = { id: 1, payment_method: 'PAD' } as PayInvoice
+    const invoice = { id: 1, paymentMethod: 'PAD' } as PayInvoice
     store.setInvoice(invoice)
     expect(store.invoice).toEqual(invoice)
     expect(store.paymentMethod).toBe('PAD')
@@ -35,11 +35,11 @@ describe('usePaymentLinkStore', () => {
   it('setInvoice does not overwrite an existing paymentMethod', () => {
     const store = usePaymentLinkStore()
     store.setMethod('CC')
-    store.setInvoice({ id: 1, payment_method: 'PAD' } as PayInvoice)
+    store.setInvoice({ id: 1, paymentMethod: 'PAD' } as PayInvoice)
     expect(store.paymentMethod).toBe('CC')
   })
 
-  it('setInvoice handles invoice without payment_method', () => {
+  it('setInvoice handles invoice without paymentMethod', () => {
     const store = usePaymentLinkStore()
     store.setInvoice({ id: 1 } as PayInvoice)
     expect(store.invoice).toEqual({ id: 1 })
@@ -61,7 +61,7 @@ describe('usePaymentLinkStore', () => {
   it('$reset clears all state', () => {
     const store = usePaymentLinkStore()
     store.setToken('tok')
-    store.setInvoice({ id: 1, payment_method: 'CC' } as PayInvoice)
+    store.setInvoice({ id: 1, paymentMethod: 'CC' } as PayInvoice)
     store.setAccount(7)
     store.setAccountInfo({ id: 3 } as AccountPaymentInfo)
 

@@ -25,14 +25,14 @@ defineEmits<{
         </p>
         <UIcon
           name="i-mdi-help-circle-outline"
-          class="size-4 text-[#1A5A96]"
+          class="size-4 text-mark"
           :title="$t('page.checkout.pad.bankingInfoHelp')"
         />
       </div>
       <button
         v-if="canEdit"
         type="button"
-        class="inline-flex items-center gap-1 text-sm font-semibold text-[#1A5A96] hover:text-[#124372]"
+        class="inline-flex items-center gap-1 text-sm font-semibold text-mark hover:text-mark-dark"
         @click="$emit('edit')"
       >
         <UIcon name="i-mdi-pencil" class="size-4" />

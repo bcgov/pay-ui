@@ -17,7 +17,7 @@ useHead({
 })
 
 const methodKey = computed(() => {
-  const m = store.invoice?.payment_method || store.paymentMethod
+  const m = store.invoice?.paymentMethod || store.paymentMethod
   if (m === 'PAD') { return 'pad' }
   if (m === 'ONLINE_BANKING') { return 'ob' }
   return 'cc'
@@ -36,6 +36,7 @@ const balanceDueFormatted = computed(() => {
     <SuccessCc
       v-if="methodKey === 'cc'"
       :invoice-id="store.invoice?.id"
+      :invoice-created-on="store.invoice?.createdOn"
       :amount-formatted="totalFormatted"
     />
     <SuccessPad

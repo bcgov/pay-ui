@@ -84,5 +84,48 @@ export function usePayLink() {
     )
   }
 
-  return { redeem, createTransaction, updateTransaction, changePaymentMethod }
+  /**
+   * POST /payment-requests/{invoiceId}/receipts — post-payment receipt PDF.
+   * Same call sbc-auth's `payment.services.ts:postReceipt` makes: sends
+   * `filingDateTime` (from invoice.createdOn) and requests application/pdf.
+   * Use for the CC "Download Receipt" button on the success page.
+   */
+  async function downloadReceipt(invoiceId: number, filingDateTime: string): Promise<Blob> {
+    return await ($payApi as ReturnType<typeof $fetch.create>)<Blob>(
+      `/payment-requests/${invoiceId}/receipts`,
+      {
+        method: 'POST',
+        headers: { Accept: 'application/pdf' },
+        body: { filingDateTime, isRefund: false },
+        responseType: 'blob'
+      }
+    )
+  }
+
+  /**
+   * POST /payment-requests/{invoiceId}/reports — pre-payment invoice PDF.
+   * Same call sbc-auth's `payment.services.ts:downloadOBInvoice` makes: empty
+   * body, requests application/pdf. Use for the OB "Download Invoice" button
+   * on the Payment Pending page.
+   */
+  async function downloadInvoice(invoiceId: number): Promise<Blob> {
+    return await ($payApi as ReturnType<typeof $fetch.create>)<Blob>(
+      `/payment-requests/${invoiceId}/reports`,
+      {
+        method: 'POST',
+        headers: { Accept: 'application/pdf' },
+        body: {},
+        responseType: 'blob'
+      }
+    )
+  }
+
+  return {
+    redeem,
+    createTransaction,
+    updateTransaction,
+    changePaymentMethod,
+    downloadReceipt,
+    downloadInvoice
+  }
 }

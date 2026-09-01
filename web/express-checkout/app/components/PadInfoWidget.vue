@@ -26,6 +26,10 @@ const props = defineProps<{
     bankTransitNumber?: string
     bankAccountNumber?: string
   }
+  /** When true, render as a border-top continuation of the parent card
+   *  instead of a standalone rounded card. Header/subtitle switch to the
+   *  inline "Banking Information" treatment. */
+  inline?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -175,13 +179,30 @@ async function submit() {
 </script>
 
 <template>
-  <div class="rounded-lg border border-slate-300 bg-white p-6">
-    <h3 class="text-lg font-semibold text-slate-900">
-      {{ isEdit ? $t('padWidget.editTitle') : $t('padWidget.title') }}
-    </h3>
-    <p class="mt-2 text-sm text-slate-600">
-      {{ isEdit ? $t('padWidget.editSubtitle') : $t('padWidget.confirmationPeriodBody') }}
-    </p>
+  <div :class="inline ? 'border-t border-slate-200 px-5 py-4' : 'rounded-lg border border-slate-300 bg-white p-6'">
+    <template v-if="inline">
+      <div class="flex items-center gap-2">
+        <h3 class="text-sm font-semibold text-slate-900">
+          {{ $t('page.checkout.pad.bankingInformation') }}
+        </h3>
+        <UIcon
+          name="i-mdi-help-circle-outline"
+          class="size-4 text-mark"
+          :title="$t('page.checkout.pad.bankingInfoHelp')"
+        />
+      </div>
+      <p class="mt-3 text-sm font-semibold text-slate-800">
+        {{ $t('padWidget.editSubtitle') }}
+      </p>
+    </template>
+    <template v-else>
+      <h3 class="text-lg font-semibold text-slate-900">
+        {{ isEdit ? $t('padWidget.editTitle') : $t('padWidget.title') }}
+      </h3>
+      <p class="mt-2 text-sm text-slate-600">
+        {{ isEdit ? $t('padWidget.editSubtitle') : $t('padWidget.confirmationPeriodBody') }}
+      </p>
+    </template>
 
     <form
       class="mt-5 space-y-4"
@@ -251,7 +272,7 @@ async function submit() {
           {{ $t('padWidget.tosPrefix') }}
           <button
             type="button"
-            class="font-semibold text-[#212B47] underline hover:text-[#2d3a5f]"
+            class="font-semibold text-navy-legacy underline hover:text-navy-legacy-hover"
             @click.prevent="openTermsDialog"
           >
             {{ $t('padWidget.tosLinkLabel') }}
@@ -279,7 +300,7 @@ async function submit() {
           </div>
           <div
             v-else
-            class="max-h-[60vh] overflow-y-auto rounded border border-slate-200 bg-slate-50 p-4 text-sm text-slate-800"
+            class="pad-terms-content max-h-[60vh] overflow-y-auto rounded border border-slate-200 bg-slate-50 p-4 text-sm text-slate-800"
             @scroll="onTermsScroll"
             v-html="termsContent"
           />
@@ -298,7 +319,7 @@ async function submit() {
             </button>
             <button
               type="button"
-              class="rounded-md bg-[#212B47] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2d3a5f] disabled:opacity-60"
+              class="rounded-md bg-navy-legacy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-legacy-hover disabled:opacity-60"
               :disabled="!scrolledToBottom || termsLoading || !!termsError"
               @click="agreeToTerms"
             >
@@ -312,22 +333,26 @@ async function submit() {
         {{ errorMessage }}
       </div>
 
-      <div class="flex items-center gap-3">
-        <button
-          type="submit"
-          class="rounded-md bg-[#212B47] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2d3a5f] disabled:opacity-60"
-          :disabled="!canSubmit"
-        >
-          {{ submitting ? $t('padWidget.submitting') : (isEdit ? $t('padWidget.updateSubmit') : $t('padWidget.submit')) }}
-        </button>
+      <div class="flex items-center gap-3" :class="inline ? 'justify-end' : ''">
         <button
           v-if="isEdit"
           type="button"
-          class="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+          :class="inline
+            ? 'rounded-md border border-mark bg-white px-4 py-2 text-sm font-semibold text-mark hover:bg-blue-50 disabled:opacity-60'
+            : 'rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60'"
           :disabled="submitting"
           @click="emit('cancel')"
         >
           {{ $t('padWidget.cancel') }}
+        </button>
+        <button
+          type="submit"
+          :class="inline
+            ? 'rounded-md bg-mark px-4 py-2 text-sm font-semibold text-white hover:bg-mark-dark disabled:opacity-60'
+            : 'rounded-md bg-navy-legacy px-4 py-2 text-sm font-semibold text-white hover:bg-navy-legacy-hover disabled:opacity-60'"
+          :disabled="!canSubmit"
+        >
+          {{ submitting ? $t('padWidget.submitting') : (isEdit ? $t('padWidget.updateSubmit') : $t('padWidget.submit')) }}
         </button>
       </div>
     </form>
