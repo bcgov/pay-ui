@@ -3,7 +3,8 @@ export default {
   page: {
     landing: {
       title: 'Pay - BC Government Services',
-      h1: 'Preparing your payment...'
+      h1: 'Preparing your payment...',
+      description: 'To make a payment, use the link you received from your service provider.'
     },
     account: {
       title: 'Select Your Account or Create a New One',
@@ -57,7 +58,9 @@ export default {
     return: {
       title: 'Processing payment...',
       h1: 'Processing your payment...',
-      body: 'Please wait, this can take a few seconds.'
+      body: 'Please wait, this can take a few seconds.',
+      notCompleted: 'Payment did not complete. Please try again from the checkout page.',
+      confirmFailed: 'Unable to confirm your payment. Please contact support.'
     },
     success: {
       title: 'Payment Successful',

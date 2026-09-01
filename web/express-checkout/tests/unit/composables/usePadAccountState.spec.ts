@@ -162,26 +162,6 @@ describe('usePadAccountState', () => {
     })
   })
 
-  describe('hasPadBankDetails', () => {
-    it('is true when any bank field is populated', () => {
-      const store = usePaymentLinkStore()
-      store.setAccount(42)
-      store.setAccountInfo(padAccount({
-        cfsAccount: { paymentMethod: 'PAD', status: 'ACTIVE', bankAccountNumber: 'XXXX1234' }
-      }))
-      const pad = usePadAccountState()
-      expect(pad.hasPadBankDetails.value).toBe(true)
-    })
-
-    it('is false when all bank fields are missing', () => {
-      const store = usePaymentLinkStore()
-      store.setAccount(42)
-      store.setAccountInfo(padAccount())
-      const pad = usePadAccountState()
-      expect(pad.hasPadBankDetails.value).toBe(false)
-    })
-  })
-
   describe('accountSettingsUrl', () => {
     it('composes the auth-web product-settings URL from the config + selected account', () => {
       const store = usePaymentLinkStore()

@@ -12,7 +12,7 @@ useHead({
       {{ $t('page.landing.h1') }}
     </h1>
     <p class="mt-4 text-gray-600">
-      To make a payment, use the link you received from your service provider.
+      {{ $t('page.landing.description') }}
     </p>
   </section>
 </template>

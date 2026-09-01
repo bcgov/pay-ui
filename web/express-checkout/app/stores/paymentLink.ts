@@ -40,8 +40,6 @@ export type CfsAccountStatus
 
 export interface AccountCfsInfo {
   cfsAccountNumber?: string
-  cfsPartyNumber?: string
-  cfsSiteNumber?: string
   paymentMethod?: PaymentMethodCode
   status?: CfsAccountStatus
   // pay-api returns bank fields on PAD-configured accounts. The account number

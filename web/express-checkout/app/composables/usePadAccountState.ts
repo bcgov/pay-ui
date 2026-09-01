@@ -6,8 +6,8 @@ export type PadState = 'READY' | 'PENDING' | 'FROZEN' | 'NOT_SETUP' | 'LOADING'
  * Encapsulates everything the checkout page needs to know about the current
  * account's PAD status:
  *   - fetches `getAccountPaymentInfo` and `getOrgAuthorizations` on demand
- *   - exposes reactive `padState`, `padNotSetUp`, `canEditPadInfo`,
- *     `hasPadBankDetails`, and `accountSettingsUrl`
+ *   - exposes reactive `padState`, `padNotSetUp`, `canEditPadInfo`, and
+ *     `accountSettingsUrl`
  *   - `refresh()` re-runs the account fetch (used after PAD info is saved)
  *
  * Doesn't self-mount — pages call `load()` from `onMounted` after the invoice
@@ -78,11 +78,6 @@ export function usePadAccountState() {
     userPermissions.value.some(p => p.toLowerCase() === 'change_pad_info')
   )
 
-  const hasPadBankDetails = computed(() => {
-    const cfs = store.accountInfo?.cfsAccount
-    return !!(cfs?.bankAccountNumber || cfs?.bankTransitNumber || cfs?.bankInstitutionNumber)
-  })
-
   const accountSettingsUrl = computed(() => {
     const base = (config.authWebUrl || '').replace(/\/$/, '')
     const id = store.selectedAccountId
@@ -91,11 +86,9 @@ export function usePadAccountState() {
   })
 
   return {
-    accountLoading,
     padState,
     padNotSetUp,
     canEditPadInfo,
-    hasPadBankDetails,
     accountSettingsUrl,
     load,
     refresh
