@@ -117,16 +117,15 @@ async function payByCreditCard() {
         </ol>
 
         <div class="mt-6 space-y-2">
-          <button
+          <UButton
             v-if="invoiceId"
-            type="button"
-            :disabled="downloading"
-            class="inline-flex items-center gap-2 rounded-md border border-mark px-4 py-2 text-sm font-medium text-mark transition hover:bg-blue-50 disabled:opacity-60"
+            color="primary"
+            variant="outline"
+            icon="i-mdi-download"
+            :label="downloading ? $t('page.success.downloading') : $t('page.success.ob.downloadInvoice')"
+            :loading="downloading"
             @click="download"
-          >
-            <UIcon name="i-mdi-download" class="size-4" />
-            {{ downloading ? $t('page.success.downloading') : $t('page.success.ob.downloadInvoice') }}
-          </button>
+          />
           <p v-if="downloadError" class="text-sm text-red-700">
             {{ downloadError }}
           </p>
@@ -138,15 +137,14 @@ async function payByCreditCard() {
           {{ $t('page.success.ob.completeNow') }}
         </h3>
         <div class="mt-4">
-          <button
-            type="button"
-            :disabled="switching"
-            class="inline-flex items-center gap-2 rounded-md border border-mark px-4 py-2 text-sm font-medium text-mark transition hover:bg-blue-50 disabled:opacity-60"
+          <UButton
+            color="primary"
+            variant="outline"
+            icon="i-mdi-credit-card-outline"
+            :label="switching ? $t('page.success.ob.switching') : $t('page.success.ob.payByCC')"
+            :loading="switching"
             @click="payByCreditCard"
-          >
-            <UIcon name="i-mdi-credit-card-outline" class="size-4" />
-            {{ switching ? $t('page.success.ob.switching') : $t('page.success.ob.payByCC') }}
-          </button>
+          />
           <p v-if="switchError" class="mt-2 text-sm text-red-700">
             {{ switchError }}
           </p>

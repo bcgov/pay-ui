@@ -16,15 +16,16 @@ defineEmits<{
 
 <template>
   <div class="space-y-4">
-    <button
-      type="button"
-      class="flex w-full items-center justify-center gap-2 rounded-md bg-mark px-4 py-3 text-sm font-semibold text-white transition hover:bg-[--color-mark-dark] disabled:opacity-60"
+    <UButton
+      block
+      size="lg"
+      color="primary"
+      :label="isSubmitting ? $t('page.checkout.processing') : $t('page.checkout.confirmAndPay')"
+      trailing-icon="i-mdi-chevron-right"
       :disabled="!canSubmit"
+      :loading="isSubmitting"
       @click="$emit('submit')"
-    >
-      {{ isSubmitting ? $t('page.checkout.processing') : $t('page.checkout.confirmAndPay') }}
-      <UIcon name="i-mdi-chevron-right" class="size-4" />
-    </button>
+    />
 
     <p v-if="!canSubmit && !isSubmitting" class="text-sm text-red-600">
       &lt; {{ $t('page.checkout.completeRequired') }}

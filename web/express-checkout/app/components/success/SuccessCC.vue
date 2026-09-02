@@ -59,15 +59,15 @@ async function download() {
       </div>
     </dl>
     <div class="mt-8 flex flex-col items-center gap-2">
-      <button
-        type="button"
-        :disabled="downloading || !invoiceId"
-        class="inline-flex items-center gap-2 rounded-md bg-mark px-6 py-3 text-sm font-semibold text-white transition hover:bg-[--color-mark-dark] disabled:opacity-60"
+      <UButton
+        color="primary"
+        size="lg"
+        icon="i-mdi-download"
+        :label="downloading ? $t('page.success.downloading') : $t('page.success.cc.downloadReceipt')"
+        :disabled="!invoiceId"
+        :loading="downloading"
         @click="download"
-      >
-        <UIcon name="i-mdi-download" class="size-5" />
-        {{ downloading ? $t('page.success.downloading') : $t('page.success.cc.downloadReceipt') }}
-      </button>
+      />
       <p v-if="downloadError" class="text-sm text-red-700">
         {{ downloadError }}
       </p>

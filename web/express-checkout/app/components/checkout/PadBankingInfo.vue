@@ -29,15 +29,16 @@ defineEmits<{
           :title="$t('page.checkout.pad.bankingInfoHelp')"
         />
       </div>
-      <button
+      <UButton
         v-if="canEdit"
-        type="button"
-        class="inline-flex items-center gap-1 text-sm font-semibold text-mark hover:text-[--color-mark-dark]"
+        variant="link"
+        color="primary"
+        icon="i-mdi-pencil"
+        size="sm"
+        :padded="false"
+        :label="$t('page.checkout.pad.edit')"
         @click="$emit('edit')"
-      >
-        <UIcon name="i-mdi-pencil" class="size-4" />
-        {{ $t('page.checkout.pad.edit') }}
-      </button>
+      />
     </div>
     <dl
       v-if="cfsAccount?.bankTransitNumber || cfsAccount?.bankInstitutionNumber || cfsAccount?.bankAccountNumber"

@@ -9,14 +9,14 @@
  * App-specific design tokens layered on top of the sbc-connect/nuxt-base
  * theme. `--ui-mark` (= #1A5A96) is inherited from the base layer via its
  * `@theme static` block; the tokens below are consumed from templates via
- * Tailwind's arbitrary-value shorthand — e.g. `bg-[--color-navy]` — so we
- * don't need to scatter raw hex values across the templates.
+ * Tailwind v4 arbitrary-value syntax — e.g. `bg-[var(--color-navy)]` — so we
+ * don't need to scatter raw hex values across the templates. Note: the v3
+ * `bg-[--color-navy]` shorthand is NOT a variable reference in v4 (it emits
+ * the raw text), so always wrap tokens in `var(...)`.
  */
 :root {
   --color-mark-dark: #124372;
   --color-navy: #1A2A47;
-  --color-navy-legacy: #212B47;
-  --color-navy-legacy-hover: #2d3a5f;
 }
 
 /*
@@ -37,8 +37,20 @@ body {
  * collapses into one unreadable wall of text inside the terms dialog.
  *
  * Scoped globally with `.pad-terms-content` so the styling can't leak into
- * unrelated markup.
+ * unrelated markup. The root also carries the scroll-panel chrome (max
+ * height, border, padding) so templates stay a single class.
  */
+.pad-terms-content {
+  max-height: 60vh;
+  overflow-y: auto;
+  border: 1px solid #E2E8F0;
+  border-radius: 0.25rem;
+  background-color: #F8FAFC;
+  padding: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: #1E293B;
+}
 .pad-terms-content p {
   margin: 0 0 0.75rem 0;
   line-height: 1.5;
