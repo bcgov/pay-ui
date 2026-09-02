@@ -12,6 +12,12 @@ export interface PadVerifyResponse {
   statusCode?: number
 }
 
+export interface PadTermsDocument {
+  content: string
+  version_id?: string
+  type?: string
+}
+
 /**
  * Account-side helpers used by the express-checkout checkout page:
  *   - fetch current payment method + CFS account state (drives PAD widget / OB display)
@@ -85,14 +91,21 @@ export function useAccount() {
   }
 
   /**
-   * PUT auth-api /orgs/{orgId} — flips the org's paymentInfo to PAD with the supplied
-   * bank details. Mirrors the request shape auth-web's `updateOrg` builds.
+   * PUT auth-api /orgs/{orgId} — flips the org's paymentInfo to PAD with the
+   * supplied bank details. Mirrors the request shape auth-web's `updateOrg`
+   * builds.
+   *
+   * `?scope=cfs_account` narrows auth-api's update handler to just the CFS-
+   * account/paymentInfo path — it skips the general org rules (e.g. Premium
+   * upgrade checks) that would otherwise reject a PAD-info-only update from
+   * this express flow.
    */
   async function updateOrgPadInfo(orgId: number, padInfo: PadBankInfo): Promise<unknown> {
     return await ($authApi as ReturnType<typeof $fetch.create>)(
       `/orgs/${orgId}`,
       {
         method: 'PUT',
+        query: { scope: 'cfs_account' },
         body: {
           paymentInfo: {
             paymentMethod: 'PAD',
@@ -111,8 +124,8 @@ export function useAccount() {
    *   { type, version_id, content }  — content is HTML/markdown, with "Month Day, Year"
    *   swapped to today's date server-side.
    */
-  async function getPadTermsOfUse(): Promise<{ content: string, version_id?: string, type?: string }> {
-    return await ($authApi as ReturnType<typeof $fetch.create>)<{ content: string, version_id?: string, type?: string }>(
+  async function getPadTermsOfUse(): Promise<PadTermsDocument> {
+    return await ($authApi as ReturnType<typeof $fetch.create>)<PadTermsDocument>(
       '/documents/termsofuse_pad',
       { method: 'GET' }
     )

@@ -39,10 +39,10 @@ onMounted(async () => {
       return
     }
 
-    error.value = 'Payment did not complete. Please try again from the checkout page.'
+    error.value = t('page.return.notCompleted')
   } catch (err: unknown) {
     const e = err as { data?: { message?: string } }
-    error.value = e?.data?.message || 'Unable to confirm your payment. Please contact support.'
+    error.value = e?.data?.message || t('page.return.confirmFailed')
   }
 })
 </script>

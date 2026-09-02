@@ -1,44 +1,31 @@
 export interface PayInvoiceLineItem {
   description?: string
   total?: number
-  filing_fees?: number
-  priority_fees?: number
-  future_effective_fees?: number
-  service_fees?: number
-  waived_fees?: number
-  gst?: number
-  statutory_fees_gst?: number
-  service_fees_gst?: number
-  pst?: number
+  filingFees?: number
+  priorityFees?: number
+  futureEffectiveFees?: number
+  serviceFees?: number
+  waivedFees?: number
+  /** Optional quantity metadata used to render the Fee Summary subtitle
+   *  ("× {quantity} {quantityDesc}"). pay-api's InvoiceSchema surfaces these
+   *  for line items that come from a fee code with a per-unit rate. */
+  quantity?: number
+  quantityDesc?: string
 }
 
-export interface PayInvoiceReference {
-  invoice_number?: string
-  reference_number?: string
-  status_code?: string
-}
-
-export interface PayInvoiceReceipt {
-  receipt_number?: string
-  receipt_date?: string
-  receipt_amount?: number
-}
-
-/** Pay-api's invoice DTO uses snake_case (see InvoiceSchema data_keys). */
+/** Pay-api's payment-request DTO. Fields we read are typed; extra fields land
+ *  under the index signature. Note: the redemption endpoint returns camelCase
+ *  (not the snake_case InvoiceSchema you'd see in db-facing docs). */
 export interface PayInvoice {
   id: number
   total?: number
   paid?: number
-  gst?: number
-  service_fees?: number
-  status_code?: string
-  payment_method?: string // e.g. 'DIRECT_PAY' | 'PAD' | 'ONLINE_BANKING' | 'CC'
-  corp_type_code?: string
-  business_identifier?: string
-  payment_date?: string
-  line_items?: PayInvoiceLineItem[]
-  references?: PayInvoiceReference[]
-  receipts?: PayInvoiceReceipt[]
+  serviceFees?: number
+  paymentMethod?: string // e.g. 'DIRECT_PAY' | 'PAD' | 'ONLINE_BANKING' | 'CC'
+  lineItems?: PayInvoiceLineItem[]
+  /** pay-api returns invoice creation timestamp as ISO 8601 — used as the
+   *  `filingDateTime` when POSTing to /receipts to generate the invoice PDF. */
+  createdOn?: string
   [key: string]: unknown
 }
 
@@ -53,8 +40,6 @@ export type CfsAccountStatus
 
 export interface AccountCfsInfo {
   cfsAccountNumber?: string
-  cfsPartyNumber?: string
-  cfsSiteNumber?: string
   paymentMethod?: PaymentMethodCode
   status?: CfsAccountStatus
   // pay-api returns bank fields on PAD-configured accounts. The account number
@@ -85,8 +70,8 @@ export const usePaymentLinkStore = defineStore('express-checkout-payment-link', 
 
   function setInvoice(value: PayInvoice | null) {
     invoice.value = value
-    if (value?.payment_method && !paymentMethod.value) {
-      paymentMethod.value = value.payment_method as PaymentMethodCode
+    if (value?.paymentMethod && !paymentMethod.value) {
+      paymentMethod.value = value.paymentMethod as PaymentMethodCode
     }
   }
 

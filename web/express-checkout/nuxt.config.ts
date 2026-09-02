@@ -13,6 +13,10 @@ export default defineNuxtConfig({
     '@sbc-connect/nuxt-business-base'
   ],
 
+  css: [
+    '~/assets/css/main.css'
+  ],
+
   router: {
     options: {
       scrollBehaviorType: 'smooth'

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /**
- * Inline PAD banking-info widget. Two modes, controlled by the presence of
+ * Inline PAD banking-info widget rendered as a border-top continuation of the
+ * parent CheckoutPaymentMethodCard. Two modes, controlled by the presence of
  * `initial`:
  *   - CREATE (no `initial`):  empty fields, first-time PAD setup.
  *   - EDIT   (`initial` set): prefills with existing bank info. Account number
@@ -16,7 +17,6 @@
  *   4. Emits `saved` so the parent can refetch account info.
  *   5. In EDIT mode, also emits `cancel` when user backs out.
  */
-import { useAccount } from '../composables/useAccount'
 import type { PadBankInfo } from '../composables/useAccount'
 
 const props = defineProps<{
@@ -147,6 +147,11 @@ const canSubmit = computed(() =>
   && !submitting.value
 )
 
+const submitLabel = computed(() => {
+  if (submitting.value) { return t('padWidget.submitting') }
+  return isEdit.value ? t('padWidget.updateSubmit') : t('padWidget.submit')
+})
+
 async function submit() {
   if (!canSubmit.value) { return }
   submitting.value = true
@@ -175,12 +180,19 @@ async function submit() {
 </script>
 
 <template>
-  <div class="rounded-lg border border-slate-300 bg-white p-6">
-    <h3 class="text-lg font-semibold text-slate-900">
-      {{ isEdit ? $t('padWidget.editTitle') : $t('padWidget.title') }}
-    </h3>
-    <p class="mt-2 text-sm text-slate-600">
-      {{ isEdit ? $t('padWidget.editSubtitle') : $t('padWidget.confirmationPeriodBody') }}
+  <div class="border-t border-slate-200 px-5 py-4">
+    <div class="flex items-center gap-2">
+      <h3 class="text-sm font-semibold text-slate-900">
+        {{ $t('page.checkout.pad.bankingInformation') }}
+      </h3>
+      <UIcon
+        name="i-mdi-help-circle-outline"
+        class="size-4 text-mark"
+        :title="$t('page.checkout.pad.bankingInfoHelp')"
+      />
+    </div>
+    <p class="mt-3 text-sm font-semibold text-slate-800">
+      {{ $t('padWidget.editSubtitle') }}
     </p>
 
     <form
@@ -249,13 +261,15 @@ async function submit() {
         >
         <span class="text-sm text-slate-700">
           {{ $t('padWidget.tosPrefix') }}
-          <button
-            type="button"
-            class="font-semibold text-[#212B47] underline hover:text-[#2d3a5f]"
+          <UButton
+            variant="link"
+            color="primary"
+            size="sm"
+            :padded="false"
+            class="!p-0 align-baseline font-semibold underline"
+            :label="$t('padWidget.tosLinkLabel')"
             @click.prevent="openTermsDialog"
-          >
-            {{ $t('padWidget.tosLinkLabel') }}
-          </button>
+          />
           {{ $t('padWidget.tosSuffix') }}
         </span>
       </label>
@@ -279,9 +293,9 @@ async function submit() {
           </div>
           <div
             v-else
-            class="max-h-[60vh] overflow-y-auto rounded border border-slate-200 bg-slate-50 p-4 text-sm text-slate-800"
+            v-sanitize="termsContent"
+            class="pad-terms-content"
             @scroll="onTermsScroll"
-            v-html="termsContent"
           />
           <p v-if="!termsLoading && !termsError && !scrolledToBottom" class="mt-2 text-xs italic text-slate-500">
             {{ $t('padWidget.terms.scrollHint') }}
@@ -289,21 +303,18 @@ async function submit() {
         </template>
         <template #footer>
           <div class="flex w-full items-center justify-end gap-2">
-            <button
-              type="button"
-              class="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            <UButton
+              color="neutral"
+              variant="outline"
+              :label="$t('padWidget.cancel')"
               @click="termsDialogOpen = false"
-            >
-              {{ $t('padWidget.cancel') }}
-            </button>
-            <button
-              type="button"
-              class="rounded-md bg-[#212B47] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2d3a5f] disabled:opacity-60"
+            />
+            <UButton
+              color="primary"
+              :label="$t('padWidget.terms.agreeButton')"
               :disabled="!scrolledToBottom || termsLoading || !!termsError"
               @click="agreeToTerms"
-            >
-              {{ $t('padWidget.terms.agreeButton') }}
-            </button>
+            />
           </div>
         </template>
       </UModal>
@@ -312,23 +323,22 @@ async function submit() {
         {{ errorMessage }}
       </div>
 
-      <div class="flex items-center gap-3">
-        <button
-          type="submit"
-          class="rounded-md bg-[#212B47] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2d3a5f] disabled:opacity-60"
-          :disabled="!canSubmit"
-        >
-          {{ submitting ? $t('padWidget.submitting') : (isEdit ? $t('padWidget.updateSubmit') : $t('padWidget.submit')) }}
-        </button>
-        <button
+      <div class="flex items-center justify-end gap-3">
+        <UButton
           v-if="isEdit"
-          type="button"
-          class="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+          color="primary"
+          variant="outline"
+          :label="$t('padWidget.cancel')"
           :disabled="submitting"
           @click="emit('cancel')"
-        >
-          {{ $t('padWidget.cancel') }}
-        </button>
+        />
+        <UButton
+          type="submit"
+          color="primary"
+          :label="submitLabel"
+          :loading="submitting"
+          :disabled="!canSubmit"
+        />
       </div>
     </form>
   </div>

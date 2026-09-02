@@ -1,0 +1,155 @@
+<script setup lang="ts">
+/**
+ * "Payment Pending" screen for Online Banking — awaiting bill payment.
+ *
+ * Owns its own "Pay by credit card" escape hatch — hands off through the
+ * shared useCcHandoff composable so the CC flow matches checkout's submit.
+ */
+const props = defineProps<{
+  invoiceId?: number
+  amountFormatted: string
+  balanceDueFormatted: string
+  payeeReference?: string
+}>()
+
+const { t } = useI18n()
+const localePath = useLocalePath()
+const store = usePaymentLinkStore()
+const payLink = usePayLink()
+const { handoff } = useCcHandoff()
+
+const payeeName = 'BC Registries'
+
+const downloading = ref(false)
+const downloadError = ref<string | null>(null)
+
+async function download() {
+  if (!props.invoiceId || downloading.value) { return }
+  downloading.value = true
+  downloadError.value = null
+  try {
+    const blob = await payLink.downloadInvoice(props.invoiceId)
+    fileDownload(blob, `bcregistry-invoice-${props.invoiceId}.pdf`)
+  } catch (err: unknown) {
+    const e = err as { data?: { message?: string } }
+    downloadError.value = e?.data?.message || t('page.success.downloadFailed')
+  } finally {
+    downloading.value = false
+  }
+}
+
+const switching = ref(false)
+const switchError = ref<string | null>(null)
+
+async function payByCreditCard() {
+  if (!props.invoiceId || switching.value) { return }
+  switching.value = true
+  switchError.value = null
+  try {
+    const handedOff = await handoff(props.invoiceId)
+    if (!handedOff) {
+      await navigateTo(localePath(`/pay/${store.token}/success`))
+    }
+  } catch (err: unknown) {
+    const e = err as { data?: { message?: string } }
+    switchError.value = e?.data?.message || t('page.checkout.errors.submitFailed')
+  } finally {
+    switching.value = false
+  }
+}
+</script>
+
+<template>
+  <div>
+    <div class="mb-8 text-center">
+      <UIcon name="i-mdi-clock-outline" class="mx-auto size-14 text-mark" />
+      <h1 class="mt-4 text-3xl font-bold text-slate-900">
+        {{ $t('page.success.ob.title') }}
+      </h1>
+    </div>
+
+    <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div class="ob-banner bg-mark px-8 py-6 text-white">
+        <p class="text-xl font-bold text-white">
+          {{ $t('page.success.ob.transactionAmount') }}: {{ amountFormatted }}
+        </p>
+        <p class="mt-1 text-xl font-bold text-white">
+          {{ $t('page.success.ob.balanceDue') }}: {{ balanceDueFormatted }}
+        </p>
+        <i18n-t
+          keypath="page.success.ob.description"
+          tag="p"
+          class="mt-4 text-sm leading-relaxed text-white"
+        >
+          <template #days>
+            <strong class="font-bold text-white">{{ $t('page.success.ob.daysRange') }}</strong>
+          </template>
+        </i18n-t>
+        <p class="mt-4 text-sm text-white">
+          <strong class="font-bold text-white">{{ $t('page.success.ob.payeeNameLabel') }}:</strong>
+          <span class="ml-1 text-white">{{ payeeName }}</span>
+          <span class="mx-3 text-white/60">|</span>
+          <strong class="font-bold text-white">{{ $t('page.success.ob.identifierLabel') }}:</strong>
+          <span v-if="payeeReference" class="ml-1 text-white">{{ payeeReference }}</span>
+          <span v-else class="ml-1 italic text-white/90">{{ $t('page.success.ob.identifierPending') }}</span>
+        </p>
+      </div>
+
+      <div class="px-8 py-8">
+        <h2 class="text-base font-semibold text-slate-900">
+          {{ $t('page.success.ob.howToPayTitle') }}
+        </h2>
+        <ol class="mt-4 list-decimal space-y-2 pl-6 text-sm text-slate-700">
+          <li>{{ $t('page.success.ob.steps.step1') }}</li>
+          <li>{{ $t('page.success.ob.steps.step2') }}</li>
+          <i18n-t keypath="page.success.ob.steps.step3" tag="li">
+            <template #payee>
+              <strong>"{{ payeeName }}"</strong>
+            </template>
+          </i18n-t>
+          <i18n-t keypath="page.success.ob.steps.step4" tag="li">
+            <template #identifier>
+              <strong v-if="payeeReference">{{ payeeReference }}</strong>
+              <strong v-else class="italic">{{ $t('page.success.ob.identifierPending') }}</strong>
+            </template>
+          </i18n-t>
+          <li>{{ $t('page.success.ob.steps.step5') }}</li>
+        </ol>
+
+        <div class="mt-6 space-y-2">
+          <UButton
+            v-if="invoiceId"
+            color="primary"
+            variant="outline"
+            icon="i-mdi-download"
+            :label="downloading ? $t('page.success.downloading') : $t('page.success.ob.downloadInvoice')"
+            :loading="downloading"
+            @click="download"
+          />
+          <p v-if="downloadError" class="text-sm text-red-700">
+            {{ downloadError }}
+          </p>
+        </div>
+
+        <hr class="my-8 border-slate-200">
+
+        <h3 class="text-base font-semibold text-slate-900">
+          {{ $t('page.success.ob.completeNow') }}
+        </h3>
+        <div class="mt-4">
+          <UButton
+            color="primary"
+            variant="outline"
+            icon="i-mdi-credit-card-outline"
+            :label="switching ? $t('page.success.ob.switching') : $t('page.success.ob.payByCC')"
+            :loading="switching"
+            @click="payByCreditCard"
+          />
+          <p v-if="switchError" class="mt-2 text-sm text-red-700">
+            {{ switchError }}
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+</template>
