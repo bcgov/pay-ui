@@ -89,6 +89,14 @@ const canSubmit = computed(() => {
   return true
 })
 
+// PAD status banner shows only during transient/blocking account states, and
+// never while the inline edit form is open (the widget owns its own UX then).
+const showPadStatusBanner = computed(() => {
+  if (method.value !== 'PAD' || editingPad.value) { return false }
+  const s = pad.padState.value
+  return s === 'LOADING' || s === 'PENDING' || s === 'FROZEN'
+})
+
 async function onPadSaved() {
   editingPad.value = false
   await pad.refresh()
@@ -198,8 +206,7 @@ async function submit() {
         </div>
 
         <CheckoutPadStatusBanner
-          v-if="method === 'PAD' && !editingPad
-            && (pad.padState.value === 'LOADING' || pad.padState.value === 'PENDING' || pad.padState.value === 'FROZEN')"
+          v-if="showPadStatusBanner"
           :state="pad.padState.value"
         />
       </div>

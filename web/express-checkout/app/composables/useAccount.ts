@@ -12,6 +12,12 @@ export interface PadVerifyResponse {
   statusCode?: number
 }
 
+export interface PadTermsDocument {
+  content: string
+  version_id?: string
+  type?: string
+}
+
 /**
  * Account-side helpers used by the express-checkout checkout page:
  *   - fetch current payment method + CFS account state (drives PAD widget / OB display)
@@ -118,8 +124,8 @@ export function useAccount() {
    *   { type, version_id, content }  — content is HTML/markdown, with "Month Day, Year"
    *   swapped to today's date server-side.
    */
-  async function getPadTermsOfUse(): Promise<{ content: string, version_id?: string, type?: string }> {
-    return await ($authApi as ReturnType<typeof $fetch.create>)<{ content: string, version_id?: string, type?: string }>(
+  async function getPadTermsOfUse(): Promise<PadTermsDocument> {
+    return await ($authApi as ReturnType<typeof $fetch.create>)<PadTermsDocument>(
       '/documents/termsofuse_pad',
       { method: 'GET' }
     )

@@ -38,12 +38,14 @@ defineEmits<{
       class="block px-5 py-4"
       :class="disabled ? 'cursor-not-allowed' : 'cursor-pointer'"
     >
-      <span
+      <UBadge
         v-if="badge"
-        class="mb-3 inline-block rounded bg-slate-700 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white"
-      >
-        {{ badge }}
-      </span>
+        color="neutral"
+        variant="solid"
+        size="sm"
+        class="mb-3 uppercase tracking-wide"
+        :label="badge"
+      />
       <div class="flex items-start gap-4">
         <input
           type="radio"

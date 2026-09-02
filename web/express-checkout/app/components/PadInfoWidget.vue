@@ -147,6 +147,11 @@ const canSubmit = computed(() =>
   && !submitting.value
 )
 
+const submitLabel = computed(() => {
+  if (submitting.value) { return t('padWidget.submitting') }
+  return isEdit.value ? t('padWidget.updateSubmit') : t('padWidget.submit')
+})
+
 async function submit() {
   if (!canSubmit.value) { return }
   submitting.value = true
@@ -330,7 +335,7 @@ async function submit() {
         <UButton
           type="submit"
           color="primary"
-          :label="submitting ? $t('padWidget.submitting') : (isEdit ? $t('padWidget.updateSubmit') : $t('padWidget.submit'))"
+          :label="submitLabel"
           :loading="submitting"
           :disabled="!canSubmit"
         />
