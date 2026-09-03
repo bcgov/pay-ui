@@ -5,9 +5,10 @@
  * anonymous payer holding a payment link is allowed through, and the page decides what
  * to render for them.
  *
- * Signed-in users still get the terms-of-use gate. The zero-account / `finalRedirect`
- * branch in `connect-auth` only fires on the login and ToU pages themselves, so it has
- * nothing to do here and is deliberately left out.
+ * Signed-in users still get the terms-of-use gate. Two branches from `connect-auth` are
+ * deliberately absent: the zero-account / `finalRedirect` handling only fires on the
+ * login and ToU pages themselves, and the Playwright block force-authenticates the
+ * session, which would defeat the point of a route that exists to serve guests.
  */
 export default defineNuxtRouteMiddleware(async (to) => {
   const { isAuthenticated } = useConnectAuth()
@@ -15,45 +16,16 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const localePath = useLocalePath()
   const service = useConnectAuthService()
 
-  if (isAuthenticated.value) {
-    const res = await service.getAuthUserProfile().catch(() => undefined)
-    if (!res?.userTerms.isTermsOfUseAccepted) {
-      const query = { ...to.query }
-      if (!query.return) {
-        query.return = `${rtc.baseUrl}${to.fullPath.slice(1)}`
-      }
-      return navigateTo({ path: localePath('/auth/terms-of-use'), query })
-    }
+  if (!isAuthenticated.value) {
+    return
   }
 
-  if (rtc.playwright) {
-    const { $connectAuth } = useNuxtApp()
-    const { currentAccount } = storeToRefs(useConnectAccountStore())
-
-    $connectAuth.tokenParsed = {
-      firstname: 'TestFirst',
-      lastname: 'TestLast',
-      name: 'TestFirst TestLast',
-      username: 'testUsername',
-      email: 'testEmail@test.com',
-      sub: 'test',
-      loginSource: 'IDIR',
-      realm_access: { roles: ['public_user'] }
+  const res = await service.getAuthUserProfile().catch(() => undefined)
+  if (!res?.userTerms.isTermsOfUseAccepted) {
+    const query = { ...to.query }
+    if (!query.return) {
+      query.return = `${rtc.baseUrl}${to.fullPath.slice(1)}`
     }
-    $connectAuth.authenticated = true
-
-    if (rtc.playwrightFetchTestAccount) {
-      await useConnectAccountStore().loadUserAccounts(true)
-    } else {
-      currentAccount.value = {
-        id: 1,
-        label: 'Playwright',
-        accountStatus: AccountStatus.ACTIVE,
-        accountType: AccountType.PREMIUM,
-        type: UserSettingsType.ACCOUNT,
-        urlorigin: '',
-        urlpath: ''
-      }
-    }
+    return navigateTo({ path: localePath('/auth/terms-of-use'), query })
   }
 })
