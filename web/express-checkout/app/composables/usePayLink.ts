@@ -24,6 +24,24 @@ export function usePayLink() {
   }
 
   /**
+   * Same contract as createTransaction below, but keyed on the token so it works with
+   * no session: the payer never signs in and the link is never redeemed. pay-api
+   * resolves the token to the invoice, so the caller doesn't need it loaded.
+   */
+  async function createTransactionByToken(
+    token: string,
+    opts: { clientSystemUrl: string, payReturnUrl: string }
+  ): Promise<{ id: number, paySystemUrl?: string, statusCode?: string }> {
+    return await ($payApi as ReturnType<typeof $fetch.create>)(
+      `/payment-links/${token}/transactions`,
+      {
+        method: 'POST',
+        body: opts
+      }
+    )
+  }
+
+  /**
    * POST /payment-requests/{id}/transactions — same call auth-web makes.
    * pay-api takes payReturnUrl, appends `/{invoiceId}/transaction/{txnId}`,
    * and hands the whole thing to PayBC as the callback URL.
@@ -122,6 +140,7 @@ export function usePayLink() {
 
   return {
     redeem,
+    createTransactionByToken,
     createTransaction,
     updateTransaction,
     changePaymentMethod,

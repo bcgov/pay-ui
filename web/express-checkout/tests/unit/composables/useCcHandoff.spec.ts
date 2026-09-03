@@ -7,10 +7,12 @@ import type { PayInvoice } from '~/stores/paymentLink'
 // Stub the pay-api composable so tests don't touch real HTTP.
 const changePaymentMethod = vi.fn()
 const createTransaction = vi.fn()
+const createTransactionByToken = vi.fn()
 vi.mock('~/composables/usePayLink', () => ({
   usePayLink: () => ({
     changePaymentMethod,
     createTransaction,
+    createTransactionByToken,
     redeem: vi.fn(),
     updateTransaction: vi.fn()
   })
@@ -35,6 +37,7 @@ describe('useCcHandoff', () => {
     assignSpy.mockClear()
     changePaymentMethod.mockReset()
     createTransaction.mockReset()
+    createTransactionByToken.mockReset()
   })
 
   afterEach(() => {
@@ -128,5 +131,31 @@ describe('useCcHandoff', () => {
 
     const { handoff } = useCcHandoff()
     await expect(handoff(7)).rejects.toThrow('boom')
+  })
+
+  it('hands a guest off using the token, without loading or converting the invoice', async () => {
+    // No store token, no invoice, no session — the guest path has none of them.
+    createTransactionByToken.mockResolvedValueOnce({ id: 9, paySystemUrl: 'https://paybc.test/pay' })
+
+    const { handoffByToken } = useCcHandoff()
+    const ok = await handoffByToken('tok-guest')
+
+    expect(changePaymentMethod).not.toHaveBeenCalled()
+    expect(createTransactionByToken).toHaveBeenCalledWith('tok-guest', {
+      payReturnUrl: 'https://example.test/pay/return',
+      clientSystemUrl: 'https://example.test/pay/tok-guest/success'
+    })
+    expect(assignSpy).toHaveBeenCalledWith('https://paybc.test/pay')
+    expect(ok).toBe(true)
+  })
+
+  it('reports failure when the guest handoff gets no paySystemUrl back', async () => {
+    createTransactionByToken.mockResolvedValueOnce({ id: 9 })
+
+    const { handoffByToken } = useCcHandoff()
+    const ok = await handoffByToken('tok-guest')
+
+    expect(assignSpy).not.toHaveBeenCalled()
+    expect(ok).toBe(false)
   })
 })
