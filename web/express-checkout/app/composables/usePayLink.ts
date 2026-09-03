@@ -24,6 +24,22 @@ export function usePayLink() {
   }
 
   /**
+   * GET /payment-requests/{invoiceId} — refresh a single invoice's DTO
+   * (status, paid, total, paymentMethod, cfsAccount, …).
+   * Used after PayBC return so the success
+   * screen shows the settled amount/method
+   */
+  async function getInvoice(invoiceId: number, accountId?: number | null): Promise<PayInvoice> {
+    return await ($payApi as ReturnType<typeof $fetch.create>)<PayInvoice>(
+      `/payment-requests/${invoiceId}`,
+      {
+        method: 'GET',
+        headers: accountId ? { 'Account-Id': String(accountId) } : undefined
+      }
+    )
+  }
+
+  /**
    * POST /payment-requests/{id}/transactions — same call auth-web makes.
    * pay-api takes payReturnUrl, appends `/{invoiceId}/transaction/{txnId}`,
    * and hands the whole thing to PayBC as the callback URL.
@@ -122,6 +138,7 @@ export function usePayLink() {
 
   return {
     redeem,
+    getInvoice,
     createTransaction,
     updateTransaction,
     changePaymentMethod,

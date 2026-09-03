@@ -33,7 +33,7 @@ const balanceDueFormatted = computed(() => {
 
 <template>
   <div class="pay-success mx-auto max-w-3xl px-6 py-12">
-    <SuccessCc
+    <SuccessCC
       v-if="methodKey === 'cc'"
       :invoice-id="store.invoice?.id"
       :invoice-created-on="store.invoice?.createdOn"
