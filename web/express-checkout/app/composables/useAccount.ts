@@ -30,12 +30,22 @@ export interface PadTermsDocument {
 export function useAccount() {
   const { $payApi, $authApi } = useNuxtApp()
 
-  /** GET /accounts/{id} → paymentMethod + cfsAccount (status, cfsAccountNumber, …) */
-  async function getAccountPaymentInfo(accountId: number): Promise<AccountPaymentInfo> {
+  /**
+   * GET pay-api /accounts/{id} → paymentMethod + cfsAccount (status,
+   * cfsAccountNumber, …). Pass `paymentMethod` to scope the query to a
+   * specific method's CFS account — needed right after switching the org
+   * to a new method, so pay-api returns the just-created OB (or PAD, etc.)
+   * CFS account instead of whatever was there before.
+   */
+  async function getAccountPaymentInfo(
+    accountId: number,
+    paymentMethod?: 'PAD' | 'ONLINE_BANKING' | 'DIRECT_PAY' | 'CC'
+  ): Promise<AccountPaymentInfo> {
     return await ($payApi as ReturnType<typeof $fetch.create>)<AccountPaymentInfo>(
       `/accounts/${accountId}`,
       {
-        method: 'GET'
+        method: 'GET',
+        query: paymentMethod ? { payment_method: paymentMethod } : undefined
       }
     )
   }
@@ -119,6 +129,21 @@ export function useAccount() {
   }
 
   /**
+   * PUT auth-api /orgs/{orgId} — flips the paymentInfo to ONLINE_BANKING
+   * with `?scope=cfs_account` to not update org payment method.
+   */
+  async function updateOrgToOnlineBanking(orgId: number): Promise<AccountPaymentInfo> {
+    return await ($authApi as ReturnType<typeof $fetch.create>)<AccountPaymentInfo>(
+      `/orgs/${orgId}`,
+      {
+        method: 'PUT',
+        query: { scope: 'cfs_account' },
+        body: { paymentInfo: { paymentMethod: 'ONLINE_BANKING' } }
+      }
+    )
+  }
+
+  /**
    * GET auth-api /documents/termsofuse_pad — returns the latest PAD terms document.
    * Same call auth-web's TermsOfUseDialog uses. Response shape includes:
    *   { type, version_id, content }  — content is HTML/markdown, with "Month Day, Year"
@@ -131,5 +156,12 @@ export function useAccount() {
     )
   }
 
-  return { getAccountPaymentInfo, verifyPadInfo, updateOrgPadInfo, getOrgAuthorizations, getPadTermsOfUse }
+  return {
+    getAccountPaymentInfo,
+    verifyPadInfo,
+    updateOrgPadInfo,
+    updateOrgToOnlineBanking,
+    getOrgAuthorizations,
+    getPadTermsOfUse
+  }
 }

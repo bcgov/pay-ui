@@ -17,6 +17,7 @@ const store = usePaymentLinkStore()
 const payLink = usePayLink()
 const pad = usePadAccountState()
 const { handoff } = useCcHandoff()
+const { updateOrgToOnlineBanking, getAccountPaymentInfo } = useAccount()
 
 definePageMeta({
   layout: 'connect-auth',
@@ -45,26 +46,22 @@ const padEditInitial = computed(() => {
   }
 })
 
-async function switchAndRefreshAccount(target: Method) {
-  if (!store.invoice) { return }
-  try {
-    const updated = await payLink.changePaymentMethod(store.invoice.id, target)
-    store.setInvoice(updated)
-    await pad.refresh()
-  } catch (err: unknown) {
-    const e = err as { data?: { message?: string } }
-    submitError.value = e?.data?.message || t('page.checkout.errors.methodSwitchFailed')
-  }
+/** If the account's current payment method isn't ONLINE_BANKING, flip it
+* via auth-api first, then re-read the account from pay-api scoped to ONLINE_BANKING so we get
+* the newly-provisioned CFS account (cfsAccountNumber, party/site numbers,
+* status) that the success page needs.
+*/
+async function ensureAccountIsOnlineBanking() {
+  const accountId = store.selectedAccountId
+  if (!accountId) { return }
+  if (store.accountInfo?.paymentMethod === 'ONLINE_BANKING') { return }
+  await updateOrgToOnlineBanking(accountId)
+  const info = await getAccountPaymentInfo(accountId, 'ONLINE_BANKING')
+  store.setAccountInfo(info)
 }
 
 watch(method, (m) => {
   store.setMethod(m)
-  // OB needs an OB CFS account. Switch eagerly so pay-api lazy-creates the
-  // reference and populates cfsAccountNumber — otherwise the payment
-  // identifier is blank on the success page.
-  if (m === 'ONLINE_BANKING' && store.invoice?.paymentMethod !== 'ONLINE_BANKING') {
-    void switchAndRefreshAccount('ONLINE_BANKING')
-  }
 })
 
 // Invoice may carry an older PAD selection; fall back to CC when the account
@@ -113,6 +110,7 @@ async function submit() {
       await navigateTo(localePath(`/pay/${store.token}/success`))
       return
     }
+    if (method.value === 'ONLINE_BANKING') { await ensureAccountIsOnlineBanking() }
     if (method.value !== store.invoice.paymentMethod) {
       const updated = await payLink.changePaymentMethod(invoiceId, method.value)
       store.setInvoice(updated)

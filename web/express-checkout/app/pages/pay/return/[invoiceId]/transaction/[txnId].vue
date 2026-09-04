@@ -7,6 +7,7 @@
  */
 const { t } = useI18n()
 const route = useRoute()
+const localePath = useLocalePath()
 const payLink = usePayLink()
 const store = usePaymentLinkStore()
 
@@ -32,10 +33,13 @@ onMounted(async () => {
     const result = await payLink.updateTransaction(invoiceId, txnId, payResponseUrl)
 
     if (result.statusCode === 'COMPLETED') {
+      const fresh = await payLink.getInvoice(invoiceId, store.selectedAccountId)
+      store.setInvoice(fresh)
+
       // Forward to the client system URL captured at transaction creation
       // (falls back to the in-app success page if it's missing for any reason).
       const dest = result.clientSystemUrl
-        || (store.token ? `/pay/${store.token}/success` : '/')
+        || (store.token ? localePath(`/pay/${store.token}/success`) : localePath('/'))
       const status = btoa('COMPLETED')
       const separator = dest.includes('?') ? '&' : '?'
       window.location.assign(`${dest}${separator}status=${status}`)
