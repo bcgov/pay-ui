@@ -10,6 +10,7 @@ const store = usePaymentLinkStore()
 // Reachable by a guest payer who never signed in — see the landing page.
 definePageMeta({
   layout: 'connect-auth',
+  hideBreadcrumbs: true,
   middleware: ['connect-auth-optional']
 })
 

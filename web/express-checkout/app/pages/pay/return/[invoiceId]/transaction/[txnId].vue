@@ -33,8 +33,18 @@ onMounted(async () => {
     const result = await payLink.updateTransaction(invoiceId, txnId, payResponseUrl)
 
     if (result.statusCode === 'COMPLETED') {
-      const fresh = await payLink.getInvoice(invoiceId, store.selectedAccountId)
-      store.setInvoice(fresh)
+      // the payment has already gone through, so a failure here
+      // must not surface as "payment failed" — at worst the receipt renders
+      // without its details. A guest has no session, so the by-id lookup would 401; read
+      // through the payment-link token when there's no account to read as.
+      try {
+        const fresh = store.selectedAccountId
+          ? await payLink.getInvoice(invoiceId, store.selectedAccountId)
+          : await payLink.getInvoiceByToken(String(store.token))
+        store.setInvoice(fresh)
+      } catch (refreshErr: unknown) {
+        console.error('Payment completed but the invoice refresh failed', refreshErr)
+      }
 
       // Forward to the client system URL captured at transaction creation
       // (falls back to the in-app success page if it's missing for any reason).
