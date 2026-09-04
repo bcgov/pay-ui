@@ -35,7 +35,7 @@ onMounted(async () => {
     if (result.statusCode === 'COMPLETED') {
       const fresh = await payLink.getInvoice(invoiceId, store.selectedAccountId)
       store.setInvoice(fresh)
-      
+
       // Forward to the client system URL captured at transaction creation
       // (falls back to the in-app success page if it's missing for any reason).
       const dest = result.clientSystemUrl
