@@ -10,11 +10,24 @@
  * `handoff()` performs steps 1 and 2 and either navigates on the caller's
  * behalf (returns void) or returns `false` if pay-api didn't hand back a
  * paySystemUrl, so the caller can render a fallback path.
+ *
+ * `handoffByToken()` is the guest variant for a payer who never signs in. It skips
+ * step 1 — express-checkout invoices are created as DIRECT_PAY — and reaches pay-api
+ * through the token rather than the invoice id, since an anonymous caller has neither
+ * a session nor the invoice loaded.
  */
 export function useCcHandoff() {
   const payLink = usePayLink()
   const store = usePaymentLinkStore()
   const config = useRuntimeConfig().public as { baseUrl?: string }
+
+  function returnUrls(token: string) {
+    const baseUrl = String(config.baseUrl || '').replace(/\/$/, '')
+    return {
+      payReturnUrl: `${baseUrl}/pay/return`,
+      clientSystemUrl: `${baseUrl}/pay/${token}/success`
+    }
+  }
 
   async function handoff(invoiceId: number): Promise<boolean> {
     if (store.invoice?.paymentMethod !== 'DIRECT_PAY') {
@@ -22,10 +35,7 @@ export function useCcHandoff() {
       store.setInvoice(updated)
       store.setMethod('DIRECT_PAY')
     }
-    const baseUrl = String(config.baseUrl || '').replace(/\/$/, '')
-    const payReturnUrl = `${baseUrl}/pay/return`
-    const clientSystemUrl = `${baseUrl}/pay/${store.token}/success`
-    const txn = await payLink.createTransaction(invoiceId, { clientSystemUrl, payReturnUrl })
+    const txn = await payLink.createTransaction(invoiceId, returnUrls(String(store.token)))
     if (txn?.paySystemUrl) {
       window.location.assign(txn.paySystemUrl)
       return true
@@ -33,5 +43,14 @@ export function useCcHandoff() {
     return false
   }
 
-  return { handoff }
+  async function handoffByToken(token: string): Promise<boolean> {
+    const txn = await payLink.createTransactionByToken(token, returnUrls(token))
+    if (txn?.paySystemUrl) {
+      window.location.assign(txn.paySystemUrl)
+      return true
+    }
+    return false
+  }
+
+  return { handoff, handoffByToken }
 }

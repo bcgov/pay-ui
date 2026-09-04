@@ -4,7 +4,27 @@ export default {
     landing: {
       title: 'Pay - BC Government Services',
       h1: 'Preparing your payment...',
-      description: 'To make a payment, use the link you received from your service provider.'
+      description: 'To make a payment, use the link you received from your service provider.',
+      or: 'OR',
+      guest: {
+        title: 'Pay with Credit Card',
+        body: 'No login required. You will get a receipt once your payment is complete.',
+        pay: 'Pay',
+        processing: 'Redirecting…',
+        errors: {
+          payFailed: 'Unable to start your payment. Please try again.'
+        }
+      },
+      signIn: {
+        title: 'Pay with Service BC Connect',
+        body: 'Service BC Connect offers payment services that allow you to:',
+        benefitMethods: 'Pay by additional payment methods.',
+        benefitHistory: 'Access payment history for your organization.',
+        noAccount: 'If you do not have a Service BC Connect account yet, you will be redirected to create one first.',
+        bcsc: 'Continue with BC Services Card',
+        bceid: 'Continue with BCeID',
+        bceidHint: 'Requires an existing BCeID account'
+      }
     },
     account: {
       title: 'Select Your Account or Create a New One',
