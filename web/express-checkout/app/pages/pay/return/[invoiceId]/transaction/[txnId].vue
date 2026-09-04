@@ -11,9 +11,12 @@ const localePath = useLocalePath()
 const payLink = usePayLink()
 const store = usePaymentLinkStore()
 
+// A guest payer comes back from PayBC with no session, so this can't require a login —
+// they'd be bounced to sign-in with the payment already taken. The PATCH below is
+// unauthenticated on pay-api for the same reason.
 definePageMeta({
   layout: 'connect-auth',
-  middleware: ['connect-auth']
+  middleware: ['connect-auth-optional']
 })
 
 useHead({

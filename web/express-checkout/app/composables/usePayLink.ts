@@ -25,9 +25,8 @@ export function usePayLink() {
 
   /**
    * GET /payment-requests/{invoiceId} — refresh a single invoice's DTO
-   * (status, paid, total, paymentMethod, cfsAccount, …).
-   * Used after PayBC return so the success
-   * screen shows the settled amount/method
+   * (status, paid, total, paymentMethod, cfsAccount, …). Used after PayBC
+   * return so the success screen shows the settled amount/method.
    */
   async function getInvoice(invoiceId: number, accountId?: number | null): Promise<PayInvoice> {
     return await ($payApi as ReturnType<typeof $fetch.create>)<PayInvoice>(
@@ -35,6 +34,25 @@ export function usePayLink() {
       {
         method: 'GET',
         headers: accountId ? { 'Account-Id': String(accountId) } : undefined
+      }
+    )
+  }
+
+  /**
+   * POST /payment-links/{token}/transactions — same contract as
+   * createTransaction below, but keyed on the token so it works with no
+   * session: the payer never signs in and the link is never redeemed. pay-api
+   * resolves the token to the invoice, so the caller doesn't need it loaded.
+   */
+  async function createTransactionByToken(
+    token: string,
+    opts: { clientSystemUrl: string, payReturnUrl: string }
+  ): Promise<{ id: number, paySystemUrl?: string, statusCode?: string }> {
+    return await ($payApi as ReturnType<typeof $fetch.create>)(
+      `/payment-links/${token}/transactions`,
+      {
+        method: 'POST',
+        body: opts
       }
     )
   }
@@ -139,6 +157,7 @@ export function usePayLink() {
   return {
     redeem,
     getInvoice,
+    createTransactionByToken,
     createTransaction,
     updateTransaction,
     changePaymentMethod,
