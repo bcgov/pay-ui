@@ -128,3 +128,5 @@ lib/lib.umd.js.map
 
 .history
 
+/web/express-checkout/.nuxt
+/web/express-checkout/.output

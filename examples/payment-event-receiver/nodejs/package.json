@@ -1,0 +1,12 @@
+{
+  "name": "payment-event-receiver",
+  "version": "1.0.0",
+  "description": "BC Registries partner payment-event webhook receiver",
+  "main": "receiver.js",
+  "scripts": {
+    "start": "node receiver.js"
+  },
+  "dependencies": {
+    "google-auth-library": "^9.0.0"
+  }
+}
