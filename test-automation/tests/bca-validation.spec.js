@@ -43,3 +43,12 @@ test('validate bca reports', async ({ page, bcaValidationPage , loginPage }) => 
   await loginPage.loginWithBCSC(process.env.TEST_USERNAME_BCSC, process.env.TEST_PASSWORD_BCSC)
   await bcaValidationPage.validateBcaReports()
 })
+
+
+test('validate bca tile on bc registry dashboard', async ({ page, bcaValidationPage , loginPage }) => {
+  console.log('Test: Current URL before navigation:', page.url())
+  console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
+  await page.goto(process.env.BASE_URL || 'undefined')
+  await loginPage.loginWithIDIR('<use test idir username >','<use test idir password>')
+  await bcaValidationPage.validateBcaTileOnBCRegistryDashboard()
+})
