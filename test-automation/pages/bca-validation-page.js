@@ -32,6 +32,10 @@ export class BcaValidationPage {
     this.readMoreButtonBCA = page.locator('[data-test="span-readmore-BCA"]')
     this.reportsAvailableText = page.getByText('Three reports are available for purchase:')
     this.bcaExpandedReports = page.locator('[data-test="div-expanded-product-BCA"]');
+    this.BCAssessmentHeader = page.getByText('BCA Assessment').first();
+    this.learnMoreABoutBCALink = page.getByRole('link', { name: 'Learn more about BC Assessment ' })
+    this.threeReportsText = page.getByText('Three reports are available for purchase:')
+    this.reports = page.locator('div.prose').filter({ hasText: 'Three reports are available for purchase:' });
   }
 
   async getBcaPaymentMethods() {
@@ -80,4 +84,18 @@ export class BcaValidationPage {
     expect(reports).toContain('Assessment Roll Report');
     expect(reports).toContain('Assessment Inventory Report');
 }
+async validateBcaTileOnBCRegistryDashboard() {
+  await expect(this.BCAssessmentHeader).toBeVisible({ timeout: 60000 })
+  await expect (this.learnMoreABoutBCALink).toBeVisible({ timeout: 60000 })
+  await expect(this.threeReportsText).toBeVisible({ timeout: 60000 })
+  await expect(this.reports.locator('p').first()).toHaveText(
+    'BC Assessment provides customers with convenient and affordable access to property data by making records available through BC Registries and Online Services.'
+  );
+  await expect(this.reports.getByText('Three reports are available for purchase:', { exact: true })).toBeVisible();
+  await expect(this.reports.getByRole('listitem')).toHaveText([
+    'Owner Location Report',
+    'Assessment Roll Report',
+    'Assessment Inventory Report',
+  ]);
+  }
 }
