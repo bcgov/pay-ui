@@ -125,7 +125,10 @@ export default {
     },
     error: {
       invalidLink: 'This payment link is no longer valid.',
-      alreadyLinked: 'This payment link has already been redeemed by another account. Please sign in with that account to complete the payment, or contact the sender for a new link.'
+      linkInactive: {
+        title: 'This payment link is no longer active',
+        description: 'This payment link is no longer active. This can happen if the invoice has already been paid, or if the link has expired.'
+      }
     }
   },
   padWidget: {

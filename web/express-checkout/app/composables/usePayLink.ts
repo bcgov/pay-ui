@@ -38,15 +38,7 @@ export function usePayLink() {
     )
   }
 
-  /**
-   * GET /payment-links/{token} — invoice lookup that works with no session.
-   *
-   * The signed-in flow uses getInvoice above, but a guest returning from PayBC has no
-   * session — no JWT, no Account-Id — so `GET /payment-requests/{id}` would 401. This
-   * route authorizes on the payment-link token instead, and pay-api only skips its auth
-   * check while the link is unredeemed — a claimed link still requires the account it's
-   * bound to.
-   */
+  /** GET /payment-links/{token} — token-keyed lookup; works for guests (no Account-Id) and authenticated users. */
   async function getInvoiceByToken(token: string): Promise<PayInvoice> {
     return await ($payApi as ReturnType<typeof $fetch.create>)<PayInvoice>(
       `/payment-links/${token}`,
