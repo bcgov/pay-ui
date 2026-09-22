@@ -41,7 +41,6 @@ const isSubmitting = ref(false)
 const submitError = ref<string | null>(null)
 const resolveError = ref<{ title: string, description: string } | null>(null)
 
-// watch + immediate: onMounted fires before Keycloak resolves isAuthenticated
 const sessionRouted = ref(false)
 
 watch(isAuthenticated, async (isAuth) => {
