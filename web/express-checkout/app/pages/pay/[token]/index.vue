@@ -2,10 +2,10 @@
 /**
  * Landing route for a payment link. Serves both audiences.
  *
- * Signed in — unchanged, redirect straight on:
+ * Signed in — redirect straight on:
  *   - store already holds a paid invoice for THIS token → success
  *   - holds an unpaid one → checkout (re-visit; redemption is idempotent server-side)
- *   - otherwise → account picker
+ *   - store empty (new session) → GET /payment-links/{token} to recover session
  *
  * Not signed in — render the choice instead of bouncing to login: pay by card as a
  * guest, or sign in for the other payment methods. The guest path never redeems the
@@ -19,6 +19,8 @@ const { t } = useI18n()
 const localePath = useLocalePath()
 const route = useRoute()
 const store = usePaymentLinkStore()
+const payLink = usePayLink()
+const accountStore = useConnectAccountStore()
 const { handoffByToken } = useCcHandoff()
 const { isAuthenticated, login } = useConnectAuth()
 
@@ -37,10 +39,14 @@ useHead({
 const token = computed(() => route.params.token as string)
 const isSubmitting = ref(false)
 const submitError = ref<string | null>(null)
+const resolveError = ref<{ title: string, description: string } | null>(null)
 
-onMounted(async () => {
+const sessionRouted = ref(false)
+
+watch(isAuthenticated, async (isAuth) => {
   // Anonymous visitors stay here and pick a path; only signed-in users get routed on.
-  if (!token.value || !isAuthenticated.value) { return }
+  if (!token.value || !isAuth || sessionRouted.value) { return }
+  sessionRouted.value = true
 
   const hasInvoiceForThisToken = store.token === token.value && !!store.invoice
   const isPaid = (store.invoice?.paid ?? 0) >= (store.invoice?.total ?? -1) && (store.invoice?.total ?? 0) > 0
@@ -53,8 +59,35 @@ onMounted(async () => {
     await navigateTo(localePath(`/pay/${token.value}/checkout`))
     return
   }
+
+  // New session — recover via token: skip picker if already linked to this user's account.
+  try {
+    const invoice = await payLink.getInvoiceByToken(token.value)
+    const paymentAccount = invoice.paymentAccount as { accountId?: string } | null | undefined
+    const linkedAccountId = paymentAccount?.accountId
+    if (linkedAccountId) {
+      await accountStore.loadUserAccounts(true)
+      accountStore.switchCurrentAccount(Number(linkedAccountId))
+      store.setInvoice(invoice)
+      store.setAccount(Number(linkedAccountId))
+      const paid = (invoice.paid ?? 0) >= (invoice.total ?? -1) && (invoice.total ?? 0) > 0
+      await navigateTo(localePath(`/pay/${token.value}/${paid ? 'success' : 'checkout'}`))
+      return
+    }
+  } catch (err: unknown) {
+    const status = (err as { statusCode?: number }).statusCode
+    if (status && status >= 400) {
+      resolveError.value = {
+        title: t('page.error.linkInactive.title'),
+        description: t('page.error.linkInactive.description')
+      }
+      return
+    }
+    // Non-HTTP error (e.g. network failure) — fall through to the account picker.
+  }
+
   await navigateTo(localePath(`/pay/${token.value}/account`))
-})
+}, { immediate: true })
 
 async function payAsGuest() {
   if (!token.value || isSubmitting.value) { return }
@@ -87,9 +120,19 @@ async function signInWith(idp: ConnectIdpHint) {
 
 <template>
   <section class="mx-auto max-w-2xl px-6 py-16 text-center">
-    <!-- Signed-in users are redirected by onMounted; this is the anonymous view. -->
+    <!-- Signed-in users are redirected by onMounted unless an error stops them. -->
     <template v-if="isAuthenticated">
-      <h1 class="text-xl font-semibold">
+      <UAlert
+        v-if="resolveError"
+        color="warning"
+        variant="subtle"
+        :title="resolveError.title"
+        :description="resolveError.description"
+      />
+      <h1
+        v-else
+        class="text-xl font-semibold"
+      >
         {{ $t('page.landing.h1') }}
       </h1>
     </template>
