@@ -19,3 +19,10 @@ describe('useAmountDraft', () => {
     expect(displayAmount('usd', 0)).toBe('')
   })
 })
+
+describe('useAmountDraft sanitizing', () => {
+  it('strips non-numeric characters and limits to 2 decimals', () => {
+    const { displayAmount, setDraft } = useAmountDraft()
+    expect(displayAmount('cad', setDraft('cad', '1a0.0.5x9'))).toBe('10.05')
+  })
+})

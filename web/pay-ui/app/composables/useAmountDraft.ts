@@ -14,8 +14,11 @@ export function useAmountDraft() {
   }
 
   function setDraft(key: string, value: string | number): number {
-    drafts[key] = String(value ?? '')
-    return Number(value)
+    // Digits and a single decimal point with at most 2 decimals
+    const [whole = '', ...rest] = String(value ?? '').replace(/[^\d.]/g, '').split('.')
+    const draft = rest.length ? `${whole}.${rest.join('').slice(0, 2)}` : whole
+    drafts[key] = draft
+    return Number(draft)
   }
 
   return { displayAmount, setDraft }
