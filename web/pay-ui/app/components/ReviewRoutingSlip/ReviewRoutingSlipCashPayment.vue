@@ -46,13 +46,12 @@ const { displayAmount, setDraft } = useAmountDraft()
     <ConnectInput
       v-if="isAmountPaidInUsd"
       id="cash-amount-usd"
-      :model-value="displayAmount('usd', cashPayment.paidUsdAmount)"
+      :model-value="String(cashPayment.paidUsdAmount || '')"
       :label="$t('label.amountUSD')"
-      type="text"
-      inputmode="decimal"
+      type="number"
       :disabled="!isEditable || isALinkedChild"
       data-test="txt-paid-usd-amount"
-      @update:model-value="(e) => adjustRoutingSlipAmount(setDraft('usd', e), true)"
+      @update:model-value="(e) => adjustRoutingSlipAmount(Number(e), true)"
     />
   </div>
 </template>

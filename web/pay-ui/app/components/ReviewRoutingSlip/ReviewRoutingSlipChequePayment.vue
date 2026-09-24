@@ -66,13 +66,12 @@ const formatDate = (dateString?: string): string => {
       <ConnectInput
         v-if="isAmountPaidInUsd"
         :id="`cheque-amount-usd-${i}`"
-        :model-value="displayAmount(`usd-${i}`, payment.paidUsdAmount)"
+        :model-value="String(payment.paidUsdAmount || '')"
         :label="$t('label.amountUSD')"
-        type="text"
-        inputmode="decimal"
+        type="number"
         :disabled="!isEditable || isALinkedChild"
         :data-test="CommonUtils.getIndexedTag('txt-paid-usd-amount', i)"
-        @update:model-value="(e) => adjustRoutingSlipAmount(setDraft(`usd-${i}`, e), true, i)"
+        @update:model-value="(e) => adjustRoutingSlipAmount(Number(e), true, i)"
       />
     </div>
   </div>
