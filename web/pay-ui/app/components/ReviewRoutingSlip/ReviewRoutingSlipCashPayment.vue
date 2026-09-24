@@ -16,6 +16,7 @@ withDefaults(defineProps<Props>(), {
 })
 
 const { adjustRoutingSlipAmount } = usePaymentInformation()
+const { displayAmount, setDraft } = useAmountDraft()
 </script>
 
 <template>
@@ -33,23 +34,23 @@ const { adjustRoutingSlipAmount } = usePaymentInformation()
 
     <ConnectInput
       id="cash-amount-cad"
-      :model-value="String(cashPayment.paidAmount || '')"
+      :model-value="displayAmount('cad', cashPayment.paidAmount)"
       :label="$t('label.amountCAD')"
       type="number"
       :disabled="!isEditable || isALinkedChild"
       data-test="txt-paid-amount"
-      @update:model-value="(e) => adjustRoutingSlipAmount(Number(e), false)"
+      @update:model-value="(e) => adjustRoutingSlipAmount(setDraft('cad', e), false)"
     />
 
     <ConnectInput
       v-if="isAmountPaidInUsd"
       id="cash-amount-usd"
-      :model-value="String(cashPayment.paidUsdAmount || '')"
+      :model-value="displayAmount('usd', cashPayment.paidUsdAmount)"
       :label="$t('label.amountUSD')"
       type="number"
       :disabled="!isEditable || isALinkedChild"
       data-test="txt-paid-usd-amount"
-      @update:model-value="(e) => adjustRoutingSlipAmount(Number(e), true)"
+      @update:model-value="(e) => adjustRoutingSlipAmount(setDraft('usd', e), true)"
     />
   </div>
 </template>

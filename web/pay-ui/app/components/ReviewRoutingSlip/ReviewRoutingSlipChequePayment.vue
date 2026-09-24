@@ -17,6 +17,7 @@ withDefaults(defineProps<Props>(), {
 })
 
 const { adjustRoutingSlipChequeNumber, adjustRoutingSlipAmount } = usePaymentInformation()
+const { displayAmount, setDraft } = useAmountDraft()
 
 const formatDate = (dateString?: string): string => {
   if (!dateString) {
@@ -53,23 +54,23 @@ const formatDate = (dateString?: string): string => {
 
       <ConnectInput
         :id="`cheque-amount-cad-${i}`"
-        :model-value="String(payment.paidAmount || '')"
+        :model-value="displayAmount(`cad-${i}`, payment.paidAmount)"
         :label="$t('label.amountCAD')"
         type="number"
         :disabled="!isEditable || isALinkedChild"
         :data-test="CommonUtils.getIndexedTag('txt-paid-amount', i)"
-        @update:model-value="(e) => adjustRoutingSlipAmount(Number(e), false, i)"
+        @update:model-value="(e) => adjustRoutingSlipAmount(setDraft(`cad-${i}`, e), false, i)"
       />
 
       <ConnectInput
         v-if="isAmountPaidInUsd"
         :id="`cheque-amount-usd-${i}`"
-        :model-value="String(payment.paidUsdAmount || '')"
+        :model-value="displayAmount(`usd-${i}`, payment.paidUsdAmount)"
         :label="$t('label.amountUSD')"
         type="number"
         :disabled="!isEditable || isALinkedChild"
         :data-test="CommonUtils.getIndexedTag('txt-paid-usd-amount', i)"
-        @update:model-value="(e) => adjustRoutingSlipAmount(Number(e), true, i)"
+        @update:model-value="(e) => adjustRoutingSlipAmount(setDraft(`usd-${i}`, e), true, i)"
       />
     </div>
   </div>
