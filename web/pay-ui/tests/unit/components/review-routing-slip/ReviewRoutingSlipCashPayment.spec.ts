@@ -40,8 +40,7 @@ describe('ReviewRoutingSlipCashPayment', () => {
       }
     })
 
-    const inputs = wrapper.findAllComponents({ name: 'ConnectInput' })
-    const amountInput = inputs[1]
+    const amountInput = wrapper.findComponent({ name: 'AmountInput' })
 
     await amountInput.vm.$emit('update:modelValue', '1000')
 

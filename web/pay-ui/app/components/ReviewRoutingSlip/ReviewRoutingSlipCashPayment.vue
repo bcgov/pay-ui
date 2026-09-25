@@ -16,7 +16,6 @@ withDefaults(defineProps<Props>(), {
 })
 
 const { adjustRoutingSlipAmount } = usePaymentInformation()
-const { displayAmount, setDraft } = useAmountDraft()
 </script>
 
 <template>
@@ -32,15 +31,13 @@ const { displayAmount, setDraft } = useAmountDraft()
       data-test="txt-receipt-number"
     />
 
-    <ConnectInput
+    <AmountInput
       id="cash-amount-cad"
-      :model-value="displayAmount('cad', cashPayment.paidAmount)"
+      :model-value="String(cashPayment.paidAmount || '')"
       :label="$t('label.amountCAD')"
-      type="text"
-      inputmode="decimal"
       :disabled="!isEditable || isALinkedChild"
       data-test="txt-paid-amount"
-      @update:model-value="(e) => adjustRoutingSlipAmount(setDraft('cad', e), false)"
+      @update:model-value="(e) => adjustRoutingSlipAmount(Number(e), false)"
     />
 
     <ConnectInput
