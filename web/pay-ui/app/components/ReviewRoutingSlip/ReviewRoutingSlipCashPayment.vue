@@ -31,11 +31,10 @@ const { adjustRoutingSlipAmount } = usePaymentInformation()
       data-test="txt-receipt-number"
     />
 
-    <ConnectInput
+    <AmountInput
       id="cash-amount-cad"
       :model-value="String(cashPayment.paidAmount || '')"
       :label="$t('label.amountCAD')"
-      type="number"
       :disabled="!isEditable || isALinkedChild"
       data-test="txt-paid-amount"
       @update:model-value="(e) => adjustRoutingSlipAmount(Number(e), false)"
