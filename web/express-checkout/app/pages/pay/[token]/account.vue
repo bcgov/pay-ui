@@ -90,8 +90,7 @@ async function pick(accountId: number) {
     // Backend re-checks NSF/overdue at redemption time too.
     const errorType = (err as { data?: { type?: string } })?.data?.type
     if (errorType === 'PAD_CURRENTLY_NSF' || errorType === 'EFT_INVOICES_OVERDUE') {
-      const account = accountStore.currentAccount
-      await navigateTo(`${account.urlorigin}${account.urlpath}`, { external: true })
+      await accountStore.redirectToAccountInfo(accountStore.currentAccount)
       return
     }
     linkError.value = describeRedeemError(err)
