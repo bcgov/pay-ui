@@ -11,6 +11,7 @@ const localePath = useLocalePath()
 const store = usePaymentLinkStore()
 const accountStore = useConnectAccountStore()
 const payLink = usePayLink()
+const { getAccountPaymentInfo } = useAccount()
 
 definePageMeta({
   layout: 'connect-auth',
@@ -25,6 +26,10 @@ const isLinking = ref(false)
 const linkError = ref<{ title: string, description: string } | null>(null)
 const isLoadingAccounts = ref(false)
 
+const showPaymentMethodBadge = true
+const showStatusBadge = true
+const showAddress = true
+
 onMounted(async () => {
   if (!accountStore.userAccounts?.length) {
     isLoadingAccounts.value = true
@@ -38,7 +43,31 @@ onMounted(async () => {
   // this guards direct navigation to /pay/[token]/account.
   if ((accountStore.userAccounts?.length ?? 0) === 0) {
     registerNew()
+    return
   }
+  if (!showPaymentMethodBadge && !showStatusBadge) {
+    return
+  }
+  // showPaymentMethodBadge needs every account's payment method; showStatusBadge only
+  // needs it for accounts already flagged NSF-suspended.
+  await Promise.allSettled(
+    accountStore.userAccounts
+      .filter(account => showPaymentMethodBadge || account.accountStatus === AccountStatus.NSF_SUSPENDED)
+      .map(async (account) => {
+        try {
+          const info = await getAccountPaymentInfo(account.id)
+          if (showPaymentMethodBadge) {
+            account.paymentMethod = info?.paymentMethod
+          }
+          if (showStatusBadge) {
+            account.hasNsfInvoices = info?.hasNsfInvoices
+            account.hasOverdueInvoices = info?.hasOverdueInvoices
+          }
+        } catch (e) {
+          console.warn(`Failed to fetch payment info for account ${account.id}.`, e)
+        }
+      })
+  )
 })
 
 async function pick(accountId: number) {
@@ -58,6 +87,12 @@ async function pick(accountId: number) {
     }
     await navigateTo(localePath(`/pay/${store.token}/checkout`))
   } catch (err: unknown) {
+    // Backend re-checks NSF/overdue at redemption time too.
+    const errorType = (err as { data?: { type?: string } })?.data?.type
+    if (errorType === 'PAD_CURRENTLY_NSF' || errorType === 'EFT_INVOICES_OVERDUE') {
+      await accountStore.redirectToAccountInfo(accountStore.currentAccount)
+      return
+    }
     linkError.value = describeRedeemError(err)
   } finally {
     isLinking.value = false
@@ -106,6 +141,9 @@ function registerNew() {
         <ConnectAccountExistingAlert />
         <ConnectAccountExistingList
           :accounts="accountStore.userAccounts"
+          :show-payment-method-badge="showPaymentMethodBadge"
+          :show-status-badge="showStatusBadge"
+          :show-address="showAddress"
           @select="pick"
         />
       </template>
