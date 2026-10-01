@@ -54,6 +54,8 @@ export interface AccountPaymentInfo {
   id?: number
   paymentMethod?: PaymentMethodCode
   cfsAccount?: AccountCfsInfo
+  hasNsfInvoices?: string
+  hasOverdueInvoices?: string
   [key: string]: unknown
 }
 
