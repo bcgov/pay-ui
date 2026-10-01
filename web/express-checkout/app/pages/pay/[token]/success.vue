@@ -36,6 +36,7 @@ const methodKey = computed(() => {
   const m = store.invoice?.paymentMethod || store.paymentMethod
   if (m === 'PAD') { return 'pad' }
   if (m === 'ONLINE_BANKING') { return 'ob' }
+  if (m === 'EFT') { return 'eft' }
   return 'cc'
 })
 
@@ -44,6 +45,13 @@ const balanceDueFormatted = computed(() => {
   const total = Number(store.invoice?.total ?? 0)
   const paid = Number(store.invoice?.paid ?? 0)
   return `$${Math.max(0, total - paid).toFixed(2)}`
+})
+
+const eftDateFormatted = computed(() => {
+  const formatted = new Intl.DateTimeFormat('en-CA', {
+    year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true
+  }).format(new Date())
+  return formatted.replace('AM', 'am').replace('PM', 'pm')
 })
 </script>
 
@@ -57,6 +65,11 @@ const balanceDueFormatted = computed(() => {
     />
     <SuccessPad
       v-else-if="methodKey === 'pad'"
+      :amount-formatted="totalFormatted"
+    />
+    <SuccessEft
+      v-else-if="methodKey === 'eft'"
+      :date-formatted="eftDateFormatted"
       :amount-formatted="totalFormatted"
     />
     <SuccessOb

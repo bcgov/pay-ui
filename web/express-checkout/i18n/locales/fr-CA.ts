@@ -43,7 +43,9 @@ export default {
         pad: 'Pre-Authorized Debit',
         padSub: 'Automatically debit a bank account when payments are due.',
         ob: 'Online Banking',
-        obSub: 'Pay for products and services through your financial institution\'s website.'
+        obSub: 'Pay for products and services through your financial institution\'s website.',
+        eft: 'Electronic Funds Transfer',
+        eftSub: 'Make payments from your bank account. Statement will be issued monthly.'
       },
       feeSummary: 'Fee Summary',
       serviceFee: 'Service Fee',
@@ -69,6 +71,12 @@ export default {
         bankingInformation: 'Banking Information',
         bankingInfoHelp: 'These are the bank account details on file for this account\'s Pre-Authorized Debit.',
         edit: 'Edit'
+      },
+      eft: {
+        instructionsPrefix: 'To send us a payment through electronic funds transfer (EFT), please read the {link}.',
+        instructionsLink: 'Electronic Funds Transfer Payment Instructions',
+        onlyMethodNotice: 'Your account is set up to pay by Electronic Funds Transfer only. If you want to update your payment method, go to the {link}. Please settle any outstanding statements and transactions before changing your payment method.',
+        productsAndPaymentLink: 'Products and Payment page'
       },
       errors: {
         methodSwitchFailed: 'Unable to update payment method. Please try again.',
@@ -121,6 +129,13 @@ export default {
         completeNow: 'Would you like to complete transactions immediately?',
         payByCC: 'Pay by credit card',
         switching: 'Redirecting…'
+      },
+      eft: {
+        title: 'Payment Pending',
+        dateLabel: 'Date',
+        methodLabel: 'Payment method',
+        amountLabel: 'Amount',
+        body: 'You now have access to the requested products or services. This transaction will appear on your next EFT statement.'
       }
     },
     error: {
