@@ -3,15 +3,13 @@
  * "Payment Pending" screen for EFT — the invoice is settled against the
  * account's next statement, not immediately, so there's no receipt yet.
  */
-const { dateFormatted, amountFormatted } = defineProps<{
-  dateFormatted: string
+const { amountFormatted } = defineProps<{
   amountFormatted: string
 }>()
 
 const { t } = useI18n()
 
 const summaryRows = computed(() => [
-  { label: t('page.success.eft.dateLabel'), value: dateFormatted },
   { label: t('page.success.eft.methodLabel'), value: t('page.checkout.method.eft') },
   { label: t('page.success.eft.amountLabel'), value: amountFormatted }
 ])

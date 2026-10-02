@@ -46,13 +46,6 @@ const balanceDueFormatted = computed(() => {
   const paid = Number(store.invoice?.paid ?? 0)
   return `$${Math.max(0, total - paid).toFixed(2)}`
 })
-
-const eftDateFormatted = computed(() => {
-  const formatted = new Intl.DateTimeFormat('en-CA', {
-    year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true
-  }).format(new Date())
-  return formatted.replace('AM', 'am').replace('PM', 'pm')
-})
 </script>
 
 <template>
@@ -69,7 +62,6 @@ const eftDateFormatted = computed(() => {
     />
     <SuccessEft
       v-else-if="methodKey === 'eft'"
-      :date-formatted="eftDateFormatted"
       :amount-formatted="totalFormatted"
     />
     <SuccessOb

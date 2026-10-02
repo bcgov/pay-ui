@@ -132,7 +132,6 @@ export default {
       },
       eft: {
         title: 'Payment Pending',
-        dateLabel: 'Date',
         methodLabel: 'Payment method',
         amountLabel: 'Amount',
         body: 'You now have access to the requested products or services. This transaction will appear on your next EFT statement.'

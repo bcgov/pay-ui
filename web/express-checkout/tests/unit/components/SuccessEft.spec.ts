@@ -3,14 +3,13 @@ import SuccessEft from '~/components/success/SuccessEft.vue'
 
 async function mount() {
   return await mountSuspended(SuccessEft, {
-    props: { dateFormatted: 'Sep 9, 2026, 2:14 pm', amountFormatted: '$25.00' }
+    props: { amountFormatted: '$25.00' }
   })
 }
 
 describe('SuccessEft', () => {
-  it('renders the date, method, and amount rows', async () => {
+  it('renders the method and amount rows', async () => {
     const wrapper = await mount()
-    expect(wrapper.text()).toContain('Sep 9, 2026, 2:14 pm')
     expect(wrapper.text()).toContain('Electronic Funds Transfer')
     expect(wrapper.text()).toContain('$25.00')
   })
