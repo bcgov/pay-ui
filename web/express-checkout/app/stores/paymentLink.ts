@@ -21,7 +21,7 @@ export interface PayInvoice {
   total?: number
   paid?: number
   serviceFees?: number
-  paymentMethod?: string // e.g. 'DIRECT_PAY' | 'PAD' | 'ONLINE_BANKING' | 'CC'
+  paymentMethod?: string // e.g. 'DIRECT_PAY' | 'PAD' | 'ONLINE_BANKING' | 'CC' | 'EFT'
   lineItems?: PayInvoiceLineItem[]
   /** pay-api returns invoice creation timestamp as ISO 8601 — used as the
    *  `filingDateTime` when POSTing to /receipts to generate the invoice PDF. */
@@ -29,7 +29,7 @@ export interface PayInvoice {
   [key: string]: unknown
 }
 
-export type PaymentMethodCode = 'CC' | 'DIRECT_PAY' | 'PAD' | 'ONLINE_BANKING'
+export type PaymentMethodCode = 'CC' | 'DIRECT_PAY' | 'PAD' | 'ONLINE_BANKING' | 'EFT'
 
 export type CfsAccountStatus
   = | 'ACTIVE'

@@ -9,7 +9,7 @@
  *   - CheckoutFeeSummary + CheckoutActions (right sidebar)
  * and delegates state to usePadAccountState + useCcHandoff composables.
  */
-type Method = 'DIRECT_PAY' | 'PAD' | 'ONLINE_BANKING'
+type Method = 'DIRECT_PAY' | 'PAD' | 'ONLINE_BANKING' | 'EFT'
 
 const { t } = useI18n()
 const localePath = useLocalePath()
@@ -35,6 +35,34 @@ const method = ref<Method>(
 const isSubmitting = ref(false)
 const submitError = ref<string | null>(null)
 const editingPad = ref(false)
+
+// Accounts set up for EFT can't pay any other way, so the page shows the single
+// EFT option instead of the switchable CC/OB/PAD list. Based on the account's
+// actual configured payment method (store.accountInfo, populated by pad.load()
+// below) — not the invoice's, which can be stale or a default picked at
+// invoice-creation time. Same detection shape as padState/padNotSetUp further down.
+const isEftOnly = computed(() => {
+  const info = store.accountInfo
+  return info?.paymentMethod === 'EFT' || info?.cfsAccount?.paymentMethod === 'EFT'
+})
+
+const downloadingEftInstructions = ref(false)
+const eftInstructionsError = ref<string | null>(null)
+
+async function downloadEftInstructions() {
+  if (downloadingEftInstructions.value) { return }
+  downloadingEftInstructions.value = true
+  eftInstructionsError.value = null
+  try {
+    const blob = await payLink.downloadEftInstructions()
+    fileDownload(blob, 'bcrs_eft_instructions.pdf')
+  } catch (err: unknown) {
+    const e = err as { data?: { message?: string } }
+    eftInstructionsError.value = e?.data?.message || t('page.success.downloadFailed')
+  } finally {
+    downloadingEftInstructions.value = false
+  }
+}
 
 const padEditInitial = computed(() => {
   const cfs = store.accountInfo?.cfsAccount
@@ -69,6 +97,12 @@ watch(method, (m) => {
 watch(() => pad.padNotSetUp.value, (notSetUp) => {
   if (notSetUp && method.value === 'PAD') { method.value = 'DIRECT_PAY' }
 })
+
+// Once account info loads and confirms the account is EFT-only, pin the
+// selection to EFT regardless of what the invoice/store had initially.
+watch(isEftOnly, (eft) => {
+  if (eft) { method.value = 'EFT' }
+}, { immediate: true })
 
 onMounted(async () => {
   if (!store.invoice) {
@@ -111,6 +145,10 @@ async function submit() {
       return
     }
     if (method.value === 'ONLINE_BANKING') { await ensureAccountIsOnlineBanking() }
+    // Invoices are created with a default method (e.g. DIRECT_PAY) regardless of the
+    // account's actual payment method, so EFT-bound accounts still need this PATCH to
+    // switch the invoice onto EFT — pay-api allows it as long as the account itself is
+    // EFT (see _ACCOUNT_BOUND_METHODS in sbc-pay's payment_service.py).
     if (method.value !== store.invoice.paymentMethod) {
       const updated = await payLink.changePaymentMethod(invoiceId, method.value)
       store.setInvoice(updated)
@@ -137,7 +175,49 @@ async function submit() {
           <h1 class="mb-6 text-2xl font-bold text-slate-900">
             {{ $t('page.checkout.selectMethod') }}
           </h1>
-          <div class="space-y-3">
+          <div v-if="isEftOnly" class="space-y-3">
+            <CheckoutPaymentMethodCard
+              v-model="method"
+              value="EFT"
+              icon="i-mdi-arrow-right-circle-outline"
+              :title="$t('page.checkout.method.eft')"
+              :subtitle="$t('page.checkout.method.eftSub')"
+            >
+              <template #extra>
+                <div class="border-t border-slate-200 px-5 py-4 text-sm text-slate-700">
+                  <i18n-t keypath="page.checkout.eft.instructionsPrefix" tag="span">
+                    <template #link>
+                      <a
+                        href="#"
+                        class="font-medium text-mark underline hover:text-[var(--color-mark-dark)]"
+                        @click.prevent="downloadEftInstructions"
+                      >{{ $t('page.checkout.eft.instructionsLink') }}</a>
+                    </template>
+                  </i18n-t>
+                  <p v-if="eftInstructionsError" class="mt-2 text-red-700">
+                    {{ eftInstructionsError }}
+                  </p>
+                </div>
+              </template>
+            </CheckoutPaymentMethodCard>
+
+            <p class="text-sm text-slate-700">
+              <i18n-t keypath="page.checkout.eft.onlyMethodNotice" tag="span">
+                <template #link>
+                  <a
+                    v-if="pad.accountSettingsUrl.value"
+                    :href="pad.accountSettingsUrl.value"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="font-medium text-mark underline hover:text-[var(--color-mark-dark)]"
+                  >{{ $t('page.checkout.eft.productsAndPaymentLink') }}</a>
+                  <span v-else class="font-medium">{{ $t('page.checkout.eft.productsAndPaymentLink') }}</span>
+                </template>
+              </i18n-t>
+            </p>
+          </div>
+
+          <div v-else class="space-y-3">
             <CheckoutPaymentMethodCard
               v-model="method"
               value="DIRECT_PAY"

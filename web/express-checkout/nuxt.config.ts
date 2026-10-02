@@ -10,7 +10,7 @@ export default defineNuxtConfig({
   ],
 
   extends: [
-    '@sbc-connect/nuxt-business-base'
+    '@sbc-connect/nuxt-pay'
   ],
 
   css: [
@@ -64,18 +64,6 @@ export default defineNuxtConfig({
     public: {
       version: `Pay UI v${process.env.npm_package_version || ''}`,
       playwright: process.env.playwright === 'true'
-    }
-  },
-
-  typescript: {
-    tsConfig: {
-      exclude: [
-        '../../business-registry-dashboard/**',
-        '../../corps/**',
-        '../../person-roles/**',
-        '../../registry-home/**',
-        '../../../packages/layers/base/tests/**'
-      ]
     }
   }
 })

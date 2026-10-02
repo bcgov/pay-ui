@@ -110,12 +110,14 @@ export function usePayLink() {
 
   /**
    * PATCH /payment-requests/{invoiceId} — switches the invoice's payment method.
-   * pay-api limits this to CREATED invoices with methods in {CC, DIRECT_PAY,
-   * ONLINE_BANKING, PAD}; EFT is not switchable via this endpoint.
+   * pay-api requires the invoice's current method to be one of {CC, DIRECT_PAY,
+   * ONLINE_BANKING, PAD}. The target can additionally be EFT or PAD, but only when
+   * the payment account itself is bound to that method (sbc-pay's payment_service.py,
+   * _ACCOUNT_BOUND_METHODS) — pay-api rejects it otherwise.
    */
   async function changePaymentMethod(
     invoiceId: number,
-    method: 'CC' | 'DIRECT_PAY' | 'PAD' | 'ONLINE_BANKING'
+    method: 'CC' | 'DIRECT_PAY' | 'PAD' | 'ONLINE_BANKING' | 'EFT'
   ): Promise<PayInvoice> {
     return await ($payApi as ReturnType<typeof $fetch.create>)<PayInvoice>(
       `/payment-requests/${invoiceId}`,
@@ -181,6 +183,22 @@ export function usePayLink() {
     )
   }
 
+  /**
+   * GET /documents?documentType=eftInstructions — the static "how to pay with
+   * EFT" PDF. Same call sbc-auth's `payment.services.ts:getDocument` makes.
+   */
+  async function downloadEftInstructions(): Promise<Blob> {
+    return await ($payApi as ReturnType<typeof $fetch.create>)<Blob>(
+      '/documents',
+      {
+        method: 'GET',
+        query: { documentType: 'eftInstructions' },
+        headers: { Accept: 'application/pdf' },
+        responseType: 'blob'
+      }
+    )
+  }
+
   return {
     redeem,
     getInvoice,
@@ -191,6 +209,7 @@ export function usePayLink() {
     changePaymentMethod,
     downloadReceipt,
     downloadReceiptByToken,
-    downloadInvoice
+    downloadInvoice,
+    downloadEftInstructions
   }
 }

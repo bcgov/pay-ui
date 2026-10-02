@@ -5,7 +5,12 @@
  * Owns its own "Pay by credit card" escape hatch — hands off through the
  * shared useCcHandoff composable so the CC flow matches checkout's submit.
  */
-const props = defineProps<{
+const {
+  invoiceId,
+  amountFormatted,
+  balanceDueFormatted,
+  payeeReference
+} = defineProps<{
   invoiceId?: number
   amountFormatted: string
   balanceDueFormatted: string
@@ -24,12 +29,12 @@ const downloading = ref(false)
 const downloadError = ref<string | null>(null)
 
 async function download() {
-  if (!props.invoiceId || downloading.value) { return }
+  if (!invoiceId || downloading.value) { return }
   downloading.value = true
   downloadError.value = null
   try {
-    const blob = await payLink.downloadInvoice(props.invoiceId)
-    fileDownload(blob, `bcregistry-invoice-${props.invoiceId}.pdf`)
+    const blob = await payLink.downloadInvoice(invoiceId)
+    fileDownload(blob, `bcregistry-invoice-${invoiceId}.pdf`)
   } catch (err: unknown) {
     const e = err as { data?: { message?: string } }
     downloadError.value = e?.data?.message || t('page.success.downloadFailed')
@@ -42,11 +47,11 @@ const switching = ref(false)
 const switchError = ref<string | null>(null)
 
 async function payByCreditCard() {
-  if (!props.invoiceId || switching.value) { return }
+  if (!invoiceId || switching.value) { return }
   switching.value = true
   switchError.value = null
   try {
-    const handedOff = await handoff(props.invoiceId)
+    const handedOff = await handoff(invoiceId)
     if (!handedOff) {
       await navigateTo(localePath(`/pay/${store.token}/success`))
     }

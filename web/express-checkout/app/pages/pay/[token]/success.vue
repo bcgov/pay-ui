@@ -36,6 +36,7 @@ const methodKey = computed(() => {
   const m = store.invoice?.paymentMethod || store.paymentMethod
   if (m === 'PAD') { return 'pad' }
   if (m === 'ONLINE_BANKING') { return 'ob' }
+  if (m === 'EFT') { return 'eft' }
   return 'cc'
 })
 
@@ -57,6 +58,10 @@ const balanceDueFormatted = computed(() => {
     />
     <SuccessPad
       v-else-if="methodKey === 'pad'"
+      :amount-formatted="totalFormatted"
+    />
+    <SuccessEft
+      v-else-if="methodKey === 'eft'"
       :amount-formatted="totalFormatted"
     />
     <SuccessOb
