@@ -1,5 +1,4 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
-import { createPinia, setActivePinia } from 'pinia'
 import CheckoutPage from '~/pages/pay/[token]/checkout.vue'
 import { usePaymentLinkStore } from '~/stores/paymentLink'
 import type { AccountPaymentInfo, PayInvoice } from '~/stores/paymentLink'
@@ -49,9 +48,19 @@ function eftAccountInfo(overrides: Partial<AccountPaymentInfo> = {}): AccountPay
   return { id: 1, paymentMethod: 'EFT', cfsAccount: { paymentMethod: 'EFT' }, ...overrides }
 }
 
+// Don't create a separate Pinia here — mountSuspended's component won't see it.
+function seed(invoiceOverrides: Partial<PayInvoice>, accountInfo: AccountPaymentInfo) {
+  const store = usePaymentLinkStore()
+  store.setToken('tok-1')
+  store.setAccount(42)
+  store.setInvoice(invoice(invoiceOverrides))
+  getAccountPaymentInfo.mockResolvedValue(accountInfo)
+  return store
+}
+
 async function mountCheckout() {
   const wrapper = await mountSuspended(CheckoutPage)
-  // Flush onMounted's await pad.load(), which resolves accountInfo from the mocks above.
+  // Flush onMounted's pad.load() call.
   await new Promise(resolve => setTimeout(resolve, 0))
   await wrapper.vm.$nextTick()
   return wrapper
@@ -59,7 +68,7 @@ async function mountCheckout() {
 
 describe('checkout.vue — EFT', () => {
   beforeEach(() => {
-    setActivePinia(createPinia())
+    usePaymentLinkStore().$reset()
     changePaymentMethod.mockReset()
     downloadEftInstructions.mockReset().mockResolvedValue(new Blob(['pdf']))
     getAccountPaymentInfo.mockReset()
@@ -69,13 +78,7 @@ describe('checkout.vue — EFT', () => {
   })
 
   it('shows only the EFT option when the account is EFT-bound, even though the invoice is not', async () => {
-    // Regression test: isEftOnly must key off the account's payment method, not
-    // the invoice's, which can be a different default picked at creation time.
-    const store = usePaymentLinkStore()
-    store.setToken('tok-1')
-    store.setAccount(42)
-    store.setInvoice(invoice({ paymentMethod: 'DIRECT_PAY' }))
-    getAccountPaymentInfo.mockResolvedValue(eftAccountInfo())
+    seed({ paymentMethod: 'DIRECT_PAY' }, eftAccountInfo())
 
     const wrapper = await mountCheckout()
 
@@ -85,11 +88,7 @@ describe('checkout.vue — EFT', () => {
   })
 
   it('shows the switchable CC/OB/PAD list for a non-EFT account', async () => {
-    const store = usePaymentLinkStore()
-    store.setToken('tok-1')
-    store.setAccount(42)
-    store.setInvoice(invoice({ paymentMethod: 'DIRECT_PAY' }))
-    getAccountPaymentInfo.mockResolvedValue({ id: 1, paymentMethod: 'DIRECT_PAY' })
+    seed({ paymentMethod: 'DIRECT_PAY' }, { id: 1, paymentMethod: 'DIRECT_PAY' })
 
     const wrapper = await mountCheckout()
 
@@ -98,13 +97,7 @@ describe('checkout.vue — EFT', () => {
   })
 
   it('patches the invoice to EFT on confirm when the invoice is not already EFT', async () => {
-    // Regression test: EFT is a valid PATCH target when the account is EFT-bound
-    // (sbc-pay's _ACCOUNT_BOUND_METHODS) — confirm must not silently skip it.
-    const store = usePaymentLinkStore()
-    store.setToken('tok-1')
-    store.setAccount(42)
-    store.setInvoice(invoice({ paymentMethod: 'DIRECT_PAY' }))
-    getAccountPaymentInfo.mockResolvedValue(eftAccountInfo())
+    seed({ paymentMethod: 'DIRECT_PAY' }, eftAccountInfo())
     changePaymentMethod.mockResolvedValue(invoice({ paymentMethod: 'EFT' }))
 
     const wrapper = await mountCheckout()
@@ -116,11 +109,7 @@ describe('checkout.vue — EFT', () => {
   })
 
   it('does not patch when the invoice is already EFT', async () => {
-    const store = usePaymentLinkStore()
-    store.setToken('tok-1')
-    store.setAccount(42)
-    store.setInvoice(invoice({ paymentMethod: 'EFT' }))
-    getAccountPaymentInfo.mockResolvedValue(eftAccountInfo())
+    seed({ paymentMethod: 'EFT' }, eftAccountInfo())
 
     const wrapper = await mountCheckout()
     await wrapper.find('button').trigger('click')
@@ -131,11 +120,7 @@ describe('checkout.vue — EFT', () => {
   })
 
   it('downloads the EFT instructions PDF when the link is clicked', async () => {
-    const store = usePaymentLinkStore()
-    store.setToken('tok-1')
-    store.setAccount(42)
-    store.setInvoice(invoice({ paymentMethod: 'EFT' }))
-    getAccountPaymentInfo.mockResolvedValue(eftAccountInfo())
+    seed({ paymentMethod: 'EFT' }, eftAccountInfo())
 
     const wrapper = await mountCheckout()
     await wrapper.find('a').trigger('click')
@@ -145,11 +130,7 @@ describe('checkout.vue — EFT', () => {
   })
 
   it('shows an error if the EFT instructions download fails', async () => {
-    const store = usePaymentLinkStore()
-    store.setToken('tok-1')
-    store.setAccount(42)
-    store.setInvoice(invoice({ paymentMethod: 'EFT' }))
-    getAccountPaymentInfo.mockResolvedValue(eftAccountInfo())
+    seed({ paymentMethod: 'EFT' }, eftAccountInfo())
     downloadEftInstructions.mockRejectedValue({ data: { message: 'boom' } })
 
     const wrapper = await mountCheckout()

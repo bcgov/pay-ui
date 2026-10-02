@@ -1,5 +1,4 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
-import { createPinia, setActivePinia } from 'pinia'
 import SuccessPage from '~/pages/pay/[token]/success.vue'
 import { usePaymentLinkStore } from '~/stores/paymentLink'
 
@@ -20,13 +19,13 @@ mockNuxtImport('usePayLink', () => () => ({
 
 describe('success.vue — EFT', () => {
   beforeEach(() => {
-    setActivePinia(createPinia())
+    // Don't create a separate Pinia here — mountSuspended's component won't see it.
+    usePaymentLinkStore().$reset()
     getInvoiceByToken.mockReset()
   })
 
   it('routes an EFT invoice to the EFT pending screen', async () => {
-    const store = usePaymentLinkStore()
-    store.setInvoice({ id: 1, total: 25, paymentMethod: 'EFT' })
+    usePaymentLinkStore().setInvoice({ id: 1, total: 25, paymentMethod: 'EFT' })
 
     const wrapper = await mountSuspended(SuccessPage)
 
@@ -36,8 +35,7 @@ describe('success.vue — EFT', () => {
   })
 
   it('does not route a PAD invoice to the EFT screen', async () => {
-    const store = usePaymentLinkStore()
-    store.setInvoice({ id: 1, total: 25, paymentMethod: 'PAD' })
+    usePaymentLinkStore().setInvoice({ id: 1, total: 25, paymentMethod: 'PAD' })
 
     const wrapper = await mountSuspended(SuccessPage)
 
