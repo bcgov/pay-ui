@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Right-sidebar fee summary. Renders one row per invoice line item (base fee
- * only, service fees excluded), then a Service Fee aggregate, then a Total
+ * only, service fees excluded), then a Service Fee aggregate, Subtotal and GST rows (when the invoice has GST), then a Total
  * Fees row with a "CAD" caption. Money math lives in useInvoiceFees.
  */
 import type { PayInvoice, PayInvoiceLineItem } from '../../stores/paymentLink'
@@ -10,7 +10,10 @@ const props = defineProps<{
   invoice?: PayInvoice | null
 }>()
 
-const { lineBaseFee, serviceFees, total } = useInvoiceFees(() => props.invoice)
+const { lineBaseFee, serviceFees, gst, total } = useInvoiceFees(() => props.invoice)
+
+// Pre-tax amount: line fees + service fee (invoice total less GST).
+const subtotal = computed(() => total.value - gst.value)
 
 function fmt(n: number): string {
   return n.toFixed(2)
@@ -54,7 +57,7 @@ function lineHelper(line: PayInvoiceLineItem): string {
         </div>
       </div>
 
-      <div class="flex items-center justify-between gap-4 py-4 pl-4">
+      <div class="flex items-center justify-between gap-4 py-4">
         <p class="text-sm font-semibold text-slate-900">
           {{ $t('page.checkout.serviceFee') }}
         </p>
@@ -62,16 +65,38 @@ function lineHelper(line: PayInvoiceLineItem): string {
           ${{ fmt(serviceFees) }}
         </p>
       </div>
+    </div>
 
-      <div class="flex items-baseline justify-between gap-4 py-4">
+    <div
+      v-if="gst > 0"
+      class="space-y-4 border-t border-slate-200 px-5 py-4"
+    >
+      <div class="flex items-center justify-between gap-4">
         <p class="text-sm font-semibold text-slate-900">
-          {{ $t('page.checkout.totalFees') }}
+          {{ $t('page.checkout.subtotal') }}
         </p>
-        <p class="whitespace-nowrap text-slate-900">
-          <span class="text-xs uppercase text-slate-500">CAD</span>
-          <span class="ml-1 text-lg font-bold">${{ fmt(total) }}</span>
+        <p class="whitespace-nowrap text-sm font-semibold text-slate-900">
+          ${{ fmt(subtotal) }}
         </p>
       </div>
+      <div class="flex items-center justify-between gap-4">
+        <p class="text-sm font-semibold text-slate-900">
+          {{ $t('page.checkout.gst') }}
+        </p>
+        <p class="whitespace-nowrap text-sm font-semibold text-slate-900">
+          ${{ fmt(gst) }}
+        </p>
+      </div>
+    </div>
+
+    <div class="flex items-baseline justify-between gap-4 border-t border-slate-200 px-5 py-5">
+      <p class="text-sm font-semibold text-slate-900">
+        {{ $t('page.checkout.totalFees') }}
+      </p>
+      <p class="whitespace-nowrap text-slate-900">
+        <span class="text-xs uppercase text-slate-500">CAD</span>
+        <span class="ml-1 text-lg font-bold">${{ fmt(total) }}</span>
+      </p>
     </div>
   </section>
 </template>

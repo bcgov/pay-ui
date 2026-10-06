@@ -6,7 +6,7 @@ import type { PayInvoice, PayInvoiceLineItem } from '../stores/paymentLink'
  * `lineBaseFee` is stateless — pass a line item, get its base fee (filing +
  * priority + future-effective − waived, excludes service fees).
  *
- * `serviceFees` and `total` are reactive `computed`s tied to the invoice
+ * `serviceFees`, `gst` and `total` are reactive `computed`s tied to the invoice
  * getter you pass in. Pass a thunk (e.g. `() => store.invoice`) so the values
  * track store updates without you needing to re-invoke.
  */
@@ -29,7 +29,17 @@ export function useInvoiceFees(getInvoice: () => PayInvoice | null | undefined) 
     )
   })
 
+  // GST covers statutory fees and service fees; prefer the invoice-level value
+  // and fall back to summing per-line GST.
+  const gst = computed(() => {
+    const inv = getInvoice()
+    if (inv?.gst != null) { return Number(inv.gst) || 0 }
+    return (inv?.lineItems ?? []).reduce(
+      (s, l) => s + (Number(l.gst) || 0), 0
+    )
+  })
+
   const total = computed(() => Number(getInvoice()?.total ?? 0))
 
-  return { lineBaseFee, serviceFees, total }
+  return { lineBaseFee, serviceFees, gst, total }
 }
