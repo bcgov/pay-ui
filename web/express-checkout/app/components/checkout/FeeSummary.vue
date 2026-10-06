@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
  * Right-sidebar fee summary. Renders one row per invoice line item (base fee
- * only, service fees excluded), then a Service Fee aggregate, Subtotal and GST rows (when the invoice has GST), then a Total
+ * only, service fees excluded), then a Service Fee aggregate, Subtotal and GST rows, then a Total
  * Fees row with a "CAD" caption. Money math lives in useInvoiceFees.
  */
 import type { PayInvoice, PayInvoiceLineItem } from '../../stores/paymentLink'
