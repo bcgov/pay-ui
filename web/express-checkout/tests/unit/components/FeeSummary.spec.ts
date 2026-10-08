@@ -70,4 +70,25 @@ describe('FeeSummary', () => {
     expect(html).toContain('CAD')
     expect(html).toContain('$351.50')
   })
+
+  it('shows a GST row when the invoice has GST', async () => {
+    const invoice: PayInvoice = {
+      id: 1,
+      total: 264.08,
+      serviceFees: 1.5,
+      gst: 12.58,
+      lineItems: [{ description: 'Search', filingFees: 250 }]
+    }
+    const wrapper = await mountSuspended(FeeSummary, { props: { invoice } })
+    expect(wrapper.html()).toContain('GST')
+    expect(wrapper.html()).toContain('$12.58')
+    expect(wrapper.html()).toContain('Subtotal')
+    expect(wrapper.html()).toContain('$251.50')
+  })
+
+  it('omits the GST row when the invoice has no GST', async () => {
+    const invoice: PayInvoice = { id: 1, total: 20, lineItems: [{ description: 'A', filingFees: 20 }] }
+    const wrapper = await mountSuspended(FeeSummary, { props: { invoice } })
+    expect(wrapper.html()).not.toContain('GST')
+  })
 })

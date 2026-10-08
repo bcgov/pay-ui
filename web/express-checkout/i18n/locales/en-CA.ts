@@ -49,6 +49,8 @@ export default {
       },
       feeSummary: 'Fee Summary',
       serviceFee: 'Service Fee',
+      subtotal: 'Subtotal',
+      gst: 'GST (5%)',
       totalFees: 'Total Fees',
       confirmAndPay: 'Confirm and Pay',
       processing: 'Processing…',

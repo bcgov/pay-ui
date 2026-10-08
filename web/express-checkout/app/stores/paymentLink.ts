@@ -21,6 +21,7 @@ export interface PayInvoice {
   total?: number
   paid?: number
   serviceFees?: number
+  gst?: number
   paymentMethod?: string // e.g. 'DIRECT_PAY' | 'PAD' | 'ONLINE_BANKING' | 'CC' | 'EFT'
   lineItems?: PayInvoiceLineItem[]
   /** pay-api returns invoice creation timestamp as ISO 8601 — used as the
