@@ -77,7 +77,7 @@ describe('FeeSummary', () => {
       total: 264.08,
       serviceFees: 1.5,
       gst: 12.58,
-      lineItems: [{ description: 'Search', filingFees: 250, gst: 12.58 }]
+      lineItems: [{ description: 'Search', filingFees: 250 }]
     }
     const wrapper = await mountSuspended(FeeSummary, { props: { invoice } })
     expect(wrapper.html()).toContain('GST')

@@ -5,7 +5,6 @@ export interface PayInvoiceLineItem {
   priorityFees?: number
   futureEffectiveFees?: number
   serviceFees?: number
-  gst?: number
   waivedFees?: number
   /** Optional quantity metadata used to render the Fee Summary subtitle
    *  ("× {quantity} {quantityDesc}"). pay-api's InvoiceSchema surfaces these

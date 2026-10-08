@@ -29,15 +29,7 @@ export function useInvoiceFees(getInvoice: () => PayInvoice | null | undefined) 
     )
   })
 
-  // GST covers statutory fees and service fees; prefer the invoice-level value
-  // and fall back to summing per-line GST.
-  const gst = computed(() => {
-    const inv = getInvoice()
-    if (inv?.gst != null) { return Number(inv.gst) || 0 }
-    return (inv?.lineItems ?? []).reduce(
-      (s, l) => s + (Number(l.gst) || 0), 0
-    )
-  })
+  const gst = computed(() => Number(getInvoice()?.gst) || 0)
 
   const total = computed(() => Number(getInvoice()?.total ?? 0))
 
