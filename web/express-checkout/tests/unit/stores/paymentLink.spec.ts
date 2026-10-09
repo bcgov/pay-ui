@@ -74,3 +74,20 @@ describe('usePaymentLinkStore', () => {
     expect(store.accountInfo).toBeNull()
   })
 })
+
+describe('paymentLink store — returnUrl', () => {
+  it('keeps the returnUrl when a later invoice (redemption / payment-requests) lacks it', () => {
+    const store = usePaymentLinkStore()
+    store.$reset()
+    store.setInvoice({ id: 1, returnUrl: 'https://partner.test/back' })
+    store.setInvoice({ id: 1 })
+    expect(store.returnUrl).toBe('https://partner.test/back')
+  })
+
+  it('can be set straight from the payment-links response', () => {
+    const store = usePaymentLinkStore()
+    store.$reset()
+    store.setReturnUrl('https://partner.test/back')
+    expect(store.returnUrl).toBe('https://partner.test/back')
+  })
+})
