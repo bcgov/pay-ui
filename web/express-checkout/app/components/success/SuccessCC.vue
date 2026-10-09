@@ -27,7 +27,7 @@ const downloadError = ref<string | null>(null)
 
 const summaryRows = computed(() => [
   { label: t('page.success.cc.methodLabel'), value: t('page.checkout.method.cc') },
-  { label: t('page.success.cc.amountLabel'), value: amountFormatted }
+  { label: t('page.success.cc.amountLabel'), value: amountFormatted, bold: true }
 ])
 
 async function download() {
@@ -55,22 +55,25 @@ async function download() {
 </script>
 
 <template>
-  <div class="py-8 text-center">
-    <SuccessHeader icon="i-mdi-check" :title="$t('page.success.cc.title')" />
-    <p class="mx-auto mt-4 max-w-xl text-base text-slate-700">
-      {{ $t('page.success.cc.body') }}
-    </p>
+  <div class="mx-auto max-w-2xl rounded bg-white px-14 py-10 shadow-sm">
+    <SuccessHeader
+      icon="i-mdi-check-circle"
+      icon-class="text-green-700"
+      :title="$t('page.success.cc.title')"
+    />
     <SuccessSummaryList :rows="summaryRows" />
-    <div class="mt-8 flex flex-col items-center gap-2">
+    <div class="mx-auto mt-10 max-w-sm space-y-3">
       <UButton
         color="primary"
         size="lg"
+        block
         icon="i-mdi-download"
         :label="downloading ? $t('page.success.downloading') : $t('page.success.cc.downloadReceipt')"
         :disabled="!invoiceId"
         :loading="downloading"
         @click="download"
       />
+      <SuccessReturnButton />
       <p v-if="downloadError" class="text-sm text-red-700">
         {{ downloadError }}
       </p>

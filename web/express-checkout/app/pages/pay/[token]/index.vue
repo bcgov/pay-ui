@@ -63,6 +63,7 @@ watch(isAuthenticated, async (isAuth) => {
   // New session — recover via token: skip picker if already linked to this user's account.
   try {
     const invoice = await payLink.getInvoiceByToken(token.value)
+    store.setReturnUrl(invoice.returnUrl)
     const paymentAccount = invoice.paymentAccount as { accountId?: string } | null | undefined
     const linkedAccountId = paymentAccount?.accountId
     if (linkedAccountId) {

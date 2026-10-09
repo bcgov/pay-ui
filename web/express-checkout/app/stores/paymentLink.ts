@@ -27,6 +27,8 @@ export interface PayInvoice {
   /** pay-api returns invoice creation timestamp as ISO 8601 — used as the
    *  `filingDateTime` when POSTing to /receipts to generate the invoice PDF. */
   createdOn?: string
+  /** Partner-supplied URL on the payment link — target of the result screen's Return button. */
+  returnUrl?: string
   [key: string]: unknown
 }
 
@@ -66,6 +68,7 @@ export const usePaymentLinkStore = defineStore('express-checkout-payment-link', 
   const selectedAccountId = ref<number | null>(null)
   const paymentMethod = ref<PaymentMethodCode | null>(null)
   const accountInfo = ref<AccountPaymentInfo | null>(null)
+  const returnUrl = ref<string | null>(null)
 
   function setToken(value: string | null) {
     token.value = value
@@ -73,9 +76,14 @@ export const usePaymentLinkStore = defineStore('express-checkout-payment-link', 
 
   function setInvoice(value: PayInvoice | null) {
     invoice.value = value
+    if (value?.returnUrl) { returnUrl.value = value.returnUrl }
     if (value?.paymentMethod && !paymentMethod.value) {
       paymentMethod.value = value.paymentMethod as PaymentMethodCode
     }
+  }
+
+  function setReturnUrl(value: string | null | undefined) {
+    if (value) { returnUrl.value = value }
   }
 
   function setAccount(id: number | null) {
@@ -96,6 +104,7 @@ export const usePaymentLinkStore = defineStore('express-checkout-payment-link', 
     selectedAccountId.value = null
     paymentMethod.value = null
     accountInfo.value = null
+    returnUrl.value = null
   }
 
   return {
@@ -104,8 +113,10 @@ export const usePaymentLinkStore = defineStore('express-checkout-payment-link', 
     selectedAccountId,
     paymentMethod,
     accountInfo,
+    returnUrl,
     setToken,
     setInvoice,
+    setReturnUrl,
     setAccount,
     setMethod,
     setAccountInfo,
