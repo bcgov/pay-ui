@@ -66,14 +66,14 @@ async function payByCreditCard() {
 
 <template>
   <div>
-    <div class="mb-8 text-center">
-      <UIcon name="i-mdi-clock-outline" class="mx-auto size-14 text-mark" />
-      <h1 class="mt-4 text-3xl font-bold text-slate-900">
-        {{ $t('page.success.ob.title') }}
-      </h1>
-    </div>
+    <section class="overflow-hidden rounded bg-white shadow-sm">
+      <div class="px-8 py-10 text-center">
+        <UIcon name="i-mdi-clock-outline" class="mx-auto size-12 text-mark" />
+        <h1 class="mt-4 text-3xl font-bold text-slate-900">
+          {{ $t('page.success.ob.title') }}
+        </h1>
+      </div>
 
-    <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <div class="ob-banner bg-mark px-8 py-6 text-white">
         <p class="text-xl font-bold text-white">
           {{ $t('page.success.ob.transactionAmount') }}: {{ amountFormatted }}
@@ -153,6 +153,9 @@ async function payByCreditCard() {
           <p v-if="switchError" class="mt-2 text-sm text-red-700">
             {{ switchError }}
           </p>
+          <div class="mt-6 max-w-sm empty:hidden">
+            <SuccessReturnButton />
+          </div>
         </div>
       </div>
     </section>

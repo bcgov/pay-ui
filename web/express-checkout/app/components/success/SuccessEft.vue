@@ -11,17 +11,20 @@ const { t } = useI18n()
 
 const summaryRows = computed(() => [
   { label: t('page.success.eft.methodLabel'), value: t('page.checkout.method.eft') },
-  { label: t('page.success.eft.amountLabel'), value: amountFormatted }
+  { label: t('page.success.eft.amountLabel'), value: amountFormatted, bold: true }
 ])
 </script>
 
 <template>
-  <div class="py-8 text-center">
+  <div class="mx-auto max-w-2xl rounded bg-white px-14 py-10 shadow-sm">
     <SuccessHeader icon="i-mdi-clock-outline" :title="$t('page.success.eft.title')" />
     <SuccessSummaryList :rows="summaryRows" />
-    <p class="mx-auto mt-6 flex max-w-xl items-start justify-center gap-2 text-left text-base text-slate-700">
-      <UIcon name="i-mdi-check" class="mt-1 size-5 shrink-0 text-green-600" />
+    <p class="mt-4 flex items-start gap-2 text-base text-slate-700">
+      <UIcon name="i-mdi-check" class="mt-1 size-5 shrink-0 text-green-700" />
       <span>{{ $t('page.success.eft.body') }}</span>
     </p>
+    <div class="mx-auto mt-8 max-w-sm empty:hidden">
+      <SuccessReturnButton />
+    </div>
   </div>
 </template>

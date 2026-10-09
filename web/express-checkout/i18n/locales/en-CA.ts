@@ -95,6 +95,7 @@ export default {
     success: {
       title: 'Payment Successful',
       downloading: 'Preparing document…',
+      return: 'Return',
       downloadFailed: 'Unable to download the document. Please try again.',
       cc: {
         title: 'Payment Successful',

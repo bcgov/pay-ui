@@ -27,6 +27,8 @@ export interface PayInvoice {
   /** pay-api returns invoice creation timestamp as ISO 8601 — used as the
    *  `filingDateTime` when POSTing to /receipts to generate the invoice PDF. */
   createdOn?: string
+  /** Partner-supplied URL on the payment link — target of the result screen's Return button. */
+  returnUrl?: string
   [key: string]: unknown
 }
 
