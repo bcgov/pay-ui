@@ -130,3 +130,5 @@ lib/lib.umd.js.map
 
 /web/express-checkout/.nuxt
 /web/express-checkout/.output
+/web/pay-insights/.nuxt
+/web/pay-insights/.output
