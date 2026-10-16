@@ -1,0 +1,26 @@
+name: PAY-INSIGHTS CI
+
+on:
+  pull_request:
+    branches:
+      - main
+      - feature*
+    paths:
+      - "web/pay-insights/**"
+      - ".github/workflows/pay-insights-ci.yml"
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+    working-directory: .
+
+jobs:
+  pay-insights-ci:
+    uses: bcgov/bcregistry-sre/.github/workflows/frontend-ci.yaml@main
+    with:
+      node_version: 24
+      pnpm_version: 11.9.0
+      app_name: "pay-insights"
+      working_directory: "./web/pay-insights"
+      codecov_flag: "payinsights"

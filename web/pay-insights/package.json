@@ -1,0 +1,57 @@
+{
+  "name": "pay-insights",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@10.13.1",
+  "license": "BSD-3-Clause",
+  "scripts": {
+    "build-check": "nuxt build",
+    "build": "nuxt build",
+    "dev": "nuxt dev --port 3002",
+    "preview": "nuxt preview",
+    "start": "node .output/server/index.mjs",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint --fix .",
+    "lint:check": "eslint .",
+    "test": "vitest --dir tests/unit --passWithNoTests",
+    "test:unit": "vitest --dir tests/unit --passWithNoTests",
+    "test:unit:cov": "vitest --dir tests/unit --coverage --passWithNoTests",
+    "typecheck": "npx nuxt typecheck"
+  },
+  "dependencies": {
+    "@google-cloud/cloud-sql-connector": "1.12.1",
+    "@sbc-connect/nuxt-base": "0.14.0",
+    "jose": "6.2.12",
+    "nuxt": "4.4.8",
+    "pg": "8.23.1",
+    "vue": "3.5.39",
+    "vue-router": "5.0.7"
+  },
+  "devDependencies": {
+    "@iconify-json/mdi": "1.2.3",
+    "@nuxt/eslint-config": "1.5.2",
+    "@nuxt/test-utils": "3.21.0",
+    "@types/node": "25.5.0",
+    "@types/pg": "8.15.6",
+    "@vitest/coverage-v8": "3.2.4",
+    "@vue/test-utils": "2.4.6",
+    "eslint": "9.36.0",
+    "happy-dom": "17.6.3",
+    "typescript": "6.0.3",
+    "vitest": "3.2.4",
+    "vue-tsc": "3.3.1"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "@sbc-connect/nuxt-base",
+      "@tailwindcss/oxide",
+      "esbuild",
+      "vue-demi"
+    ]
+  }
+}
