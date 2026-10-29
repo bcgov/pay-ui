@@ -16,10 +16,11 @@ definePageMeta({
   layout: 'connect-auth',
   hideBreadcrumbs: true,
   middleware: async (to) => {
-    const { $connectAuth, $router, _appConfig } = useNuxtApp()
+    const { $connectAuth, $router, _appConfig, $config } = useNuxtApp()
     if ($connectAuth.authenticated) {
       if (to.query.return) {
-        window.location.replace(to.query.return as string)
+        const fallback = _appConfig.connect.login.redirect || '/'
+        window.location.replace(getSafeRedirectUrl(to.query.return, getAppOrigins($config.public.baseUrl), fallback))
         return
       }
       await $router.push(_appConfig.connect.login.redirect || '/')
@@ -30,10 +31,8 @@ definePageMeta({
 const isSessionExpired = sessionStorage.getItem(ConnectAuthStorageKey.CONNECT_SESSION_EXPIRED)
 
 const loginOptions = computed(() => {
-  const urlReturn = route.query.return
-  const redirectUrl = urlReturn !== undefined
-    ? urlReturn as string
-    : `${rtc.baseUrl.replace(/\/$/, '')}${ac.login.redirect}`
+  const defaultRedirect = `${rtc.baseUrl.replace(/\/$/, '')}${ac.login.redirect}`
+  const redirectUrl = getSafeRedirectUrl(route.query.return, getAppOrigins(rtc.baseUrl), defaultRedirect)
 
   const loginOptionsMap: Record<
     'bcsc' | 'bceid' | 'idir',

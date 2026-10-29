@@ -358,7 +358,7 @@ describe('AddManualTransactionDetails', () => {
     await nextTick()
 
     const component = wrapper.vm as InstanceType<typeof AddManualTransactionDetails>
-    component.manualTransactionDetails.value.quantity = 2
+    component.manualTransactionDetails.quantity = 2
     await nextTick()
     await new Promise(resolve => setTimeout(resolve, 50))
 
@@ -385,7 +385,7 @@ describe('AddManualTransactionDetails', () => {
     await nextTick()
 
     const component = wrapper.vm as InstanceType<typeof AddManualTransactionDetails>
-    component.manualTransactionDetails.value.quantity = 1
+    component.manualTransactionDetails.quantity = 1
     await nextTick()
 
     const infoIcon = wrapper.find('[data-test="info-icon"]')
@@ -431,10 +431,10 @@ describe('AddManualTransactionDetails', () => {
     await nextTick()
 
     const component = wrapper.vm as InstanceType<typeof AddManualTransactionDetails>
-    expect(component.manualTransactionDetails.value.priority).toBe(true)
-    expect(component.manualTransactionDetails.value.futureEffective).toBe(true)
-    expect(component.manualTransactionDetails.value.referenceNumber).toBe('REF123')
-    expect(component.manualTransactionDetails.value.quantity).toBe(2)
+    expect(component.manualTransactionDetails.priority).toBe(true)
+    expect(component.manualTransactionDetails.futureEffective).toBe(true)
+    expect(component.manualTransactionDetails.referenceNumber).toBe('REF123')
+    expect(component.manualTransactionDetails.quantity).toBe(2)
   })
 
   it('should expose validate method', async () => {
@@ -518,10 +518,10 @@ describe('AddManualTransactionDetails', () => {
     await nextTick()
 
     const component2 = wrapper2.vm as InstanceType<typeof AddManualTransactionDetails>
-    component2.manualTransactionDetails.value.quantity = 5
+    component2.manualTransactionDetails.quantity = 5
     await nextTick()
 
-    expect(component2.manualTransactionDetails.value.quantity).toBe(5)
+    expect(component2.manualTransactionDetails.quantity).toBe(5)
 
     const filingType = wrapper2.findComponent({ name: 'FilingTypeAutoComplete' })
     if (filingType.exists()) {

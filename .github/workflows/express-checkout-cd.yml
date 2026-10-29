@@ -1,10 +1,11 @@
-name: EXPRESS-CHECKOUT GCP CD
+name: EXPRESS-CHECKOUT CD
 
 on:
   push:
     branches:
       - main
-      - feature-express-checkout
+      - feature*
+      - hotfix*
     paths:
       - "web/express-checkout/**"
       - ".github/workflows/express-checkout-cd.yml"
@@ -19,10 +20,17 @@ on:
         - test
         - sandbox
         - prod
-
+      redeploy:
+        description: "Redeploy Application"
+        required: true
+        type: choice
+        options:
+          - "false"
+          - "true"
+          
 jobs:
   express-checkout-cd:
-    uses: bcgov/bcregistry-sre/.github/workflows/frontend-cd.yaml@main
+    uses: bcgov/bcregistry-sre/.github/workflows/backend-cd.yaml@main
     with:
       target: ${{ inputs.target }}
       app_name: "express-checkout"

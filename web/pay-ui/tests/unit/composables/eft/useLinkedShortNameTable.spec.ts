@@ -4,10 +4,15 @@ import type { LinkedShortNameState, LinkedShortNameItem } from '~/interfaces/eft
 
 const mockPayApi = vi.fn()
 
-mockNuxtImport('useNuxtApp', () => () => ({
-  $payApi: mockPayApi,
-  $payApiWithErrorHandling: mockPayApi
-}))
+mockNuxtImport('useNuxtApp', original => () => {
+  const overrides: Record<PropertyKey, unknown> = {
+    $payApi: mockPayApi,
+    $payApiWithErrorHandling: mockPayApi
+  }
+  return new Proxy(original(), {
+    get: (target, key, receiver) => key in overrides ? overrides[key] : Reflect.get(target, key, receiver)
+  })
+})
 
 vi.mock('~/utils/common-util', () => ({
   default: {

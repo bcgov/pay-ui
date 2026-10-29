@@ -1,0 +1,39 @@
+name: PAY-INSIGHTS GCP CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "web/pay-insights/**"
+      - ".github/workflows/pay-insights-cd.yml"
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Deploy To"
+        required: true
+        type: choice
+        options:
+        - dev
+        - test
+        - prod
+      redeploy:
+        description: "Redeploy Application"
+        required: true
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+jobs:
+  pay-insights-cd:
+    # Node server on Cloud Run (not static Firebase), so this uses backend-cd like pay-api
+    uses: bcgov/bcregistry-sre/.github/workflows/backend-cd.yaml@main
+    with:
+      target: ${{ inputs.target }}
+      app_name: "pay-insights"
+      working_directory: "./web/pay-insights"
+      redeploy: ${{ inputs.redeploy }}
+    secrets:
+      WORKLOAD_IDENTIFY_POOLS_PROVIDER: ${{ secrets.WORKLOAD_IDENTIFY_POOLS_PROVIDER }}
+      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}

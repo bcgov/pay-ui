@@ -327,4 +327,135 @@ describe('useAddManualTransactionDetails', () => {
     await new Promise(resolve => setTimeout(resolve, 100))
     expect(composable.manualTransactionDetails.value.availableAmountForManualTransaction).toBe(1000)
   })
+
+  describe('handlers', () => {
+    const filingType = {
+      corpTypeCode: { code: 'BC', product: 'BC' },
+      filingTypeCode: { code: 'OTANN' }
+    }
+
+    it('handleQuantityChange sets quantity, error and debounces the fee calculation', async () => {
+      const mockEmit = vi.fn()
+      const composable = useAddManualTransactionDetails(reactive({ index: 3 }), mockEmit)
+      composable.manualTransactionDetails.value.filingType = filingType as never
+
+      composable.handleQuantityChange('0')
+      expect(composable.errors.value.quantity).toBe('This field is required')
+
+      composable.handleQuantityChange('-2')
+      expect(composable.errors.value.quantity).toBe('Quantity should be greater than 0')
+
+      composable.handleQuantityChange('4')
+      expect(composable.manualTransactionDetails.value.quantity).toBe(4)
+      expect(composable.errors.value.quantity).toBe('')
+
+      await new Promise(resolve => setTimeout(resolve, 250))
+      expect(mockGetFeeByCorpTypeAndFilingType).toHaveBeenCalledTimes(1)
+      expect(mockGetFeeByCorpTypeAndFilingType).toHaveBeenCalledWith({
+        corpTypeCode: 'BC',
+        filingTypeCode: 'OTANN',
+        requestParams: { quantity: 4, priority: false, futureEffective: false }
+      })
+      expect(composable.manualTransactionDetails.value.total).toBe(100.5)
+      expect(mockEmit).toHaveBeenCalledWith('updateManualTransaction', expect.objectContaining({ index: 3 }))
+    })
+
+    it('handleReferenceNumberChange trims, validates and emits', () => {
+      const mockEmit = vi.fn()
+      const composable = useAddManualTransactionDetails(reactive({ index: 0 }), mockEmit)
+
+      composable.handleReferenceNumberChange('  REF1  ')
+      expect(composable.manualTransactionDetails.value.referenceNumber).toBe('REF1')
+      expect(composable.errors.value.referenceNumber).toBe('')
+      expect(mockEmit).toHaveBeenCalledTimes(1)
+
+      composable.handleReferenceNumberChange('x'.repeat(21))
+      expect(composable.errors.value.referenceNumber).toContain('not be more than 20')
+
+      composable.handleReferenceNumberChange(undefined as unknown as string)
+      expect(composable.errors.value.referenceNumber).toBe('')
+    })
+
+    it('validate flags missing filing type, quantity and long reference number', () => {
+      const composable = useAddManualTransactionDetails(reactive({ index: 0 }), vi.fn())
+      composable.manualTransactionDetails.value.referenceNumber = 'y'.repeat(25)
+
+      expect(composable.validate()).toBe(false)
+      expect(composable.errors.value.filingType).toBe('This field is required')
+      expect(composable.errors.value.quantity).toBe('This field is required')
+      expect(composable.errors.value.referenceNumber).toContain('not be more than 20')
+    })
+
+    it('validate passes with complete data and clears prior errors', () => {
+      const composable = useAddManualTransactionDetails(reactive({ index: 0 }), vi.fn())
+      composable.errors.value.filingType = 'old'
+      composable.manualTransactionDetails.value.filingType = filingType as never
+      composable.manualTransactionDetails.value.quantity = 2
+      composable.manualTransactionDetails.value.referenceNumber = 'ok'
+
+      expect(composable.validate()).toBe(true)
+      expect(composable.errors.value).toEqual({ filingType: '', quantity: '', referenceNumber: '' })
+    })
+
+    it('calculateTotal resets total to 0 when filing type or quantity is missing', async () => {
+      const mockEmit = vi.fn()
+      const composable = useAddManualTransactionDetails(reactive({ index: 1 }), mockEmit)
+      composable.manualTransactionDetails.value.total = 50
+
+      await composable.calculateTotal()
+
+      expect(composable.manualTransactionDetails.value.total).toBe(0)
+      expect(mockGetFeeByCorpTypeAndFilingType).not.toHaveBeenCalled()
+      expect(mockEmit).toHaveBeenCalledWith('updateManualTransaction', expect.anything())
+    })
+
+    it('calculateTotal passes priority/futureEffective flags and falls back to 0 on null fee', async () => {
+      const composable = useAddManualTransactionDetails(reactive({ index: 1 }), vi.fn())
+      Object.assign(composable.manualTransactionDetails.value, {
+        filingType, quantity: 1, priority: true, futureEffective: true
+      })
+      mockGetFeeByCorpTypeAndFilingType.mockResolvedValueOnce(null)
+
+      await composable.calculateTotal()
+
+      expect(mockGetFeeByCorpTypeAndFilingType).toHaveBeenCalledWith(expect.objectContaining({
+        requestParams: { quantity: 1, priority: true, futureEffective: true }
+      }))
+      expect(composable.manualTransactionDetails.value.total).toBe(0)
+    })
+
+    it('calculateTotal logs the API error body and zeroes the total', async () => {
+      const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const composable = useAddManualTransactionDetails(reactive({ index: 1 }), vi.fn())
+      Object.assign(composable.manualTransactionDetails.value, { filingType, quantity: 1, total: 9 })
+      mockGetFeeByCorpTypeAndFilingType.mockRejectedValueOnce({ response: { data: 'boom' } })
+
+      await composable.calculateTotal()
+
+      expect(composable.manualTransactionDetails.value.total).toBe(0)
+      expect(spy).toHaveBeenCalledWith('error', 'boom')
+      spy.mockRestore()
+    })
+
+    it('does not emit when no index is provided', () => {
+      const mockEmit = vi.fn()
+      const composable = useAddManualTransactionDetails(reactive({}), mockEmit)
+
+      composable.emitManualTransactionDetails()
+      composable.removeManualTransactionRowEventHandler()
+
+      expect(mockEmit).not.toHaveBeenCalled()
+    })
+
+    it('errorMessage is set only when quantity exceeds the available amount', () => {
+      const composable = useAddManualTransactionDetails(reactive({ index: 0 }), vi.fn())
+      Object.assign(composable.manualTransactionDetails.value, {
+        quantity: 1, total: 20, availableAmountForManualTransaction: 10
+      })
+      expect(composable.errorMessage.value).toBe('text.amountExceedsBalance')
+
+      composable.manualTransactionDetails.value.availableAmountForManualTransaction = 50
+      expect(composable.errorMessage.value).toBeUndefined()
+    })
+  })
 })

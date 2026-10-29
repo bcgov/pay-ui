@@ -65,7 +65,7 @@ describe('DatePicker', () => {
     const popover = document.querySelector('[role="dialog"]')
     expect(popover).not.toBeNull()
 
-    const days = Array.from(popover!.querySelector('[role="grid"]')!.querySelectorAll('[role="button"]'))
+    const days = Array.from(popover!.querySelector('[data-slot="grid"]')!.querySelectorAll('[role="button"]'))
     const dayButton = days.find(day => day.textContent?.includes('15'))
     // @ts-expect-error - Property 'click' does not exist on type 'Element'
     dayButton!.click()
@@ -110,7 +110,7 @@ describe('DatePicker', () => {
     let popover = document.querySelector('[role="dialog"]')
     expect(popover).not.toBeNull()
 
-    const days = Array.from(popover!.querySelector('[role="grid"]')!.querySelectorAll('[role="button"]'))
+    const days = Array.from(popover!.querySelector('[data-slot="grid"]')!.querySelectorAll('[role="button"]'))
     const dayButton = days.find(day => day.textContent?.includes('15'))
     // @ts-expect-error - Property 'click' does not exist on type 'Element'
     dayButton!.click()

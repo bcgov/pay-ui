@@ -41,6 +41,7 @@ describe('DailyReport', () => {
     expect(button.exists()).toBe(true)
     expect(button.text()).toContain('Daily Report')
 
+    wrapper.unmount()
     mockShowCalendar.value = true
     const wrapper2 = await mountSuspended(DailyReport, {
       global: {
@@ -74,6 +75,7 @@ describe('DailyReport', () => {
     await nextTick()
     expect(wrapper2.text()).toContain('Select Daily Report Date')
 
+    wrapper2.unmount()
     mockSelectedDate.value = '2025-09-25'
     const wrapper3 = await mountSuspended(DailyReport, {
       global: {
@@ -108,6 +110,7 @@ describe('DailyReport', () => {
     expect(wrapper3.text()).toContain('Selected Date:')
     expect(wrapper3.text()).toContain('Thu, Sep 25, 2025')
 
+    wrapper3.unmount()
     mockSelectedDate.value = null
     const wrapper4 = await mountSuspended(DailyReport, {
       global: {
@@ -144,6 +147,7 @@ describe('DailyReport', () => {
     expect(downloadButton.exists()).toBe(true)
     expect(downloadButton.attributes('disabled')).toBeDefined()
 
+    wrapper4.unmount()
     mockSelectedDate.value = '2025-09-25'
     const wrapper5 = await mountSuspended(DailyReport, {
       global: {
@@ -378,6 +382,7 @@ describe('DailyReport', () => {
     await nextTick()
     expect(wrapper.text()).toContain('Thu, Sep 25, 2025')
 
+    wrapper.unmount()
     mockSelectedDate.value = null
     const wrapper2 = await mountSuspended(DailyReport, {
       global: {
@@ -412,6 +417,7 @@ describe('DailyReport', () => {
       expect(mockSelectedDate.value).toBe('2025-09-25')
     }
 
+    wrapper2.unmount()
     mockSelectedDate.value = '2025-09-25'
     const wrapper3 = await mountSuspended(DailyReport, {
       global: {
@@ -445,6 +451,7 @@ describe('DailyReport', () => {
       expect(mockSelectedDate.value).toBeNull()
     }
 
+    wrapper3.unmount()
     mockSelectedDate.value = null
     mockShowCalendar.value = true
     const wrapper4 = await mountSuspended(DailyReport, {

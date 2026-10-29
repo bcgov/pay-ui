@@ -23,8 +23,10 @@ export const usePayApi = () => {
     routingNumber: string,
     options?: { showErrorToast?: boolean }
   ): Promise<RoutingSlip | undefined> {
+    // Absolute URL so it bypasses the v1 baseURL of $payApi while still going through the server proxy
     const { payApiUrl } = useRuntimeConfig().public
-    return $payApi(`${payApiUrl}/api/v2/fas/routing-slips/${routingNumber}`, options as Record<string, unknown>)
+    const url = new URL(`${payApiUrl}/api/v2/fas/routing-slips/${routingNumber}`, useRequestURL().origin).href
+    return $payApi(url, options as Record<string, unknown>)
   }
 
   async function postRoutingSlip(payload: CreateRoutingSlipPayload): Promise<RoutingSlip> {

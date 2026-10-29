@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - feature*
+      - hotfix*
     paths:
       - "web/express-checkout/**"
       - ".github/workflows/express-checkout-ci.yml"

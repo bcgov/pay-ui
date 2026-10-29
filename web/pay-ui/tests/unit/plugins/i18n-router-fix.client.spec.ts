@@ -3,25 +3,37 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import i18nRouterFixPlugin from '~/plugins/i18n-router-fix.client'
 import type { NuxtApp } from '#app'
 
-const { mockRouter, mockUseRouter, originalResolve } = vi.hoisted(() => {
+const { mockRouter, originalResolve } = vi.hoisted(() => {
   const _originalResolve = vi.fn((to: string | { path?: string, name?: string }) => {
     if (typeof to === 'string') {
       return { path: to, name: to }
     }
     return { path: to?.path || '/', name: to?.name || 'default' }
   })
-  const _mockRouter = {
+  const _mockRouter: Record<PropertyKey, unknown> = {
     resolve: _originalResolve
   }
-  const _mockUseRouter = vi.fn(() => _mockRouter)
   return {
-    mockRouter: _mockRouter,
-    mockUseRouter: _mockUseRouter,
+    mockRouter: _mockRouter as { resolve: typeof _originalResolve },
     originalResolve: _originalResolve
   }
 })
 
-mockNuxtImport('useRouter', () => mockUseRouter)
+// Delegate everything except `resolve` to the real router so Nuxt's setup (afterEach, beforeResolve, ...) still works
+mockNuxtImport('useRouter', original => () =>
+  new Proxy(original(), {
+    get: (target, key, receiver) => key in mockRouter
+      ? (mockRouter as Record<PropertyKey, unknown>)[key]
+      : Reflect.get(target, key, receiver),
+    set: (target, key, value, receiver) => {
+      if (key in mockRouter) {
+        (mockRouter as Record<PropertyKey, unknown>)[key] = value
+        return true
+      }
+      return Reflect.set(target, key, value, receiver)
+    }
+  })
+)
 
 Object.defineProperty(globalThis, 'import', {
   value: {

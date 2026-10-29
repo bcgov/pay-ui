@@ -16,20 +16,16 @@ export default defineVitestConfig({
     coverage: {
       provider: 'v8',
       reportsDirectory: './tests/unit/coverage',
-      include: [
-        'pages/**',
-        'layouts/**',
-        'components/**',
-        'composables/**',
-        'utils/**',
-        'services/**',
-        'plugins/**',
-        'stores/**'
-      ],
+      include: ['app/**/*.{ts,vue}', 'server/**/*.ts'],
       exclude: [
-        'utils/**/index.ts'
+        'app/**/*.d.ts',
+        'app/interfaces/**',
+        'app/types/**',
+        'app/**/index.ts'
       ]
     },
+    // Nuxt environment setup (beforeAll in @nuxt/test-utils) can exceed 10s under parallel load.
+    hookTimeout: 30000,
     setupFiles: './tests/unit/setup.ts',
     globals: true,
     clearMocks: true,

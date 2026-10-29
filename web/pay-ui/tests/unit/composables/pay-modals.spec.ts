@@ -24,7 +24,11 @@ mockNuxtImport('useLocalePath', () => () => vi.fn((path: string) => path))
 // }))
 
 describe('usePayModals', () => {
-  const modal = usePayModals()
+  let modal: ReturnType<typeof usePayModals>
+
+  beforeAll(() => {
+    modal = usePayModals()
+  })
 
   beforeEach(() => {
     vi.clearAllMocks()

@@ -19,10 +19,10 @@ const emit = defineEmits<{ (e: 'change', value: { startDate: string | null, endD
 // can use v-model in parent as normal
 // https://vuejs.org/api/sfc-script-setup.html#definemodel
 const model = defineModel<{ startDate: string | null, endDate: string | null }>({
-  default: {
+  default: () => ({
     startDate: null,
     endDate: null
-  },
+  }),
   required: true
 })
 

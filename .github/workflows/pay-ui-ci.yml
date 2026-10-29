@@ -5,9 +5,10 @@ on:
     branches:
       - main
       - feature*
+      - hotfix*
     paths:
       - "web/pay-ui/**"
-      - ".github/workflows/ci.yml"
+      - ".github/workflows/pay-ui-ci.yml"
   workflow_dispatch:
 
 defaults:

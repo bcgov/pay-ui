@@ -21,10 +21,15 @@ const {
   }
 })
 
-mockNuxtImport('useNuxtApp', () => () => ({
-  $payApi: mockPayApi,
-  $payApiWithErrorHandling: mockPayApi
-}))
+mockNuxtImport('useNuxtApp', original => () => {
+  const overrides: Record<PropertyKey, unknown> = {
+    $payApi: mockPayApi,
+    $payApiWithErrorHandling: mockPayApi
+  }
+  return new Proxy(original(), {
+    get: (target, key, receiver) => key in overrides ? overrides[key] : Reflect.get(target, key, receiver)
+  })
+})
 
 vi.mock('~/utils/common-util', () => ({
   default: {
@@ -33,7 +38,11 @@ vi.mock('~/utils/common-util', () => ({
 }))
 
 describe('usePayApi', () => {
-  const payApi = usePayApi()
+  let payApi: ReturnType<typeof usePayApi>
+
+  beforeAll(() => {
+    payApi = usePayApi()
+  })
 
   beforeEach(() => {
     vi.clearAllMocks()

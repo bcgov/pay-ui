@@ -8,9 +8,11 @@ const mockApproveRefund = vi.fn()
 const mockDeclineRefund = vi.fn()
 const mockRouterPush = vi.fn()
 
-mockNuxtImport('useRouter', () => () => ({
-  push: mockRouterPush
-}))
+mockNuxtImport('useRouter', original => () =>
+  new Proxy(original(), {
+    get: (target, key, receiver) => key === 'push' ? mockRouterPush : Reflect.get(target, key, receiver)
+  })
+)
 
 vi.mock('~/composables/eft/useEftRefund', () => ({
   useEftRefund: () => ({

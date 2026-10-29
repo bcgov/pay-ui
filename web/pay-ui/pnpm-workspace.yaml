@@ -7,4 +7,5 @@ allowBuilds:
   '@sbc-connect/nuxt-pay': true
   '@tailwindcss/oxide': true
   esbuild: true
+  unrs-resolver: false
   vue-demi: true

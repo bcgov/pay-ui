@@ -89,7 +89,7 @@ describe('DateRangeFilter', () => {
     const vm = wrapper.vm as ComponentPublicInstance & {
       popoverRangeDisplay?: string
       triggerButtonLabel?: string
-      localModel?: { value: { start?: CalendarDate, end?: CalendarDate } }
+      localModel?: { start?: CalendarDate, end?: CalendarDate }
     }
     expect(vm.popoverRangeDisplay).toBe('2025-09-26 - 2025-09-26')
   })
@@ -131,7 +131,7 @@ describe('DateRangeFilter', () => {
       const vm = wrapper.vm as ComponentPublicInstance & {
         popoverRangeDisplay?: string
         triggerButtonLabel?: string
-        localModel?: { value: { start?: CalendarDate, end?: CalendarDate } }
+        localModel?: { start?: CalendarDate, end?: CalendarDate }
       }
       expect(vm.triggerButtonLabel).toBe('2025-09-15 - 2025-09-21')
     }
@@ -151,10 +151,10 @@ describe('DateRangeFilter', () => {
     const vm = wrapper.vm as ComponentPublicInstance & {
       popoverRangeDisplay?: string
       triggerButtonLabel?: string
-      localModel?: { value: { start?: CalendarDate, end?: CalendarDate } }
+      localModel?: { start?: CalendarDate, end?: CalendarDate }
     }
 
-    expect(vm.localModel?.value.start?.toString()).toBe('2025-09-01')
+    expect(vm.localModel?.start?.toString()).toBe('2025-09-01')
 
     const popover = document.querySelector('[role="dialog"]')
     expect(popover).not.toBeNull()
@@ -168,7 +168,7 @@ describe('DateRangeFilter', () => {
     await nextTick()
     vi.advanceTimersByTime(100)
 
-    expect(vm.localModel?.value.start?.toString()).toBe('2025-09-26')
+    expect(vm.localModel?.start?.toString()).toBe('2025-09-26')
 
     const cancelButton = popoverButtons.find(btn => btn.textContent?.includes('Cancel'))
     expect(cancelButton).toBeDefined()
@@ -180,6 +180,6 @@ describe('DateRangeFilter', () => {
     await nextTick()
     vi.advanceTimersByTime(100)
 
-    expect(vm.localModel?.value.start?.toString()).toBe('2025-09-01')
+    expect(vm.localModel?.start?.toString()).toBe('2025-09-01')
   })
 })

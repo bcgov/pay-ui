@@ -39,7 +39,6 @@ export default function useRoutingSlipTransaction() {
     let error = false
     const isExcessAmount: boolean = availableAmountForManualTransaction() < 0
     if (isExcessAmount) {
-      error = true
       status.value = t('text.cantAddTransactions')
       return
     }

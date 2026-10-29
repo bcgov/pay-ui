@@ -2,6 +2,7 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { useRoutingSlipInfo } from '~/composables/viewRoutingSlip/useRoutingSlipInfo'
 import type { Refund } from '~/interfaces/routing-slip'
 import { SlipStatus } from '~/enums/slip-status'
+import { chequeRefundCodes } from '~/utils/constants'
 
 const {
   _mockUpdateRoutingSlipStatus,
@@ -661,5 +662,164 @@ describe('useRoutingSlipInfo', () => {
     const composable = useRoutingSlipInfo()
     composable.showRefundForm.value = false
     expect(composable.shouldShowNameAndAddress.value).toBe(true)
+  })
+
+  describe('additional branches', () => {
+    const fresh = () => useRoutingSlipInfo()
+    const slip = () => mockStore.routingSlip as Record<string, unknown>
+
+    it('computes refundAmount, preferring refundAmount over remainingAmount', () => {
+      expect(fresh().refundAmount.value).toBe(0)
+      slip().remainingAmount = 5
+      expect(fresh().refundAmount.value).toBe(5)
+      slip().refundAmount = 9
+      expect(fresh().refundAmount.value).toBe(9)
+    })
+
+    it('shows the refund amount only for non-active slips with an amount and no open form', () => {
+      slip().remainingAmount = 5
+      expect(fresh().shouldShowRefundAmount.value).toBe(false)
+      slip().status = SlipStatus.COMPLETE
+      expect(fresh().shouldShowRefundAmount.value).toBe(true)
+      const withForm = fresh()
+      withForm.showRefundForm.value = true
+      expect(withForm.shouldShowRefundAmount.value).toBe(false)
+    })
+
+    it('filters allowedStatuses to known dropdown values and tolerates a missing list', () => {
+      slip().allowedStatuses = ['ACTIVE', 'NOT_A_STATUS']
+      expect(fresh().allowedStatuses.value).toEqual(['ACTIVE'])
+      slip().allowedStatuses = undefined
+      expect(fresh().allowedStatuses.value).toEqual([])
+    })
+
+    it('returns an empty entityNumber without a payment account', () => {
+      slip().paymentAccount = null
+      expect(useRoutingSlipInfo().entityNumber.value).toBe('')
+    })
+
+    it('uses the refund details for refundFormInitialData, falling back to the contact name', () => {
+      slip().refunds = [{ details: { name: 'Refund Name', chequeAdvice: 'adv' } }]
+      expect(fresh().refundFormInitialData.value).toMatchObject({ name: 'Refund Name', chequeAdvice: 'adv' })
+      expect(fresh().chequeAdvice.value).toBe('adv')
+      slip().refunds = [{ details: { chequeAdvice: 'adv' } }]
+      expect(fresh().refundFormInitialData.value.name).toBe('Test Contact')
+    })
+
+    it('returns blank refundFormInitialData with no refund and no contact', () => {
+      slip().contactName = ''
+      slip().mailingAddress = { city: 'Victoria' }
+      const data = useRoutingSlipInfo().refundFormInitialData.value
+      expect(data).toEqual({ name: '', mailingAddress: { city: 'Victoria' }, chequeAdvice: undefined })
+    })
+
+    it('computes refund status text with processing fallback and N/A-safe uppercase', () => {
+      const processing = fresh().refundStatus.value
+      expect(processing).toBe(processing.toUpperCase())
+      slip().refundStatus = chequeRefundCodes.CHEQUE_UNCASHED
+      expect(fresh().refundStatus.value).not.toBe(processing)
+      slip().refundStatus = 'UNKNOWN_CODE'
+      expect(fresh().refundStatus.value).toBe(processing)
+    })
+
+    it('flags refund request/uncashed states', () => {
+      expect(fresh().isRefundRequested.value).toBe(false)
+      slip().status = SlipStatus.REFUNDREQUEST
+      expect(fresh().isRefundRequested.value).toBe(true)
+      slip().refundStatus = chequeRefundCodes.CHEQUE_UNCASHED
+      expect(fresh().isRefundStatusUncashed.value).toBe(true)
+      expect(fresh().canUpdateRefundStatus.value).toBe(true)
+    })
+
+    it('shouldShowNameAndAddress is true for contact name, false when the address is blank', () => {
+      expect(fresh().shouldShowNameAndAddress.value).toBe(true)
+      slip().contactName = ''
+      slip().mailingAddress = { deliveryInstructions: 'only instructions' }
+      expect(fresh().shouldShowNameAndAddress.value).toBe(false)
+      for (const key of ['street', 'city', 'region', 'postalCode', 'country']) {
+        slip().mailingAddress = { [key]: 'x' }
+        expect(fresh().shouldShowNameAndAddress.value).toBe(true)
+      }
+    })
+
+    it('shouldShowNameAndAddress uses the refund contact name', () => {
+      slip().contactName = ''
+      slip().refunds = [{ details: { name: 'R' } }]
+      expect(useRoutingSlipInfo().shouldShowNameAndAddress.value).toBe(true)
+    })
+
+    it('handleStatusSelect does nothing without a slip number', async () => {
+      slip().number = ''
+      const composable = useRoutingSlipInfo()
+      await composable.handleStatusSelect(SlipStatus.NSF)
+      await composable.handleStatusSelect(SlipStatus.REFUNDREQUEST)
+      expect(composable.showRefundForm.value).toBe(false)
+      expect(_mockOpenPlaceRoutingSlipToNSFModal).not.toHaveBeenCalled()
+    })
+
+    it('runs the status update from NSF, VOID and write-off modal callbacks', async () => {
+      const composable = useRoutingSlipInfo()
+      for (const [status, modalFn] of [
+        [SlipStatus.NSF, _mockOpenPlaceRoutingSlipToNSFModal],
+        [SlipStatus.VOID, _mockOpenVoidRoutingSlipModal],
+        [SlipStatus.WRITEOFFAUTHORIZED, _mockOpenAuthorizeWriteOffModal]
+      ] as const) {
+        _mockUpdateRoutingSlipStatus.mockClear()
+        modalFn.mockImplementationOnce(async (cb: () => Promise<void>) => { await cb() })
+        await composable.handleStatusSelect(status)
+        expect(_mockUpdateRoutingSlipStatus).toHaveBeenCalledWith({ status })
+      }
+      expect(_mockGetRoutingSlip).toHaveBeenCalledWith({ routingSlipNumber: '123456' })
+    })
+
+    it('blocks VOID with an error dialog when invoices exist', async () => {
+      mockInvoiceCount.value = 2
+      await useRoutingSlipInfo().handleStatusSelect(SlipStatus.VOID)
+      expect(_mockOpenErrorDialog).toHaveBeenCalledWith(
+        'error.voidRoutingSlip.title',
+        'error.voidRoutingSlip.description'
+      )
+      expect(_mockOpenVoidRoutingSlipModal).not.toHaveBeenCalled()
+    })
+
+    it('updates a plain status directly and recovers from failures', async () => {
+      const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const composable = useRoutingSlipInfo()
+      await composable.handleStatusSelect(SlipStatus.HOLD)
+      expect(_mockUpdateRoutingSlipStatus).toHaveBeenCalledWith({ status: SlipStatus.HOLD })
+      expect(_mockToggleLoading).toHaveBeenLastCalledWith(false)
+
+      _mockUpdateRoutingSlipStatus.mockRejectedValueOnce(new Error('boom'))
+      await composable.handleStatusSelect(SlipStatus.HOLD)
+      expect(spy).toHaveBeenCalled()
+      expect(_mockToggleLoading).toHaveBeenLastCalledWith(false)
+      spy.mockRestore()
+    })
+
+    it('handleRefundFormSubmit and review authorize ignore a missing slip number', async () => {
+      slip().number = ''
+      const composable = useRoutingSlipInfo()
+      await composable.handleRefundFormSubmit({} as never)
+      await composable.handleRefundReviewAuthorize()
+      expect(mockUsePayApi.updateRoutingSlipRefund).not.toHaveBeenCalled()
+      expect(_mockOpenAuthorizeRefundModal).not.toHaveBeenCalled()
+    })
+
+    it('handleRefundStatusSelect records a comment and invokes the callback', async () => {
+      const cb = vi.fn()
+      slip().refundStatus = chequeRefundCodes.PROCESSED
+      await useRoutingSlipInfo().handleRefundStatusSelect(chequeRefundCodes.CHEQUE_UNCASHED, cb)
+      expect(_mockUpdateRoutingSlipRefundStatus).toHaveBeenCalledWith(chequeRefundCodes.CHEQUE_UNCASHED)
+      expect(_mockUpdateRoutingSlipComments).toHaveBeenCalledWith(
+        expect.stringMatching(/^Refund status updated from .+ to .+$/)
+      )
+      expect(cb).toHaveBeenCalledOnce()
+      expect(_mockGetRoutingSlip).toHaveBeenCalled()
+    })
+
+    it('handleRefundStatusSelect works without a callback', async () => {
+      await useRoutingSlipInfo().handleRefundStatusSelect(chequeRefundCodes.PROCESSED)
+      expect(_mockUpdateRoutingSlipComments).toHaveBeenCalled()
+    })
   })
 })

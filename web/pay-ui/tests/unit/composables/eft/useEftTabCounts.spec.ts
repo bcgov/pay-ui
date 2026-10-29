@@ -3,9 +3,14 @@ import { useEftTabCounts } from '~/composables/eft/useEftTabCounts'
 
 const mockPayApi = vi.fn()
 
-mockNuxtImport('useNuxtApp', () => () => ({
-  $payApi: mockPayApi
-}))
+mockNuxtImport('useNuxtApp', original => () => {
+  const overrides: Record<PropertyKey, unknown> = {
+    $payApi: mockPayApi
+  }
+  return new Proxy(original(), {
+    get: (target, key, receiver) => key in overrides ? overrides[key] : Reflect.get(target, key, receiver)
+  })
+})
 
 describe('useEftTabCounts', () => {
   beforeEach(() => {

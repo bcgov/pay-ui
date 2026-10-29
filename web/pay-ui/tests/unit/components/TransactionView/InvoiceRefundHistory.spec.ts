@@ -5,9 +5,11 @@ import { RefundApprovalStatus } from '~/utils/constants'
 
 const mockPush = vi.fn()
 
-mockNuxtImport('useRouter', () => () => ({
-  push: mockPush
-}))
+mockNuxtImport('useRouter', original => () =>
+  new Proxy(original(), {
+    get: (target, key, receiver) => key === 'push' ? mockPush : Reflect.get(target, key, receiver)
+  })
+)
 
 vi.mock('~/utils/common-util', () => ({
   default: {

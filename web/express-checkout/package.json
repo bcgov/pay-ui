@@ -6,11 +6,11 @@
   "engines": {
     "node": ">=24"
   },
-  "packageManager": "pnpm@10.13.1",
+  "packageManager": "pnpm@11.9.0",
   "license": "BSD-3-Clause",
   "scripts": {
     "build-check": "nuxt build",
-    "build": "nuxt generate",
+    "build": "nuxt build",
     "dev": "nuxt dev --port 3001",
     "generate": "nuxt generate",
     "preview": "nuxt preview",

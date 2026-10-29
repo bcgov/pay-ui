@@ -13,14 +13,13 @@ export default defineVitestConfig({
     coverage: {
       provider: 'v8',
       reportsDirectory: './tests/unit/coverage',
+      allowExternal: true,
+      // Vitest's root is app/, so relative globs match nothing; ../server lives outside the root
       include: [
-        'app/pages/**',
-        'app/components/**',
-        'app/composables/**',
-        'app/middleware/**',
-        'app/stores/**',
-        'app/utils/**'
-      ]
+        '**/express-checkout/app/**/*.{ts,vue}',
+        '**/express-checkout/server/**/*.ts'
+      ],
+      exclude: ['**/*.d.ts']
     },
     setupFiles: './tests/unit/setup.ts',
     globals: true,

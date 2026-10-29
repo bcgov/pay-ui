@@ -4,7 +4,11 @@ describe('Create Routing Slip - Address', () => {
   })
 
   describe('getRoutingSlipAddressSchema', () => {
-    const addressSchema = getRoutingSlipAddressSchema()
+    let addressSchema: ReturnType<typeof getRoutingSlipAddressSchema>
+
+    beforeAll(() => {
+      addressSchema = getRoutingSlipAddressSchema()
+    })
 
     it('should pass with name and address', () => {
       const result = addressSchema.safeParse({

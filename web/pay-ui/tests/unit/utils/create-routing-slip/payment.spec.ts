@@ -1,6 +1,10 @@
 describe('Create Routing Slip - Payment', () => {
   describe('getRoutingSlipDateSchema', () => {
-    const dateSchema = getRoutingSlipDateSchema()
+    let dateSchema: ReturnType<typeof getRoutingSlipDateSchema>
+
+    beforeAll(() => {
+      dateSchema = getRoutingSlipDateSchema()
+    })
 
     it.each([
       ['2025-01-01', true, undefined],
@@ -16,7 +20,11 @@ describe('Create Routing Slip - Payment', () => {
   })
 
   describe('getRoutingSlipAmountSchema', () => {
-    const amountSchema = getRoutingSlipAmountSchema()
+    let amountSchema: ReturnType<typeof getRoutingSlipAmountSchema>
+
+    beforeAll(() => {
+      amountSchema = getRoutingSlipAmountSchema()
+    })
 
     it.each([
       ['100', true, undefined],
@@ -36,7 +44,11 @@ describe('Create Routing Slip - Payment', () => {
   })
 
   describe('getRoutingSlipPaymentSchema', () => {
-    const paymentSchema = getRoutingSlipPaymentSchema()
+    let paymentSchema: ReturnType<typeof getRoutingSlipPaymentSchema>
+
+    beforeAll(() => {
+      paymentSchema = getRoutingSlipPaymentSchema()
+    })
 
     const createItem = (overrides = {}) => ({
       uuid: '123',

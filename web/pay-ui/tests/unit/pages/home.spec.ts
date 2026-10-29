@@ -23,9 +23,10 @@ const {
 mockNuxtImport('navigateTo', () => mockNavigateTo)
 mockNuxtImport('useI18n', () => mockUseI18n)
 mockNuxtImport('setBreadcrumbs', () => mockSetBreadcrumbs)
-mockNuxtImport('useRuntimeConfig', () => () => ({
-  public: { authWebUrl: 'https://auth.example.com' }
-}))
+mockNuxtImport('useRuntimeConfig', original => () => {
+  const config = original()
+  return { ...config, public: { ...config.public, authWebUrl: 'https://auth.example.com' } }
+})
 
 vi.mock('~/components/Dashboard/Search.vue', () => ({
   default: {
