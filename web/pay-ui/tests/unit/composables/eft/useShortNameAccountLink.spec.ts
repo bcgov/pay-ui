@@ -5,10 +5,15 @@ import { ShortNameLinkStatus, ShortNamePaymentActions } from '~/utils/constants'
 const mockPayApi = vi.fn()
 const mockToast = { add: vi.fn() }
 
-mockNuxtImport('useNuxtApp', () => () => ({
-  $payApi: mockPayApi,
-  $payApiWithErrorHandling: mockPayApi
-}))
+mockNuxtImport('useNuxtApp', original => () => {
+  const overrides: Record<PropertyKey, unknown> = {
+    $payApi: mockPayApi,
+    $payApiWithErrorHandling: mockPayApi
+  }
+  return new Proxy(original(), {
+    get: (target, key, receiver) => key in overrides ? overrides[key] : Reflect.get(target, key, receiver)
+  })
+})
 
 mockNuxtImport('useToast', () => () => mockToast)
 

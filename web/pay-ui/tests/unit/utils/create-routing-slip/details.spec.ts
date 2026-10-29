@@ -14,7 +14,11 @@ describe('Create Routing Slip - Details', () => {
   })
 
   describe('getRoutingSlipDetailsSchema', () => {
-    const detailsSchema = getRoutingSlipDetailsSchema()
+    let detailsSchema: ReturnType<typeof getRoutingSlipDetailsSchema>
+
+    beforeAll(() => {
+      detailsSchema = getRoutingSlipDetailsSchema()
+    })
     const validData = { id: '123456789', date: '2025-01-01', entity: 'BC123' }
 
     it('should fail when id less than 9 characters', async () => {

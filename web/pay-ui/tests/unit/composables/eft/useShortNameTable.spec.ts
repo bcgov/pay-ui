@@ -5,10 +5,15 @@ import type { ShortNameSummaryState, EFTShortnameResponse } from '~/interfaces/e
 const mockPayApi = vi.fn()
 const mockToggleLoading = vi.fn()
 
-mockNuxtImport('useNuxtApp', () => () => ({
-  $payApi: mockPayApi,
-  $payApiWithErrorHandling: mockPayApi
-}))
+mockNuxtImport('useNuxtApp', original => () => {
+  const overrides: Record<PropertyKey, unknown> = {
+    $payApi: mockPayApi,
+    $payApiWithErrorHandling: mockPayApi
+  }
+  return new Proxy(original(), {
+    get: (target, key, receiver) => key in overrides ? overrides[key] : Reflect.get(target, key, receiver)
+  })
+})
 
 vi.mock('~/composables/common/useLoader', () => ({
   useLoader: () => ({
@@ -187,5 +192,67 @@ describe('useShortNameTable', () => {
     await loadTableSummaryData()
 
     expect(state.filters.isActive).toBe(false)
+  })
+
+  describe('refreshSummaryItem', () => {
+    it('replaces the matching row with the refreshed item', async () => {
+      const state = createState()
+      state.results = [
+        { id: 1, shortName: 'A', creditsRemaining: 1 },
+        { id: 2, shortName: 'B', creditsRemaining: 2 }
+      ] as EFTShortnameResponse[]
+      mockPayApi.mockResolvedValue({ items: [{ id: 2, shortName: 'B', creditsRemaining: 99 }], total: 1 })
+      const { refreshSummaryItem } = useShortNameTable(state)
+
+      await refreshSummaryItem(2)
+
+      expect(mockPayApi).toHaveBeenCalledWith(expect.stringContaining('shortNameId=2'), { method: 'GET' })
+      expect(state.results[1]!.creditsRemaining).toBe(99)
+      expect(state.results[0]!.creditsRemaining).toBe(1)
+    })
+
+    it('leaves results untouched when the response has no items', async () => {
+      const state = createState()
+      state.results = [{ id: 1, shortName: 'A' }] as EFTShortnameResponse[]
+      mockPayApi.mockResolvedValue({ items: [], total: 0 })
+      const { refreshSummaryItem } = useShortNameTable(state)
+
+      await refreshSummaryItem(1)
+
+      expect(state.results).toEqual([{ id: 1, shortName: 'A' }])
+    })
+
+    it('leaves results untouched when the updated item is not in the table', async () => {
+      const state = createState()
+      state.results = [{ id: 1, shortName: 'A' }] as EFTShortnameResponse[]
+      mockPayApi.mockResolvedValue({ items: [{ id: 5, shortName: 'Z' }], total: 1 })
+      const { refreshSummaryItem } = useShortNameTable(state)
+
+      await refreshSummaryItem(5)
+
+      expect(state.results).toEqual([{ id: 1, shortName: 'A' }])
+    })
+
+    it('handles an empty response', async () => {
+      const state = createState()
+      state.results = [{ id: 1, shortName: 'A' }] as EFTShortnameResponse[]
+      mockPayApi.mockResolvedValue(undefined)
+      const { refreshSummaryItem } = useShortNameTable(state)
+
+      await refreshSummaryItem(1)
+
+      expect(state.results).toHaveLength(1)
+    })
+  })
+
+  it('treats a response without items/total as empty', async () => {
+    mockPayApi.mockResolvedValue({})
+    const state = createState()
+    const { loadTableSummaryData } = useShortNameTable(state)
+
+    await loadTableSummaryData()
+
+    expect(state.results).toEqual([])
+    expect(state.totalResults).toBe(0)
   })
 })

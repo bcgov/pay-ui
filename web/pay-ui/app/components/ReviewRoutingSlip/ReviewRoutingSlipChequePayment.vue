@@ -51,11 +51,10 @@ const formatDate = (dateString?: string): string => {
         :data-test="CommonUtils.getIndexedTag('txt-cheque-date', i)"
       />
 
-      <ConnectInput
+      <AmountInput
         :id="`cheque-amount-cad-${i}`"
         :model-value="String(payment.paidAmount || '')"
         :label="$t('label.amountCAD')"
-        type="number"
         :disabled="!isEditable || isALinkedChild"
         :data-test="CommonUtils.getIndexedTag('txt-paid-amount', i)"
         @update:model-value="(e) => adjustRoutingSlipAmount(Number(e), false, i)"

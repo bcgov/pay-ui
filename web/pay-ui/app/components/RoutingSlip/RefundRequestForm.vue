@@ -29,7 +29,7 @@ const formState = reactive<RefundRequestFormSchema>({
     city: '',
     region: '',
     postalCode: '',
-    country: '',
+    country: 'CA',
     locationDescription: ''
   },
   chequeAdvice: ''

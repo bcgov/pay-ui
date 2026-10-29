@@ -29,6 +29,7 @@ import { StaffReviewPage } from './pages/staff-review-page.js'
 import { PayAdminPage } from './pages/pay-admin-page.js'
 import { EditProfilePage } from './pages/edit-profile-page.js'
 import {BcaValidationPage} from './pages/bca-validation-page.js'
+import {RoutingSlipsPage} from './pages/routing-slips-page.js'
 
 const test = base.extend({
   loginPage: async ({ page }, use) => {
@@ -73,7 +74,10 @@ const test = base.extend({
   },
   bcaValidationPage: async ({ page }, use) => {
     await use(new BcaValidationPage(page))
-  } 
+  } ,
+  routingSlipsPage: async ({ page }, use) => {
+    await use(new RoutingSlipsPage(page))
+  }
 })
 
 export {

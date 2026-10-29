@@ -266,13 +266,18 @@ describe('common-util', () => {
         revokeObjectURL: mockRevokeObjectURL
       } as unknown as typeof URL
 
-      vi.spyOn(document, 'createElement').mockReturnValue({
+      const originalCreateElement = document.createElement.bind(document)
+      const mockLink = {
         style: { display: '' },
         href: '',
         setAttribute: vi.fn(),
         click: vi.fn(),
         download: undefined
-      } as unknown as HTMLElement)
+      } as unknown as HTMLElement
+      // Only intercept the download link; other elements (e.g. unhead head tags) use the real implementation
+      vi.spyOn(document, 'createElement').mockImplementation((tagName: string, options?: ElementCreationOptions) =>
+        tagName === 'a' ? mockLink : originalCreateElement(tagName, options)
+      )
 
       vi.spyOn(document.body, 'appendChild').mockImplementation(() => ({} as HTMLElement))
       vi.spyOn(document.body, 'removeChild').mockImplementation(() => ({} as HTMLElement))

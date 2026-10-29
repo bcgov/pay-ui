@@ -62,7 +62,7 @@ describe('LinkRoutingSlip', () => {
           },
           LinkRoutingSlipSearch: {
             template: '<div data-test="link-search"></div>',
-            props: ['parentRoutingSlipNumber'],
+            props: ['currentRoutingSlipNumber'],
             emits: ['cancel', 'success']
           },
           LinkedRoutingSlipDetails: true,
@@ -103,7 +103,7 @@ describe('LinkRoutingSlip', () => {
           },
           LinkRoutingSlipSearch: {
             template: '<div data-test="link-search"></div>',
-            props: ['parentRoutingSlipNumber'],
+            props: ['currentRoutingSlipNumber'],
             emits: ['cancel', 'success']
           },
           LinkedRoutingSlipDetails: true,
@@ -128,7 +128,7 @@ describe('LinkRoutingSlip', () => {
           },
           LinkRoutingSlipSearch: {
             template: '<div data-test="link-search"></div>',
-            props: ['parentRoutingSlipNumber'],
+            props: ['currentRoutingSlipNumber'],
             emits: ['cancel', 'success']
           },
           LinkedRoutingSlipDetails: true,
@@ -143,7 +143,7 @@ describe('LinkRoutingSlip', () => {
 
     const searchComponent3 = wrapper3.findComponent({ name: 'LinkRoutingSlipSearch' })
     if (searchComponent3.exists()) {
-      expect(searchComponent3.props('parentRoutingSlipNumber')).toBe('987654321')
+      expect(searchComponent3.props('currentRoutingSlipNumber')).toBe('987654321')
     }
   })
 
@@ -162,7 +162,7 @@ describe('LinkRoutingSlip', () => {
           },
           LinkRoutingSlipSearch: {
             template: '<div data-test="link-search"></div>',
-            props: ['parentRoutingSlipNumber'],
+            props: ['currentRoutingSlipNumber'],
             emits: ['cancel', 'success']
           },
           LinkedRoutingSlipDetails: {
@@ -209,7 +209,7 @@ describe('LinkRoutingSlip', () => {
           },
           LinkRoutingSlipSearch: {
             template: '<div></div>',
-            props: ['parentRoutingSlipNumber'],
+            props: ['currentRoutingSlipNumber'],
             emits: ['cancel', 'success']
           },
           LinkedRoutingSlipDetails: true,
@@ -249,7 +249,7 @@ describe('LinkRoutingSlip', () => {
           },
           LinkRoutingSlipSearch: {
             template: '<div></div>',
-            props: ['parentRoutingSlipNumber'],
+            props: ['currentRoutingSlipNumber'],
             emits: ['cancel', 'success']
           },
           LinkedRoutingSlipDetails: {
@@ -287,7 +287,7 @@ describe('LinkRoutingSlip', () => {
           },
           LinkRoutingSlipSearch: {
             template: '<div></div>',
-            props: ['parentRoutingSlipNumber'],
+            props: ['currentRoutingSlipNumber'],
             emits: ['cancel', 'success']
           },
           LinkedRoutingSlipDetails: {
@@ -322,7 +322,7 @@ describe('LinkRoutingSlip', () => {
           },
           LinkRoutingSlipSearch: {
             template: '<div></div>',
-            props: ['parentRoutingSlipNumber'],
+            props: ['currentRoutingSlipNumber'],
             emits: ['cancel', 'success']
           },
           LinkedRoutingSlipDetails: true,
@@ -350,7 +350,7 @@ describe('LinkRoutingSlip', () => {
           },
           LinkRoutingSlipSearch: {
             template: '<div data-test="link-search"></div>',
-            props: ['parentRoutingSlipNumber'],
+            props: ['currentRoutingSlipNumber'],
             emits: ['cancel', 'success']
           },
           LinkedRoutingSlipDetails: true,
@@ -375,7 +375,7 @@ describe('LinkRoutingSlip', () => {
           },
           LinkRoutingSlipSearch: {
             template: '<div data-test="link-search"></div>',
-            props: ['parentRoutingSlipNumber'],
+            props: ['currentRoutingSlipNumber'],
             emits: ['cancel', 'success']
           },
           LinkedRoutingSlipDetails: true,

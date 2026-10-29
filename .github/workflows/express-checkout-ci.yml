@@ -1,0 +1,27 @@
+name: EXPRESS-CHECKOUT CI
+
+on:
+  pull_request:
+    branches:
+      - main
+      - feature*
+      - hotfix*
+    paths:
+      - "web/express-checkout/**"
+      - ".github/workflows/express-checkout-ci.yml"
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+    working-directory: .
+
+jobs:
+  express-checkout-ci:
+    uses: bcgov/bcregistry-sre/.github/workflows/frontend-ci.yaml@main
+    with:
+      node_version: 24
+      pnpm_version: 11.9.0
+      app_name: "express-checkout"
+      working_directory: "./web/express-checkout"
+      codecov_flag: "expresscheckout"

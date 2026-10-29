@@ -1,0 +1,100 @@
+{
+  "hosting": {
+    "site": "pay-express-dev",
+    "public": "dist",
+    "ignore": [
+      "**/devops/**",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "Access-Control-Allow-Origin",
+            "value": "*"
+          },
+          {
+            "key": "X-Frame-Options",
+            "value": "DENY"
+          },
+          {
+            "key": "X-Content-Type-Options",
+            "value": "nosniff"
+          },
+          {
+            "key": "X-XSS-Protection",
+            "value": "1; mode=block"
+          },
+          {
+            "key": "Content-Security-Policy",
+            "value": "default-src 'self'; frame-src 'self' *.gov.bc.ca *.hotjar.com *.googleapis.com https://*.nr-data.net https://*.newrelic.com https://*.cac1.pure.cloud; script-src 'self' 'unsafe-eval' 'unsafe-inline' *.googletagmanager.com *.gov.bc.ca *.hotjar.com *.googleapis.com https://*.nr-data.net https://*.newrelic.com https://*.cac1.pure.cloud; style-src 'self' 'unsafe-inline' *.cloudflare.com *.googleapis.com  *.jsdelivr.net; font-src 'self' *.gov.bc.ca *.hotjar.com *.cloudflare.com *.googleapis.com *.gstatic.com *.jsdelivr.net; img-src 'self' data: *.hotjar.com *.postescanada-canadapost.ca https://*.cac1.pure.cloud; connect-src 'self' blob: *.zenhub.com *.gov.bc.ca *.launchdarkly.com *.run.app *.hotjar.com *.postescanada-canadapost.ca *.sentry.io *.apigee.net wss://*.hotjar.com *.hotjar.io https://*.nr-data.net https://shyrka-prod-cac1.s3.ca-central-1.amazonaws.com https://*.newrelic.com https://*.cac1.pure.cloud wss://*.cac1.pure.cloud *.googleapis.com *.google-analytics.com; manifest-src 'self'; media-src 'self' https://*.cac1.pure.cloud; object-src 'self' https://*.cac1.pure.cloud; child-src 'self' blob: *.gov.bc.ca https://*.cac1.pure.cloud; worker-src blob:;"
+          },
+          {
+            "key": "Cache-Control",
+            "value": "private, no-cache, no-store, must-revalidate"
+          },
+          {
+            "key": "Pragma",
+            "value": "no-cache"
+          },
+          {
+            "key": "Referrer-Policy",
+            "value": "no-referrer"
+          },
+          {
+            "key": "Feature-Policy",
+            "value": "microphone 'self'"
+          },
+          {
+            "key": "Strict-Transport-Security",
+            "value": "max-age=31536000;"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(ico|jpg|jpeg|gif|png|svg|eot|otf|ttf|ttc|woff|woff2)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public,max-age=31536000"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(css|js)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public,max-age=31536000"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(html|json)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "private, no-cache, no-store, must-revalidate"
+          }
+        ]
+      }
+    ]
+  },
+  "emulators": {
+    "hosting": {
+      "port": 8080
+    },
+    "ui": {
+      "enabled": false
+    },
+    "singleProjectMode": true
+  }
+}

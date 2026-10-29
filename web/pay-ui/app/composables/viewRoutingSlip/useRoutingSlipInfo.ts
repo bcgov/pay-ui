@@ -38,7 +38,7 @@ export function useRoutingSlipInfo() {
       if (!date) {
         return '-'
       }
-      return commonUtil.formatDisplayDate(date, 'MMM dd, yyyy') || '-'
+      return commonUtil.formatDisplayDate(date, 'MMMM dd, yyyy') || '-'
     }),
     statusColor: computed<string>(() => {
       const status = store.routingSlip.status
@@ -212,7 +212,7 @@ export function useRoutingSlipInfo() {
       return
     }
 
-    await modal.openAuthorizeWriteOffModal(async () => {
+    await modal.openAuthorizeRefundModal(async () => {
       try {
         const refundDetails = store.routingSlip.refunds?.[0]?.details
         const payload = {

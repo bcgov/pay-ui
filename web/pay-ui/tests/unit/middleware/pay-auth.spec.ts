@@ -15,7 +15,10 @@ mockNuxtImport('createError', () => mockCreateError)
 const { mockNavigateTo } = vi.hoisted(() => ({ mockNavigateTo: vi.fn() }))
 mockNuxtImport('navigateTo', () => mockNavigateTo)
 
-mockNuxtImport('useRuntimeConfig', () => () => ({ public: { baseUrl: 'https://app.example.com/' } }))
+mockNuxtImport('useRuntimeConfig', original => () => {
+  const config = original()
+  return { ...config, public: { ...config.public, baseUrl: 'https://app.example.com/' } }
+})
 mockNuxtImport('useLocalePath', () => () => (path: string) => path)
 
 function createRoute(meta: any = {}) {

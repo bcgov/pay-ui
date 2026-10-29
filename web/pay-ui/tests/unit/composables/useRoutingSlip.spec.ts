@@ -50,6 +50,7 @@ const _mockCancelRoutingSlipInvoice = vi.fn()
 
 const mockUsePayApi = {
   getRoutingSlip: vi.fn(),
+  getRoutingSlipV2: vi.fn(),
   updateRoutingSlipStatus: vi.fn(),
   updateRoutingSlipRefund: vi.fn(),
   updateRoutingSlipRefundStatus: vi.fn(),
@@ -553,5 +554,157 @@ describe('useRoutingSlip', () => {
 
     expect(result).toEqual(mockResponse)
     expect(mockUsePayApi.cancelRoutingSlipInvoice).toHaveBeenCalledWith(123)
+  })
+
+  describe('additional branches', () => {
+    it('getRoutingSlipV2 stores the response and tolerates empty results and errors', async () => {
+      const response: RoutingSlip = { number: '777', status: SlipStatus.ACTIVE }
+      mockUsePayApi.getRoutingSlipV2.mockResolvedValueOnce(response)
+      const composable = useRoutingSlip()
+
+      await composable.getRoutingSlipV2({ routingSlipNumber: '777' })
+      expect(mockUsePayApi.getRoutingSlipV2).toHaveBeenCalledWith('777')
+      expect(mockStore.routingSlip).toEqual(response)
+
+      mockUsePayApi.getRoutingSlipV2.mockResolvedValueOnce(undefined)
+      await composable.getRoutingSlipV2({ routingSlipNumber: '888' })
+      expect(mockStore.routingSlip).toEqual(response)
+
+      const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      mockUsePayApi.getRoutingSlipV2.mockRejectedValueOnce(new Error('x'))
+      await composable.getRoutingSlipV2({ routingSlipNumber: '888' })
+      expect(spy).toHaveBeenCalled()
+      spy.mockRestore()
+    })
+
+    it('getRoutingSlip keeps the store when the response is empty', async () => {
+      mockUsePayApi.getRoutingSlip.mockResolvedValueOnce(undefined)
+      const before = mockStore.routingSlip
+      await useRoutingSlip().getRoutingSlip({ routingSlipNumber: '1' })
+      expect(mockStore.routingSlip).toBe(before)
+    })
+
+    it('checkRoutingNumber falls back to an empty number and treats non-matching 400s as valid', async () => {
+      const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      ;(mockStore as { routingSlipDetails?: unknown }).routingSlipDetails = undefined
+      mockUsePayApi.getRoutingSlip.mockRejectedValueOnce({ response: { status: 400, data: { type: 'OTHER' } } })
+
+      const result = await useRoutingSlip().checkRoutingNumber()
+
+      expect(mockUsePayApi.getRoutingSlip).toHaveBeenCalledWith('')
+      expect(result).toBe(CreateRoutingSlipStatus.VALID)
+      spy.mockRestore()
+    })
+
+    it('updateRoutingSlipStatus uses the refund API when the status is a refund status', async () => {
+      mockUsePayApi.updateRoutingSlipRefund.mockResolvedValueOnce({ ok: true })
+      mockUsePayApi.getRoutingSlip.mockResolvedValueOnce({ number: '123456' })
+
+      const result = await useRoutingSlip().updateRoutingSlipStatus({ status: SlipStatus.REFUNDREQUEST } as never)
+
+      expect(mockUsePayApi.updateRoutingSlipRefund).toHaveBeenCalled()
+      expect(mockUsePayApi.getRoutingSlip).toHaveBeenCalledWith('123456')
+      expect(result).toEqual({ ok: true })
+    })
+
+    it('updateRoutingSlipStatus returns undefined when the API returns nothing', async () => {
+      mockUsePayApi.updateRoutingSlipStatus.mockResolvedValueOnce(undefined)
+      const result = await useRoutingSlip().updateRoutingSlipStatus({ status: SlipStatus.COMPLETE })
+      expect(result).toBeUndefined()
+    })
+
+    it('updateRoutingSlipComments sends the comment payload and returns null on error', async () => {
+      const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      mockUsePayApi.updateRoutingSlipComments.mockResolvedValueOnce({ ok: 1 })
+      const composable = useRoutingSlip()
+
+      expect(await composable.updateRoutingSlipComments('hello')).toEqual({ ok: 1 })
+      expect(mockUsePayApi.updateRoutingSlipComments).toHaveBeenCalledWith(
+        { comment: { businessId: '123456', comment: 'hello' } }, '123456'
+      )
+
+      mockUsePayApi.updateRoutingSlipComments.mockRejectedValueOnce(new Error('x'))
+      expect(await composable.updateRoutingSlipComments('hello')).toBeNull()
+      spy.mockRestore()
+    })
+
+    it('getLinkedRoutingSlips clears linked slips when the response is empty', async () => {
+      mockUsePayApi.getLinkedRoutingSlips.mockResolvedValueOnce(null)
+      await useRoutingSlip().getLinkedRoutingSlips('1')
+      expect(mockStore.linkedRoutingSlips).toBeUndefined()
+    })
+
+    it('getAutoCompleteRoutingSlips returns [] when there is no response', async () => {
+      mockUsePayApi.postSearchRoutingSlip.mockResolvedValueOnce(undefined)
+      expect(await useRoutingSlip().getAutoCompleteRoutingSlips('1')).toEqual([])
+    })
+
+    it('getFeeByCorpTypeAndFilingType returns null when there is no response', async () => {
+      mockUsePayApi.getFeeByCorpTypeAndFilingType.mockResolvedValueOnce(undefined)
+      const result = await useRoutingSlip().getFeeByCorpTypeAndFilingType({
+        corpTypeCode: 'BC', filingTypeCode: 'X', requestParams: {}
+      })
+      expect(result).toBeNull()
+    })
+
+    it('saveManualTransactions maps the transaction and omits optional fields', async () => {
+      mockUsePayApi.saveManualTransactions.mockResolvedValueOnce({ id: 1 })
+      const composable = useRoutingSlip()
+
+      await composable.saveManualTransactions({
+        referenceNumber: 'REF',
+        filingType: { filingTypeCode: { code: 'F' }, corpTypeCode: { code: 'BC' } },
+        quantity: 3,
+        priority: true,
+        futureEffective: true
+      } as never)
+      expect(mockUsePayApi.saveManualTransactions).toHaveBeenLastCalledWith({
+        businessInfo: { corpType: 'BC', businessIdentifier: 'REF' },
+        filingInfo: { filingTypes: [{ filingTypeCode: 'F', futureEffective: true, priority: true, quantity: 3 }] },
+        accountInfo: { routingSlip: '123456' }
+      })
+
+      await composable.saveManualTransactions({
+        filingType: { filingTypeCode: { code: 'F' }, corpTypeCode: { code: 'BC' } }
+      } as never)
+      expect(mockUsePayApi.saveManualTransactions).toHaveBeenLastCalledWith({
+        businessInfo: { corpType: 'BC' },
+        filingInfo: { filingTypes: [{ filingTypeCode: 'F', futureEffective: false, priority: false }] },
+        accountInfo: { routingSlip: '123456' }
+      })
+    })
+
+    it('saveManualTransactions rejects when the corp type code is missing', async () => {
+      await expect(useRoutingSlip().saveManualTransactions({ filingType: {} } as never))
+        .rejects.toThrow('Filing type must have a valid corporation type code')
+      await expect(useRoutingSlip().saveManualTransactions({} as never)).rejects.toThrow()
+    })
+
+    it('saveLinkRoutingSlip returns details for 400 and no details for other errors', async () => {
+      const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      const composable = useRoutingSlip()
+
+      mockUsePayApi.saveLinkRoutingSlip.mockRejectedValueOnce({ response: { status: 400, data: { a: 1 } } })
+      const r400 = await composable.saveLinkRoutingSlip('P1')
+      expect(r400).toMatchObject({ error: true, details: { a: 1 } })
+
+      mockUsePayApi.saveLinkRoutingSlip.mockRejectedValueOnce({ response: { status: 500 } })
+      const r500 = await composable.saveLinkRoutingSlip('P1')
+      expect(r500?.error).toBe(true)
+      expect(r500?.details).toBeUndefined()
+      spy.mockRestore()
+    })
+
+    it('updateRoutingSlipAmount/ChequeNumber leave other payments untouched', () => {
+      mockStore.routingSlip.payments = [
+        { chequeReceiptNumber: 'A', paidAmount: 1, paidUsdAmount: 0, paymentMethod: 'CHEQUE' },
+        { chequeReceiptNumber: 'B', paidAmount: 2, paidUsdAmount: 0, paymentMethod: 'CHEQUE' }
+      ]
+      const composable = useRoutingSlip()
+      composable.updateRoutingSlipChequeNumber({ chequeNum: 'Z', paymentIndex: 1 })
+      composable.updateRoutingSlipAmount({ amount: 9, paymentIndex: 1, isRoutingSlipPaidInUsd: false })
+      expect(mockStore.routingSlip.payments.map(p => p.chequeReceiptNumber)).toEqual(['A', 'Z'])
+      expect(mockStore.routingSlip.payments.map(p => p.paidAmount)).toEqual([1, 9])
+    })
   })
 })

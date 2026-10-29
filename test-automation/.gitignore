@@ -3,10 +3,13 @@
 node_modules/
 /test-results/
 /playwright-report/
+k6-load-tests/reports/
 /blob-report/
 /playwright/.cache/
 /.auth.json
 /.auth-*.json
+k6-load-tests/logs.txt
+k6-load-tests/libs
 
 # Allure Reports
 allure-results/
@@ -20,6 +23,8 @@ env/
 .env.*
 .env.local
 .env.*.local
+k6-load-tests/config/env.js
+
 
 # IDE
 .DS_Store

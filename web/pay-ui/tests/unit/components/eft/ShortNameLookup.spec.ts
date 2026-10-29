@@ -18,7 +18,8 @@ vi.mock('~/utils/common-util', () => ({
   }
 }))
 
-vi.mock('@vueuse/core', () => ({
+vi.mock('@vueuse/core', async importOriginal => ({
+  ...(await importOriginal<typeof import('@vueuse/core')>()),
   useDebounceFn: (fn: () => void) => fn
 }))
 

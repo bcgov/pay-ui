@@ -58,6 +58,28 @@ export const usePayModals = () => {
     })
   }
 
+  async function openAuthorizeRefundModal(onConfirm: () => Promise<void>) {
+    await baseModal.open({
+      title: t('modal.authorizeRefund.title'),
+      description: t('modal.authorizeRefund.description'),
+      dismissible: true,
+      buttons: [
+        {
+          label: t('modal.authorizeRefund.confirmButton'),
+          onClick: async () => {
+            await onConfirm()
+          },
+          shouldClose: true
+        },
+        {
+          label: t('label.cancel'),
+          variant: 'outline',
+          shouldClose: true
+        }
+      ]
+    })
+  }
+
   async function openAuthorizeWriteOffModal(onConfirm: () => Promise<void>) {
     await baseModal.open({
       title: t('modal.authorizeWriteOff.title'),
@@ -120,6 +142,7 @@ export const usePayModals = () => {
     openLeaveCreateRoutingSlipModal,
     openPlaceRoutingSlipToNSFModal,
     openVoidRoutingSlipModal,
+    openAuthorizeRefundModal,
     openAuthorizeWriteOffModal,
     openCancelTransactionModal,
     openErrorDialog

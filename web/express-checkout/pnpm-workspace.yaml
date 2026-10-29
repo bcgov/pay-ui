@@ -1,0 +1,10 @@
+packages: []
+allowBuilds:
+  '@parcel/watcher': true
+  '@sbc-connect/nuxt-auth': true
+  '@sbc-connect/nuxt-base': true
+  '@sbc-connect/nuxt-forms': true
+  '@sbc-connect/nuxt-pay': true
+  '@tailwindcss/oxide': true
+  esbuild: true
+  vue-demi: true

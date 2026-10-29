@@ -378,10 +378,10 @@ describe('RefundRequestForm', () => {
 
     component4.formState.chequeAdvice = 'Test advice'
     await nextTick()
-    expect(component4.chequeAdviceModel.value).toBe('Test advice')
+    expect(component4.chequeAdviceModel).toBe('Test advice')
 
     component4.formState.chequeAdvice = undefined
     await nextTick()
-    expect(component4.chequeAdviceModel.value).toBe('')
+    expect(component4.chequeAdviceModel).toBe('')
   })
 })

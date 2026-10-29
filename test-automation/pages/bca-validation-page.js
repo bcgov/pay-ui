@@ -36,6 +36,13 @@ export class BcaValidationPage {
     this.nameFilter = page.locator('[id="name"]')
     this.pendingReviewTab = page.getByRole('tab', { name: ' Pending Review ' })
     this.noActiveAccountsText = page.getByText('No Active Accounts') 
+    this.readMoreButtonBCA = page.locator('[data-test="span-readmore-BCA"]')
+    this.reportsAvailableText = page.getByText('Three reports are available for purchase:')
+    this.bcaExpandedReports = page.locator('[data-test="div-expanded-product-BCA"]');
+    this.BCAssessmentHeader = page.getByText('BCA Assessment').first();
+    this.learnMoreABoutBCALink = page.getByRole('link', { name: 'Learn more about BC Assessment ' })
+    this.threeReportsText = page.getByText('Three reports are available for purchase:')
+    this.reports = page.locator('div.prose').filter({ hasText: 'Three reports are available for purchase:' });
   }
 
   async getBcaPaymentMethods() {
@@ -68,8 +75,7 @@ export class BcaValidationPage {
     await this.waitForTimeout(3000)
     await this.cancelButton.click({ timeout: 60000 })
   }
-
-   async addRemoveBCAProduct() {
+  async validateBCAReports(){
     await this.accountName.nth(1).click({ timeout: 60000 })
     await this.editProfileLink.click({ timeout: 60000 })
     await this.accountInfoText.click({ timeout: 60000 })
@@ -99,5 +105,28 @@ export class BcaValidationPage {
     await this.dateSubmitted.fill(new Date().toISOString().split('T')[0], {timeout: 10000})
     await this.nameFilter.fill(accountName, {timeout: 10000})
     await expect(this.noActiveAccountsText).toBeVisible({timeout: 10000})
+    await expect(this.BCAssessment).toBeVisible({ timeout: 60000 })
+    await expect(this.supportedPaymentMethods).toBeVisible({ timeout: 60000 })
+    await this.readMoreButtonBCA.click({ timeout: 60000 })
+    await this.page.waitForTimeout(3000)
+    const reports = await this.bcaExpandedReports.locator('ul li').allTextContents();
+    // Assert all 3 are present
+    expect(reports).toContain('Owner Location Report');
+    expect(reports).toContain('Assessment Roll Report');
+    expect(reports).toContain('Assessment Inventory Report');
+}
+async validateBcaTileOnBCRegistryDashboard() {
+  await expect(this.BCAssessmentHeader).toBeVisible({ timeout: 60000 })
+  await expect (this.learnMoreABoutBCALink).toBeVisible({ timeout: 60000 })
+  await expect(this.threeReportsText).toBeVisible({ timeout: 60000 })
+  await expect(this.reports.locator('p').first()).toHaveText(
+    'BC Assessment provides customers with convenient and affordable access to property data by making records available through BC Registries and Online Services.'
+  );
+  await expect(this.reports.getByText('Three reports are available for purchase:', { exact: true })).toBeVisible();
+  await expect(this.reports.getByRole('listitem')).toHaveText([
+    'Owner Location Report',
+    'Assessment Roll Report',
+    'Assessment Inventory Report',
+  ]);
   }
 }

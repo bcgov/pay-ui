@@ -41,7 +41,7 @@ export function createEmptyCRSState(): RoutingSlipSchema {
         city: '',
         region: '',
         postalCode: '',
-        country: '',
+        country: 'CA',
         locationDescription: ''
       }
     }

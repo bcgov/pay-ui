@@ -69,7 +69,7 @@ describe('ReviewRoutingSlipChequePayment', () => {
     await chequeNumberInput3.vm.$emit('update:modelValue', '12345')
     expect(mockAdjustRoutingSlipChequeNumber).toHaveBeenCalledWith('12345', 0)
 
-    const amountInput3 = inputs[2]
+    const amountInput3 = wrapper3.findComponent({ name: 'AmountInput' })
     await amountInput3.vm.$emit('update:modelValue', '1000')
     expect(mockAdjustRoutingSlipAmount).toHaveBeenCalledWith(1000, false, 0)
   })

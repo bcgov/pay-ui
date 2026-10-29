@@ -1,4 +1,7 @@
 <script setup lang="ts">
+// Explicit import: unimport 7 can resolve this enum's type entry in templates and drop the value import
+import { PaymentTypes } from '~/enums/payment-types'
+
 defineProps<{
   schemaPrefix: string
   isCheque: boolean

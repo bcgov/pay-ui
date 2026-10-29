@@ -1,0 +1,27 @@
+name: PAY-UI CI
+
+on:
+  pull_request:
+    branches:
+      - main
+      - feature*
+      - hotfix*
+    paths:
+      - "web/pay-ui/**"
+      - ".github/workflows/pay-ui-ci.yml"
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+    working-directory: .
+
+jobs:
+  pay-ui-ci:
+    uses: bcgov/bcregistry-sre/.github/workflows/frontend-ci.yaml@main
+    with:
+      node_version: 24
+      pnpm_version: 11.9.0
+      app_name: "pay-ui"
+      working_directory: "./web/pay-ui"
+      codecov_flag: "payweb"
