@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # ── CONFIG ─────────────────────────────────────────────────────
-CLIENT_ID="name-request-service-account"
-CLIENT_SECRET="txiHpvo8Z2AqRYpaawZssCif9p7Q6JeO"
+CLIENT_ID=""
+CLIENT_SECRET=""
 TOKEN_URL="https://test.loginproxy.gov.bc.ca/auth/realms/bcregistry/protocol/openid-connect/token"
-API_KEY="7idNlLcwvjFcQOaAL5y4ZOG1OJEW0M4GFA27pP3iFUlmWwW3"
+API_KEY=""
 BASE_URL="https://test.api.connect.gov.bc.ca/pay/api/v1"
 
 CODES=(
