@@ -41,7 +41,7 @@ defineEmits<{
       <UBadge
         v-if="badge"
         color="neutral"
-        variant="solid"
+        variant="soft"
         size="sm"
         class="mb-3 uppercase tracking-wide"
         :label="badge"
@@ -56,13 +56,17 @@ defineEmits<{
           class="mt-1 h-4 w-4 accent-mark disabled:cursor-not-allowed"
           @change="$emit('update:modelValue', value)"
         >
-        <UIcon :name="icon" class="mt-0.5 size-6 shrink-0 text-mark" />
+        <UIcon
+          :name="icon"
+          class="mt-0.5 size-6 shrink-0"
+          :class="disabled ? 'text-muted' : 'text-mark'"
+        />
         <div class="min-w-0">
           <slot name="body">
-            <p class="font-semibold text-slate-900">
+            <p class="font-semibold" :class="disabled ? 'text-muted' : 'text-neutral-highlighted'">
               {{ title }}
             </p>
-            <p v-if="subtitle" class="mt-0.5 text-sm text-slate-500">
+            <p v-if="subtitle" class="mt-0.5 text-sm text-neutral">
               {{ subtitle }}
             </p>
           </slot>

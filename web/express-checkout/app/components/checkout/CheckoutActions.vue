@@ -20,6 +20,7 @@ defineEmits<{
       block
       size="lg"
       color="primary"
+      class="h-11"
       :label="isSubmitting ? $t('page.checkout.processing') : $t('page.checkout.confirmAndPay')"
       trailing-icon="i-mdi-chevron-right"
       :disabled="!canSubmit"

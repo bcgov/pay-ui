@@ -30,7 +30,7 @@ function lineHelper(line: PayInvoiceLineItem): string {
 
 <template>
   <section class="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
-    <header class="bg-[var(--color-navy)] px-5 py-3">
+    <header class="bg-midnightBlue-900 px-5 py-3">
       <h2 class="text-base font-semibold text-white">
         {{ $t('page.checkout.feeSummary') }}
       </h2>
@@ -44,24 +44,24 @@ function lineHelper(line: PayInvoiceLineItem): string {
       >
         <div class="flex items-start justify-between gap-4">
           <div class="min-w-0">
-            <p class="text-sm font-semibold text-slate-900">
+            <p class="text-sm font-semibold text-neutral-highlighted">
               {{ line.description }}
             </p>
             <p v-if="lineHelper(line)" class="mt-0.5 text-xs text-slate-500">
               {{ lineHelper(line) }}
             </p>
           </div>
-          <p class="whitespace-nowrap text-sm font-semibold text-slate-900">
+          <p class="whitespace-nowrap text-sm font-semibold text-neutral-highlighted">
             ${{ fmt(lineBaseFee(line)) }}
           </p>
         </div>
       </div>
 
       <div class="flex items-center justify-between gap-4 py-4">
-        <p class="text-sm font-semibold text-slate-900">
+        <p class="text-sm font-semibold text-neutral-highlighted">
           {{ $t('page.checkout.serviceFee') }}
         </p>
-        <p class="whitespace-nowrap text-sm font-semibold text-slate-900">
+        <p class="whitespace-nowrap text-sm font-semibold text-neutral-highlighted">
           ${{ fmt(serviceFees) }}
         </p>
       </div>
@@ -72,28 +72,28 @@ function lineHelper(line: PayInvoiceLineItem): string {
       class="space-y-4 border-t border-slate-200 px-5 py-4"
     >
       <div class="flex items-center justify-between gap-4">
-        <p class="text-sm font-semibold text-slate-900">
+        <p class="text-sm font-semibold text-neutral-highlighted">
           {{ $t('page.checkout.subtotal') }}
         </p>
-        <p class="whitespace-nowrap text-sm font-semibold text-slate-900">
+        <p class="whitespace-nowrap text-sm font-semibold text-neutral-highlighted">
           ${{ fmt(subtotal) }}
         </p>
       </div>
       <div class="flex items-center justify-between gap-4">
-        <p class="text-sm font-semibold text-slate-900">
+        <p class="text-sm font-semibold text-neutral-highlighted">
           {{ $t('page.checkout.gst') }}
         </p>
-        <p class="whitespace-nowrap text-sm font-semibold text-slate-900">
+        <p class="whitespace-nowrap text-sm font-semibold text-neutral-highlighted">
           ${{ fmt(gst) }}
         </p>
       </div>
     </div>
 
     <div class="flex items-baseline justify-between gap-4 border-t border-slate-200 px-5 py-5">
-      <p class="text-sm font-semibold text-slate-900">
+      <p class="text-sm font-semibold text-neutral-highlighted">
         {{ $t('page.checkout.totalFees') }}
       </p>
-      <p class="whitespace-nowrap text-slate-900">
+      <p class="whitespace-nowrap text-neutral-highlighted">
         <span class="text-xs uppercase text-slate-500">CAD</span>
         <span class="ml-1 text-lg font-bold">${{ fmt(total) }}</span>
       </p>

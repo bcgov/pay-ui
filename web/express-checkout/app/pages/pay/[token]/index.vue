@@ -183,7 +183,7 @@ async function signInWith(idp: ConnectIdpHint) {
       />
 
       <!-- Guest checkout -->
-      <h1 class="text-2xl font-bold text-[var(--color-navy)]">
+      <h1 class="text-2xl font-bold text-neutral-highlighted">
         {{ $t('page.landing.guest.title') }}
       </h1>
       <p class="mt-3 text-slate-700">
@@ -211,7 +211,7 @@ async function signInWith(idp: ConnectIdpHint) {
 
       <!-- Authenticated options, inset from the divider. -->
       <div class="mx-auto max-w-md">
-        <h2 class="text-2xl font-bold text-[var(--color-navy)]">
+        <h2 class="text-2xl font-bold text-neutral-highlighted">
           {{ $t('page.landing.signIn.title') }}
         </h2>
         <div class="mt-3 text-left text-slate-700">
