@@ -19,7 +19,7 @@ import { expect } from '@playwright/test'
 export class AccountInfoPage {
   constructor(page) {
     this.page = page
-    this.accountName = page.locator('[class="v-btn__content"]')
+    this.accountName = page.getByText('BCREGTEST Delphia EIGHTEEN')
     this.editProfileLink = page.getByText('Edit Profile')
     this.cancelButton = page.getByRole('button', { name: 'Cancel' })
     this.accountInfoText = page.getByText('Account Info')
@@ -37,7 +37,7 @@ export class AccountInfoPage {
   }
 
   async accountInfo() {
-    await this.accountName.nth(1).click({timeout: 60000})
+    await this.accountName.click({timeout: 60000})
     await this.page.waitForTimeout(1000) // Wait for dropdown to appear
     await this.accountInfoText.click({timeout: 60000})
     await this.page.waitForTimeout(4000)

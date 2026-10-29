@@ -19,14 +19,14 @@ import { expect } from '@playwright/test'
 export class EditProfilePage {
   constructor(page) {
     this.page = page
-    this.accountName = page.locator('[class="v-btn__content"]')
+    this.accountName = page.getByText('BCREGTEST Delphia EIGHTEEN')
     this.editProfileLink = page.getByText('Edit Profile')
     this.cancelButton = page.getByRole('button', { name: 'Cancel' })
     this.saveButton = page.getByRole('button', { name: 'Save' })
   }
 
   async editProfile() {
-    await this.accountName.nth(1).click({timeout: 60000})
+    await this.accountName.click({timeout: 60000})
     await this.editProfileLink.click({timeout: 60000})
     await expect(this.page).toHaveURL(/\/userprofile/, { timeout: 60000 })
     await expect(this.cancelButton).toBeVisible({ timeout: 60000 })

@@ -31,21 +31,21 @@ export class ManageEFTPaymentsPage {
     this.selectAccountToLink = page.locator('[role="option"]')
     this.linkAccountButtonOnConfirmationPopup = page.getByText(' Link Account ')
     this.cancelPaymentButton = page.getByText(' Cancel Payment ')
-    this.initiateRefundButton = page.getByText(' Initiate Refund ')
+    this.initiateRefundButton = page.getByText('Initiate Refund')
     this.issueACheckButton = page.getByText('Issue a cheque')
     this.directDepositButton = page.getByText('Direct Deposit (using CAS information)')
     this.nextButton = page.getByText('Next')
-    this.refundAmountInput = page.locator('[data-test="refundAmount"]')
-    this.streetAddressInput = page.locator('[id="street-address-1"]')
+    this.refundAmountInput = page.locator('[placeholder="Refund Amount"]')
+    this.streetAddressInput = page.locator('[name="address.street"]')
     this.firstAddressOption = page.getByText('1st-290 Dupuis St')
-    this.emailInput = page.locator('[data-test="email"]')
-    this.entityNameInput = page.locator('[data-test="entityName"]')
-    this.refundReasonInput = page.locator('[data-test="staffComment"]')
+    this.emailInput = page.locator('[placeholder="Email"]')
+    this.entityNameInput = page.locator('[placeholder="Entity Name"]')
+    this.refundReasonInput = page.locator('[placeholder="Reason for Refund"]')
     this.submitRefundRequestButton = page.getByText('Submit Refund Request')
     this.declineButton = page.getByText(' Decline ')
-    this.declineBtnOnConfirmationPopup = page.locator('[data-test="btn-confirm-confirmation-dialog"]')
-    this.casSupplierNumber = page.locator('[data-test="casSupplierNumber"]')
-    this.casSupplierSite = page.locator('[data-test="casSupplierSite"]')
+    this.declineBtnOnConfirmationPopup = page.getByRole('button', { name: ' Decline ' })
+    this.casSupplierNumber = page.locator('[placeholder="CAS Supplier Number"]')
+    this.casSupplierSite = page.locator('[placeholder="CAS Supplier Site"]')
   }
 
   async accountUnlinkAndLink() {
@@ -54,7 +54,6 @@ export class ManageEFTPaymentsPage {
     await this.bankShortNameFilterInput.first().pressSequentially('TSTDESPOSITDATE001')
     await this.page.waitForTimeout(5000) // wait for filter to apply
     await this.viewDetailsButton.click({timeout: 60000})
-    //await this.arrowWithApplyPaymentButton.click({timeout: 60000})
     await this.unlinkAccountButton.click({timeout: 60000})
     await expect(this.unlinkAccountConfirmationText).toBeVisible({timeout: 60000})
     await this.confirmButton.click({timeout: 60000})
@@ -72,11 +71,7 @@ export class ManageEFTPaymentsPage {
   }
 
   async initiateRefund(option) {
-    await this.manageEFTPaymentsButton.click({timeout: 60000})
-    await this.page.waitForTimeout(8000)
-    await this.bankShortNameFilterInput.first().pressSequentially('FEDERAL PAYMENT CANADA 1')
-    await this.page.waitForTimeout(5000) // wait for filter to apply
-    await this.viewDetailsButton.click({timeout: 60000})
+    await this.viewDetailsButton.first().click({timeout: 60000})
     await this.page.waitForTimeout(2000)
     await this.initiateRefundButton.last().click({timeout: 60000})
     await this.page.waitForTimeout(3000) // wait for refund options to load
@@ -108,8 +103,7 @@ export class ManageEFTPaymentsPage {
     }
     await this.submitRefundRequestButton.click({timeout: 60000})
     await this.page.waitForTimeout(10000)
-    //await expect(this.declineButton).toBeVisible({timeout: 60000})
-    await this.declineButton.click({timeout: 60000})
+    await this.declineButton.first().click({timeout: 60000})
     await this.declineBtnOnConfirmationPopup.click({timeout: 60000})
     await this.page.waitForTimeout(2000)
   }

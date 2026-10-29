@@ -17,7 +17,7 @@ import { expect } from '@playwright/test'
 export class BcrosAccountCreationPage {
   constructor(page) {
     this.page = page
-    this.accountName = page.getByText('Business Name 1')
+    this.accountName = page.getByText('BCREGTEST Delphia EIGHTEEN')
     this.createAccountButton = page.getByText('Create Account')
     this.createAnotherAccountButton = page.getByText(' Create Another Account ')
     this.individualAccount = page.locator('[data-test="radio-individual-account-type"]')

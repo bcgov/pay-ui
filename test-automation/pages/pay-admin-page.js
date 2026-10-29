@@ -1,3 +1,5 @@
+import { expect } from '@playwright/test'
+
 /**
  * ============================================================================
  * Pay Admin Page - Page Object Model
@@ -43,7 +45,7 @@ export class PayAdminPage {
   }
 
   async createFeeCode() {
-    await this.page.goto(process.env.PAYADMINURL)
+    //await this.page.goto(process.env.PAYADMIN_URL)
     await this.feeCodeLink.click({timeout: 10000})
     await this.code.fill('220')
     await this.ammount.fill('100')
@@ -53,7 +55,7 @@ export class PayAdminPage {
   }
 
    async editFeeCodeAndSave() {
-    await this.page.goto(process.env.PAYADMINURL)
+    await this.page.goto(process.env.PAYADMIN_URL)
     await this.feeCodeLink.click({timeout: 10000})
     await this.editRecord.first().click({timeout: 10000})
     await this.ammount.clear({timeout: 10000})
@@ -65,7 +67,7 @@ export class PayAdminPage {
   }
 
    async validateFeeSchedule() {
-    await this.page.goto(process.env.PAYADMINURL)
+    await this.page.goto(process.env.PAYADMIN_URL)
     await this.feeSchedule.click({timeout: 10000})
     await this.createLink.click({timeout: 10000})
     await this.variableFeeFlag.click({timeout: 10000})
@@ -75,7 +77,7 @@ export class PayAdminPage {
   }
 
    async createCorpType() {
-    await this.page.goto(process.env.PAYADMINURL)
+    await this.page.goto(process.env.PAYADMIN_URL)
     await this.corpTypeLink.click({timeout: 10000})
     await this.createLink.click({timeout: 10000})
     await this.code.fill('220')
@@ -86,7 +88,7 @@ export class PayAdminPage {
   }
 
   async createDistributionCode() {
-    await this.page.goto(process.env.PAYADMINURL)
+    await this.page.goto(process.env.PAYADMIN_URL)
     await this.distributionCode.click({timeout: 10000})
     await this.createLink.click({timeout: 10000})
     await this.distributionCodeName.fill('anish test automation', {timeout: 10000})
@@ -99,7 +101,7 @@ export class PayAdminPage {
   
 
   async createAndSaveFillingType() {
-    await this.page.goto(process.env.PAYADMINURL)
+    await this.page.goto(process.env.PAYADMIN_URL)
     await this.fillingTypeLink.click({timeout: 10000})
     await this.createLink.click({timeout: 10000})
     await this.code.fill('390')
@@ -110,7 +112,7 @@ export class PayAdminPage {
   }
 
   async editFillingTypeAndSave() {
-    await this.page.goto(process.env.PAYADMINURL)
+    await this.page.goto(process.env.PAYADMIN_URL)
     await this.fillingTypeLink.click({timeout: 10000})
     await this.editRecord.first().click({timeout: 10000})
     await this.description.clear({timeout: 10000})
@@ -122,7 +124,7 @@ export class PayAdminPage {
   }
 
    async editDistributionCodeAndSave() {
-    await this.page.goto(process.env.PAYADMINURL)
+    await this.page.goto(process.env.PAYADMIN_URL)
     await this.distributionCode.click({timeout: 10000})
     await this.editRecord.first().click({timeout: 10000})
     await this.distributionCodeName.clear({timeout: 10000})
@@ -134,7 +136,7 @@ export class PayAdminPage {
   }
 
    async editFeeScheduleAndSave() {
-    await this.page.goto(process.env.PAYADMINURL)
+    await this.page.goto(process.env.PAYADMIN_URL)
     await this.feeSchedule.click({timeout: 10000})
     await this.editRecord.first().click({timeout: 10000})
     await this.comments.clear({timeout: 10000})
@@ -144,7 +146,7 @@ export class PayAdminPage {
   }
 
   async editCorpTypeAndSave() {
-    await this.page.goto(process.env.PAYADMINURL)
+    await this.page.goto(process.env.PAYADMIN_URL)
     await this.corpTypeLink.click({timeout: 10000})
     await this.editRecord.first().click({timeout: 10000})
     await this.description.clear({timeout: 10000})
@@ -156,7 +158,7 @@ export class PayAdminPage {
   }
 
   async validateRefundFlag(){
-    await this.page.goto(process.env.PAYADMINURL)
+    await this.page.goto(process.env.PAYADMIN_URL)
     await this.corpTypeLink.click({timeout: 10000})
     await this.editRecord.first().click({timeout: 10000})
     await expect(this.refundsAllowed).toBeVisible({ timeout: 10000 })

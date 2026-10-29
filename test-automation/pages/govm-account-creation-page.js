@@ -31,7 +31,7 @@ export class GovmAccountCreationPage {
     await this.createAccountButton.click({timeout: 180000})
     await this.govmRadioButton.click({timeout: 10000})
     await this.continueButton.click({timeout: 10000})
-    await this.ministryName.fill('Anish-govm-test')
+    await this.ministryName.fill('Anish-govm-test-account')
     await this.email.fill('anish-test@gmail.com')
     await this.confirmEmail.fill('anish-test@gmail.com')
     await this.sendInviteButton.click({timeout: 10000})

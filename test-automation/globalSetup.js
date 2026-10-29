@@ -110,7 +110,7 @@ async function performLoginAndSaveSession(page, context, baseURL, loginType, use
 
   if (loginType === 'idir') {
     console.log('Global setup: Using IDIR login flow')
-    await loginPage.loginWithBCSC(username, password)
+    await loginPage.loginWithIDIR(username, password)
   } else {
     console.log('Global setup: Using BCSC login flow')
     await loginPage.loginWithBCSC(username, password)

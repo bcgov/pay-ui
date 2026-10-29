@@ -24,7 +24,9 @@ test.describe.serial('Pay Admin Tests', () => {
     console.log('Test: Current URL before navigation:', page.url())
     console.log('Test: Cookies loaded:', (await page.context().cookies()).length)
     // use credentials for Pay admin
+    await page.goto(process.env.BASE_URL)
     await loginPage.loginWithIDIR(process.env.TEST_USERNAME_IDIR, process.env.TEST_PASSWORD_IDIR)
+    await page.goto(process.env.PAYADMIN_URL)
     await payAdminPage.createFeeCode()
   })
 

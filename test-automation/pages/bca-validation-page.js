@@ -19,7 +19,7 @@ import { expect } from '@playwright/test'
 export class BcaValidationPage {
   constructor(page) {
     this.page = page
-    this.accountName = page.locator('[class="v-btn__content"]')
+    this.accountName = page.getByText('BCREGTEST Delphia EIGHTEEN')
     this.accountInfoText = page.getByText('Account Info')
     this.productsAndPaymentLink = page.getByText('Products and Payment')
     this.BCAssessment = page.locator('[data-test="BCA"]')
