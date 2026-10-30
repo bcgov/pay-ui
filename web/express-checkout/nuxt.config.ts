@@ -55,6 +55,17 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  hooks: {
+    // Nuxt 4.6 keeps build.transpile packages out of Vite's dependency pre-bundling. Nuxt UI
+    // transpiles reka-ui, so dev served its ~560 source files unbundled on every page load.
+    'vite:extendConfig'(config, { isClient }) {
+      const optimizeDeps = config.optimizeDeps
+      if (!isClient || !optimizeDeps) { return }
+      optimizeDeps.exclude = optimizeDeps.exclude?.filter(dep => dep !== 'reka-ui')
+      optimizeDeps.include = [...(optimizeDeps.include ?? []), 'reka-ui']
+    }
+  },
+
   router: {
     options: {
       scrollBehaviorType: 'smooth'
