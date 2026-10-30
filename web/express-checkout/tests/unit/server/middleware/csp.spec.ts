@@ -8,7 +8,7 @@ const { mockLog, runtimeConfig } = vi.hoisted(() => {
 })
 
 vi.mock('../../../../server/utils/logger', () => ({ log: mockLog }))
-mockNuxtImport('useRuntimeConfig', () => () => ({ ...runtimeConfig }))
+mockNuxtImport('useRuntimeConfig', original => () => ({ ...original(), ...runtimeConfig }))
 
 const setResponseHeader = vi.fn()
 

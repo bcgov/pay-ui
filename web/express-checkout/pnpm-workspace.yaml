@@ -8,3 +8,6 @@ allowBuilds:
   '@tailwindcss/oxide': true
   esbuild: true
   vue-demi: true
+minimumReleaseAgeExclude:
+  - '@sbc-connect/nuxt-auth@0.18.1'
+  - '@sbc-connect/nuxt-pay@0.8.1'

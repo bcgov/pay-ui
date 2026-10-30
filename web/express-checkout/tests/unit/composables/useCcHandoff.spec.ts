@@ -19,9 +19,10 @@ vi.mock('~/composables/usePayLink', () => ({
 }))
 
 // Override the Nuxt auto-import for useRuntimeConfig so we can inject baseUrl.
-mockNuxtImport('useRuntimeConfig', () => () => ({
-  public: { baseUrl: 'https://example.test/' }
-}) as ReturnType<typeof useRuntimeConfig>)
+mockNuxtImport('useRuntimeConfig', original => () => {
+  const config = original()
+  return { ...config, public: { ...config.public, baseUrl: 'https://example.test/' } }
+})
 
 // window.location.assign — swap so we can assert redirect target without navigating.
 const assignSpy = vi.fn()
