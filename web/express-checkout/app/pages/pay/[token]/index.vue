@@ -159,8 +159,10 @@ async function signInWith(idp: ConnectIdpHint) {
   <section class="mx-auto max-w-2xl px-6 py-16 text-center">
     <UAlert
       v-if="resolveError"
+      class="text-left"
       color="warning"
       variant="subtle"
+      icon="i-mdi-alert"
       :title="resolveError.title"
       :description="resolveError.description"
     />

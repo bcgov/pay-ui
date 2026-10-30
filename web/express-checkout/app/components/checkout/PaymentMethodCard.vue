@@ -42,7 +42,7 @@ defineEmits<{
         v-if="badge"
         color="neutral"
         variant="soft"
-        size="sm"
+        size="md"
         class="mb-3 uppercase tracking-wide"
         :label="badge"
       />
