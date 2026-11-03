@@ -280,7 +280,7 @@ async function submit() {
         :dismissible="false"
       >
         <template #header>
-          <h2 class="text-lg font-semibold text-slate-900">
+          <h2 class="text-lg font-semibold text-neutral-highlighted">
             {{ $t('padWidget.terms.heading') }}
           </h2>
         </template>

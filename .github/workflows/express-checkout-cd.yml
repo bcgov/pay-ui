@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-      - feature*
-      - hotfix*
     paths:
       - "web/express-checkout/**"
       - ".github/workflows/express-checkout-cd.yml"

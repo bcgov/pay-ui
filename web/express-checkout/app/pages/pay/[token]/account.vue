@@ -133,6 +133,7 @@ function registerNew() {
         v-if="linkError"
         color="warning"
         variant="subtle"
+        icon="i-mdi-alert"
         :title="linkError.title"
         :description="linkError.description"
       />

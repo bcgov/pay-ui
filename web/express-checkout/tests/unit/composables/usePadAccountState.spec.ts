@@ -16,9 +16,10 @@ vi.mock('~/composables/useAccount', () => ({
   })
 }))
 
-mockNuxtImport('useRuntimeConfig', () => () => ({
-  public: { authWebUrl: 'https://auth.example.test/' }
-}) as ReturnType<typeof useRuntimeConfig>)
+mockNuxtImport('useRuntimeConfig', original => () => {
+  const config = original()
+  return { ...config, public: { ...config.public, authWebUrl: 'https://auth.example.test/' } }
+})
 
 function padAccount(overrides: Partial<AccountPaymentInfo> = {}): AccountPaymentInfo {
   return {

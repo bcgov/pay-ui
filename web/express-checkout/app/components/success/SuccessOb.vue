@@ -69,12 +69,12 @@ async function payByCreditCard() {
     <section class="overflow-hidden rounded bg-white shadow-sm">
       <div class="px-8 py-10 text-center">
         <UIcon name="i-mdi-clock-outline" class="mx-auto size-12 text-mark" />
-        <h1 class="mt-4 text-3xl font-bold text-slate-900">
+        <h1 class="mt-4 text-3xl font-bold text-neutral-highlighted">
           {{ $t('page.success.ob.title') }}
         </h1>
       </div>
 
-      <div class="ob-banner bg-mark px-8 py-6 text-white">
+      <div class="ob-banner bg-primary px-8 py-6 text-white">
         <p class="text-xl font-bold text-white">
           {{ $t('page.success.ob.transactionAmount') }}: {{ amountFormatted }}
         </p>
@@ -101,10 +101,10 @@ async function payByCreditCard() {
       </div>
 
       <div class="px-8 py-8">
-        <h2 class="text-base font-semibold text-slate-900">
+        <h2 class="text-base font-semibold text-neutral-highlighted">
           {{ $t('page.success.ob.howToPayTitle') }}
         </h2>
-        <ol class="mt-4 list-decimal space-y-2 pl-6 text-sm text-slate-700">
+        <ol class="mt-4 list-decimal space-y-2 pl-6 text-sm text-neutral">
           <li>{{ $t('page.success.ob.steps.step1') }}</li>
           <li>{{ $t('page.success.ob.steps.step2') }}</li>
           <i18n-t keypath="page.success.ob.steps.step3" tag="li">
@@ -138,7 +138,7 @@ async function payByCreditCard() {
 
         <hr class="my-8 border-slate-200">
 
-        <h3 class="text-base font-semibold text-slate-900">
+        <h3 class="text-base font-semibold text-neutral-highlighted">
           {{ $t('page.success.ob.completeNow') }}
         </h3>
         <div class="mt-4">

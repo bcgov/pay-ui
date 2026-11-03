@@ -16,7 +16,7 @@ const { iconClass = 'text-mark' } = defineProps<{
       class="mx-auto size-12"
       :class="iconClass"
     />
-    <h1 class="mt-4 text-3xl font-bold text-slate-900">
+    <h1 class="mt-4 text-3xl font-bold text-neutral-highlighted">
       {{ title }}
     </h1>
     <hr class="mt-8 border-slate-200">

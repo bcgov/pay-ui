@@ -8,7 +8,7 @@ const { runtimeConfig } = vi.hoisted(() => {
   return { runtimeConfig: { payApiUrl: '' as string | undefined, xApiKey: 'server-key' } }
 })
 
-mockNuxtImport('useRuntimeConfig', () => () => ({ ...runtimeConfig }))
+mockNuxtImport('useRuntimeConfig', original => () => ({ ...original(), ...runtimeConfig }))
 
 const getRequestHeader = vi.fn()
 const getRouterParam = vi.fn()

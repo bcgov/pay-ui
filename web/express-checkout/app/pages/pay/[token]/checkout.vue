@@ -11,6 +11,9 @@
  */
 type Method = 'DIRECT_PAY' | 'PAD' | 'ONLINE_BANKING' | 'EFT'
 
+// Methods offered as cards on the switchable list (EFT has its own single-card view).
+const LISTED_METHODS: Method[] = ['DIRECT_PAY', 'ONLINE_BANKING', 'PAD']
+
 const { t } = useI18n()
 const localePath = useLocalePath()
 const store = usePaymentLinkStore()
@@ -110,6 +113,12 @@ onMounted(async () => {
     return
   }
   await pad.load()
+  // The account's own payment method wins when it's one of the cards on this
+  // page; otherwise the invoice's method (the initial value above) stays.
+  const accountMethod = store.accountInfo?.paymentMethod as Method | undefined
+  if (!isEftOnly.value && accountMethod && LISTED_METHODS.includes(accountMethod)) {
+    method.value = accountMethod
+  }
 })
 
 const canSubmit = computed(() => {
@@ -172,7 +181,7 @@ async function submit() {
     <div class="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
       <div class="min-w-0 space-y-6">
         <div>
-          <h1 class="mb-6 text-2xl font-bold text-slate-900">
+          <h1 class="mb-6 text-2xl font-bold text-neutral-highlighted">
             {{ $t('page.checkout.selectMethod') }}
           </h1>
           <div v-if="isEftOnly" class="space-y-3">
@@ -248,17 +257,17 @@ async function submit() {
               :badge="pad.padNotSetUp.value ? $t('page.checkout.pad.setupRequiredBadge') : undefined"
             >
               <template v-if="pad.padNotSetUp.value" #body>
-                <p class="font-semibold text-slate-900">
+                <p class="font-semibold text-muted">
                   {{ $t('page.checkout.method.pad') }}
                 </p>
-                <p class="mt-1 text-sm text-slate-700">
+                <p class="mt-1 text-sm text-neutral">
                   {{ $t('page.checkout.pad.notSetUpBody') }}
                   <a
                     v-if="pad.accountSettingsUrl.value"
                     :href="pad.accountSettingsUrl.value"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="font-medium text-mark underline hover:text-[var(--color-mark-dark)]"
+                    class="font-medium text-primary underline hover:text-[var(--color-mark-dark)]"
                   >{{ $t('page.checkout.pad.notSetUpLink') }}</a>
                   <span v-else class="font-medium">{{ $t('page.checkout.pad.notSetUpLink') }}</span>.
                 </p>

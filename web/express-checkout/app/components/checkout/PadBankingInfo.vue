@@ -23,11 +23,21 @@ defineEmits<{
         <p class="text-sm font-semibold text-slate-900">
           {{ $t('page.checkout.pad.bankingInformation') }}
         </p>
-        <UIcon
-          name="i-mdi-help-circle-outline"
-          class="size-4 text-mark"
-          :title="$t('page.checkout.pad.bankingInfoHelp')"
-        />
+        <UPopover :content="{ side: 'top' }" arrow>
+          <UButton
+            variant="link"
+            color="primary"
+            size="sm"
+            icon="i-mdi-help-circle-outline"
+            class="p-0"
+            :aria-label="$t('page.checkout.pad.bankingInfoHelp')"
+          />
+          <template #content>
+            <p class="max-w-xs p-3 text-sm text-neutral">
+              {{ $t('page.checkout.pad.bankingInfoHelp') }}
+            </p>
+          </template>
+        </UPopover>
       </div>
       <UButton
         v-if="canEdit"
