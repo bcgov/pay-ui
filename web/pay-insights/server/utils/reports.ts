@@ -33,12 +33,16 @@ export class ReportInputError extends Error {}
 
 /**
  * Turns `:name` parameters into `$1, $2, ...` and builds the matching values.
- * `::type` casts are left alone. Throws if the SQL uses a name that has no value.
+ * `::type` casts, 'string literals' (e.g. 'HH24:MI') and "quoted identifiers" are left alone.
+ * Throws if the SQL uses a name that has no value.
  */
 export function toPositionalSql(sql: string, values: Record<string, unknown>): { text: string, params: unknown[] } {
   const params: unknown[] = []
   const positions = new Map<string, number>()
-  const text = sql.replace(/(?<!:):([a-zA-Z_]\w*)/g, (_match, name: string) => {
+  const text = sql.replace(/'(?:[^']|'')*'|"(?:[^"]|"")*"|(?<!:):([a-zA-Z_]\w*)/g, (match, name?: string) => {
+    if (!name) {
+      return match
+    }
     if (!(name in values)) {
       throw new Error(`Report SQL uses :${name} but no value was provided`)
     }
@@ -117,7 +121,7 @@ export function resolveFilter(
     }
   }
 
-  const value = raw === undefined || raw === '' ? null : String(raw)
+  const value = raw === undefined || raw === '' ? (filter.defaultValue ?? null) : String(raw)
   if (value === null && !filter.allLabel) {
     throw new ReportInputError(`${filter.label} is required`)
   }

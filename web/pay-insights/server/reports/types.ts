@@ -22,14 +22,24 @@ export interface PeriodFilter {
   label: string
 }
 
+export interface SelectOption {
+  value: string
+  label: string
+}
+
+/** Options come from `options` (fixed list) or `optionsSql`. Only these values are accepted. */
 export interface SelectFilter {
   key: string
   type: 'select'
   label: string
-  /** Must return `value` and `label` columns. Only these values are accepted. */
-  optionsSql: string
+  /** Fixed list of options */
+  options?: SelectOption[]
+  /** Must return `value` and `label` columns */
+  optionsSql?: string
   /** Label for "no filter" (the parameter is NULL). Omit to make the filter required. */
   allLabel?: string
+  /** Used when the query string has no value, e.g. a required filter's first choice */
+  defaultValue?: string
 }
 
 export type ReportFilter = FiscalYearFilter | PeriodFilter | SelectFilter

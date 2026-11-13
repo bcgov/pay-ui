@@ -1,9 +1,8 @@
 import type { H3Event } from 'h3'
 import type { ReportDefinition } from '../reports/types'
-import { findReport } from '../reports'
 
-export function getReportOrThrow(event: H3Event): ReportDefinition {
-  const report = findReport(getRouterParam(event, 'id') ?? '')
+export async function getReportOrThrow(event: H3Event): Promise<ReportDefinition> {
+  const report = await findAnyReport(getRouterParam(event, 'id') ?? '')
   if (!report) {
     throw createError({ statusCode: 404, statusMessage: 'Report not found' })
   }
@@ -26,7 +25,7 @@ export async function runReport(
 
   for (const filter of report.filters) {
     const options = filter.type === 'select'
-      ? await warehouseQuery<FilterOption & Record<string, unknown>>(filter.optionsSql)
+      ? filter.options ?? await warehouseQuery<FilterOption & Record<string, unknown>>(filter.optionsSql ?? '')
       : filter.type === 'period' ? periodOptions() : fiscalYearOptions()
     try {
       const result = resolveFilter(filter, query, options)

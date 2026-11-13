@@ -1,6 +1,6 @@
 /** Runs a report with the filters from the query string. */
 export default defineEventHandler(async (event) => {
-  const report = getReportOrThrow(event)
+  const report = await getReportOrThrow(event)
   const { filters, rows, truncated, totals, totalRows } = await runReport(
     event, report, PAGE_ROW_LIMIT, { withTotals: true }
   )

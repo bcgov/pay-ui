@@ -26,6 +26,15 @@ describe('toPositionalSql', () => {
     expect(params).toEqual(['2025-04-01 07:00:00', 'PAD'])
   })
 
+  it('ignores colons inside string literals and quoted identifiers', () => {
+    const { text, params } = toPositionalSql(
+      'SELECT to_char(t, \'HH24:MI\'), "a:b" FROM v WHERE x = :x AND y = \'it\'\'s :not\'',
+      { x: 1 }
+    )
+    expect(text).toBe('SELECT to_char(t, \'HH24:MI\'), "a:b" FROM v WHERE x = $1 AND y = \'it\'\'s :not\'')
+    expect(params).toEqual([1])
+  })
+
   it('fails when a parameter has no value', () => {
     expect(() => toPositionalSql('WHERE a = :missing', {})).toThrow()
   })
@@ -50,6 +59,18 @@ describe('resolveFilter', () => {
     expect(resolveFilter(select, { method: 'PAD' }, options).sqlValues).toEqual({ method: 'PAD' })
     expect(resolveFilter(select, {}, options).sqlValues).toEqual({ method: null })
     expect(() => resolveFilter(select, { method: "PAD' OR 1=1" }, options)).toThrow(ReportInputError)
+  })
+
+  it('uses fixed options and a default value', () => {
+    const channel: ReportFilter = {
+      key: 'channel', type: 'select', label: 'Channel',
+      options: [{ value: 'AR', label: 'AR' }, { value: 'BCOL', label: 'BCOL' }],
+      defaultValue: 'AR'
+    }
+    const fixed = [{ value: 'AR', label: 'AR' }, { value: 'BCOL', label: 'BCOL' }]
+    expect(resolveFilter(channel, {}, fixed).sqlValues).toEqual({ channel: 'AR' })
+    expect(resolveFilter(channel, { channel: 'BCOL' }, fixed).sqlValues).toEqual({ channel: 'BCOL' })
+    expect(() => resolveFilter(channel, { channel: 'X' }, fixed)).toThrow(ReportInputError)
   })
 
   it('requires a select without an "all" option', () => {
