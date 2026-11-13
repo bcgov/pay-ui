@@ -1,6 +1,6 @@
 /** Downloads a report as CSV, with the same filters and access check as the page. */
 export default defineEventHandler(async (event) => {
-  const report = getReportOrThrow(event)
+  const report = await getReportOrThrow(event)
   const { filters, rows, truncated } = await runReport(event, report, EXPORT_ROW_LIMIT)
   if (truncated) {
     throw createError({ statusCode: 413, statusMessage: 'Too many rows to export; narrow the filters' })
