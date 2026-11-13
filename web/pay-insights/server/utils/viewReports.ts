@@ -1,19 +1,10 @@
 import type { ReportColumn, ReportDefinition } from '../reports/types'
 import { reports } from '../reports'
 
-/** Every view in this warehouse schema that the app's database user can read becomes a report. */
+/** Views in this warehouse schema that are named in the `warehouse.views` config become reports. */
 export const VIEW_SCHEMA = 'views'
 const VIEW_REPORT_PREFIX = 'view-'
 const CACHE_MS = 5 * 60 * 1000
-
-/**
- * Helper views that only feed other views (see views.sql in the warehouse scripts), so they
- * are not listed as reports. Add new intermediate views here.
- */
-const HIDDEN_VIEWS = new Set([
-  'cas_je_line_3505', // CAS journal lines parsed for the EJV and disbursement reconciliation views
-  'ejv_pli_ordered' // EJV line items in sequence, for the EJV reconciliation view
-])
 
 export interface ViewColumnRow {
   view_name: string
@@ -32,6 +23,7 @@ const CATALOG_SQL = `
     JOIN pg_namespace n ON n.oid = c.relnamespace
     JOIN pg_attribute a ON a.attrelid = c.oid
    WHERE n.nspname = $1
+     AND c.relname = ANY($2::text[])
      AND c.relkind IN ('v', 'm')
      AND a.attnum > 0
      AND NOT a.attisdropped
@@ -84,7 +76,7 @@ function periodCondition(column: string, dataType: string): string {
 
 /**
  * Builds one report per view from the catalog rows.
- * Left out: `x` when `x_v` exists, `x_mv` when `x` exists, and the helper views in HIDDEN_VIEWS.
+ * Left out: `x` when `x_v` exists, and `x_mv` when `x` exists.
  */
 export function buildViewReports(rows: ViewColumnRow[]): ReportDefinition[] {
   const views = new Map<string, ViewColumnRow[]>()
@@ -96,7 +88,7 @@ export function buildViewReports(rows: ViewColumnRow[]): ReportDefinition[] {
   for (const [name, columns] of views) {
     const duplicate = views.has(`${name}_v`) || (name.endsWith('_mv') && views.has(name.slice(0, -3)))
     // The name goes into the report id and URL, so keep to plain names
-    if (duplicate || HIDDEN_VIEWS.has(name) || !/^[a-z_][a-z0-9_]*$/.test(name)) {
+    if (duplicate || !/^[a-z_][a-z0-9_]*$/.test(name)) {
       continue
     }
 
@@ -130,6 +122,11 @@ export function buildViewReports(rows: ViewColumnRow[]): ReportDefinition[] {
   return result
 }
 
+/** Splits the comma-separated `warehouse.views` config into view names. */
+export function parseViewList(value: unknown): string[] {
+  return String(value ?? '').split(',').map(name => name.trim()).filter(Boolean)
+}
+
 let cache: { at: number, reports: ReportDefinition[] } | undefined
 
 /** Reports for the warehouse views, read from the catalog and kept for a few minutes. */
@@ -137,7 +134,9 @@ export async function viewReports(): Promise<ReportDefinition[]> {
   if (cache && Date.now() - cache.at < CACHE_MS) {
     return cache.reports
   }
-  const rows = await warehouseQuery<ViewColumnRow>(CATALOG_SQL, [VIEW_SCHEMA])
+  // A listed view that no longer exists (or cannot be read) is simply not returned — no error
+  const allowed = parseViewList(useRuntimeConfig().warehouse.views)
+  const rows = allowed.length ? await warehouseQuery<ViewColumnRow>(CATALOG_SQL, [VIEW_SCHEMA, allowed]) : []
   cache = { at: Date.now(), reports: buildViewReports(rows) }
   return cache.reports
 }

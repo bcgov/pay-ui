@@ -96,7 +96,8 @@ export default defineNuxtConfig({
       user: '',
       password: '',
       database: 'warehouse',
-      statementTimeoutMs: '30000'
+      statementTimeoutMs: '30000',
+      views: ''
     },
     public: {
       // Same names as the other Connect apps (pay-ui, express-checkout)

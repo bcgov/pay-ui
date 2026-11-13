@@ -1,5 +1,5 @@
 import { toPositionalSql } from '../../../server/utils/reports'
-import { buildViewReports } from '../../../server/utils/viewReports'
+import { buildViewReports, parseViewList } from '../../../server/utils/viewReports'
 import type { ViewColumnRow } from '../../../server/utils/viewReports'
 
 function view(name: string, columns: [string, string][], comment: string | null = null): ViewColumnRow[] {
@@ -45,16 +45,22 @@ describe('buildViewReports', () => {
     expect(plain?.sql).not.toContain('WHERE')
   })
 
-  it('leaves out duplicates, helper views and odd names', () => {
+  it('leaves out duplicates and odd names', () => {
     const reports = buildViewReports([
       ...view('summary', [['a', 'text']]),
       ...view('summary_v', [['a', 'text']]),
       ...view('stats', [['a', 'text']]),
       ...view('stats_mv', [['a', 'text']]),
-      ...view('cas_je_line_3505', [['a', 'text']]),
-      ...view('ejv_pli_ordered', [['a', 'text']]),
       ...view('Odd Name', [['a', 'text']])
     ])
     expect(reports.map(report => report.id)).toEqual(['view-summary_v', 'view-stats'])
+  })
+})
+
+describe('parseViewList', () => {
+  it('splits a comma-separated list and ignores blanks', () => {
+    expect(parseViewList(' summary_v, details_ar_v ,,')).toEqual(['summary_v', 'details_ar_v'])
+    expect(parseViewList('')).toEqual([])
+    expect(parseViewList(undefined)).toEqual([])
   })
 })
