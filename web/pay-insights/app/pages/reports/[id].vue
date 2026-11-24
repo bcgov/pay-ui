@@ -39,9 +39,10 @@ useHead({
   title: () => data.value?.report.title ?? 'PAY Insights'
 })
 
-// Breadcrumb: PAY Insights › <report title>, so the header back arrow returns home
+// Breadcrumb: Staff Dashboard › PAY Insights › <report title>, so the header back arrow returns home
 watchEffect(() => {
   route.meta.breadcrumbs = [
+    staffDashboardBreadcrumb(),
     { label: 'PAY Insights', to: localePath('/') },
     { label: data.value?.report.title ?? '' }
   ]
