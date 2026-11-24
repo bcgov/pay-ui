@@ -6,6 +6,11 @@ useHead({
   title: t('page.home.title')
 })
 
+setBreadcrumbs([
+  staffDashboardBreadcrumb(),
+  { label: t('connect.breadcrumb.default') }
+])
+
 // Runs on the server during page render; the session cookie is forwarded automatically
 const { data: reports } = await useFetch('/api/v1/reports')
 

@@ -102,6 +102,8 @@ export default defineNuxtConfig({
     public: {
       // Same names as the other Connect apps (pay-ui, express-checkout)
       baseUrl: '',
+      // Staff dashboard link in the breadcrumb
+      authWebUrl: '',
       idpUrl: '',
       idpRealm: '',
       siteminderLogoutUrl: '',
